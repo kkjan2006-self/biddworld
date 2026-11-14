@@ -25,14 +25,15 @@ export default function Admin(){
   async function load(){
    if(!supabase||role!=='admin'){if(active)setLoading(false);return;}
    const specs=[['members','profiles',null],['packages','packages',null],['pendingActivations','package_activations','payment_status'],['pendingWithdrawals','withdrawal_requests','status'],['auctions','auctions',null],['campaigns','fixed_bid_campaigns',null]] as const;
-   const [results,memberResult]=await Promise.all([Promise.all(specs.map(async ([key,table,column])=>{
+   const [results,memberResult,overviewResult]=await Promise.all([Promise.all(specs.map(async ([key,table,column])=>{
     let q=supabase!.from(table).select('id',{count:'exact',head:true});
     if(column)q=q.eq(column,'pending');
     const result=await q;
     return {key,count:result.count,error:result.error};
-   })),supabase.rpc('admin_list_members_sponsors')]);
+   })),supabase.rpc('admin_list_members_sponsors'),supabase.rpc('admin_get_mlm_overview')]);
    if(!active)return;
-   if(!memberResult.error)setMembers((memberResult.data??[]) as SponsorMember[]);\n   const overviewResult=await supabase.rpc('admin_get_mlm_overview');\n   if(!overviewResult.error)setOverview(overviewResult.data as MlmOverview);
+   if(!memberResult.error)setMembers((memberResult.data??[]) as SponsorMember[]);
+   if(!overviewResult.error)setOverview(overviewResult.data as MlmOverview);
    if(results.some(x=>x.error))setError('Some totals are hidden by current database permissions or unavailable.');
    setCounts(Object.fromEntries(results.map(x=>[x.key,x.count??0])) as unknown as Counts);
    setLoading(false);
