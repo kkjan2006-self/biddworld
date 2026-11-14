@@ -1,1 +1,20 @@
-# BiddWorld\n\nMobile-first React + TypeScript + Vite auction marketplace with Supabase Auth, catalogue and wallet reads, RLS schema, and a transaction-safe bid RPC.\n\n## Run\n1. Install Node.js 20+.\n2. Run `npm install`.\n3. Copy `.env.example` to `.env` and set the Supabase project URL and public publishable/anon key.\n4. Run `npm run dev`; production build: `npm run build`.\n\nNever expose a Supabase service-role/secret key in frontend variables.\n\n## Database\nSQL migrations are in `supabase/migrations`. They describe a fresh database. Your existing BiddWorld-Production project already has a 19-table foundation: do not blindly rerun these scripts against it. Compare schemas and reconcile before applying.\n\n## Scope and production caveat\nThis is a runnable starter implementation, not a certified production payment platform. Admin console and secure admin provisioning, package receipt verification, referral commission payouts, duplicate-ID placement, fixed-bid winner selection, auction settlement, withdrawal payout/refund, notifications, reporting and integration/E2E tests remain to be implemented. Those flows depend on business rules that were not finalized and therefore remain disabled. Bidding is disabled by default through `app_settings.bidding_enabled=false`.\n\nNo real payment or withdrawal processing is included. Complete security review, legal review, monitoring, backups and automated tests before launch.\n
+# BiddWorld
+
+Mobile-first React + TypeScript + Vite auction marketplace starter integrated with Supabase Auth and PostgreSQL.
+
+## Run locally
+1. Install Node.js 20 or newer.
+2. Extract the ZIP and open a terminal in this folder.
+3. Run `npm install`.
+4. Copy `.env.example` to `.env`.
+5. Add your Supabase project URL and public anon/publishable key.
+6. Run `npm run dev`.
+7. Run `npm run build` for a production bundle.
+
+Never put a service-role or secret key in `VITE_*` variables or frontend code.
+
+## Supabase setup
+The SQL files in `supabase/migrations` describe a fresh-project baseline. Your BiddWorld Supabase project already has a database foundation. **Do not blindly execute these migrations against that existing project.** Compare table definitions, policies, grants and functions first, then apply only missing changes through reviewed migrations.
+
+## Important
+This is a development baseline, not a launch-ready financial platform. Read `docs/PRODUCTION_CHECKLIST.md`. Undecided money, referral, duplicate-ID, fixed-bid and winner-selection rules are intentionally not guessed. Those features must remain disabled until implemented and reviewed.
