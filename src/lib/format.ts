@@ -1,14 +1,17 @@
 export function money(value: number, currency = 'INR'): string {
+  const safeCurrency = /^[A-Z]{3}$/.test(currency) ? currency : 'INR';
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency,
+    currency: safeCurrency,
     maximumFractionDigits: 2,
   }).format(Number.isFinite(value) ? value : 0);
 }
 
 export function left(endsAt: string): string {
-  const remaining = new Date(endsAt).getTime() - Date.now();
-  if (!Number.isFinite(remaining) || remaining <= 0) return 'Ended';
+  const endTime = new Date(endsAt).getTime();
+  if (!Number.isFinite(endTime)) return 'Unavailable';
+  const remaining = endTime - Date.now();
+  if (remaining <= 0) return 'Ended';
   const totalMinutes = Math.floor(remaining / 60_000);
   const days = Math.floor(totalMinutes / 1_440);
   const hours = Math.floor((totalMinutes % 1_440) / 60);
