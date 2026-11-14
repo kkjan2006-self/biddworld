@@ -25,14 +25,20 @@ export default function Packages() {
       setLoading(false);
       return;
     }
-    const { data, error: queryError } = await supabase
-      .from('packages')
-      .select('id,name,description,price,currency,bid_wallet_credit')
-      .eq('is_active', true)
-      .order('price', { ascending: true });
-    if (queryError) setError('Packages could not be loaded. Please try again later.');
-    else setItems((data ?? []) as PackageItem[]);
-    setLoading(false);
+    try {
+      const { data, error: queryError } = await supabase
+        .from('packages')
+        .select('id,name,description,price,currency,bid_wallet_credit')
+        .eq('is_active', true)
+        .order('price', { ascending: true });
+      if (queryError) setError('Packages could not be loaded. Please try again later.');
+      else setItems((data ?? []) as PackageItem[]);
+    } catch {
+      setItems([]);
+      setError('A network error prevented packages from loading. Please retry.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { void load(); }, []);
