@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {ShieldCheck,Users,PackageCheck,Gavel,Wallet,RefreshCw,AlertCircle,Network,UserCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
+import {csvDocument} from '../lib/csv';
 type Counts={members:number;packages:number;pendingActivations:number;pendingWithdrawals:number;auctions:number;campaigns:number};
 type SponsorMember={member_code:string;display_name:string;phone:string;sponsor_code:string;created_at:string};
 type MlmOverview={total_members:number;active_members:number;direct_relationships:number;pending_activations:number;verified_activations:number;commission_total:number;withdrawal_pending:number};
@@ -50,7 +51,7 @@ export default function Admin(){
   }
   void load();return()=>{active=false;};
  },[role,refresh]);
- function exportMembersCsv(){const rows=[['Member Main ID','Name','Phone','Sponsor Main ID','Joined At'],...filteredMembers.map(m=>[m.member_code,m.display_name,m.phone,m.sponsor_code,m.created_at])];const csv=rows.map(row=>row.map(value=>{const raw=String(value??'');const safe=/^[\s]*[=+\-@\t\r]/.test(raw)?`'${raw}`:raw;return '"'+safe.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='biddworld-members-report.csv';a.click();URL.revokeObjectURL(url);}
+ function exportMembersCsv(){const rows=[['Member Main ID','Name','Phone','Sponsor Main ID','Joined At'],...filteredMembers.map(m=>[m.member_code,m.display_name,m.phone,m.sponsor_code,m.created_at])];const csv=csvDocument(rows);const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='biddworld-members-report.csv';a.click();URL.revokeObjectURL(url);}
  async function saveDefaultSponsor(){if(!supabase)return;setSavingSponsor(true);const{error}=await supabase.rpc('admin_set_default_sponsor',{p_member_code:defaultSponsor.trim()});setSavingSponsor(false);setSponsorMessage(error?.message??'Default sponsor saved.');}
  async function changeSponsor(){if(!supabase)return;if(!memberCode.trim()||!sponsorCode.trim()){setSponsorMessage('Enter both member and new sponsor Main IDs.');return;}setSavingSponsor(true);const{error}=await supabase.rpc('admin_set_member_sponsor',{p_member_code:memberCode.trim(),p_sponsor_code:sponsorCode.trim()});setSavingSponsor(false);setSponsorMessage(error?.message??'Member sponsor updated. Existing commission records remain unchanged.');if(!error){setMemberCode('');setSponsorCode('');setRefresh(v=>v+1);}}
  const filteredMembers=useMemo(()=>{const q=memberSearch.trim().toLowerCase();return members.filter(m=>(m.member_code+' '+m.display_name+' '+m.phone+' '+(m.sponsor_code??'')).toLowerCase().includes(q));},[members,memberSearch]);
