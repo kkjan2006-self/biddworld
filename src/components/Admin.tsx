@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {ShieldCheck,Users,PackageCheck,Gavel,Wallet,RefreshCw,AlertCircle,Network,UserCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {csvDocument} from '../lib/csv';
+import {filterAuditEntries} from '../lib/audit';
 type Counts={members:number;packages:number;pendingActivations:number;pendingWithdrawals:number;auctions:number;campaigns:number};
 type SponsorMember={member_code:string;display_name:string;phone:string;sponsor_code:string;created_at:string};
 type MlmOverview={total_members:number;active_members:number;direct_relationships:number;pending_activations:number;verified_activations:number;commission_total:number;withdrawal_pending:number};
@@ -72,7 +73,7 @@ export default function Admin(){
  async function exportAuditCsv(){const rows=[['Audit ID','Actor','Action','Entity Type','Entity ID','Created At','Details'],...filteredAuditLogs.map(item=>[item.id,item.actor_name,item.action,item.entity_type,item.entity_id,item.created_at,JSON.stringify(item.details??{})])];const blob=new Blob([csvDocument(rows)],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='biddworld-audit-log-latest-100.csv';a.click();URL.revokeObjectURL(url);}
  async function saveDefaultSponsor(){if(!supabase)return;setSavingSponsor(true);const{error}=await supabase.rpc('admin_set_default_sponsor',{p_member_code:defaultSponsor.trim()});setSavingSponsor(false);setSponsorMessage(error?.message??'Default sponsor saved.');}
  async function changeSponsor(){if(!supabase)return;if(!memberCode.trim()||!sponsorCode.trim()){setSponsorMessage('Enter both member and new sponsor Main IDs.');return;}setSavingSponsor(true);const{error}=await supabase.rpc('admin_set_member_sponsor',{p_member_code:memberCode.trim(),p_sponsor_code:sponsorCode.trim()});setSavingSponsor(false);setSponsorMessage(error?.message??'Member sponsor updated. Existing commission records remain unchanged.');if(!error){setMemberCode('');setSponsorCode('');setRefresh(v=>v+1);}}
- const filteredAuditLogs=useMemo(()=>{const q=auditSearch.trim().toLowerCase();return auditLogs.filter(item=>(item.action+' '+item.actor_name+' '+item.entity_type+' '+(item.entity_id??'')+' '+JSON.stringify(item.details??{})).toLowerCase().includes(q));},[auditLogs,auditSearch]);
+ const filteredAuditLogs=useMemo(()=>filterAuditEntries(auditLogs,auditSearch),[auditLogs,auditSearch]);
   const filteredMembers=useMemo(()=>{const q=memberSearch.trim().toLowerCase();return members.filter(m=>(m.member_code+' '+m.display_name+' '+m.phone+' '+(m.sponsor_code??'')).toLowerCase().includes(q));},[members,memberSearch]);
  if(loading)return <div className="workspace">Loading administrator overview…</div>;
  if(role!=='admin')return <div className="workspace"><div className="workspaceIcon"><ShieldCheck/></div><h3>Administrator access required</h3><p>This area is restricted to accounts with the administrator role. Ask the system owner to assign the role securely in Supabase Auth app_metadata.</p></div>;
