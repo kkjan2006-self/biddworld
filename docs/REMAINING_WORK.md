@@ -2,7 +2,7 @@
 
 The repository is a working development baseline, not a completed financial marketplace. These items are intentionally not enabled:
 
-- Trusted administrator provisioning, complete RBAC, audited admin actions and configuration UI.
+- Trusted administrator provisioning and complete RBAC. Sponsor lookup, default-sponsor configuration, member sponsor correction and audit logging are implemented as secured RPCs; the first administrator/Main ID still needs to be provisioned and selected as the default sponsor.
 - Package payment reference/receipt submission, duplicate-reference prevention, verification, activation and Bid Wallet credit.
 - Referral commission engine with versioned plan snapshots, eligibility and configurable levels.
 - Duplicate member IDs, admin enable switch, concurrency-safe team placement and Main-ID wallet attribution.
