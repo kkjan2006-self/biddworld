@@ -1,1 +1,17 @@
-# Remaining work before production\n\n- Admin panel and trusted owner/admin provisioning; do not trust user-editable metadata for roles.\n- Package payment reference/receipt submission, verified payment webhook/admin approval, activation and Bid Wallet credit.\n- Referral payout engine with plan-version snapshots, eligibility and level configuration.\n- Duplicate member IDs, admin toggle, concurrency-safe tree placement and Main-ID commission attribution.\n- Fixed-bid rules and winner algorithm (must be supplied by owner).\n- Auction end/winner/tie rules, Income Wallet item payment, delivery updates.\n- Withdrawals: enable toggle, min/max, approval, payout provider, rejection/refund.\n- Notifications, searchable admin reports, CSV/PDF export, audit UI.\n- Rate limiting, abuse prevention, payment compliance, storage policies, backups, observability.\n- Unit, integration and browser E2E tests; run Supabase security advisors and independent review.\n\nAll undecided financial rules must remain disabled until explicitly configured.\n
+# Remaining work before production
+
+The repository is a working development baseline, not a completed financial marketplace. These items are intentionally not enabled:
+
+- Trusted administrator provisioning, complete RBAC, audited admin actions and configuration UI.
+- Package payment reference/receipt submission, duplicate-reference prevention, verification, activation and Bid Wallet credit.
+- Referral commission engine with versioned plan snapshots, eligibility and configurable levels.
+- Duplicate member IDs, admin enable switch, concurrency-safe team placement and Main-ID wallet attribution.
+- Fixed-bid entry, tie, winner and settlement rules (must be supplied by the owner).
+- Auction close, winner/tie/extension/cancellation rules and settlement.
+- Winning item payment from Income Wallet and delivery updates.
+- Withdrawals: enable switch, min/max, approval, payout integration, rejection and refund.
+- Notifications, searchable admin reports, CSV/PDF export and audit-log UI.
+- Storage bucket policies, rate limits, abuse prevention, monitoring, backups and privacy/terms/legal review.
+- Full unit, integration and browser E2E coverage, security advisor review and independent security review.
+
+Do not invent unresolved business rules or enable financial features before server-side implementation and testing.
