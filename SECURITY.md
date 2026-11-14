@@ -1,0 +1,1 @@
+# Security\nNever commit secrets, service-role keys, payment credentials or customer personal data. Report security issues privately to the repository owner. This starter is not approved for live payment processing.\n
