@@ -1,63 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Users, RefreshCw } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Users, RefreshCw, Network, UserCheck, Wallet, Gift, Search, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { money } from '../lib/format';
 
-type ReferralRow = { id:string; created_at:string; referred_member_id:string };
-type CommissionRow = { id:string; amount:number; level_number:number; status:string; created_at:string };
+type TreeMember={member_code:string;display_name:string;status:string;created_at:string;depth:number;sponsor_code:string|null};
+type Dashboard={main_member_code:string;direct_referrals:number;total_downline:number;active_members:number;active_activations:number;commission_total:number;bid_wallet:number;income_wallet:number;tree:TreeMember[]};
 
-export default function Referrals() {
-  const [userId,setUserId]=useState<string|null>(null);
-  const [loading,setLoading]=useState(true);
-  const [error,setError]=useState('');
-  const [members,setMembers]=useState<ReferralRow[]>([]);
-  const [commissions,setCommissions]=useState<CommissionRow[]>([]);
-  const [code,setCode]=useState('');
-  const [refresh,setRefresh]=useState(0);
-
-  useEffect(()=>{
-    if(!supabase){setLoading(false);return;}
-    let active=true;
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{
-      if(active)setUserId(session?.user?.id??null);
-    });
-    void supabase.auth.getUser().then(({data:{user}})=>{if(active)setUserId(user?.id??null);});
-    return()=>{active=false;subscription.unsubscribe();};
-  },[]);
-
-  useEffect(()=>{
-    let active=true;
-    setMembers([]);setCommissions([]);setCode('');setError('');setLoading(true);
-    async function load(){
-      if(!supabase||!userId){if(active)setLoading(false);return;}
-      const {data:profile,error:profileError}=await supabase.from('profiles').select('main_member_id').eq('id',userId).maybeSingle();
-      if(!active)return;
-      if(profileError||!profile?.main_member_id){setError(profileError?'Referral details are unavailable.':'No Main ID is linked to this account yet.');setLoading(false);return;}
-      const memberId=profile.main_member_id;
-      const [memberResult,commissionResult,codeResult]=await Promise.all([
-        supabase.from('referrals').select('id,created_at,referred_member_id').eq('referrer_member_id',memberId).order('created_at',{ascending:false}).limit(100),
-        supabase.from('referral_commissions').select('id,amount,level_number,status,created_at').eq('credited_main_member_id',memberId).order('created_at',{ascending:false}).limit(100),
-        supabase.from('member_ids').select('member_code').eq('id',memberId).maybeSingle()
-      ]);
-      if(!active)return;
-      if(memberResult.error||commissionResult.error||codeResult.error)setError('Referral details are not available for this account yet.');
-      setMembers((memberResult.data??[]) as ReferralRow[]);
-      setCommissions((commissionResult.data??[]) as CommissionRow[]);
-      setCode(codeResult.data?.member_code??'');
-      setLoading(false);
-    }
-    void load();return()=>{active=false;};
-  },[userId,refresh]);
-
-  const total=commissions.filter(c=>c.status==='credited'||c.status==='paid').reduce((sum,c)=>sum+Number(c.amount),0);
-  return <section className="referralWorkspace">
-    <div className="packageIntro"><span className="workspaceIcon"><Users/></span><div><h3>My referrals</h3><p>Track members referred by your Main ID and commissions credited to your Income Wallet.</p></div></div>
-    {loading?<p className="packageState">Loading referral details…</p>:error?<div className="notice">{error} <button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Retry</button></div>:<>
-      <div className="referralStats"><div><small>Your Main ID</small><b>{code||'Not available'}</b></div><div><small>Direct referrals</small><b>{members.length}</b></div><div><small>Credited commissions</small><b>{money(total)}</b></div></div>
-      <h4 className="referralHeading">Recent direct referrals</h4>
-      {members.length===0?<div className="empty">No direct referrals recorded yet.</div>:<div className="referralList">{members.map((m,i)=><div key={m.id}><span>Member {i+1}</span><small>{new Date(m.created_at).toLocaleDateString()}</small></div>)}</div>}
-      <h4 className="referralHeading">Commission history</h4>
-      {commissions.length===0?<div className="empty">No referral commissions recorded yet.</div>:<div className="referralList">{commissions.map(c=><div key={c.id}><span>Level {c.level_number} · {c.status}</span><b>{money(Number(c.amount))}</b></div>)}</div>}
-    </>}
-  </section>;
+export default function Referrals(){
+ const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all');
+ useEffect(()=>{if(!supabase){setLoading(false);return}let active=true;const{data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{if(active)setUserId(s?.user?.id??null)});void supabase.auth.getUser().then(({data})=>{if(active)setUserId(data.user?.id??null)});return()=>{active=false;subscription.unsubscribe()}},[]);
+ useEffect(()=>{let active=true;setData(null);setError('');setLoading(true);async function load(){if(!supabase||!userId){if(active)setLoading(false);return}const{data,error}=await supabase.rpc('get_my_mlm_dashboard');if(!active)return;if(error)setError(error.message);else setData(data as Dashboard);setLoading(false)}void load();return()=>{active=false}},[userId,refresh]);
+ const tree=useMemo(()=>{const q=query.trim().toLowerCase();return(data?.tree??[]).filter(m=>(depth==='all'||m.depth===Number(depth))&&(!q||(m.member_code+' '+m.display_name+' '+(m.sponsor_code??'')).toLowerCase().includes(q)))},[data,query,depth]);
+ const cards=data?[['My Main ID',data.main_member_code,Users],['Direct Referrals',data.direct_referrals,UserCheck],['Total Team',data.total_downline,Network],['Active Members',data.active_members,UserCheck],['Package Activations',data.active_activations,Gift],['Referral Income',money(Number(data.commission_total)),Wallet],['Bid Wallet',money(Number(data.bid_wallet)),Wallet],['Income Wallet',money(Number(data.income_wallet)),Wallet]] as const:[];
+ return <section className="referralWorkspace">
+  <div className="packageIntro"><span className="workspaceIcon"><Network/></span><div><h3>My MLM Dashboard</h3><p>Your sponsor genealogy, team members, wallet and referral summary.</p></div><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>
+  {loading?<p className="packageState">Loading your team dashboard…</p>:error?<div className="notice">{error} <button className="outline small" onClick={()=>setRefresh(v=>v+1)}>Retry</button></div>:data&&<>
+   <div className="mlmCards">{cards.map(([label,value,Icon])=><article key={label}><Icon size={19}/><small>{label}</small><b>{value}</b></article>)}</div>
+   <div className="genealogyHead"><div><h4>My Team Genealogy</h4><p>Members are grouped under the Sponsor Main ID recorded at registration or last admin correction.</p></div><span>{data.total_downline} members</span></div>
+   <div className="genealogyTools"><label className="search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search name or member ID"/></label><label className="depthSelect">Level <select value={depth} onChange={e=>setDepth(e.target.value)}><option value="all">All levels</option>{Array.from({length:20},(_,i)=><option key={i+1} value={String(i+1)}>Level {i+1}</option>)}</select><ChevronDown size={14}/></label></div>
+   {tree.length===0?<div className="empty">No team members match this view yet.</div>:<div className="genealogyList">{tree.map(m=><article className="genealogyMember" key={m.member_code} style={{'--tree-depth':Math.min(m.depth,8)} as React.CSSProperties}><span className="genealogyLine"/><div className="genealogyAvatar"><Users size={16}/></div><div className="genealogyInfo"><b>{m.display_name}</b><small>{m.member_code} · Joined {new Date(m.created_at).toLocaleDateString('en-IN')}</small><small>Sponsor: {m.sponsor_code??'Not assigned'}</small></div><span className="genealogyLevel">Level {m.depth}</span><span className={m.status==='active'?'memberActive':'memberStatus'}>{m.status}</span></article>)}</div>}
+   <p className="genealogyNote">This genealogy follows the recorded Sponsor Referral relationship. Duplicate IDs and placement-tree positions are not counted as separate people.</p>
+  </>}
+ </section>
 }
