@@ -200,3 +200,35 @@ revoke all on function public.admin_list_pending_activations() from public, anon
 grant execute on function public.admin_list_pending_activations() to authenticated;
 revoke all on function public.admin_review_package_activation(uuid, boolean) from public, anon;
 grant execute on function public.admin_review_package_activation(uuid, boolean) to authenticated;
+
+-- Keep the dashboard's "verified" metric aligned with the canonical
+-- package_activations.payment_status value: approved.
+create or replace function public.admin_get_mlm_overview()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $function$
+begin
+  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','') <> 'admin' then
+    raise exception 'Administrator access required';
+  end if;
+  return jsonb_build_object(
+    'total_members',(select count(*) from public.member_ids where id_type='main'),
+    'active_members',(select count(*) from public.member_ids where id_type='main' and status='active'),
+    'direct_relationships',(select count(*) from public.referrals),
+    'pending_activations',(select count(*) from public.package_activations where payment_status='pending'),
+    'verified_activations',(select count(*) from public.package_activations where payment_status='approved'),
+    'commission_total',(select coalesce(sum(amount),0) from public.referral_commissions where status in ('credited','paid')),
+    'withdrawal_pending',(select count(*) from public.withdrawal_requests where status='pending'),
+    'tree',(select coalesce(jsonb_agg(jsonb_build_object('member_code',m.member_code,'display_name',coalesce(nullif(p.display_name,''),'Member'),'status',m.status,'created_at',m.created_at,'sponsor_code',s.member_code) order by m.created_at desc),'[]'::jsonb)
+      from public.member_ids m join public.profiles p on p.id=m.owner_user_id
+      left join public.referrals r on r.referred_member_id=m.id
+      left join public.member_ids s on s.id=r.referrer_member_id
+      where m.id_type='main' limit 500)
+  );
+end;
+$function$;
+revoke all on function public.admin_get_mlm_overview() from public, anon;
+grant execute on function public.admin_get_mlm_overview() to authenticated;
