@@ -1,6 +1,6 @@
 # BiddWorld project completion register
 
-Last source inspection: 2026-11-15  
+Last source inspection: 2026-11-16  
 Repository: `kkjan2006-self/biddworld`  
 Production project: `BiddWorld-Production` (`hbqatszyzqobgtauyuzy`)
 
@@ -213,3 +213,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added `delivery_tracking_enabled` to the Admin UI's backend-pending feature set because the current branch has frontend RPC call sites but no version-controlled migration defining `admin_save_delivery_tracking` or `admin_list_delivery_tracking`.
 - Added a static regression test to ensure this gate remains in place until a reviewed migration contract exists. This is a safety hold, not a claim that delivery tracking backend is complete.
 - No Production changes or delivery record changes were made.
+
+
+## Delivery tracking backend source recovery — 2026-11-16
+
+- Read-only Production catalog queries recovered the existing delivery_tracking table, owner-only SELECT policy, Admin list/save RPCs, paid-payment checks, pagination/input bounds, audit_logs.details usage and delivery feature-gate trigger.
+- Added source-only migration 20261116070000_delivery_tracking_backend.sql. It includes explicit RLS/column grants, trusted Admin RPC checks, a transaction advisory lock and a unique payment index to prevent duplicate tracking rows under concurrent creation.
+- Removed the obsolete UI pending-backend lock. The database delivery_tracking_enabled feature switch remains the write gate and has not been enabled.
+- Corrected support-ticket audit logging to use Production's audit_logs.details column. Renamed the support migration to 20261116041000_member_support_tickets.sql to avoid a duplicate migration version with the auction draft migration.
+- No Production migration, setting, delivery row or financial data was changed. Static tests cover source contracts; live execution remains pending.

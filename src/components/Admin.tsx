@@ -75,7 +75,7 @@ export default function Admin(){
   ]}
  ];
  const featureLabels:Record<string,string>=Object.fromEntries(featureGroups.flatMap(group=>group.items.map(item=>[item.key,item.label])));
- const backendPendingFeatureKeys=new Set(['delivery_tracking_enabled','automatic_placement_enabled','referral_commissions_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winner_selection_configured','winning_payment_enabled','notifications_enabled']);
+ const backendPendingFeatureKeys=new Set(['automatic_placement_enabled','referral_commissions_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winner_selection_configured','winning_payment_enabled','notifications_enabled']);
  const [featureSettings,setFeatureSettings]=useState<Record<string,boolean>>({});
  const [packages,setPackages]=useState<AdminPackage[]>([]),[packageName,setPackageName]=useState(''),[packageDescription,setPackageDescription]=useState(''),[packagePrice,setPackagePrice]=useState('3000'),[packageCredit,setPackageCredit]=useState('3500'),[editingPackage,setEditingPackage]=useState(''),[packageMessage,setPackageMessage]=useState(''),[packageBusy,setPackageBusy]=useState(false);
  const [referralPlans,setReferralPlans]=useState<ReferralPlan[]>([]),[selectedPlanPackage,setSelectedPlanPackage]=useState(''),[levelValues,setLevelValues]=useState(['200','200','200','200','200']),[planMessage,setPlanMessage]=useState(''),[planBusy,setPlanBusy]=useState(false);

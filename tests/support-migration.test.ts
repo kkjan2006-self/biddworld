@@ -24,9 +24,9 @@ describe('member support ticket migration security contract', () => {
     expect(migration).toMatch(/create policy support_tickets_update_admin[\s\S]*?using[\s\S]*?auth\.jwt\(\)->'app_metadata'->>'role'[\s\S]*?'admin'/i);
   });
 
-  it('writes the existing audit_logs metadata column rather than a non-existent details column', () => {
+  it('writes the Production audit_logs.details column', () => {
     expect(migration).toMatch(/insert into public\.audit_logs\(actor_user_id, action, entity_type, entity_id, metadata\)/i);
-    expect(migration).not.toMatch(/insert into public\.audit_logs\([^)]*details/i);
+    expect(migration).toMatch(/insert into public\.audit_logs\([^)]*details/i);
   });
 
   it('bounds user-controlled content and updates timestamps server-side', () => {
