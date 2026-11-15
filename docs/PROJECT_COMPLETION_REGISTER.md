@@ -183,3 +183,10 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added Admin-only targeted notification creation with UUID recipient validation, bounded title/message and category allow-list.
 - Added additive `20261116050000_member_notifications.sql` with RLS, owner-only reads/read receipts and Admin-only inserts. No email, SMS or push delivery is configured.
 - Added static migration security-contract tests. Migration remains unapplied to Production. Build/test run is still pending.
+
+
+## Verification update — 2026-11-16
+
+- GitHub Actions CI run `43751441554` on `completion-work` commit `c9b77e971cffb7ab43f947f822b472e4a1a27c02` completed successfully: dependency installation, dependency security report, unit tests, TypeScript type-check and Vite production build all passed.
+- This verifies the repository snapshot only. It does not apply or validate pending Supabase migrations, prove live Production RPC/RLS compatibility, or certify payment/withdrawal workflows.
+- The run includes the null-safe withdrawal-history rendering fix and the notification/support source changes. Production remains untouched.
