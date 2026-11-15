@@ -69,3 +69,15 @@ The current repository contains a migration named `20261115020000_admin_package_
 - No referral commission rates, payout percentages, withdrawal limits, or winner-payment rules.
 - No Admin account creation or role assignment.
 - No Production migration application, data seeding, or wallet crediting.
+
+
+## Follow-up: package activation migration hardening
+
+- Recovered the original package submission migration from commit `d91373f5fa40ea6fcc5f3aa1fdf66d62a455006e`. Its historical path was `supabase/migrations/20261115010000_submit_package_activation_request.sql`; that path is not present on current `main`.
+- The recovered earlier implementation used a SECURITY INVOKER public wrapper while revoking authenticated execution on the private implementation. That combination would prevent authenticated callers from reaching the private function. The later review migration correctly replaces it with a narrowly scoped SECURITY DEFINER wrapper whose private implementation checks `auth.uid()`.
+- Hardened the current `20261115020000_admin_package_activation_review.sql` source in commit `c4c0fb5172eebba7991ab99ceb1ae5ad6b146aa7`:
+  - Added a case-insensitive unique index on normalized payment references, preventing concurrent duplicate UTR/reference submissions.
+  - Corrected both MLM commission aggregates to count only the live allowed `credited` status (not the unsupported `paid` value).
+  - Confirmed the file still contains the `approved` activation status used by the production constraints and Admin/member dashboard metrics.
+- Production preflight (read-only): package activations 0 rows; packages 0; wallet accounts 0; wallet transactions 0; audit logs 0; duplicate normalized payment-reference groups 0. The existing wallet/account and activation constraints support the review workflow's expected types and idempotency fields.
+- The migration is still **not applied to Production**. The current production migration history does not include `20261115020000`; apply only after a disposable/branch database test and a final source/schema comparison. No production schema or data changed in this follow-up.
