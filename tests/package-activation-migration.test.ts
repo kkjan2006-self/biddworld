@@ -27,7 +27,7 @@ describe('package activation migration contract', () => {
 
   it('snapshots Bid Wallet credit and restricts review RPCs to administrators', () => {
     expect(review).toMatch(/add column if not exists bid_wallet_credit/i);
-    expect(review).toMatch(/auth\.jwt\(\)->'app_metadata'->>'role'\s*<>\s*'admin'/i);
+    expect(review).toMatch(/coalesce\(auth\.jwt\(\)->'app_metadata'->>'role',''\)\s*<>\s*'admin'/i);
     expect(review).toMatch(/payment_status\s*=\s*'approved'/i);
     expect(review).toMatch(/idempotency_key/i);
     expect(review).toMatch(/revoke all on function public\.admin_review_package_activation\(uuid, boolean\)[\s\S]*?from public, anon/i);
