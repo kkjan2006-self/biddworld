@@ -51,7 +51,7 @@ begin
  ), filtered as (
   select * from member_data md
   where (p_depth is null or md.depth=p_depth)
-   and (v_search is null or (md.member_code||' '||md.display_name||' '||coalesce(md.sponsor_code,'')) ilike '%'||replace(replace(replace(v_search,'\\','\\\\'),'%','\\%'),'_','\\_')||'%' escape '\\')
+   and (v_search is null or position(lower(v_search) in lower(md.member_code||' '||md.display_name||' '||coalesce(md.sponsor_code,'')))>0)
  ), page_rows as (
   select * from filtered order by depth,created_at desc,member_code limit v_limit offset v_offset
  )
