@@ -59,3 +59,15 @@
 - Do not claim production deployment or migration completion.
 - No paid tools, hosting, domain purchase, or Supabase plan upgrade.
 - This file records an audit checkpoint, not a production-readiness certificate.
+
+
+## Latest continuation checkpoint — 2026-11-16
+
+- Continued on the existing `completion-work` branch; no new project or branch was created.
+- Added bounded 100-row pagination to member/Admin Support and Notifications lists, with deterministic secondary ID ordering and Load More controls.
+- Clarified that the member notification unread count applies to currently displayed records.
+- Added `tests/member-inbox-pagination.test.ts` to assert bounded page queries and pagination controls.
+- Updated `docs/PROJECT_COMPLETION_REGISTER.md` with this source-only batch.
+- GitHub file reads confirm both components and the new test are present on `completion-work`. A successful GitHub Actions run for this exact latest code has not yet been verified.
+- Vercel status contexts show `build-rate-limit` failures. These indicate provider build limits, not a confirmed source build failure.
+- Production Supabase remains read-only: no SQL, migrations, settings, Storage, member records, wallet balances, commissions, payouts or financial actions were changed.
