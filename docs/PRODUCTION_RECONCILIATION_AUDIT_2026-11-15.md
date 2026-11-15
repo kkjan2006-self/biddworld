@@ -30,7 +30,7 @@ The following RPCs called by the current Admin/Packages UI were not found in Pro
 - `admin_review_package_activation(uuid,boolean)`
 - `admin_list_audit_logs(integer)`
 
-The current repository contains a migration named `20261115020000_admin_package_activation_review.sql` that defines package activation review RPCs and also replaces MLM dashboard functions. That migration is not in Production's reported migration history. The repository's expected earlier package activation migration `20261115010000_package_activation_workflow.sql` was not found on the current default branch at the checked path. The later migration must not be applied alone without reconstructing and validating all prerequisites.
+The current repository contains a migration named `20261115020000_admin_package_activation_review.sql` that defines package activation review RPCs and also replaces MLM dashboard functions. That migration is not in Production's reported migration history. The package activation base migration is present on current `main` at `supabase/migrations/20261115010000_submit_package_activation_request.sql`. Its original public RPC wrapper used SECURITY INVOKER while the private implementation revoked authenticated execution, making the authenticated call path fail. This was corrected in commit `a031dbcd9c023418ab4d438edaa33ea2667ed16c` to use a narrow SECURITY DEFINER wrapper; the private function retains its independent `auth.uid()` and input checks. The later review migration adds the wallet-credit snapshot and admin review APIs.
 
 ## Confirmed live schema details
 - `package_activations` currently has no `bid_wallet_credit` column.
