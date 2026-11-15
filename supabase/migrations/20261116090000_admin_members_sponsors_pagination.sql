@@ -37,10 +37,10 @@ begin
  where m.id_type='main'
    and (
     v_search=''
-    or m.member_code ilike '%'||replace(replace(v_search,'%','\\%'),'_','\\_')||'%' escape '\\'
-    or coalesce(p.display_name,'') ilike '%'||replace(replace(v_search,'%','\\%'),'_','\\_')||'%' escape '\\'
-    or coalesce(p.phone,'') ilike '%'||replace(replace(v_search,'%','\\%'),'_','\\_')||'%' escape '\\'
-    or coalesce(s.member_code,'') ilike '%'||replace(replace(v_search,'%','\\%'),'_','\\_')||'%' escape '\\'
+    or position(lower(v_search) in lower(m.member_code))>0
+    or position(lower(v_search) in lower(coalesce(p.display_name,'')))>0
+    or position(lower(v_search) in lower(coalesce(p.phone,'')))>0
+    or position(lower(v_search) in lower(coalesce(s.member_code,'')))>0
    )
  order by m.created_at desc,m.id desc
  limit p_limit offset p_offset;
