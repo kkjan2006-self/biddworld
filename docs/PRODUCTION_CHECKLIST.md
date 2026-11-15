@@ -151,3 +151,37 @@ The source's auction query selects only live/scheduled rows, which is consistent
 An exact ACL check of `information_schema.role_table_grants` and `has_table_privilege` found that `authenticated` has SELECT only on the tables where it has grants; no authenticated DML/TRUNCATE/REFERENCES/TRIGGER privileges were present on the inspected public tables. The broad authenticated-DML warning in the earlier preliminary review has therefore been corrected above. Do **not** create a revoke migration from that preliminary statement.
 
 The inspected RPC ACLs show `authenticated:EXECUTE` on the reviewed member/admin functions; `lookup_sponsor` additionally allows `anon:EXECUTE` for signup sponsor lookup. Admin RPCs must retain their explicit `app_metadata.role='admin'` checks. This audit did not change any grants, policies, functions or Production data.
+
+
+### Production RPC inventory and frontend compatibility audit (2026-11-15)
+
+A complete read-only catalog of non-extension application functions in the live Production database found only eight functions across the `public` and `private` application schemas:
+
+- `public.admin_get_member_structure()`
+- `public.admin_get_mlm_overview()`
+- `public.admin_list_members_sponsors()`
+- `public.admin_set_default_sponsor(text)`
+- `public.admin_set_member_sponsor(text,text)`
+- `public.get_my_mlm_dashboard()`
+- `public.lookup_sponsor(text)`
+- `public.place_bid(uuid)`
+- `private.handle_new_auth_user()` (signup trigger)
+- `private.place_bid(uuid)` (bid implementation)
+
+Correction to the count: there are eight exposed `public` RPCs plus two application functions in the private schema; the private signup function is trigger-only, and the private bid function is callable by authenticated/service roles as the implementation behind the public wrapper.
+
+The current frontend also calls these RPCs, but no matching function was found in the live Production catalog:
+- `submit_package_activation`
+- `admin_list_pending_activations`
+- `admin_list_audit_logs`
+- `admin_review_package_activation`
+
+This means the package activation request/review and admin audit-log UI paths are not backed by the corresponding live Production RPCs at the time of this inspection. Treat those flows as unavailable in Production; do not describe them as deployed or test them against live users until a reviewed migration is applied. The repository contains candidate SQL, but the production migration history/schema drift must be reconciled first.
+
+The public SECURITY DEFINER functions inspected have an empty search_path and schema-qualified object references. Admin report and sponsor-management functions enforce a non-null `auth.uid()` plus `auth.jwt()->'app_metadata'->>'role' = 'admin'`; `get_my_mlm_dashboard()` requires authentication and derives the member ID from the caller's own profile. `lookup_sponsor(text)` remains intentionally callable by anon for signup lookup and returns a single exact-match active Main ID's code and display name; rate limiting and enumeration/privacy review remain launch requirements. The public `place_bid(uuid)` wrapper is SECURITY INVOKER and delegates to `private.place_bid(uuid)`, which is SECURITY DEFINER with a fixed search_path and performs the authenticated bidding checks and atomic wallet debit.
+
+The only non-internal application trigger found on `auth.users` is `on_biddworld_auth_user_created`, which invokes `private.handle_new_auth_user()`. It creates the profile, Main ID and zero-balance wallets, and validates the requested/default sponsor according to the bootstrap rules documented above.
+
+The Supabase security advisor currently reports one anon-callable SECURITY DEFINER function (`lookup_sponsor`) and seven authenticated-callable SECURITY DEFINER public functions. These are warnings for review, not proof of an authorization bypass; the reviewed admin functions have explicit role checks.
+
+No Production schema, function, grant, trigger, or data was changed during this audit. The missing frontend RPCs and dashboard status mismatch are deployment blockers to resolve only after the full migration drift review and explicit deployment approval.
