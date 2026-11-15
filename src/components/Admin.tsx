@@ -112,14 +112,20 @@ export default function Admin(){
  async function saveAuctionProductDraft(){if(!supabase)return;setAuctionBusy(true);setAuctionMessage('');const{data,error}=await supabase.rpc('admin_save_product_draft',{p_product_id:null,p_name:productName,p_description:productDescription,p_image_path:productImage,p_category:productCategory});setAuctionBusy(false);if(error){setAuctionMessage(error.message);return;}setProductName('');setProductDescription('');setProductImage('');setProductCategory('');setAuctionMessage('Product draft saved. Select it below to create an auction draft.');setRefresh(v=>v+1);}
  async function saveAuctionDraft(){if(!supabase)return;if(!auctionProductId){setAuctionMessage('Create and select a draft product first.');return;}setAuctionBusy(true);setAuctionMessage('');const{error}=await supabase.rpc('admin_save_auction_draft',{p_auction_id:null,p_product_id:auctionProductId,p_title:auctionTitle,p_description:auctionDescription,p_image_url:auctionImage,p_category:auctionCategory,p_starting_price:Number(auctionStartingPrice),p_minimum_increment:Number(auctionIncrement),p_starts_at:auctionStarts?new Date(auctionStarts).toISOString():null,p_ends_at:auctionEnds?new Date(auctionEnds).toISOString():null});setAuctionBusy(false);if(error){setAuctionMessage(error.message);return;}setAuctionTitle('');setAuctionDescription('');setAuctionImage('');setAuctionCategory('');setAuctionMessage('Auction draft saved. It is not scheduled or live.');setRefresh(v=>v+1);}
  async function toggleFeature(key:string,enabled:boolean){
-  if(!supabase)return;
+  if(!supabase||savingFeature!=='')return;
   setSavingFeature(key);setFeatureMessage('');
-  const {error}=await supabase.rpc('admin_set_feature_setting',{p_setting_key:key,p_enabled:enabled});
-  setSavingFeature('');
-  if(error){setFeatureMessage(error.message);return;}
-  setFeatureSettings(current=>({...current,[key]:enabled}));
-  setFeatureMessage(`${featureLabels[key]??key} ${enabled?'enabled':'disabled'}.`);
-  setRefresh(v=>v+1);
+  try{
+   const {data,error}=await supabase.rpc('admin_set_feature_setting',{p_setting_key:key,p_enabled:enabled});
+   if(error)throw error;
+   if(data?.success!==true)throw new Error('The setting was not confirmed by the server.');
+   setFeatureSettings(current=>({...current,[key]:enabled}));
+   setFeatureMessage(`${featureLabels[key]??key} ${enabled?'enabled':'disabled'} and saved.`);
+   setRefresh(v=>v+1);
+  }catch(error){
+   setFeatureMessage(error instanceof Error?error.message:'Could not save this feature setting. Please retry.');
+  }finally{
+   setSavingFeature('');
+  }
  }
  async function createDuplicateId(){if(!supabase)return;const code=duplicateMainCode.trim();if(!code){setDuplicateMessage('Enter an active Main ID.');return;}setDuplicateBusy('create');setDuplicateMessage('');const{data,error}=await supabase.rpc('admin_create_duplicate_member_id',{p_main_member_code:code});setDuplicateBusy('');if(error){setDuplicateMessage(error.message);return;}setDuplicateMessage(`Created ${data.member_code} as Pending. Approve it after checking the Main ID.`);setDuplicateMainCode('');setRefresh(v=>v+1);}
  async function setDuplicateStatus(id:string,status:'active'|'suspended'|'closed'){if(!supabase)return;setDuplicateBusy(id);setDuplicateMessage('');const{error}=await supabase.rpc('admin_set_duplicate_id_status',{p_duplicate_id:id,p_status:status});setDuplicateBusy('');if(error){setDuplicateMessage(error.message);return;}setDuplicateMessage(`Duplicate ID status updated to ${status}.`);setRefresh(v=>v+1);}
