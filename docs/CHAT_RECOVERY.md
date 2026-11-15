@@ -79,3 +79,9 @@
 - Reworked report export to re-check the authenticated user/Main ID and independently page through all report tables in deterministic 500-row batches, including delivery records in bounded payment-ID batches.
 - Added a focused regression test and updated the completion register.
 - No Production changes. Live database access remains read-only; financial actions remain locked.
+
+
+## Complete report CI correction — 2026-11-16
+
+- CI initially found TypeScript errors in the new report pagination helper (nullable client narrowing inside callbacks and PostgREST thenable generic mismatch). Corrected the scoped client capture and helper typing before proceeding.
+- Awaiting CI for the corrected head. No Production changes.

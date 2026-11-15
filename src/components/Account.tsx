@@ -16,9 +16,9 @@ type CommissionRow={id:string;level_number:number;amount:number;status:string;cr
 type WinningPayment={id:string;amount:number;status:string;paid_at:string|null;created_at:string;auction:{title:string}|null;campaign:{title:string}|null};
 type DeliveryRow={id:string;winning_item_payment_id:string;carrier:string|null;tracking_number:string|null;status:string;shipped_at:string|null;delivered_at:string|null;updated_at:string};
 const REPORT_PAGE_SIZE=500;
-async function fetchAllPages<T>(fetchPage:(from:number,to:number)=>PromiseLike<{data:T[]|null;error:{message:string}|null}>):Promise<T[]>{
+async function fetchAllPages<T>(fetchPage:(from:number,to:number)=>PromiseLike<any>):Promise<T[]>{
  const all:T[]=[];
- for(let from=0;;from+=REPORT_PAGE_SIZE){const {data,error}=await fetchPage(from,from+REPORT_PAGE_SIZE-1);if(error)throw new Error(error.message);const batch=data??[];all.push(...batch);if(batch.length<REPORT_PAGE_SIZE)return all;}
+ for(let from=0;;from+=REPORT_PAGE_SIZE){const {data,error}=await fetchPage(from,from+REPORT_PAGE_SIZE-1);if(error)throw new Error(error.message);const batch=(data??[]) as T[];all.push(...batch);if(batch.length<REPORT_PAGE_SIZE)return all;}
 }
 export default function Account(){
  const [profile,setProfile]=useState<{display_name:string|null;phone:string|null;status:string;main_member_id:string|null;created_at?:string|null;main_member_code?:string|null;sponsor_member_code?:string|null;sponsor_display_name?:string|null}|null>(null);const [profileName,setProfileName]=useState('');const [profilePhone,setProfilePhone]=useState('');const [profileSaving,setProfileSaving]=useState(false);const [profileMessage,setProfileMessage]=useState('');
@@ -60,24 +60,25 @@ export default function Account(){
  async function saveProfile(e:{preventDefault:()=>void}){e.preventDefault();if(!supabase||profileSaving)return;setProfileSaving(true);setProfileMessage('');const{name,phone}= {name:profileName.trim(),phone:profilePhone.trim()};const{data,error}=await supabase.rpc('member_update_my_profile',{p_display_name:name,p_phone:phone});setProfileSaving(false);if(error){setProfileMessage(error.message);return;}setProfile(current=>current?{...current,display_name:data.display_name,phone:data.phone}:current);setProfileName(data.display_name);setProfilePhone(data.phone);setProfileMessage('Profile updated successfully.');}
  async function exportMemberReport(){
  if(!supabase||reportBusy)return;
+ const client=supabase;
  setReportBusy(true);setReportMessage('');
  try{
-  const {data:{user},error:userError}=await supabase.auth.getUser();
+  const {data:{user},error:userError}=await client.auth.getUser();
   if(userError||!user)throw new Error('Please sign in again to export your report.');
-  const {data:currentProfile,error:profileError}=await supabase.from('profiles').select('main_member_id').eq('id',user.id).maybeSingle();
+  const {data:currentProfile,error:profileError}=await client.from('profiles').select('main_member_id').eq('id',user.id).maybeSingle();
   if(profileError||!currentProfile?.main_member_id)throw new Error('Your Main ID could not be verified for this report.');
   const memberId=currentProfile.main_member_id;
   const [allActivations,allBids,allFixedBids,allCommissions,allWinningPayments]=await Promise.all([
-   fetchAllPages<Activation>((from,to)=>supabase.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,payment_reference,bid_wallet_credit,submitted_at,verified_at,package:packages(name)').eq('member_id',memberId).order('submitted_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<AuctionBid>((from,to)=>supabase.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<FixedBidRow>((from,to)=>supabase.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<CommissionRow>((from,to)=>supabase.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<WinningPayment>((from,to)=>supabase.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to))
+   fetchAllPages<Activation>((from,to)=>client.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,payment_reference,bid_wallet_credit,submitted_at,verified_at,package:packages(name)').eq('member_id',memberId).order('submitted_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
+   fetchAllPages<AuctionBid>((from,to)=>client.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
+   fetchAllPages<FixedBidRow>((from,to)=>client.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
+   fetchAllPages<CommissionRow>((from,to)=>client.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
+   fetchAllPages<WinningPayment>((from,to)=>client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to))
   ]);
   const allDeliveries:DeliveryRow[]=[];
   for(let index=0;index<allWinningPayments.length;index+=500){
    const paymentIds=allWinningPayments.slice(index,index+500).map(row=>row.id);
-   const batch=await fetchAllPages<DeliveryRow>((from,to)=>supabase.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,to));
+   const batch=await fetchAllPages<DeliveryRow>((from,to)=>client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,to));
    allDeliveries.push(...batch);
   }
   const rows:string[][]=[['Record Type','Date','Reference','Amount','Currency','Status','Details']];

@@ -241,3 +241,9 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added export-busy state, success record count and clear error feedback. CSV uses the shared formula-safe serializer.
 - Added static Vitest coverage for page bounds, deterministic ordering, personal identity scope and included data sources.
 - Source-only change on `completion-work`. No Production schema/data/settings or financial activity was changed. Verification for this new commit is pending.
+
+
+## Member report type-check correction — 2026-11-16
+
+- The first CI run for the complete report export exposed TypeScript narrowing and Supabase query-builder generic incompatibilities in the page helper. The export now captures a narrowed client reference before async callbacks and uses the query builder's thenable response without imposing an incompatible structural generic.
+- This is a compile-time correction only; no database or financial behavior changed. The corrected branch commit is awaiting CI verification.
