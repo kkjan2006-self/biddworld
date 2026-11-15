@@ -23,6 +23,7 @@ begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
  end if;
+ if length(v_search)>200 then raise exception 'Search text is too long' using errcode='22023'; end if;
  if p_limit is null or p_limit<1 or p_limit>200
     or p_offset is null or p_offset<0 or p_offset>1000000 then
   raise exception 'Invalid pagination values' using errcode='22023';
