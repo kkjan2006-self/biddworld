@@ -144,3 +144,9 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 
 - Source commit `4b8e89f7e80f824cc5892126562603029f5f1d2e` passed CI run `43756709964`: 20/20 Vitest files, TypeScript build and Vite production bundle.
 - This verifies source only. The member directory pagination migration remains unapplied; Production's existing `admin_list_members_sponsors()` still has its 500-row limit.
+
+## Latest Admin member directory update — 2026-11-16
+
+- Server-side Main ID search, paginated continuation and complete matching-result CSV export are implemented in source.
+- Commit `53bc09805e88e0ffc37108431593682a43b4326f` passed CI run `43757646055`: 20/20 Vitest files, TypeScript build and Vite production build.
+- Production RPC migration is still unapplied; do not deploy this UI to Production until migration reconciliation is reviewed.

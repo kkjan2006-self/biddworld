@@ -301,3 +301,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Admin Main ID directory: new source-only Admin-checked paginated RPC with 100-row pages, stable ordering and optional bounded search parameter; UI first page and Load More implemented. Current UI search remains client-side over loaded rows, and complete filtered export remains outstanding.
 - New migration `20261116090000_admin_members_sponsors_pagination.sql` is source-only and has NOT been applied to Production. No Production data/schema/settings/Storage or financial operations were changed.
 - This CI run verifies source code only, not the new migration against live Production. Existing Production RPC remains limited to 500 records until a reviewed rollout of the new RPC.
+
+## Admin member directory server-side search batch — 2026-11-16
+
+- Commit `53bc09805e88e0ffc37108431593682a43b4326f` passed GitHub Actions run `43757646055`.
+- CI verified 20/20 Vitest files, TypeScript project build and Vite 6.4.6 production bundle.
+- Admin Main ID directory now sends the search term to the Admin-checked paginated RPC, searches all Main IDs server-side, loads subsequent matching pages with the same query, and exports all matching pages to CSV.
+- This is still source-only integration. The new RPC migration `20261116090000_admin_members_sponsors_pagination.sql` is NOT applied to Production; live Production still has the legacy 500-row RPC. Do not use the updated UI against Production until a reviewed migration reconciliation is approved and deployed.
+- No Production database, data, settings, financial records, or migrations were changed.
