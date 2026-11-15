@@ -81,3 +81,13 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added the public `product-media` Storage bucket with a 5 MB limit and JPG/PNG/WebP MIME allow-list. Public read is limited to that bucket; upload/update/delete require the trusted Admin role. Admin UI uploads images and stores the public URL with the product draft.
 - Migration: `20261116020000_admin_product_management_and_media.sql`. It is source-only on `completion-work`; it has NOT been applied to Production. Existing Storage bucket/policy state has not been inspected in Production, so rollout must reconcile policies before applying.
 - No tests, deployment, financial writes or Production database changes were performed.
+
+
+## Production-schema alignment — product catalogue (2026-11-15)
+
+- A read-only inspection of the connected BiddWorld-Production database confirmed that `products` uses `name`, `image_path`, and `status` (draft/published), not the legacy baseline fields `title`, `image_url`, and `is_active`.
+- Updated the public Products query and card model to read only `status='published'` and use the live product columns.
+- Updated Admin product publication labels/actions to use the live `published` status. Product publishing remains a controlled Admin action; hiding returns the record to draft.
+- Updated Fixed Bid public listing to use the live campaign statuses `scheduled`, `live`, and `ended`.
+- Corrected the two pending product migrations to match the reconciled live schema and `audit_logs.details`. These are source-only changes and have NOT been applied to Production.
+- Production data, schema, migration history, settings, and Storage were not changed. No tests were run, per the deferred verification sequence.

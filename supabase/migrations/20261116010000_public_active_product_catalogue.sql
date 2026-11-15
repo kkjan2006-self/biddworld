@@ -1,8 +1,9 @@
--- Public marketplace may display active catalogue entries without requiring sign-in.
--- Admin/draft product rows remain hidden; this policy grants read access only.
+-- Public marketplace may display published catalogue entries without requiring sign-in.
+-- Draft products remain hidden; the live production schema uses products.status.
 drop policy if exists products_public_active_read on public.products;
-create policy products_public_active_read
+drop policy if exists products_public_published_read on public.products;
+create policy products_public_published_read
 on public.products
 for select
 to anon, authenticated
-using (is_active = true);
+using (status = 'published');
