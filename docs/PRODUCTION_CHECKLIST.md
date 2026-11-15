@@ -189,9 +189,9 @@ No Production schema, function, grant, trigger, or data was changed during this 
 
 ### Repository and CI
 
-- Latest inspected default branch: main, commit 0f75647a7d023a2bc76ff837eee0b1966e907168.
+- Latest verified application-code commit on main: 0f75647a7d023a2bc76ff837eee0b1966e907168. The subsequent recovery-audit documentation update is committed on main.
 - The latest GitHub Actions CI run 43736583121 completed successfully: all 36 existing tests passed, and TypeScript type-check plus Vite production build passed.
-- The latest preview/package workflow 43736583153 completed its test step, GitHub Pages preview build, Pages artifact upload, GoDaddy root-domain build and GoDaddy package artifact upload successfully. At the time of this snapshot, the final Pages deploy job was still queued/in progress; do not claim the preview deployment is live until that job is confirmed successful.
+- The latest preview/package workflow 43736583153 completed successfully, including GitHub Pages preview build, Pages artifact upload, GoDaddy root-domain build, GoDaddy package artifact upload and the final Deploy to GitHub Pages job. The workflow reports success; the GoDaddy package is a build artifact only and has not been deployed to GoDaddy.
 - The latest source fixes corrected an unmatched Admin JSX closing tag, two Admin TypeScript typing errors, and the Supabase embedded wallet relation type/export access. These changes are committed; no existing feature was intentionally removed.
 - Dependency installation currently reports 6 npm audit findings (2 moderate, 2 high, 2 critical). The repository root does not currently include a package-lock.json, so dependency reproducibility and the full advisory details remain to be addressed. Do not run npm audit fix --force blindly.
 
