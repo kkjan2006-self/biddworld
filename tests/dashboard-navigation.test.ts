@@ -15,7 +15,7 @@ describe('dashboard navigation integrity', () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(targets.length).toBeGreaterThan(10);
     for (const target of targets) {
-      expect(ids.filter((id) => id === target), \`Admin navigation target #\${target}\`).toHaveLength(1);
+      expect(ids.filter((id) => id === target), 'Admin navigation target #' + target).toHaveLength(1);
     }
   });
 
@@ -26,7 +26,7 @@ describe('dashboard navigation integrity', () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(menuKeys.length).toBeGreaterThan(8);
     for (const key of new Set(menuKeys)) {
-      expect(ids, \`Member navigation target #\${key}\`).toContain(key);
+      expect(ids, 'Member navigation target #' + key).toContain(key);
     }
   });
 
