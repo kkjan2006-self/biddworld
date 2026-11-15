@@ -92,3 +92,10 @@
 - Extended secured, paginated full-history exports to Admin withdrawals, winning payments, delivery tracking and audit logs. Audit filters apply across the full fetched history.
 - Added busy/status feedback and static regression coverage. The existing complete wallet-ledger export remains intact.
 - No Production changes. CI verification for this batch is pending.
+
+
+## Financial interlock expansion — 2026-11-16
+
+- Source migration `20261116080000_financial_activity_lockdown.sql` now also guards credited referral commissions, auction bids and Fixed Bid entries, and replaces the Admin feature-switch RPC with an owner-approval check for financial/MLM switches.
+- Admin UI also blocks attempts to enable these switches while the source-level approval lock is active. The guard remains source-only; Production has not received this migration or any settings changes.
+- Expanded the static migration/UI contract test. CI verification is pending.

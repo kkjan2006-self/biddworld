@@ -255,3 +255,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Audit export applies the active Admin search and date filters to the complete retrieved history. Export busy/success/error feedback is displayed in the Reports section.
 - Existing Admin wallet-ledger export already retrieves every RPC page. Other reports continue to use their full-list RPCs and are explicitly described as such until their server-side result limits are audited.
 - Added static regression tests for pagination and all four complete CSV exports. Source-only; no Production data, schema, settings or financial actions changed.
+
+
+## Financial interlock expansion — 2026-11-16
+
+- Extended the source-only database guard to block credited referral commissions, auction bid inserts and Fixed Bid entry inserts in addition to all wallet ledger inserts, package approvals, withdrawal requests/processing and winner-payment settlement.
+- Replaced the Admin feature-setting RPC in the migration so financial/MLM switches cannot be enabled until the trusted `financial_model_approved` setting is explicitly true. Disabling remains allowed; the approval key is not exposed through the Admin toggle.
+- Added a matching Admin UI guard to refuse enabling financial feature switches before owner approval.
+- Expanded static security-contract tests to cover the new trigger surfaces and feature-toggle guard.
+- This migration is source-only and NOT applied to Production. Live Production still lacks this interlock; no Production schema, data, settings or financial records were changed.
