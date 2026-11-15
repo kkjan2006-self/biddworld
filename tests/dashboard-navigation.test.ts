@@ -35,6 +35,7 @@ describe('dashboard navigation integrity', () => {
     expect(walletHistory).toMatch(/hasMore\s*&&\s*<button/i);
     expect(walletHistory).toMatch(/Load 100 more transactions/);
     expect(walletHistory).toMatch(/setPage\(current\s*=>\s*current\s*\+\s*1\)/);
+    expect(walletHistory).toMatch(/order\('created_at',\s*\{ascending:false\}\)\.order\('id',\s*\{ascending:false\}\)/);
   });
 
   it('keeps winner, delivery and account-security tools tied to the signed-in member', () => {
