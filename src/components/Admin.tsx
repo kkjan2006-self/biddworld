@@ -48,28 +48,28 @@ export default function Admin(){
  const [reviewingActivation,setReviewingActivation]=useState('');
  const [activationMessage,setActivationMessage]=useState('');
  const featureGroups=[
-  {title:'1. సభ్యుల నమోదు & నెట్‌వర్క్',description:'కొత్త సభ్యులు చేరడం, Sponsor ద్వారా రావడం, IDలు మరియు Placement నియంత్రణ.',items:[
-   {key:'registration_enabled',label:'సభ్యుల నమోదు (Member Registration)',description:'కొత్త సభ్యులు BiddWorldలో రిజిస్టర్ కావడానికి అనుమతి.'},
-   {key:'sponsor_referrals_enabled',label:'Sponsor Referral నమోదు',description:'కొత్త సభ్యుడు Sponsor ID ఇవ్వడం, Sponsor సంబంధం నమోదు కావడం.'},
-   {key:'duplicate_ids_enabled',label:'Duplicate IDలు',description:'ఒకే వ్యక్తికి అదనపు ID సృష్టించే సదుపాయం. ఆమోదం, పరిమితులు పూర్తిగా పరీక్షించిన తర్వాత మాత్రమే ON చేయండి.'},
-   {key:'automatic_placement_enabled',label:'ఆటోమేటిక్ Placement',description:'కొత్త IDలను Networkలో స్వయంచాలకంగా స్థానం కేటాయించడం. Placement నియమాలు పరీక్షించిన తర్వాత మాత్రమే ON చేయండి.'}
+  {title:'1. Member Registration & Network',description:'Manage member registration, sponsor attribution, member IDs and placement.',items:[
+   {key:'registration_enabled',label:'Member Registration',description:'Allow new members to register on BiddWorld.'},
+   {key:'sponsor_referrals_enabled',label:'Sponsor Referral',description:'Allow a new member to provide a Sponsor ID and record the sponsor relationship.'},
+   {key:'duplicate_ids_enabled',label:'Duplicate IDs',description:'Allow additional IDs for one member. Enable only after approval and complete testing of limits and rules.'},
+   {key:'automatic_placement_enabled',label:'Automatic Placement',description:'Automatically assign new IDs within the network. Enable only after placement rules are fully tested.'}
   ]},
-  {title:'2. Packages & Wallets',description:'Package కొనుగోలు, Walletల్లో క్రెడిట్ నమోదు మరియు డబ్బు లావాదేవీలకు సంబంధించిన సెట్టింగ్‌లు.',items:[
-   {key:'package_activations_enabled',label:'Package Activation',description:'సభ్యుల Package కొనుగోలు అభ్యర్థనలు స్వీకరించడం, చెల్లింపు నిర్ధారణ తర్వాత Activation.'},
-   {key:'bid_wallet_enabled',label:'Bid Wallet',description:'Auctionలో Bid వేయడానికి ఉపయోగించే Wallet.'},
-   {key:'income_wallet_enabled',label:'Income Wallet',description:'సభ్యుల ఆదాయం / కమిషన్ మొత్తాలు చూపించే Wallet.'},
-   {key:'referral_commissions_enabled',label:'Referral కమిషన్లు',description:'Sponsor Network స్థాయిలకు కమిషన్ లెక్కించి జమ చేయడం. నిధులు, నియమాలు, లెక్కలు పరీక్షించిన తర్వాత మాత్రమే ON చేయండి.'},
-   {key:'withdrawals_enabled',label:'డబ్బు Withdraw చేయడం',description:'సభ్యులు Income Wallet నుంచి బ్యాంక్‌కు డబ్బు తీసుకునే అభ్యర్థనలు.'}
+  {title:'2. Packages & Wallets',description:'Configure package purchases, wallet credits and financial transaction controls.',items:[
+   {key:'package_activations_enabled',label:'Package Activation',description:'Accept package activation requests and activate only after payment verification.'},
+   {key:'bid_wallet_enabled',label:'Bid Wallet',description:'Wallet reserved for auction bidding.'},
+   {key:'income_wallet_enabled',label:'Income Wallet',description:'Wallet used to display eligible member income and commissions.'},
+   {key:'referral_commissions_enabled',label:'Referral Commissions',description:'Calculate and credit eligible network-level commissions. Enable only after funding, rules and calculations are independently reviewed.'},
+   {key:'withdrawals_enabled',label:'Withdrawals',description:'Allow members to request withdrawals from the Income Wallet.'}
   ]},
-  {title:'3. Auctions & Winner Process',description:'Auction ప్రారంభం నుంచి విజేత చెల్లింపు, Delivery వరకు ఉండే ప్రక్రియ.',items:[
-   {key:'bidding_enabled',label:'Live Auctions & Bidding',description:'సభ్యులు Live Auctionలో Bid వేయగలరు. Bid Wallet, Auction సమయం, లావాదేవీలు పరీక్షించిన తర్వాత మాత్రమే ON చేయండి.'},
-   {key:'fixed_bid_enabled',label:'Fixed Bid Campaigns',description:'నిర్ణీత Bid ధరతో జరిగే Campaignల్లో సభ్యులు పాల్గొనడం.'},
-   {key:'winner_selection_configured',label:'Winner Selection సిద్ధంగా ఉంది',description:'విజేతను ఎంపిక చేసే నియమాలు, ప్రక్రియ సరిగా అమర్చబడ్డాయని సూచించే సిద్ధత సెట్టింగ్; ఇది స్వయంగా విజేతను ఎంపిక చేయదు.'},
-   {key:'winning_payment_enabled',label:'Winner Payment',description:'Auction విజేత చెల్లింపు నమోదు / నిర్ధారణ ప్రక్రియ.'},
-   {key:'delivery_tracking_enabled',label:'Product Delivery Tracking',description:'విజేతకు పంపిన వస్తువు Courier, Tracking Number, Delivery Status నమోదు చేయడం.'}
+  {title:'3. Auctions & Winner Process',description:'Control the process from auction launch through winner payment and delivery.',items:[
+   {key:'bidding_enabled',label:'Live Auctions & Bidding',description:'Allow members to bid in live auctions. Enable only after wallet, timing and transaction controls are verified.'},
+   {key:'fixed_bid_enabled',label:'Fixed Bid Campaigns',description:'Allow members to participate in campaigns with a fixed entry amount.'},
+   {key:'winner_selection_configured',label:'Winner Selection Configured',description:'A readiness flag indicating that winner rules and procedures have been reviewed. This setting does not select a winner.'},
+   {key:'winning_payment_enabled',label:'Winner Payment',description:'Record and verify payment due from an auction winner.'},
+   {key:'delivery_tracking_enabled',label:'Product Delivery Tracking',description:'Record the courier, tracking number and delivery status for a winning item.'}
   ]},
-  {title:'4. Notifications',description:'సభ్యులకు సమాచారం పంపే సదుపాయాలు.',items:[
-   {key:'notifications_enabled',label:'Notifications / సందేశాలు',description:'సభ్యులకు App, Email లేదా SMS ద్వారా నోటిఫికేషన్లు పంపే సదుపాయం. Provider అనుసంధానం, పంపే విధానం సిద్ధమైన తర్వాత మాత్రమే ON చేయండి.'}
+  {title:'4. Notifications',description:'Configure member notification capabilities.',items:[
+   {key:'notifications_enabled',label:'Notifications',description:'Send notifications to members through the app, email or SMS. Enable only after provider integration and delivery workflows are ready.'}
   ]}
  ];
  const featureLabels:Record<string,string>=Object.fromEntries(featureGroups.flatMap(group=>group.items.map(item=>[item.key,item.label])));
