@@ -151,3 +151,12 @@
 - Added a forward-only source migration for a trusted-Admin, bounded 100-row Main ID directory RPC with stable ordering and optional text search.
 - Admin member directory now loads first 100 and supports Load More. Search remains client-side over loaded records for this batch; full-history export and server-side search UI are next items.
 - Added static migration/UI regression tests. Migration is source-only and NOT applied to Production.
+
+## Admin directory and catalogue batch — verified 2026-11-16
+
+- Source commit `4b8e89f7e80f824cc5892126562603029f5f1d2e` on `completion-work` passed GitHub Actions run `43756709964`: 20/20 Vitest files passed, TypeScript project build passed, and Vite 6.4.6 production bundle built successfully.
+- Public auctions: bounded deterministic 100-row pages with Load More.
+- Fixed Bid catalogue: bounded deterministic 50-row pages with Load More; CI run `43756267630` passed 19/19 test files and build.
+- Admin Main ID directory: new source-only Admin-checked paginated RPC with 100-row pages, stable ordering and optional bounded search parameter; UI first page and Load More implemented. Current UI search remains client-side over loaded rows, and complete filtered export remains outstanding.
+- New migration `20261116090000_admin_members_sponsors_pagination.sql` is source-only and has NOT been applied to Production. No Production data/schema/settings/Storage or financial operations were changed.
+- This CI run verifies source code only, not the new migration against live Production. Existing Production RPC remains limited to 500 records until a reviewed rollout of the new RPC.

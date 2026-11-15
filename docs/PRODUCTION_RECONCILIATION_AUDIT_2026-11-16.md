@@ -126,3 +126,9 @@ Implementation can continue on completion-work using source-only changes. The Pr
 - Read-only `pg_get_functiondef` inspection confirms Production `admin_list_members_sponsors()` is a SECURITY DEFINER SQL function with trusted `app_metadata.role='admin'` check and a hard `LIMIT 500`; it has no search or pagination parameters.
 - The Admin UI performs client-side search and CSV export only over those returned records. Implement a forward-only Admin-checked paginated/search RPC and update the UI before claiming complete member directory coverage.
 - No Production function, table, grant, setting or data was changed.
+
+## Latest source verification — 2026-11-16
+
+- Commit `4b8e89f7e80f824cc5892126562603029f5f1d2e` passed GitHub Actions run `43756709964`: 20/20 Vitest files, TypeScript build and Vite bundle.
+- The new Admin member directory pagination RPC migration remains unapplied; this is not live Production integration validation.
+- Production remains unchanged.
