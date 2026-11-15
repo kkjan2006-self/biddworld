@@ -10,9 +10,12 @@ describe('Admin member directory pagination',()=>{
   expect(sql).toContain("coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin'");
   expect(sql).toContain("coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin'");
  });
- it('uses a paginated RPC and exposes continuation controls',()=>{
+ it('uses server-side search for every page and exports every matching page',()=>{
   expect(admin).toContain("admin_list_members_sponsors_page");
-  expect(admin).toContain("p_limit:100,p_offset:members.length");
+  expect(admin).toContain("p_search:memberSearch.trim()||null,p_limit:100,p_offset:members.length");
+  expect(admin).toContain("p_search:search,p_limit:100,p_offset:offset");
+  expect(admin).toContain("[memberSearch,role,refresh]");
   expect(admin).toContain('Load 100 more members');
  });
 });
+
