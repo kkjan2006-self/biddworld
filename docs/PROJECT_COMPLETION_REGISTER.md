@@ -247,3 +247,11 @@ Work through the incomplete items in dependency order: member/public experience 
 
 - The first CI run for the complete report export exposed TypeScript narrowing and Supabase query-builder generic incompatibilities in the page helper. The export now captures a narrowed client reference before async callbacks and uses the query builder's thenable response without imposing an incompatible structural generic.
 - This is a compile-time correction only; no database or financial behavior changed. The corrected branch commit is awaiting CI verification.
+
+
+## Admin historical CSV exports — 2026-11-16
+
+- Admin withdrawal requests, winning-item payments, delivery tracking and audit logs now export every secured RPC page (100 rows per request), rather than exporting only the currently visible first page.
+- Audit export applies the active Admin search and date filters to the complete retrieved history. Export busy/success/error feedback is displayed in the Reports section.
+- Existing Admin wallet-ledger export already retrieves every RPC page. Other reports continue to use their full-list RPCs and are explicitly described as such until their server-side result limits are audited.
+- Added static regression tests for pagination and all four complete CSV exports. Source-only; no Production data, schema, settings or financial actions changed.

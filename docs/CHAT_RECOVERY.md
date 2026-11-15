@@ -85,3 +85,10 @@
 
 - CI initially found TypeScript errors in the new report pagination helper (nullable client narrowing inside callbacks and PostgREST thenable generic mismatch). Corrected the scoped client capture and helper typing before proceeding.
 - Awaiting CI for the corrected head. No Production changes.
+
+
+## Admin historical CSV report batch — 2026-11-16
+
+- Extended secured, paginated full-history exports to Admin withdrawals, winning payments, delivery tracking and audit logs. Audit filters apply across the full fetched history.
+- Added busy/status feedback and static regression coverage. The existing complete wallet-ledger export remains intact.
+- No Production changes. CI verification for this batch is pending.
