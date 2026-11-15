@@ -2,7 +2,7 @@ name: BiddWorld CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, completion-work]
   pull_request:
     branches: [main]
 

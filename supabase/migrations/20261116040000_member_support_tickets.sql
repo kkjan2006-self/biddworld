@@ -71,7 +71,7 @@ set search_path = ''
 as $function$
 begin
   if coalesce((select auth.jwt()->'app_metadata'->>'role'),'') = 'admin' then
-    insert into public.audit_logs(actor_user_id, action, entity_type, entity_id, details)
+    insert into public.audit_logs(actor_user_id, action, entity_type, entity_id, metadata)
     values (
       auth.uid(),
       'support_ticket_updated',
