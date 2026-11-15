@@ -284,3 +284,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Production remains unchanged: 21/21 public tables RLS-enabled, 30 applied migrations, latest 20261115163218_admin_audit_log_pagination. No Production SQL, DDL/DML, settings, Storage, wallet balances, commissions, payouts, domain or hosting changes were made.
 - Vercel deployment status contexts still report build-rate-limit failures; GitHub Actions build success does not establish a Vercel deployment. No deployment or paid upgrade was attempted.
 - This is a verified source build/test checkpoint, not a Production-readiness certificate. Final module completion, complete RPC/RLS/Storage audit, owner-defined business rules, integration/browser testing, legal/compliance review and deployment preparation remain outstanding.
+
+## Catalogue pagination verification — 2026-11-16
+
+- Source commit `aa681d821b1051d65d8e5c6b19bebcd3e941fdc2` on `completion-work` passed GitHub Actions run `43756332602`: 19/19 Vitest files passed, TypeScript project build passed, and Vite 6.4.6 production bundle built successfully.
+- The same batch includes Fixed Bid catalogue pagination in commit `e95c37d0dc6848ca5f07fa1f8f75ee75e24e54d7`; its CI run `43756267630` passed.
+- Public auction listings now use deterministic 100-row server pages with Load More. Fixed Bid public catalogue uses deterministic 50-row pages with Load More. Existing member/admin financial locks are unchanged.
+- Admin member directory remains limited by the live `admin_list_members_sponsors()` RPC to its first 500 Main IDs. A secure paginated/search RPC and matching UI remain outstanding; the Production RPC was inspected read-only and no Production change was made.
+- CI validates repository source only. It does not apply pending migrations or certify live Production RPC/RLS/Storage behavior.

@@ -120,3 +120,9 @@ Implementation can continue on completion-work using source-only changes. The Pr
 - Source HEAD aaffdcdb4dad8dc08bef885d2b310adf5123d529 passed GitHub Actions run 43755981322: 17/17 Vitest files, TypeScript build and Vite production bundle.
 - This verifies source CI only; it does not validate unapplied migrations or live Production integration.
 - Vercel build-rate-limit contexts remain failures; no deployment was performed.
+
+## Admin member directory limit confirmed — 2026-11-16
+
+- Read-only `pg_get_functiondef` inspection confirms Production `admin_list_members_sponsors()` is a SECURITY DEFINER SQL function with trusted `app_metadata.role='admin'` check and a hard `LIMIT 500`; it has no search or pagination parameters.
+- The Admin UI performs client-side search and CSV export only over those returned records. Implement a forward-only Admin-checked paginated/search RPC and update the UI before claiming complete member directory coverage.
+- No Production function, table, grant, setting or data was changed.
