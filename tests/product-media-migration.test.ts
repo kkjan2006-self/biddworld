@@ -12,7 +12,7 @@ describe('admin product catalogue migration security contract', () => {
     expect(sql).toMatch(/values\s*\('product-media','product-media',true,5242880,array\['image\/jpeg','image\/png','image\/webp'\]\)/i);
     expect(sql).toMatch(/create policy product_media_public_read[\s\S]*?for select to anon,authenticated using\(bucket_id='product-media'\)/i);
     for (const operation of ['insert', 'update', 'delete']) {
-      expect(sql).toMatch(new RegExp('create policy product_media_admin_' + operation + '[\\s\\S]*?for ' + operation + '[\\s\\S]*?bucket_id=\\'product-media\\'[\\s\\S]*?app_metadata.*?role.*?admin', 'i'));
+      expect(sql).toMatch(new RegExp(`create policy product_media_admin_${operation}[\\s\\S]*?for ${operation}[\\s\\S]*?bucket_id='product-media'[\\s\\S]*?app_metadata.*?role.*?admin`, 'i'));
     }
   });
 
