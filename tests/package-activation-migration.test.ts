@@ -55,4 +55,17 @@ describe('package activation migration contract', () => {
     expect(reconciliation).not.toMatch(/status\s+in\s*\(\s*'credited'\s*,\s*'paid'\s*\)/i);
     expect(reconciliation).toMatch(/auth\.jwt\(\)->'app_metadata'->>'role'/i);
   });
+  
+  it('exposes only whitelisted boolean feature switches through audited admin RPCs', () => {
+    const features = readMigration('20261115130000_admin_feature_settings.sql');
+    expect(features).toMatch(/create or replace function public\.admin_get_feature_settings\(\)/i);
+    expect(features).toMatch(/create or replace function public\.admin_set_feature_setting\([\s\S]*?p_enabled boolean/i);
+    expect(features).toMatch(/auth\.jwt\(\)->'app_metadata'->>'role'[\s\S]*?'admin'/i);
+    expect(features).toMatch(/p_setting_key <> all\(array\[/i);
+    expect(features).toMatch(/insert into public\.audit_logs[\s\S]*?feature_setting_changed/i);
+    expect(features).toMatch(/revoke all on function public\.admin_set_feature_setting\(text,boolean\) from public,anon/i);
+    expect(features).toMatch(/grant execute on function public\.admin_set_feature_setting\(text,boolean\) to authenticated/i);
+    expect(features).toMatch(/'bidding_enabled','false'::jsonb/i);
+    expect(features).toMatch(/'duplicate_ids_enabled','false'::jsonb/i);
+  });
 });
