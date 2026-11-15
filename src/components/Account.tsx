@@ -11,7 +11,8 @@ type WithdrawalRow={request_id:string;amount:number;currency:string;status:strin
 export default function Account(){
  const [profile,setProfile]=useState<{display_name:string|null;phone:string|null;status:string;main_member_id:string|null}|null>(null);
  const [members,setMembers]=useState<Member[]>([]);const [activations,setActivations]=useState<Activation[]>([]);const [wallets,setWallets]=useState<WalletRow[]>([]);
- const [loading,setLoading]=useState(true);const [error,setError]=useState('');\n const [withdrawals,setWithdrawals]=useState<WithdrawalRow[]>([]);const [withdrawAmount,setWithdrawAmount]=useState('');const [payoutDetails,setPayoutDetails]=useState('');const [withdrawMessage,setWithdrawMessage]=useState('');const [withdrawBusy,setWithdrawBusy]=useState(false);
+ const [loading,setLoading]=useState(true);const [error,setError]=useState('');
+ const [withdrawals,setWithdrawals]=useState<WithdrawalRow[]>([]);const [withdrawAmount,setWithdrawAmount]=useState('');const [payoutDetails,setPayoutDetails]=useState('');const [withdrawMessage,setWithdrawMessage]=useState('');const [withdrawBusy,setWithdrawBusy]=useState(false);
  async function load(){
   setLoading(true);setError('');
   if(!supabase){setError('Connect the production database to view account details.');setLoading(false);return;}
@@ -24,9 +25,10 @@ export default function Account(){
    const [m,a,w,wr]=await Promise.all([
     supabase.from('member_ids').select('id,member_code,id_type,status,created_at').eq('owner_user_id',user.id).order('created_at'),
     supabase.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,submitted_at,package:packages(name)').eq('member_id',p.main_member_id).order('submitted_at',{ascending:false}).limit(50),
-    supabase.from('wallet_accounts').select('wallet_type,balance,currency').eq('member_id',p.main_member_id),\n    supabase.rpc('member_list_my_withdrawals')
+    supabase.from('wallet_accounts').select('wallet_type,balance,currency').eq('member_id',p.main_member_id),
+    supabase.rpc('member_list_my_withdrawals')
    ]);
-   if(m.error||a.error||w.error)setError('Some account history is hidden by current database permissions.');
+   if(m.error||a.error||w.error||wr.error)setError('Some account history is hidden by current database permissions.');
    setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);setWithdrawals((wr.data??[]) as WithdrawalRow[]);
   }
   setLoading(false);
