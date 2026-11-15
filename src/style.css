@@ -162,6 +162,9 @@ footer{background:#2c1048;color:#f4e9ff}
 .memberDashboardNav>b{font-size:10px;letter-spacing:1.5px;color:#e9bd65;padding:8px 10px 12px}
 .memberDashboardNav a{display:block;padding:11px 12px;border-radius:7px;color:#e0e7f0;text-decoration:none;font-size:12px;font-weight:700}
 .memberDashboardNav a:hover{background:#2a405d;color:#f2c66b}
+.memberDashboardNav button{display:block;width:100%;padding:11px 12px;border:0;border-radius:7px;background:transparent;color:#e0e7f0;text-align:left;font:700 12px inherit;cursor:pointer}
+.memberDashboardNav button:hover{background:#2a405d;color:#f2c66b}
+.memberDashboardNav button.active{background:linear-gradient(110deg,#1476c7,#12a6a5);color:#fff}
 .memberDashboardContent{min-width:0}
 .memberDashboardContent>[id]{scroll-margin-top:100px}
 .memberDashboard .packageIntro{border-radius:11px;background:#f8fafc;border:1px solid #e7ecf2;padding:16px}
