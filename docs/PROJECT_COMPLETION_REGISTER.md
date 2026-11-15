@@ -43,7 +43,7 @@ This register is an implementation inventory, not a claim of launch readiness. I
 
 - Do not delete, overwrite or seed real production member/financial records.
 - Do not use real members as test accounts or create real wallet credits, commissions or payouts.
-- Keep the Growth Package and referral commissions inactive pending economic/legal review. The current draft has ₹3,000 revenue, ₹3,500 Bid Wallet credit and up to ₹1,000 referral obligations (₹1,500 deficit before costs).
+- Keep the Growth Package and referral commissions inactive pending economic/legal review. The current draft has ₹3,000 revenue, ₹3,500 Bid Wallet credit and up to ₹1,000 referral obligations (₹1,500 deficit before costs). A new database trigger guard also blocks package approval/member activation and Bid Wallet package credits until `financial_model_approved=true`; the ordinary Admin feature-switch RPC cannot change this approval key.
 - Do not turn on bidding, fixed bids, winner settlement, withdrawals, duplicate IDs or referral commissions as part of feature development.
 - Keep Supabase service-role/secret keys out of frontend code.
 - Do not purchase domain/hosting or upgrade paid services during development.
@@ -56,3 +56,12 @@ Work through the incomplete items in dependency order: member/public experience 
 ## Latest implementation note
 
 - Admin Platform Settings feature groups were translated to English to match the required English application UI. This is a presentation-only change; it does not enable any feature, alter financial rules, or change database state.
+
+
+## Financial safety interlock (2026-11-15)
+
+- Added `20261116000000_financial_approval_guard.sql` on `completion-work`.
+- The migration seeds `financial_model_approved=false` without overwriting an existing operator value.
+- Database triggers reject package activation approval/member activation and package-activation Bid Wallet credits while the flag is false. The rejection is transaction-atomic, so the Admin review RPC cannot partially approve or credit.
+- The approval key is deliberately excluded from ordinary Admin feature toggles; only a trusted owner-approved operator procedure may change it after financial and legal/compliance review.
+- Admin payment review now displays the safety lock. This migration has NOT been applied to Production; no Production data was changed.
