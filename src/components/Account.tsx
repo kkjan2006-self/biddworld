@@ -32,7 +32,7 @@ export default function Account(){
   const {data:withdrawSetting}=await supabase.from('app_settings').select('setting_value').eq('setting_key','withdrawals_enabled').maybeSingle();
   setWithdrawEnabled(withdrawSetting?.setting_value===true);
   if(p.main_member_id){
-   const [m,a,w,wr,b,fb,rc]=await Promise.all([
+   const [m,a,w,wr,b,fb,rc,wp]=await Promise.all([
     supabase.from('member_ids').select('id,member_code,id_type,status,created_at').eq('owner_user_id',user.id).order('created_at'),
     supabase.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,submitted_at,package:packages(name)').eq('member_id',p.main_member_id).order('submitted_at',{ascending:false}).limit(50),
     supabase.from('wallet_accounts').select('wallet_type,balance,currency').eq('member_id',p.main_member_id),
