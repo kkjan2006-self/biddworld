@@ -155,7 +155,7 @@ The inspected RPC ACLs show `authenticated:EXECUTE` on the reviewed member/admin
 
 ### Production RPC inventory and frontend compatibility audit (2026-11-15)
 
-A complete read-only catalog of non-extension application functions in the live Production database found only eight functions across the `public` and `private` application schemas:
+A complete read-only catalog of non-extension application functions in the live Production database found eight exposed `public` RPCs and two application functions in the non-exposed `private` schema:
 
 - `public.admin_get_member_structure()`
 - `public.admin_get_mlm_overview()`
@@ -167,8 +167,6 @@ A complete read-only catalog of non-extension application functions in the live 
 - `public.place_bid(uuid)`
 - `private.handle_new_auth_user()` (signup trigger)
 - `private.place_bid(uuid)` (bid implementation)
-
-Correction to the count: there are eight exposed `public` RPCs plus two application functions in the private schema; the private signup function is trigger-only, and the private bid function is callable by authenticated/service roles as the implementation behind the public wrapper.
 
 The current frontend also calls these RPCs, but no matching function was found in the live Production catalog:
 - `submit_package_activation`
