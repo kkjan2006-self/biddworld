@@ -57,7 +57,8 @@ export default function Admin(){
    if(!overviewResult.error)setOverview(overviewResult.data as MlmOverview);
    if(!structureResult.error)setStructure(structureResult.data as StructureReport);
    if(!pendingResult.error)setPendingActivations((pendingResult.data??[]) as PendingActivation[]);
-   if(!auditResult.error)setAuditLogs((auditResult.data??[]) as AuditEntry[]);\n   if(!settingsResult.error)setFeatureSettings(Object.fromEntries(Object.entries((settingsResult.data??{}) as Record<string,unknown>).map(([key,value])=>[key,value===true])));
+   if(!auditResult.error)setAuditLogs((auditResult.data??[]) as AuditEntry[]);
+   if(!settingsResult.error)setFeatureSettings(Object.fromEntries(Object.entries((settingsResult.data??{}) as Record<string,unknown>).map(([key,value])=>[key,value===true])));
    if(results.some(x=>x.error))setError('Some totals are hidden by current database permissions or unavailable.');
    setCounts(Object.fromEntries(results.map(x=>[x.key,x.count??0])) as unknown as Counts);
    setLoading(false);
