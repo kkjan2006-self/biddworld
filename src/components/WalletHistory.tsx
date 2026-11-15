@@ -3,13 +3,14 @@ import { History, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { money } from '../lib/format';
 
-type Tx={id:string;transaction_type:string;direction:string;amount:number;balance_after:number;description:string|null;created_at:string;};
+type Tx={id:string;transaction_type:string;direction:string;amount:number;balance_after:number;description:string|null;created_at:string;wallet_account:{wallet_type:string;currency:string}|null;};
 export default function WalletHistory(){
  const [userId,setUserId]=useState<string|null>(null);
  const [rows,setRows]=useState<Tx[]>([]);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
  const [kind,setKind]=useState('all');
+ const [walletKind,setWalletKind]=useState('all');
  const [refresh,setRefresh]=useState(0);
 
  useEffect(()=>{
@@ -30,7 +31,7 @@ export default function WalletHistory(){
    const {data:profile,error:pError}=await supabase.from('profiles').select('main_member_id').eq('id',userId).maybeSingle();
    if(!active)return;
    if(pError||!profile?.main_member_id){setError('Sign in with an account linked to a Main ID to view transactions.');setLoading(false);return;}
-   const {data,error:qError}=await supabase.from('wallet_transactions').select('id,transaction_type,direction,amount,balance_after,description,created_at').eq('member_id',profile.main_member_id).order('created_at',{ascending:false}).limit(100);
+   const {data,error:qError}=await supabase.from('wallet_transactions').select('id,transaction_type,direction,amount,balance_after,description,created_at,wallet_account:wallet_accounts(wallet_type,currency)').eq('member_id',profile.main_member_id).order('created_at',{ascending:false}).limit(100);
    if(!active)return;
    if(qError)setError('Transaction history is unavailable for this account.');
    else setRows((data??[]) as Tx[]);
@@ -39,10 +40,11 @@ export default function WalletHistory(){
   void load();return()=>{active=false;};
  },[userId,refresh]);
 
- const visible=rows.filter(r=>kind==='all'||r.direction===kind);
+ const visible=rows.filter(r=>(kind==='all'||r.direction===kind)&&(walletKind==='all'||r.wallet_account?.wallet_type===walletKind));
+ function exportTransactions(){const data=[['Date','Wallet','Type','Direction','Amount','Currency','Balance After','Description'],...visible.map(r=>[r.created_at,r.wallet_account?.wallet_type||'',r.transaction_type,r.direction,String(r.amount),r.wallet_account?.currency||'INR',String(r.balance_after),r.description||''])];const csv='\\uFEFF'+data.map(row=>row.map(v=>'\"'+String(v??'').replace(/\"/g,'\"\"')+'\"').join(',')).join('\\r\\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='biddworld-wallet-transactions.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
  return <section className="walletHistory">
-  <div className="packageIntro"><span className="workspaceIcon"><History/></span><div><h3>Wallet transaction history</h3><p>Latest 100 transactions across your Main ID wallets. Entries are read-only.</p></div></div>
-  <div className="historyToolbar"><label>Show <select value={kind} onChange={e=>setKind(e.target.value)}><option value="all">All transactions</option><option value="credit">Credits</option><option value="debit">Debits</option></select></label><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>
+  <div className="packageIntro"><span className="workspaceIcon"><History/></span><div><h3>Wallet transaction history</h3><p>Latest 100 transactions across your Main ID wallets. Filter by wallet or direction and export the visible rows.</p></div></div>
+  <div className="historyToolbar"><label>Direction <select value={kind} onChange={e=>setKind(e.target.value)}><option value="all">All transactions</option><option value="credit">Credits</option><option value="debit">Debits</option></select></label><label>Wallet <select value={walletKind} onChange={e=>setWalletKind(e.target.value)}><option value="all">Both wallets</option><option value="bid">Bid Wallet</option><option value="income">Income Wallet</option></select></label><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button><button className="outline small" onClick={exportTransactions} disabled={!visible.length}>Export CSV</button></div>
   {loading?<p className="packageState">Loading transactions…</p>:error?<div className="notice">{error}</div>:visible.length===0?<div className="empty">No wallet transactions found.</div>:
    <div className="transactionList">{visible.map(r=><article key={r.id}><div><b>{(r.transaction_type||'Transaction').replaceAll('_',' ')}</b><small>{r.description||'Wallet transaction'} · {new Date(r.created_at).toLocaleString()}</small></div><div className="transactionAmount"><b className={r.direction==='credit'?'credit':'debit'}>{r.direction==='credit'?'+':'−'}{money(Number(r.amount))}</b><small>Balance: {money(Number(r.balance_after))}</small></div></article>)}</div>}
  </section>;
