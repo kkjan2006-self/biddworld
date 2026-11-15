@@ -100,3 +100,10 @@ Work through the incomplete items in dependency order: member/public experience 
 - The RPC still requires trusted Admin access and an inactive package, creates a new inactive plan version, validates every rule, records an audit entry, and never activates commissions or credits wallets.
 - Updated the Admin section description to match its configurable-depth behavior.
 - This migration has NOT been applied to Production. The existing Production function remains five-level-only until a reviewed migration is explicitly applied.
+
+
+## Package approval safety lock (2026-11-15)
+
+- The live Production settings snapshot still has package activation, Bid Wallet and Income Wallet feature flags enabled, and the `financial_model_approved` key was not present.
+- The source-only database financial guard migration is not applied to Production. To prevent routine Admin UI use from issuing a real package credit before owner approval, the Admin approval action is now hard-locked in the frontend; rejection remains available.
+- This client-side lock is an interim safeguard only. A trusted Admin could still call the exposed review RPC directly until the reviewed database guard is applied. Production must remain untouched per owner instruction; treat installation/reconciliation of the database guard as a hard launch blocker.
