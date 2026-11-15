@@ -206,3 +206,10 @@ Work through the incomplete items in dependency order: member/public experience 
 - Corrected the test's SQL closing-parenthesis whitespace assertion. GitHub Actions run `43752553469` for commit `af4ae55f71e62905644fba19f70c5f4ee6a7c911` passed all configured unit tests, TypeScript type-check and Vite production build.
 - Product media upload is already present in `Admin.tsx`: JPG/PNG/WebP, 5 MB maximum, Storage upload and public URL assignment. Remaining work is orphan/replaced-object cleanup and live Storage-policy validation; static migration tests do not prove live Storage behavior.
 - All related migrations remain unapplied to Production. No Production schema, data, settings, wallet balances or financial operations were changed.
+
+
+## Delivery tracking feature gate — 2026-11-16
+
+- Added `delivery_tracking_enabled` to the Admin UI's backend-pending feature set because the current branch has frontend RPC call sites but no version-controlled migration defining `admin_save_delivery_tracking` or `admin_list_delivery_tracking`.
+- Added a static regression test to ensure this gate remains in place until a reviewed migration contract exists. This is a safety hold, not a claim that delivery tracking backend is complete.
+- No Production changes or delivery record changes were made.
