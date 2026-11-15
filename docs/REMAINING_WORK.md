@@ -159,3 +159,11 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Added static regression coverage for the frontend RPC contract and SQL safeguards.
 - The first CI run for this commit passed all 21 test files / 83 tests but failed TypeScript build because the nullable Supabase client was not narrowed inside an async callback. The source correction is included in the following fix commit; final CI result is pending.
 - The new migration remains source-only and is NOT applied to Production. No Production data/schema/settings or financial records were changed.
+
+
+## Sponsor genealogy pagination — verified 2026-11-16
+
+- Final source commit `c3217f8180941cfc6c2d1c0d56841ec2edaee60b` passed GitHub Actions run `43759348588`: 21/21 Vitest files passed, TypeScript build and Vite production bundle passed; npm audit reported 0 vulnerabilities.
+- Member Referrals now uses authenticated server-side search and level filtering with bounded 50-row pages and Load More. SQL migration remains unapplied in Production.
+- Latest read-only Production check: 30 migrations, 21/21 public tables RLS enabled, 43 authenticated-callable SECURITY DEFINER warnings plus one anon-callable signup lookup, leaked-password protection disabled, one unindexed FK and 17 unused indexes. Full security review and live migration reconciliation remain blockers.
+- No Production data/schema/settings/migrations or financial records changed.

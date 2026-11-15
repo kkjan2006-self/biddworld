@@ -140,3 +140,14 @@ Implementation can continue on completion-work using source-only changes. The Pr
 - Admin Main ID directory now sends the search term to the Admin-checked paginated RPC, searches all Main IDs server-side, loads subsequent matching pages with the same query, and exports all matching pages to CSV.
 - This is still source-only integration. The new RPC migration `20261116090000_admin_members_sponsors_pagination.sql` is NOT applied to Production; live Production still has the legacy 500-row RPC. Do not use the updated UI against Production until a reviewed migration reconciliation is approved and deployed.
 - No Production database, data, settings, financial records, or migrations were changed.
+
+
+## Sponsor genealogy pagination CI and latest read-only snapshot — 2026-11-16
+
+- Source batch commit `c3217f8180941cfc6c2d1c0d56841ec2edaee60b` completed GitHub Actions run `43759348588` successfully.
+- CI: 21/21 Vitest files passed; TypeScript project build and Vite production bundle passed. `npm audit` reported 0 vulnerabilities at this run. This validates source code, not execution of the new SQL migration against Production.
+- Added the authenticated `get_my_mlm_dashboard_page(integer,integer,text,integer)` RPC source migration and member-side server search, depth filter, 50-row pagination and Load More. The new migration remains unapplied in Production.
+- Latest read-only Supabase snapshot: BiddWorld-Production ACTIVE_HEALTHY, PostgreSQL 17.11, ap-south-1; 30 applied migrations (latest `20261115163218_admin_audit_log_pagination`); 21 public tables, all 21 with RLS enabled.
+- Security Advisor still flags 43 authenticated-callable SECURITY DEFINER signatures, one anon-callable SECURITY DEFINER signup lookup (`lookup_sponsor`), and leaked-password protection disabled. Performance Advisor flags one unindexed FK on `notification_templates.created_by` and 17 currently unused indexes. These require function-by-function grant/body review and workload-aware remediation; do not blanket revoke or drop indexes.
+- The Production schema contains existing member/package/wallet rows. No Production SQL, DDL/DML, data, migration history, settings, Storage objects or financial records were changed during this turn.
+- Production still lacks the source-only financial approval interlock; `financial_model_approved` was not present in the inspected settings. Package activation, wallet, bidding and payout controls remain blocked from owner approval. Do not enable financial operations.

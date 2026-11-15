@@ -317,3 +317,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added source-only migration `20261116100000_member_genealogy_pagination.sql` and regression tests.
 - Initial CI: 21/21 test files and 83/83 tests passed; TypeScript build exposed nullable Supabase client narrowing in an async callback. Corrected in the follow-up fix commit; verify the new CI run before treating the batch as green.
 - Production migration not applied; no Production records or financial settings changed.
+
+
+## Member sponsor genealogy pagination — verified 2026-11-16
+
+- Final source commit `c3217f8180941cfc6c2d1c0d56841ec2edaee60b` passed GitHub Actions run `43759348588`.
+- CI: 21/21 Vitest files passed; TypeScript build and Vite production bundle passed; npm audit reported 0 vulnerabilities.
+- Member Referrals now supports full-downline server-side search, level filtering and 50-row paginated Load More using new authenticated RPC migration `20261116100000_member_genealogy_pagination.sql`.
+- The SQL migration is source-only and NOT applied to Production. No Production data, schema, settings or financial records changed.
