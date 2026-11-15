@@ -93,3 +93,41 @@ footer{background:#2c1048;color:#f4e9ff}
 .adminConsole .placementTree{padding:14px;background:#fbfcfd;border:1px solid #edf0f4;border-radius:10px}
 .adminConsole .empty{background:#fafbfd;border:1px dashed #dce2e9}
 @media(max-width:620px){.adminConsoleHeader{padding:18px;align-items:flex-start;flex-direction:column}.adminConsoleHeader h2{font-size:23px}.adminQuickNav{top:64px;margin-left:-2px;margin-right:-2px}.adminConsole .sponsorAdmin{padding:15px}.adminConsole .packageIntro{align-items:flex-start;flex-wrap:wrap}.adminConsole .packageIntro>div{min-width:0}.adminConsole .packageIntro button{margin-left:0}}
+
+
+/* Reference-inspired administrator console: clean white, navy typography, gold actions, green status */
+.adminConsole{background:#fff!important;color:#17243a!important;border:1px solid #e8edf3!important;border-radius:16px!important;padding:clamp(16px,2.5vw,30px)!important;box-shadow:0 12px 36px #15233b0b!important}
+.adminConsoleHeader{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;padding:4px 0 22px!important;border-bottom:1px solid #e8edf3!important}
+.adminEyebrow{color:#b48732!important;font-size:10px!important;font-weight:800!important;letter-spacing:2px!important}
+.adminConsoleHeader h2{color:#14243b!important;font:800 clamp(25px,3vw,34px)/1.15 Manrope,sans-serif!important;margin:7px 0!important}
+.adminConsoleHeader p{color:#718096!important;margin:0!important;font-size:13px!important}
+.adminSecure{display:inline-flex!important;align-items:center!important;gap:7px!important;background:#eaf6ef!important;color:#19734b!important;border:1px solid #d2ecdc!important;border-radius:30px!important;padding:9px 13px!important;font-size:11px!important;font-weight:800!important;white-space:nowrap!important}
+.adminQuickNav{display:flex!important;gap:8px!important;flex-wrap:wrap!important;padding:16px 0 20px!important;border-bottom:1px solid #edf0f4!important;margin-bottom:20px!important}
+.adminQuickNav a{color:#33445c!important;background:#f6f8fb!important;border:1px solid #e6ebf1!important;border-radius:7px!important;padding:9px 12px!important;font-size:11px!important;font-weight:700!important;text-decoration:none!important}
+.adminQuickNav a:hover{background:#172943!important;color:#fff!important;border-color:#172943!important}
+.adminConsole .packageIntro{background:#f8fafc!important;border:1px solid #e8edf3!important;border-radius:12px!important;padding:16px!important;display:flex!important;align-items:center!important;gap:14px!important}
+.adminConsole .packageIntro h3,.adminConsole h4{color:#192b45!important;font-weight:800!important}
+.adminConsole .packageIntro p,.adminConsole .sponsorAdmin>p{color:#718096!important;font-size:12px!important;line-height:1.6!important}
+.adminConsole .workspaceIcon{background:#fff5dc!important;color:#a77b24!important;border:1px solid #f0dfb5!important;border-radius:10px!important;flex:none!important}
+.adminConsole .adminStats,.adminConsole .mlmCards{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important;margin:18px 0 22px!important}
+.adminConsole .adminStats article,.adminConsole .mlmCards article{background:#fff!important;border:1px solid #e6ebf1!important;border-radius:11px!important;padding:17px!important;min-width:0!important;box-shadow:0 4px 12px #15233b06!important}
+.adminConsole .adminStats article svg,.adminConsole .mlmCards article svg{color:#21845b!important}
+.adminConsole .adminStats article small,.adminConsole .mlmCards article small{display:block!important;color:#718096!important;font-size:11px!important;margin:9px 0 5px!important}
+.adminConsole .adminStats article b,.adminConsole .mlmCards article b{display:block!important;color:#182943!important;font:800 25px Manrope,sans-serif!important}
+.adminConsole .sponsorAdmin{background:#fff!important;border:1px solid #e7ecf2!important;border-radius:12px!important;padding:18px!important;margin:18px 0!important}
+.adminConsole .sponsorAdmin h4,.adminConsole h4.referralHeading{font-size:16px!important;margin:0 0 13px!important}
+.adminConsole .sponsorAdminForm{display:flex!important;gap:9px!important;flex-wrap:wrap!important;margin:12px 0!important}
+.adminConsole input{background:#fff!important;border:1px solid #dce3eb!important;border-radius:8px!important;color:#17243a!important;padding:11px 12px!important;min-width:0!important;font:500 12px 'DM Sans',sans-serif!important}
+.adminConsole input:focus{outline:2px solid #e6c778!important;border-color:#c69b45!important}
+.adminConsole .primary{background:#d5a640!important;color:#17243a!important;box-shadow:none!important;border-radius:7px!important;padding:10px 14px!important;font-size:11px!important}
+.adminConsole .outline{background:#fff!important;color:#31445d!important;border:1px solid #dce3eb!important;border-radius:7px!important}
+.adminConsole .referralList>div{border-bottom:1px solid #edf0f4!important;padding:12px 2px!important}
+.adminConsole .referralList>div:last-child{border-bottom:0!important}
+.adminConsole .referralList b{color:#1b2d47!important}
+.adminConsole .referralList small{color:#758399!important}
+.adminConsole .empty{background:#f8fafc!important;border:1px dashed #dce3eb!important;border-radius:9px!important;color:#778499!important;padding:17px!important}
+.adminConsole .notice{background:#fff8e8!important;border:1px solid #f2dfb2!important;color:#73551e!important;border-radius:9px!important}
+.adminConsole .activationReviewActions .primary{background:#21845b!important;color:#fff!important}
+.adminConsole .activationReviewActions .outline{color:#a34242!important}
+.adminConsole .placementNode{color:#1d3049!important;background:#fbfcfe!important;border-radius:7px!important;padding-top:8px!important;padding-bottom:8px!important}
+@media(max-width:700px){.adminConsole .adminStats,.adminConsole .mlmCards{grid-template-columns:repeat(2,minmax(0,1fr))!important}.adminConsoleHeader{align-items:flex-start!important;flex-direction:column!important}.adminQuickNav{overflow-x:auto!important;flex-wrap:nowrap!important}.adminQuickNav a{white-space:nowrap!important}.adminConsole .packageIntro{align-items:flex-start!important;flex-wrap:wrap!important}.adminConsole .sponsorAdminForm>*{flex:1 1 100%!important}.adminConsole .adminStats article,.adminConsole .mlmCards article{padding:13px!important}}
