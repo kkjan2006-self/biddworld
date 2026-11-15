@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Gift, RefreshCw, Send } from 'lucide-react';
 import { configured, supabase } from '../lib/supabase';
 import { money } from '../lib/format';
+import { normalizePaymentReference } from '../lib/payment-reference';
 
 type PackageItem = {
   id: string;
@@ -48,8 +49,8 @@ export default function Packages() {
 
   async function submitRequest(item: PackageItem) {
     if (!supabase) return;
-    const reference = (references[item.id] ?? '').trim();
-    if (reference.length < 6 || reference.length > 80 || !/^[A-Za-z0-9./_-]+$/.test(reference)) {
+    const reference = normalizePaymentReference(references[item.id] ?? '');
+    if (!reference) {
       setMessages(current => ({ ...current, [item.id]: 'Enter a valid payment reference (6–80 letters or numbers).' }));
       return;
     }
