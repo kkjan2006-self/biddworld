@@ -1,0 +1,34 @@
+import {useEffect,useState} from 'react';
+import {Network,RefreshCw,Users} from 'lucide-react';
+import {supabase} from '../lib/supabase';
+
+type PlacementMember={member_code:string;display_name:string;status:string;depth:number;placement_position:string|null;created_at:string};
+type PlacementResult={root_member_code:string;tree:PlacementMember[]};
+
+export default function PlacementTree(){
+ const [data,setData]=useState<PlacementResult|null>(null);
+ const [loading,setLoading]=useState(true);
+ const [error,setError]=useState('');
+ const [refresh,setRefresh]=useState(0);
+ useEffect(()=>{
+  let active=true;
+  async function load(){
+   setLoading(true);setError('');
+   if(!supabase){setError('Database connection is unavailable.');setLoading(false);return;}
+   const {data,error}=await supabase.rpc('get_my_placement_tree');
+   if(!active)return;
+   if(error)setError(error.message);else setData(data as PlacementResult);
+   setLoading(false);
+  }
+  void load();
+  return()=>{active=false};
+ },[refresh]);
+ return <section className="referralWorkspace">
+  <div className="packageIntro"><span className="workspaceIcon"><Network/></span><div><h3>My Placement Tree</h3><p>Placement positions are shown separately from Sponsor Referral genealogy.</p></div><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>
+  {loading?<p className="packageState">Loading placement tree…</p>:error?<div className="notice">{error}</div>:data&&<>
+   <div className="genealogyHead"><div><h4>Placement Network</h4><p>Main ID: {data.root_member_code}</p></div><span>{data.tree.length} positions</span></div>
+   {data.tree.length===0?<div className="empty">No placement positions are recorded yet.</div>:<div className="genealogyList">{data.tree.map(m=><article className="genealogyMember" key={m.member_code} style={{'--tree-depth':Math.min(m.depth,8)} as React.CSSProperties}><span className="genealogyLine"/><div className="genealogyAvatar"><Users size={16}/></div><div className="genealogyInfo"><b>{m.display_name}</b><small>{m.member_code} · Joined {new Date(m.created_at).toLocaleDateString('en-IN')}</small><small>Position: {m.placement_position||'Not assigned'}</small></div><span className="genealogyLevel">{m.depth===0?'Root':'Level '+m.depth}</span><span className={m.status==='active'?'memberActive':'memberStatus'}>{m.status}</span></article>)}</div>}
+   <p className="genealogyNote">Only Main IDs are counted. Duplicate IDs are excluded from the placement tree.</p>
+  </>}
+ </section>;
+}
