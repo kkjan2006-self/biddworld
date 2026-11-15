@@ -35,7 +35,7 @@ export default function WalletHistory(){
    const {data:profile,error:pError}=await supabase.from('profiles').select('main_member_id').eq('id',userId).maybeSingle();
    if(!active)return;
    if(pError||!profile?.main_member_id){setError('Sign in with an account linked to a Main ID to view transactions.');setLoading(false);return;}
-   const {data,error:qError}=await supabase.from('wallet_transactions').select('id,transaction_type,direction,amount,balance_after,description,created_at,wallet_account:wallet_accounts(wallet_type,currency)').eq('member_id',profile.main_member_id).order('created_at',{ascending:false}).range(page*100,page*100+99);
+   const {data,error:qError}=await supabase.from('wallet_transactions').select('id,transaction_type,direction,amount,balance_after,description,created_at,wallet_account:wallet_accounts(wallet_type,currency)').eq('member_id',profile.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(page*100,page*100+99);
    if(!active)return;
    if(qError)setError('Transaction history is unavailable for this account.');
    else {const batch=(data??[]) as Tx[];setRows(current=>page===0?batch:[...current,...batch]);setHasMore(batch.length===100);}
