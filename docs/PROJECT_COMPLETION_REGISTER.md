@@ -264,3 +264,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added a matching Admin UI guard to refuse enabling financial feature switches before owner approval.
 - Expanded static security-contract tests to cover the new trigger surfaces and feature-toggle guard.
 - This migration is source-only and NOT applied to Production. Live Production still lacks this interlock; no Production schema, data, settings or financial records were changed.
+
+
+## Member Dashboard history pagination — 2026-11-16
+
+- Member package activations now load 50 per page; auction bids, Fixed Bid entries, referral commissions and winning payments load 100 per page.
+- Added deterministic secondary ID ordering, per-history Load More controls and busy/error handling. Newly loaded winning payments also fetch linked delivery records.
+- Existing wallet transaction history and complete personal CSV export remain independently paginated; no financial write paths were added.
+- Added static regression tests for bounded first pages, stable ordering and all continuation controls. Source-only; Production unchanged.

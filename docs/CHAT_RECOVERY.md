@@ -99,3 +99,10 @@
 - Source migration `20261116080000_financial_activity_lockdown.sql` now also guards credited referral commissions, auction bids and Fixed Bid entries, and replaces the Admin feature-switch RPC with an owner-approval check for financial/MLM switches.
 - Admin UI also blocks attempts to enable these switches while the source-level approval lock is active. The guard remains source-only; Production has not received this migration or any settings changes.
 - Expanded the static migration/UI contract test. CI verification is pending.
+
+
+## Member Dashboard history pagination batch — 2026-11-16
+
+- Added per-section Load More pagination for package activation, auction bid, Fixed Bid, referral commission and winning-payment histories, with deterministic ID tie-break ordering.
+- Winner history loads linked delivery records for newly fetched payment IDs. Wallet history and full CSV exports retain their own pagination.
+- Added focused static regression tests. No Production changes or financial writes.
