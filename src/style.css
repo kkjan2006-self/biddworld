@@ -339,3 +339,65 @@ footer{background:#2c1048;color:#f4e9ff}
 .adminDashboardLayout>.adminQuickNav a svg{flex:0 0 16px!important;opacity:.9!important}
 .adminDashboardLayout>.adminQuickNav a:hover svg,.adminDashboardLayout>.adminQuickNav a:focus svg{opacity:1!important}
 .memberDashboardNav a{display:flex!important;align-items:center!important;gap:9px!important}
+
+/* Admin platform feature switches: readable, touch-friendly vertical layout */
+.adminModuleDetail .featureSettingsGrid{
+ display:flex;
+ flex-direction:column;
+ align-items:stretch;
+ gap:12px;
+ width:100%;
+ margin:16px 0;
+}
+.adminModuleDetail .featureSettingRow{
+ box-sizing:border-box;
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ gap:10px;
+ width:100%;
+ min-width:0;
+ padding:14px;
+ border:1px solid var(--border,#d9e2ec);
+ border-radius:12px;
+ background:#fff;
+ cursor:pointer;
+}
+.adminModuleDetail .featureSettingRow>span{
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ gap:5px;
+ width:100%;
+ min-width:0;
+}
+.adminModuleDetail .featureSettingRow>span b{
+ display:block;
+ font-size:16px;
+ line-height:1.35;
+ color:#1e293b;
+ overflow-wrap:anywhere;
+}
+.adminModuleDetail .featureSettingRow>span small{
+ display:block;
+ font-size:13px;
+ line-height:1.5;
+ color:#64748b;
+}
+.adminModuleDetail .featureSettingRow input[type="checkbox"]{
+ display:block;
+ width:25px;
+ height:25px;
+ min-width:25px;
+ margin:0;
+ accent-color:#1677e8;
+ cursor:pointer;
+}
+.adminModuleDetail .featureSettingRow input[type="checkbox"]:disabled{
+ cursor:wait;
+ opacity:.65;
+}
+.adminModuleDetail .featureSettingRow:focus-within{
+ outline:2px solid #93c5fd;
+ outline-offset:2px;
+}
