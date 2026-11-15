@@ -1,6 +1,6 @@
 # Production readiness checklist
 
-BiddWorld is a runnable frontend and development database baseline. It is **not yet a complete production financial platform**. GitHub Actions CI and the GitHub Pages preview currently pass for the latest commit; this validates the repository build/tests and deployment workflow, not production database readiness.
+BiddWorld is a runnable frontend and development database baseline. It is **not yet a complete production financial platform**. The last confirmed GitHub Actions CI and GitHub Pages success was on an earlier commit; the latest Vercel deployment checks are blocked by the provider's build-rate limit (retry in 24 hours). Do not treat the latest commit as deployed until a fresh successful deployment is confirmed.
 
 ## Included in the repository
 
@@ -59,3 +59,17 @@ Do not enable bidding in production until backend authorization and real transac
 ### Signup migration regression caught before deployment
 
 The pending `20261114200000_save_registration_phone.sql` originally replaced the Auth signup trigger without carrying forward the sponsor-referral validation/default-sponsor linking logic already present in Production (from the historical sponsor migrations `20261114181107` and `20261114181114`). Applying that version would have silently stopped validating/linking the submitted sponsor referral ID and default sponsor. The repository migration has now been corrected to preserve the live sponsor-validation behavior while saving the registration phone. The corrected SQL was executed inside a transaction and rolled back successfully; Production remains unchanged. This is a code correction, not a production deployment.
+
+
+## Additional production security review (2026-11-15)
+
+A further read-only review of live Production function definitions, execute ACLs and Supabase security advisors confirmed:
+
+- The signup trigger is in the non-exposed `private` schema, runs as SECURITY DEFINER with an empty search_path, and its execute ACL is limited to the database owner. The trigger validates an explicitly supplied active Main ID sponsor, otherwise resolves the configured default sponsor, and only permits the no-sponsor bootstrap case when there are no active Main IDs. The live trigger also stores the registration phone and creates the Main ID wallets.
+- Admin RPCs inspected (`admin_get_member_structure`, `admin_get_mlm_overview`, `admin_list_members_sponsors`, `admin_set_default_sponsor`, `admin_set_member_sponsor`) check a non-null authenticated user and the `app_metadata.role = admin` claim before privileged work. Their authenticated EXECUTE grants are therefore intentional; the advisor warnings alone do not establish an authorization bypass.
+- `lookup_sponsor(text)` is intentionally callable by `anon` and `authenticated` for signup sponsor lookup. It returns only an exact-match active Main ID's member code and display name. However, it is an externally callable SECURITY DEFINER endpoint and has no rate limit in the function; add abuse/rate-limit protection and review enumeration/privacy risk before public launch. Do not revoke anon access without first changing the signup flow.
+- Production advisor findings currently include one anon-callable SECURITY DEFINER function (`lookup_sponsor`) and seven authenticated-callable SECURITY DEFINER functions. The admin functions inspected include explicit app_metadata admin checks; `get_my_mlm_dashboard` checks authentication and derives the member from the caller's own profile. Continue reviewing every function body and its grants before launch.
+- Live Production dashboard functions still use `payment_status = 'verified'` for activation counts, while the current repository activation approval flow uses `approved'`. This is a confirmed live reporting mismatch; correct it through a reviewed forward-only migration after full drift reconciliation, not by editing Production ad hoc.
+- Live `app_settings` currently contains `bidding_enabled = false` (JSON boolean). No default sponsor setting is present, and the live `member_ids` table currently has zero rows. First-admin provisioning and default-sponsor bootstrap therefore remain unresolved.
+
+No Production data or schema was changed during this review. Advisor findings are documented for triage; no blanket grant revocation or policy changes were made.
