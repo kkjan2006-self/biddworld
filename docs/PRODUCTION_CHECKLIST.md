@@ -20,6 +20,15 @@ BiddWorld is a runnable frontend and development database baseline. It is **not 
 - The first trusted administrator and default sponsor/Main ID still require secure provisioning.
 - Keep service-role/secret keys out of frontend code and environment variables exposed to Vite.
 
+
+## Verified production migration drift (2026-11-15)
+
+A read-only inspection of the configured **BiddWorld-Production** project found a migration-history mismatch. Its Supabase migration history currently records only these five versions: `20261114161950`, `20261114181107`, `20261114181114`, `20261114183412`, and `20261114183454`. The repository contains no migration files for versions `20261114181107` and `20261114181114`. Repository migrations from `20261114200000` onward are not recorded in that production migration history, even though the live schema already contains a number of their newer columns and structures. Therefore, neither replaying the full repository migration directory nor simply marking files as applied is safe.
+
+The live `get_my_mlm_dashboard()` and `admin_get_mlm_overview()` functions still compare `package_activations.payment_status` to `verified`, while the current repository's package-review workflow writes `approved`. The repository migration `20261115020000_admin_package_activation_review.sql` corrects those comparisons, but it is not recorded as applied in production. Its SQL was tested inside a transaction and rolled back; no persistent production change was made.
+
+**Required next step:** reconstruct the missing historical migrations and compare every live object/function/policy with the repository before preparing a forward-only reconciliation migration. Do not apply baseline migrations, insert migration-history rows, or change production functions until that review is complete and explicitly approved.
+
 ## Still required before launch
 
 1. Apply and verify pending migrations in staging, then production; review SECURITY DEFINER authorization, grants, RLS, idempotency and ledger writes.
