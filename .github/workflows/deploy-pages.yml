@@ -1,19 +1,15 @@
-name: Deploy BiddWorld preview to GitHub Pages
-
+name: Deploy BiddWorld preview and build GoDaddy package
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
   pages: write
   id-token: write
-
 concurrency:
   group: github-pages
   cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,13 +24,12 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm test
-      - name: Build site
+      - name: Build GitHub Pages preview
         run: npm run build
         env:
           GITHUB_PAGES: 'true'
-
           VITE_SUPABASE_URL: https://hbqatszyzqobgtauyuzy.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_hdgI3LooDiX9yf91OzvyYQ_qSI8AqoY
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_hdgI3LooDiX9yf91dcYQ_qSI8AqoY
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -43,7 +38,26 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-
+      - name: Build GoDaddy root-domain website
+        run: |
+          npm run build
+          mkdir -p godaddy-package/website godaddy-package/database/migrations
+          cp -a dist/. godaddy-package/website/
+          cp public/.htaccess godaddy-package/website/.htaccess
+          cp -a supabase/migrations/. godaddy-package/database/migrations/
+          cp GODADDY-README.md godaddy-package/README.txt
+          cd godaddy-package
+          zip -qr ../BiddWorld-GoDaddy-Package.zip .
+        env:
+          VITE_SUPABASE_URL: https://hbqatszyzqobgtauyuzy.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_hdgI3LooDiX9yf91dcYQ_qSI8AqoY
+      - name: Upload GoDaddy package
+        uses: actions/upload-artifact@v4
+        with:
+          name: BiddWorld-GoDaddy-Package
+          path: BiddWorld-GoDaddy-Package.zip
+          if-no-files-found: error
+          retention-days: 30
   deploy:
     environment:
       name: github-pages
