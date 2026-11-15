@@ -11,7 +11,7 @@ describe('package activation migration contract', () => {
 
   it('uses a narrow authenticated wrapper while the private function validates the caller', () => {
     expect(submission).toMatch(/create or replace function private\.submit_package_activation/i);
-    expect(submission).toMatch(/v_uid\s*:=\s*auth\.uid\(\)/i);
+    expect(submission).toMatch(/v_uid(?:\s+uuid)?\s*:=\s*auth\.uid\(\)/i);
     expect(submission).toMatch(/if v_uid is null then[\s\S]*?Authentication required/i);
     expect(submission).toMatch(/create or replace function public\.submit_package_activation\([\s\S]*?security definer/i);
     expect(submission).toMatch(/revoke all on function public\.submit_package_activation\(uuid, text\)[\s\S]*?from public, anon/i);
