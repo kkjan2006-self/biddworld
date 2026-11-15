@@ -222,3 +222,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Removed the obsolete UI pending-backend lock. The database delivery_tracking_enabled feature switch remains the write gate and has not been enabled.
 - Corrected support-ticket audit logging to use Production's audit_logs.details column. Renamed the support migration to 20261116041000_member_support_tickets.sql to avoid a duplicate migration version with the auction draft migration.
 - No Production migration, setting, delivery row or financial data was changed. Static tests cover source contracts; live execution remains pending.
+
+
+## Support and notification inbox pagination — 2026-11-16
+
+- Member Support and Admin Support Queue now load records in bounded batches of 100, with deterministic secondary ID ordering and a Load More control.
+- Member Notifications and Admin Notifications now use the same 100-record pagination pattern; the member unread count explicitly describes the currently displayed records.
+- Added a Vitest static contract test for bounded first-page and subsequent-page queries and the visible pagination controls.
+- These are source-only UI changes. No Production schema, data, Storage, feature settings or financial state was changed.
+- CI has not yet been verified for these commits. Vercel status contexts currently report build-rate-limit failures; these are provider limits and do not establish whether the TypeScript/Vite build passes.
