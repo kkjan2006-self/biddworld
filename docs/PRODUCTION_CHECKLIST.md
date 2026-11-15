@@ -183,3 +183,47 @@ The only non-internal application trigger found on `auth.users` is `on_biddworld
 The Supabase security advisor currently reports one anon-callable SECURITY DEFINER function (`lookup_sponsor`) and seven authenticated-callable SECURITY DEFINER public functions. These are warnings for review, not proof of an authorization bypass; the reviewed admin functions have explicit role checks.
 
 No Production schema, function, grant, trigger, or data was changed during this audit. The missing frontend RPCs and dashboard status mismatch are deployment blockers to resolve only after the full migration drift review and explicit deployment approval.
+
+
+## Current recovery snapshot — 2026-11-15 (supersedes earlier snapshot statements above)
+
+### Repository and CI
+
+- Latest inspected default branch: main, commit 0f75647a7d023a2bc76ff837eee0b1966e907168.
+- The latest GitHub Actions CI run 43736583121 completed successfully: all 36 existing tests passed, and TypeScript type-check plus Vite production build passed.
+- The latest preview/package workflow 43736583153 completed its test step, GitHub Pages preview build, Pages artifact upload, GoDaddy root-domain build and GoDaddy package artifact upload successfully. At the time of this snapshot, the final Pages deploy job was still queued/in progress; do not claim the preview deployment is live until that job is confirmed successful.
+- The latest source fixes corrected an unmatched Admin JSX closing tag, two Admin TypeScript typing errors, and the Supabase embedded wallet relation type/export access. These changes are committed; no existing feature was intentionally removed.
+- Dependency installation currently reports 6 npm audit findings (2 moderate, 2 high, 2 critical). The repository root does not currently include a package-lock.json, so dependency reproducibility and the full advisory details remain to be addressed. Do not run npm audit fix --force blindly.
+
+### Live BiddWorld-Production snapshot
+
+All checks below were read-only and targeted only project hbqatszyzqobgtauyuzy (BiddWorld-Production, ap-south-1, PostgreSQL 17). No production data, schema, grants, policies, or functions were changed during this audit.
+
+- Auth users: 2; profiles: 2; member IDs: 2; audit log rows: 2.
+- Package activations, wallet transactions, referral commissions, products, auctions, Fixed Bid campaigns, bids, Fixed Bid entries, withdrawals, winning payments and delivery records: 0 each.
+- Public schema inventory: 21 ordinary tables; all 21 have RLS enabled. notification_templates is the current advisor finding with RLS enabled but no table policy; its intended access is through the Admin-only RPC, and direct table access should remain closed unless a reviewed policy is added.
+- Supabase migration history now returns 30 applied versions (not the five shown in the earlier snapshot). The repository migration directory and live history still use differing version/name sets, so full migration reconciliation remains required; do not replay baseline migrations or fabricate history rows.
+- The live database currently contains submit_package_activation, admin_list_pending_activations, admin_review_package_activation, admin_list_audit_logs_page and the recent Admin module RPCs. This supersedes the earlier statement that those activation/audit RPCs were absent. Continue to verify every RPC body and its grant/authorization rather than relying on existence alone.
+- Exactly one Auth account currently has the Admin app_metadata role, and it matches the owner-requested primary Admin account. No password or credential was inspected or changed.
+- The intended BiddWorld 1:5 Growth Package exists at ₹3,000 with ₹3,500 Bid Wallet credit and is inactive. A second inactive package row with an anomalous name also exists; preserve both until its origin and intended disposition are reviewed. No package was activated.
+- Current feature settings: registration, sponsor referrals, package activations, Bid Wallet and Income Wallet settings are true; bidding, referral commissions, withdrawals, Fixed Bid, duplicate IDs, winning payments, delivery tracking, notifications and winner-selection configuration are false. The target package is inactive, so no active package is available for activation. Do not infer that a true wallet setting authorizes a financial workflow.
+
+### Current security and backend-gate findings
+
+- Security advisors currently report 43 authenticated-callable SECURITY DEFINER function findings and one anon-callable finding (lookup_sponsor). These are review findings, not proof that every function is exploitable. Admin RPCs inspected explicitly check the caller's app_metadata.role = admin; member RPCs must be reviewed individually. lookup_sponsor intentionally supports anonymous signup lookup and returns an exact active Main ID code/display name, but needs rate-limit and enumeration/privacy review before launch.
+- Leaked-password protection is disabled in Supabase Auth and should be enabled in project Auth settings before public launch.
+- Performance advisors report one unindexed foreign key on notification_templates.created_by and 23 unused-index observations. Do not drop indexes solely because they are currently unused; the project has very low traffic/data volume.
+- private.place_bid() checks bidding_enabled and atomically debits Bid Wallet first then Income Wallet, but currently does not separately enforce the bid_wallet_enabled and income_wallet_enabled settings. Bidding is OFF, which blocks live bids today; add explicit wallet-feature checks during the reviewed forward-only backend reconciliation.
+- private.submit_package_activation() checks that the selected package is active and prevents duplicate payment references, but does not itself check package_activations_enabled. All current packages are inactive, which prevents requests today; enforce the switch server-side before any package can be activated.
+- member_create_withdrawal_request() checks withdrawals_enabled, but full minimum/maximum/fee rules, bank verification, reservation/debit semantics, Admin review and payout settlement are not complete. Withdrawals remain OFF.
+- No commission posting engine, fixed-bid participation/winner algorithm, auction settlement, winning-payment settlement or actual payout provider has been activated.
+
+### Immediate next development priorities
+
+1. Complete a file-by-file source inventory and refresh this document after each verified batch.
+2. Review every SECURITY DEFINER function and feature-switch enforcement; prepare only forward-only migration changes after reconciling the 30 live migration records against repository SQL.
+3. Fix package activation and wallet feature-gate gaps in repository SQL/tests, without applying unreviewed SQL to Production.
+4. Add lockfile and inspect/resolve dependency advisories without forced major upgrades.
+5. Expand tests beyond the current 36 unit tests to isolated RPC/security integration tests and Android browser checks.
+6. Finish Member Dashboard gaps (duplicate-ID attribution, sponsor details, notifications, account security) and Admin report/filter/export gaps without replacing existing modules.
+
