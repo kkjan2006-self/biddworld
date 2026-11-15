@@ -83,3 +83,11 @@ A read-only check found `package_activations_enabled=true`, `bid_wallet_enabled=
 - Support audit logging now targets the existing `audit_logs.metadata` column.
 - Added `tests/support-migration.test.ts` to verify the migration security contract.
 - CI now includes pushes to `completion-work`; GitHub currently reports no workflow run for the latest branch commit. Build, TypeScript, unit tests and live RLS behavior remain unverified.
+
+
+### In-app Notifications remaining verification
+
+- Member inbox and targeted Admin notification authoring are implemented in source.
+- Database migration `20261116050000_member_notifications.sql` is source-only and not applied to Production.
+- Email/SMS/push dispatch, delivery retries, scheduled notices and browser push permissions remain out of scope until a free approved provider and consent design are selected.
+- Run CI/build/tests and validate RLS in a disposable Supabase project before production reconciliation.

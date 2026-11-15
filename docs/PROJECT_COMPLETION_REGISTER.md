@@ -175,3 +175,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Corrected the support audit trigger to write `audit_logs.metadata`, matching the existing schema (the initial draft referenced a non-existent `details` column).
 - Added static migration contract tests covering owner/admin RLS, restricted member insert and Admin update grants, audit schema compatibility and input bounds.
 - Expanded the existing CI push trigger to include `completion-work`; the workflow has not yet reported a run for this branch, so no test/build success is claimed.
+
+
+## In-app Notifications module (2026-11-16)
+
+- Added signed-in member inbox with unread count, refresh and mark-as-read.
+- Added Admin-only targeted notification creation with UUID recipient validation, bounded title/message and category allow-list.
+- Added additive `20261116050000_member_notifications.sql` with RLS, owner-only reads/read receipts and Admin-only inserts. No email, SMS or push delivery is configured.
+- Added static migration security-contract tests. Migration remains unapplied to Production. Build/test run is still pending.
