@@ -1,6 +1,6 @@
 # Production readiness checklist
 
-BiddWorld is a runnable frontend and development database baseline. It is **not yet a complete production financial platform**. The last confirmed GitHub Actions CI and GitHub Pages success was on an earlier commit; the latest Vercel deployment checks are blocked by the provider's build-rate limit (retry in 24 hours). Do not treat the latest commit as deployed until a fresh successful deployment is confirmed.
+BiddWorld is a runnable frontend and development database baseline. It is **not yet a complete production financial platform**. The latest commit `ad8b94138d97e2bf1483418cf95b8629672a660f` has a successful GitHub Actions CI run and a successful GitHub Pages preview deployment. Vercel checks remain blocked by the provider's build-rate limit (retry in 24 hours); this does not invalidate the successful GitHub Actions build or Pages preview.
 
 ## Included in the repository
 
@@ -73,3 +73,12 @@ A further read-only review of live Production function definitions, execute ACLs
 - Live `app_settings` currently contains `bidding_enabled = false` (JSON boolean). No default sponsor setting is present, and the live `member_ids` table currently has zero rows. First-admin provisioning and default-sponsor bootstrap therefore remain unresolved.
 
 No Production data or schema was changed during this review. Advisor findings are documented for triage; no blanket grant revocation or policy changes were made.
+
+
+### Latest repository verification (2026-11-15)
+
+- GitHub Actions CI run **99** completed successfully for `ad8b94138d97e2bf1483418cf95b8629672a660f`.
+- GitHub Pages preview deployment run **67** completed successfully for the same commit.
+- Vercel checks for that commit still report provider build-rate limiting. Treat Vercel as not deployed until a successful Vercel check appears.
+- The repository migration `20261115020000_admin_package_activation_review.sql` combines package-activation schema/RPC work with dashboard function replacements. Although its dashboard definitions correct the `verified` → `approved` status mismatch, do not run this entire migration against Production merely to fix the dashboard: Production migration history and live schema are already divergent. Extract and validate a narrow forward-only dashboard reconciliation only after the full object/schema drift review.
+- No Production migration or data change was made during this step.
