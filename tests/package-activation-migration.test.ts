@@ -9,6 +9,7 @@ describe('package activation migration contract', () => {
   const submission = readMigration('20261115010000_submit_package_activation_request.sql');
   const review = readMigration('20261115020000_admin_package_activation_review.sql');
   const reconciliation = readMigration('20261115074500_reconcile_mlm_dashboard_statuses.sql');
+  const bidWrapper = readMigration('20261115090000_secure_place_bid_wrapper.sql');
 
   it('uses a narrow authenticated wrapper while the private function validates the caller', () => {
     expect(submission).toMatch(/create or replace function private\.submit_package_activation/i);
@@ -38,6 +39,15 @@ describe('package activation migration contract', () => {
     expect(review).not.toMatch(/status\s+in\s*\(\s*'credited'\s*,\s*'paid'\s*\)/i);
     expect(review).toMatch(/status\s*=\s*'credited'/i);
   });
+  it('exposes bidding only through an authenticated definer wrapper with a fixed search path', () => {
+    expect(bidWrapper).toMatch(/create or replace function public\\.place_bid\\(p_auction_id uuid\\)[\\s\\S]*?security definer/i);
+    expect(bidWrapper).toMatch(/set search_path = pg_catalog, public, private/i);
+    expect(bidWrapper).toMatch(/select private\\.place_bid\\(p_auction_id\\)/i);
+    expect(bidWrapper).toMatch(/revoke all on function public\\.place_bid\\(uuid\\) from public, anon/i);
+    expect(bidWrapper).toMatch(/grant execute on function public\\.place_bid\\(uuid\\) to authenticated/i);
+    expect(bidWrapper).toMatch(/revoke all on function private\\.place_bid\\(uuid\\) from public, anon, authenticated/i);
+  });
+
   it('keeps the production MLM dashboard aligned with canonical database statuses', () => {
     expect(reconciliation).toMatch(/payment_status\s*=\s*'approved'/i);
     expect(reconciliation).toMatch(/status\s*=\s*'credited'/i);
