@@ -131,3 +131,26 @@ footer{background:#2c1048;color:#f4e9ff}
 .adminConsole .activationReviewActions .outline{color:#a34242!important}
 .adminConsole .placementNode{color:#1d3049!important;background:#fbfcfe!important;border-radius:7px!important;padding-top:8px!important;padding-bottom:8px!important}
 @media(max-width:700px){.adminConsole .adminStats,.adminConsole .mlmCards{grid-template-columns:repeat(2,minmax(0,1fr))!important}.adminConsoleHeader{align-items:flex-start!important;flex-direction:column!important}.adminQuickNav{overflow-x:auto!important;flex-wrap:nowrap!important}.adminQuickNav a{white-space:nowrap!important}.adminConsole .packageIntro{align-items:flex-start!important;flex-wrap:wrap!important}.adminConsole .sponsorAdminForm>*{flex:1 1 100%!important}.adminConsole .adminStats article,.adminConsole .mlmCards article{padding:13px!important}}
+
+/* Responsive MLM-style administrator dashboard */
+.adminDashboardLayout{display:grid;grid-template-columns:218px minmax(0,1fr);gap:20px;align-items:start}
+.adminDashboardLayout>.adminQuickNav{position:sticky;top:92px;display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:12px;margin:0;background:#17283e;border-radius:12px;max-height:calc(100vh - 112px);overflow:auto}
+.adminDashboardLayout>.adminQuickNav a{display:flex;align-items:center;min-height:42px;padding:11px 13px;color:#dce5f0;border:1px solid transparent;border-radius:7px;font-size:12px}
+.adminDashboardLayout>.adminQuickNav a:hover{background:#263d59;color:#f2c66b;border-color:#344c68}
+.adminDashboardContent{min-width:0}
+.adminDashboardContent>[id]{scroll-margin-top:100px}
+.adminAnalytics{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.85fr);gap:14px;margin:18px 0 22px}
+.adminChartCard{min-width:0;padding:18px;background:#fff;border:1px solid #e5eaf0;border-radius:12px;box-shadow:0 5px 16px #15233b07}
+.adminChartHead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.adminChartHead>div{display:grid;gap:5px}.adminChartHead b{font:800 14px Manrope;color:#1b2d47}.adminChartHead small,.adminChartHead>span{font-size:10px;color:#8290a3}
+.adminBarChart{height:150px;display:flex;align-items:end;justify-content:space-around;gap:12px;padding:15px 4px 0;border-bottom:1px solid #e9edf2;background:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,#edf1f5 36px)}
+.adminBarChart>div{height:100%;flex:1;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:7px;min-width:0}
+.adminBarChart i{display:block;width:min(28px,70%);min-height:4px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#28b77a,#16845d)}
+.adminBarChart small{font-size:9px;color:#8793a3}
+.adminDonutWrap{display:flex;align-items:center;justify-content:center;gap:18px;min-height:150px}
+.adminDonut{width:112px;height:112px;border-radius:50%;background:conic-gradient(#24a879 0 35%,#e8b64d 35% 72%,#dce3ec 72% 100%);position:relative;flex:none}
+.adminDonut:after{content:"";position:absolute;inset:23px;border-radius:50%;background:#fff}
+.adminDonutWrap>div:last-child{display:grid;gap:4px}.adminDonutWrap>div:last-child b{font:800 24px Manrope;color:#1b2d47}.adminDonutWrap>div:last-child small,.adminDonutWrap>div:last-child span{font-size:10px;color:#8290a3}
+.adminLegend{display:flex;justify-content:center;gap:13px;flex-wrap:wrap}.adminLegend span{display:flex;align-items:center;gap:5px;font-size:10px;color:#718096}.adminLegend i{width:7px;height:7px;border-radius:50%;background:#24a879}.adminLegend span:nth-child(2) i{background:#e8b64d}.adminLegend span:nth-child(3) i{background:#dce3ec}
+@media(max-width:850px){.adminDashboardLayout{grid-template-columns:1fr}.adminDashboardLayout>.adminQuickNav{position:static;flex-direction:row;max-height:none;overflow-x:auto;white-space:nowrap}.adminDashboardLayout>.adminQuickNav a{flex:none}.adminAnalytics{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.adminDashboardLayout{gap:12px}.adminAnalytics{grid-template-columns:1fr}.adminChartCard{padding:15px}.adminDonutWrap{min-height:130px}}
