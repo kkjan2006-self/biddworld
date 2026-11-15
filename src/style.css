@@ -154,3 +154,21 @@ footer{background:#2c1048;color:#f4e9ff}
 .adminLegend{display:flex;justify-content:center;gap:13px;flex-wrap:wrap}.adminLegend span{display:flex;align-items:center;gap:5px;font-size:10px;color:#718096}.adminLegend i{width:7px;height:7px;border-radius:50%;background:#24a879}.adminLegend span:nth-child(2) i{background:#e8b64d}.adminLegend span:nth-child(3) i{background:#dce3ec}
 @media(max-width:850px){.adminDashboardLayout{grid-template-columns:1fr}.adminDashboardLayout>.adminQuickNav{position:static;flex-direction:row;max-height:none;overflow-x:auto;white-space:nowrap}.adminDashboardLayout>.adminQuickNav a{flex:none}.adminAnalytics{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.adminDashboardLayout{gap:12px}.adminAnalytics{grid-template-columns:1fr}.adminChartCard{padding:15px}.adminDonutWrap{min-height:130px}}
+
+/* Member workspace: matching responsive MLM dashboard layout */
+.memberDashboard{background:#fff;border:1px solid #e6ebf1;border-radius:15px;padding:22px;box-shadow:0 10px 28px #14243a08}
+.memberDashboardLayout{display:grid;grid-template-columns:205px minmax(0,1fr);gap:20px;align-items:start}
+.memberDashboardNav{position:sticky;top:92px;display:flex;flex-direction:column;gap:6px;padding:14px;background:#17283e;border-radius:12px;min-width:0}
+.memberDashboardNav>b{font-size:10px;letter-spacing:1.5px;color:#e9bd65;padding:8px 10px 12px}
+.memberDashboardNav a{display:block;padding:11px 12px;border-radius:7px;color:#e0e7f0;text-decoration:none;font-size:12px;font-weight:700}
+.memberDashboardNav a:hover{background:#2a405d;color:#f2c66b}
+.memberDashboardContent{min-width:0}
+.memberDashboardContent>[id]{scroll-margin-top:100px}
+.memberDashboard .packageIntro{border-radius:11px;background:#f8fafc;border:1px solid #e7ecf2;padding:16px}
+.memberDashboard .accountProfile,.memberDashboard .accountSection{border:1px solid #e7ecf2;border-radius:12px;background:#fff;padding:18px;margin-top:16px}
+.memberDashboard .accountSection h4{font:800 15px Manrope;color:#1c2e48}
+.memberDashboard .accountWalletGrid article,.memberDashboard .accountIdGrid article{border-radius:10px;box-shadow:0 4px 12px #15233b06}
+.memberDashboard .accountWalletGrid article:first-child{border-top:3px solid #24966a}
+.memberDashboard .accountWalletGrid article:last-child{border-top:3px solid #6d50b6}
+.memberDashboard .accountIdGrid article{border-top:3px solid #e6b44f}
+@media(max-width:760px){.memberDashboardLayout{grid-template-columns:1fr}.memberDashboardNav{position:static;display:flex;flex-direction:row;overflow-x:auto;white-space:nowrap}.memberDashboardNav>b{display:none}.memberDashboardNav a{flex:none}.memberDashboard{padding:13px}}
