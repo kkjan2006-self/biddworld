@@ -29,4 +29,11 @@ describe('dashboard navigation integrity', () => {
       expect(ids, `Member navigation target #${key}`).toContain(key);
     }
   });
+
+  it('exposes the paginated member wallet history control when more rows exist', () => {
+    const walletHistory = readSource('src/components/WalletHistory.tsx');
+    expect(walletHistory).toMatch(/hasMore\s*&&\s*<button/i);
+    expect(walletHistory).toMatch(/Load 100 more transactions/);
+    expect(walletHistory).toMatch(/setPage\(current\s*=>\s*current\s*\+\s*1\)/);
+  });
 });
