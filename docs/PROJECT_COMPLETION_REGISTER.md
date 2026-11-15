@@ -72,3 +72,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added a dedicated Products navigation tab. It reads only active product records and presents a responsive catalogue card grid with image fallback, category, title and description. This is a read-only public/member experience; it does not create or modify products.
 - Added `20261116010000_public_active_product_catalogue.sql` to permit anonymous and authenticated SELECT of active products only. Draft/inactive products remain hidden. The migration is committed to `completion-work` and has NOT been applied to Production.
 - No financial features were enabled and no Production data was changed. Tests remain deferred as requested.
+
+
+## Admin product management and media (2026-11-15)
+
+- Added an Admin product register with draft/active status, edit, publish and hide controls. Hiding a product preserves the database record and existing auction references; it removes the product from the public active catalogue.
+- Added secure Admin RPCs for listing, saving/updating drafts and publishing/unpublishing products. Each mutation writes an audit-log entry and verifies the trusted `app_metadata.role=admin` claim server-side.
+- Added the public `product-media` Storage bucket with a 5 MB limit and JPG/PNG/WebP MIME allow-list. Public read is limited to that bucket; upload/update/delete require the trusted Admin role. Admin UI uploads images and stores the public URL with the product draft.
+- Migration: `20261116020000_admin_product_management_and_media.sql`. It is source-only on `completion-work`; it has NOT been applied to Production. Existing Storage bucket/policy state has not been inspected in Production, so rollout must reconcile policies before applying.
+- No tests, deployment, financial writes or Production database changes were performed.
