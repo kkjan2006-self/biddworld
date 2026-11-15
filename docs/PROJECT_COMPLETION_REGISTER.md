@@ -139,3 +139,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Validates title length, numeric price/increment and chronological start/end values before calling the RPC. Cancelling clears the edit state.
 - Read-only Production inspection confirmed the existing RPC checks trusted Admin JWT role, draft product status, valid price/increment, draft-only update, and writes an audit record. No Production changes were made.
 - Auction bidding, publication, winner selection, settlement and all financial activity remain disabled. Tests were not run.
+
+
+## Auction Admin RPC source reconciliation (2026-11-16)
+
+- Added source migration `20261116040000_admin_auction_draft_management.sql` for the Admin-only `admin_list_auctions()` and `admin_save_auction_draft(...)` RPCs already observed in the live Production catalogue.
+- RPCs enforce the trusted `app_metadata.role=admin` claim, accept only draft products, validate title/price/increment/date ranges, restrict edits to existing draft auctions, and write audit records. Execution is granted only to authenticated users; each function performs its own Admin check.
+- Migration is committed as source only. It has NOT been applied to Production. The migration follows the reconciled live schema (`products.name/status`, auction `updated_at`); baseline schema drift remains a rollout prerequisite.
+- No bidding, publication, winner selection, wallet movement, settlement or payouts were enabled. No tests were run.
