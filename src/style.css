@@ -284,3 +284,8 @@ footer{background:#2c1048;color:#f4e9ff}
 .memberDashboard .accountIdGrid article{background:linear-gradient(145deg,#fff5df,#fffdf7)!important;border:1px solid #f6e2b7!important;border-top:4px solid #f2ae36!important}
 @media(max-width:850px){.adminDashboardContent,.memberDashboardContent{padding:13px!important}}
 @media(max-width:560px){.adminConsole,.memberDashboard{border-radius:14px!important}.adminConsoleHeader{background:linear-gradient(110deg,#0759c7,#0b9fc0)!important}.adminStats article{min-height:88px!important;border-radius:12px!important}.adminDashboardLayout>.adminQuickNav{border-radius:12px!important}.adminDashboardLayout>.adminQuickNav a{background:#ffffff0c!important}.memberDashboardNav{border-radius:12px!important}.memberDashboardContent{border-radius:12px!important}}
+
+/* Member sidebar grouping for quick scanning */
+.memberDashboardNav .memberNavGroup{display:block;padding:13px 10px 4px;color:#73d9e5;font-size:9px;font-weight:900;letter-spacing:1.2px}
+.memberDashboardNav a{min-height:36px;display:flex;align-items:center;padding:9px 11px!important;font-size:11px!important}
+@media(max-width:760px){.memberDashboardNav .memberNavGroup{display:none}.memberDashboardNav{gap:6px!important}.memberDashboardNav a{background:#ffffff12!important;border:1px solid #ffffff12!important}}
