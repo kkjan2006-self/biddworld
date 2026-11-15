@@ -96,3 +96,10 @@ A read-only check found `package_activations_enabled=true`, `bid_wallet_enabled=
 ## CI verification update — 2026-11-16
 
 GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab43f947f822b472e4a1a27c02` passed dependency installation, the configured unit-test suite, TypeScript type-check and Vite production build. This is source/CI verification only. Pending migrations, Production RPC/RLS compatibility, Storage policies, real database transactions, browser E2E, security review and financial workflows remain unverified. No Production migrations or data changes were made.
+
+
+## Admin product/media security contract — 2026-11-16
+
+- Added static migration-contract coverage for the `product-media` bucket MIME/size limits, public-read versus trusted-Admin write policies, privileged RPC claim checks, draft-only product creation/editing and anonymous EXECUTE revocation.
+- This test coverage does not prove Storage behavior or live Production compatibility. The migration remains source-only; Storage bucket/policy state and the `audit_logs` column contract still require reconciliation before rollout.
+- Product image selection is still a path/URL field in the Admin UI; an end-to-end file picker, upload, object cleanup and upload-error UX remain outstanding.

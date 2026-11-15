@@ -190,3 +190,10 @@ Work through the incomplete items in dependency order: member/public experience 
 - GitHub Actions CI run `43751441554` on `completion-work` commit `c9b77e971cffb7ab43f947f822b472e4a1a27c02` completed successfully: dependency installation, dependency security report, unit tests, TypeScript type-check and Vite production build all passed.
 - This verifies the repository snapshot only. It does not apply or validate pending Supabase migrations, prove live Production RPC/RLS compatibility, or certify payment/withdrawal workflows.
 - The run includes the null-safe withdrawal-history rendering fix and the notification/support source changes. Production remains untouched.
+
+
+## Admin product/media security contract — 2026-11-16
+
+- Added static migration-contract coverage for the `product-media` bucket MIME/size limits, public-read versus trusted-Admin write policies, privileged RPC claim checks, draft-only product creation/editing and anonymous EXECUTE revocation.
+- This test coverage does not prove Storage behavior or live Production compatibility. The migration remains source-only; Storage bucket/policy state and the `audit_logs` column contract still require reconciliation before rollout.
+- Product image selection is still a path/URL field in the Admin UI; an end-to-end file picker, upload, object cleanup and upload-error UX remain outstanding.
