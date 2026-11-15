@@ -11,7 +11,7 @@ describe('member notifications migration security contract', () => {
   expect(sql).toMatch(/auth\.jwt\(\)->'app_metadata'->>'role'.*'admin'/is);
  });
  it('allows inserts only to trusted administrators', () => {
-  expect(sql).toMatch(/grant insert \(user_id,title,message,category\) to authenticated/i);
+  expect(sql).toMatch(/grant insert \(user_id,title,message,category\) on public\.member_notifications to authenticated/i);
   expect(sql).toMatch(/create policy member_notifications_insert_admin[\s\S]*?with check[\s\S]*?auth\.jwt\(\)->'app_metadata'->>'role'[\s\S]*?'admin'/i);
  });
  it('limits member updates to read receipts only', () => {
