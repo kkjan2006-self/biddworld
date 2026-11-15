@@ -91,3 +91,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Updated Fixed Bid public listing to use the live campaign statuses `scheduled`, `live`, and `ended`.
 - Corrected the two pending product migrations to match the reconciled live schema and `audit_logs.details`. These are source-only changes and have NOT been applied to Production.
 - Production data, schema, migration history, settings, and Storage were not changed. No tests were run, per the deferred verification sequence.
+
+
+## Admin-configurable referral plan depth (2026-11-15)
+
+- The Admin editor already supports Add Level / Remove Last Level, but the currently connected Production RPC `admin_save_referral_plan_draft` still rejects anything other than exactly five rules.
+- Added source-only forward migration `20261116030000_admin_configurable_referral_plan_depth.sql` to accept one or more distinct positive level numbers without a fixed five-level or arbitrary 100-level cap.
+- The RPC still requires trusted Admin access and an inactive package, creates a new inactive plan version, validates every rule, records an audit entry, and never activates commissions or credits wallets.
+- Updated the Admin section description to match its configurable-depth behavior.
+- This migration has NOT been applied to Production. The existing Production function remains five-level-only until a reviewed migration is explicitly applied.
