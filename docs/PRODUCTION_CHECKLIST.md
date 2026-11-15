@@ -96,3 +96,21 @@ Read-only inspection of the live Production `public` schema found:
 - RLS is enabled but not forced on these tables. This is not by itself a vulnerability for ordinary API roles; table owners and SECURITY DEFINER functions can bypass RLS, so privileged function review remains necessary.
 
 This was an inventory only. No grants, policies, tables, functions, or data were changed in Production.
+
+
+### Live RPC/function consistency review (2026-11-15)
+
+Further read-only inspection of live Production function bodies and table constraints confirmed these concrete status mismatches:
+
+- `admin_get_mlm_overview()` counts package activations with `payment_status='verified'`, but the live `package_activations_payment_status_check` permits only `pending`, `approved`, `rejected`, and `refunded`. Therefore its verified activation count will always be zero.
+- `get_my_mlm_dashboard()` uses the same obsolete `payment_status='verified'` predicate for active package activations; this count will also be zero even for approved activations.
+- `admin_get_mlm_overview()` sums commissions with status in `('credited','paid')`, but live `referral_commissions_status_check` permits only `pending`, `credited`, and `reversed`. The 'paid' branch is unreachable; credited rows are still counted.
+- This is distinct from `winning_item_payments`, whose separate status constraint legitimately includes `paid`; do not conflate the two status domains.
+
+Security review details:
+- Live `lookup_sponsor(text)` is SECURITY DEFINER, callable by anon and authenticated, and returns only one exact active Main ID code and display name. It has no evident input-size bound or database-side rate limit in its body. Signup currently depends on anonymous sponsor lookup, so do not revoke anon execution without replacing that flow.
+- `private.handle_new_auth_user()` is SECURITY DEFINER, has an empty search_path, and EXECUTE is limited to postgres. It reads signup metadata for the sponsor code, validates an active Main ID, supports configured default sponsor, and allows bootstrap only before any active Main ID exists.
+- `private.place_bid(uuid)` is SECURITY DEFINER with fixed search_path and authenticated execution; it checks auth.uid(), the bidding_enabled setting, an active Main ID, auction timing/status, locks the auction and wallets, and atomically debits Bid Wallet then Income Wallet. Public wrapper `public.place_bid(uuid)` is SECURITY INVOKER.
+- Admin sponsor-management and reporting RPCs inspected explicitly require an authenticated user with app_metadata.role='admin'. However, `admin_get_member_structure()` and `admin_get_mlm_overview()` require an admin role; the role-check pattern is consistent with the reviewed RPC set.
+
+These findings are documented for a narrow future forward-only correction. No Production functions, grants, constraints, or data were changed.
