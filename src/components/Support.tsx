@@ -3,6 +3,7 @@ import {MessageCircle,Send,RefreshCw,ShieldCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 
 type Ticket={id:string;user_id:string;subject:string;message:string;status:'open'|'in_progress'|'resolved'|'closed';admin_response:string|null;created_at:string;updated_at:string};
+const PAGE_SIZE=100;
 
 export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const [tickets,setTickets]=useState<Ticket[]>([]);
@@ -14,19 +15,31 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const [saving,setSaving]=useState('');
  const [notice,setNotice]=useState('');
  const [error,setError]=useState('');
+ const [hasMore,setHasMore]=useState(false);
 
  const load=useCallback(async()=>{
   if(!supabase){setError('Support is unavailable until the BiddWorld database is configured.');return;}
   setBusy(true);setError('');
-  const query=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).limit(100);
-  const {data,error:loadError}=await query;
+  const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);
   setBusy(false);
   if(loadError){setError(loadError.message);return;}
   const rows=(data??[]) as Ticket[];
-  setTickets(rows);
+  setTickets(rows);setHasMore(rows.length===PAGE_SIZE);
   setStatus(Object.fromEntries(rows.map(row=>[row.id,row.status])));
   setResponse(Object.fromEntries(rows.map(row=>[row.id,row.admin_response??''])));
  },[]);
+ const loadMore=useCallback(async()=>{
+  if(!supabase||busy||!hasMore)return;
+  setBusy(true);setError('');
+  const from=tickets.length;
+  const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);
+  setBusy(false);
+  if(loadError){setError(loadError.message);return;}
+  const rows=(data??[]) as Ticket[];
+  setTickets(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);
+  setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
+  setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
+ },[busy,hasMore,tickets.length]);
  useEffect(()=>{void load()},[load]);
 
  async function submit(e:React.FormEvent<HTMLFormElement>){
@@ -62,7 +75,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    <label>Message<textarea required minLength={10} maxLength={5000} rows={5} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Include the details needed to help resolve your issue."/></label>
    <button className="primary" type="submit" disabled={busy||!supabase}><Send size={16}/> {busy?'Submitting…':'Submit support request'}</button>
   </form>}
-  <div className="memberReportHeading"><h4>{isAdmin?'Recent member requests':'My support requests'} ({tickets.length})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
+  <div className="memberReportHeading"><h4>{isAdmin?'Recent member requests':'My support requests'} ({tickets.length}{hasMore?' loaded':''})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
   {busy&&tickets.length===0?<div className="empty">Loading support requests…</div>:tickets.length===0?<div className="empty">No support requests found.</div>:<div className="activationList">{tickets.map(ticket=><article key={ticket.id} style={{display:'block'}}>
    <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}><b>{ticket.subject}</b><span className="protected">{ticket.status.replace('_',' ').toUpperCase()}</span></div>
    {isAdmin&&<small>Ticket {ticket.id.slice(0,8).toUpperCase()} · Member {ticket.user_id.slice(0,8)} </small>}
@@ -74,6 +87,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
     <button className="primary small" type="button" disabled={saving!==''} onClick={()=>void saveTicket(ticket.id)}><ShieldCheck size={15}/>{saving===ticket.id?'Saving…':'Save response & status'}</button>
    </div>}
   </article>)}</div>}
-  <small className="memberModuleState">Privacy: members can access only their own requests. Admin access is checked by database policies. The list currently displays the latest 100 records.</small>
+  {hasMore&&<button className="outline small" type="button" onClick={()=>void loadMore()} disabled={busy}>{busy?'Loading…':'Load 100 more requests'}</button>}
+  <small className="memberModuleState">Privacy: members can access only their own requests. Admin access is checked by database policies. Records load 100 at a time.</small>
  </section>;
 }
