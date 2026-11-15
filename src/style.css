@@ -187,3 +187,10 @@ footer{background:#2c1048;color:#f4e9ff}
 .adminModuleDetail>span{font-size:10px;font-weight:800;color:#8a6721}
 @media(max-width:850px){.adminModuleGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.adminDashboardLayout>.adminQuickNav{align-items:stretch}}
 @media(max-width:520px){.adminModuleGrid{grid-template-columns:1fr}.adminModuleDirectory{padding:12px}}
+
+.memberModuleHint{font-size:11px;line-height:1.7;color:#718096;margin:0 0 12px}
+.memberModuleGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.memberModuleGrid article{padding:12px;border:1px solid #e6ebf1;border-radius:9px;background:#fbfcfd;display:grid;gap:6px}
+.memberModuleGrid b{font-size:11px;color:#1d304b}.memberModuleGrid small{font-size:10px;line-height:1.5;color:#7a8798}
+.memberModuleState{display:block;margin-top:10px;font-size:10px;color:#9a742b;font-weight:700}
+@media(max-width:560px){.memberModuleGrid{grid-template-columns:1fr}}
