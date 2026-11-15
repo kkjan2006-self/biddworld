@@ -90,7 +90,7 @@ Read-only inspection of the live Production `public` schema found:
 
 - All 20 ordinary public tables inspected have RLS enabled. No table without RLS was found in this inventory.
 - No ordinary public views were returned by the current `pg_views` query.
-- The `authenticated` role has broad table-level privileges (including INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES and TRIGGER) on many exposed business tables. The currently inspected RLS policy set is predominantly SELECT-only and contains no member-facing write policies for those tables, so RLS currently blocks direct writes; however, the broad grants are unnecessary exposure and weaken defense-in-depth if a write policy is added accidentally later.
+- A follow-up exact ACL audit on 2026-11-15 supersedes the preliminary grant observation above: `information_schema.role_table_grants` and `has_table_privilege` show that `authenticated` currently has **SELECT only** on the exposed tables where it has table grants; no authenticated INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES or TRIGGER privilege was found on the 20-table public inventory. The preliminary statement that authenticated had broad DML grants was incorrect and must not be used as a basis for a revoke migration. `service_role` has its expected broad table privileges; it must never be exposed to the browser.
 - The frontend source files inspected contain no direct Supabase `.insert()`, `.update()`, `.upsert()` or `.delete()` calls; privileged writes are intended to go through RPCs.
 - Candidate hardening: revoke direct DML/DDL-like table privileges from `authenticated` on public business tables, then explicitly grant only the SELECT access required by the frontend and keep privileged mutations inside audited SECURITY DEFINER RPCs with strict authorization checks. Before drafting the migration, verify every frontend query and each RPC execution context so this does not break legitimate reads or privileged flows.
 - RLS is enabled but not forced on these tables. This is not by itself a vulnerability for ordinary API roles; table owners and SECURITY DEFINER functions can bypass RLS, so privileged function review remains necessary.
@@ -126,3 +126,28 @@ These findings are documented for a narrow future forward-only correction. No Pr
 - This migration is committed to the repository only. It has **not** been applied to Production. Do not apply until the complete production drift review is finished and deployment is explicitly approved.
 - Supabase's current database-function guidance recommends a fixed search_path for SECURITY DEFINER functions; the existing empty search_path and schema-qualified references were retained. See https://supabase.com/docs/guides/database/functions.
 - The November 2026 Supabase breaking-change review found no current database-function change affecting this SQL. The notable CLI v3 local-by-default behavior is relevant only if/when the CLI is used for deployment.
+
+
+### Frontend query and exact privilege audit (2026-11-15)
+
+The current React source was inspected for every `.from()` and `.rpc()` call. Direct table reads are limited to:
+- `auctions` (public live/scheduled listing query)
+- `profiles` (current user's Main ID and account profile)
+- `wallet_accounts` (current user's Main ID wallet balances)
+- `member_ids` (current user's member IDs)
+- `package_activations` (current user's Main ID activation history)
+- `packages` (active package catalogue)
+- `fixed_bid_campaigns` (published campaign listing; joined `products`)
+- `wallet_transactions` (current user's Main ID history)
+
+The current UI uses RPCs for sponsor lookup, bidding, package activation submission, member MLM dashboard, admin sponsor/member reports, audit-log listing and package activation review. The Admin component has no direct table `.from()` query in the inspected source.
+
+Live Production RLS policies for the eight direct-read tables are SELECT-only:
+- `profiles`, `member_ids`, `wallet_accounts`, `wallet_transactions` and `package_activations` are scoped to the authenticated user's own profile/member IDs.
+- `packages` is restricted to active packages.
+- `auctions` and `fixed_bid_campaigns` are restricted to scheduled/live/ended rows.
+The source's auction query selects only live/scheduled rows, which is consistent with its policy.
+
+An exact ACL check of `information_schema.role_table_grants` and `has_table_privilege` found that `authenticated` has SELECT only on the tables where it has grants; no authenticated DML/TRUNCATE/REFERENCES/TRIGGER privileges were present on the inspected public tables. The broad authenticated-DML warning in the earlier preliminary review has therefore been corrected above. Do **not** create a revoke migration from that preliminary statement.
+
+The inspected RPC ACLs show `authenticated:EXECUTE` on the reviewed member/admin functions; `lookup_sponsor` additionally allows `anon:EXECUTE` for signup sponsor lookup. Admin RPCs must retain their explicit `app_metadata.role='admin'` checks. This audit did not change any grants, policies, functions or Production data.
