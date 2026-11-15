@@ -27,7 +27,7 @@ describe('admin product catalogue migration security contract', () => {
   });
 
   it('keeps new products as drafts and bounds user-controlled product fields', () => {
-    expect(sql).toMatch(/'draft'\s*\) returning id into v_id/i);
+    expect(sql).toMatch(/values\([\s\S]*?'draft'\)\s*returning id into v_id/i);
     expect(sql).toMatch(/length\(trim\(coalesce\(p_name,''\)\)\) < 2/i);
     expect(sql).toMatch(/length\(coalesce\(p_description,''\)\) > 5000/i);
     expect(sql).toMatch(/only existing draft products can be edited/i);
