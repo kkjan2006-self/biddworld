@@ -19,7 +19,7 @@ describe('support ticket to member notification integration', () => {
   });
 
   it('bounds notification text and prevents direct function execution', () => {
-    expect(sql).toMatch(/left\([\s\S]*?2000\)/i);
+    expect(sql).toMatch(/left\([\s\S]*?2000\s*\)/i);
     expect(sql).toMatch(/revoke all on function public\.notify_member_on_support_ticket_update\(\) from public, anon, authenticated/i);
   });
 });
