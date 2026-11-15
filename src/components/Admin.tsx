@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from 'react';
-import {ShieldCheck,Users,PackageCheck,Gavel,Wallet,RefreshCw,AlertCircle,Network,UserCheck} from 'lucide-react';
+import {ShieldCheck,Users,PackageCheck,Gavel,Wallet,RefreshCw,AlertCircle,Network,UserCheck,LayoutDashboard,Handshake,CreditCard,Package,Percent,ArrowDownToLine,Target,Trophy,Truck,FileText,Bell,Settings,ClipboardList} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {csvDocument} from '../lib/csv';
 import {filterAuditEntries} from '../lib/audit';
@@ -80,27 +80,27 @@ export default function Admin(){
  const tiles=[['Registered Profiles',counts.members,Users],['Packages',counts.packages,PackageCheck],['Pending activations',counts.pendingActivations,AlertCircle],['Pending withdrawals',counts.pendingWithdrawals,Wallet],['Auctions',counts.auctions,Gavel],['Fixed Bid campaigns',counts.campaigns,PackageCheck]] as const;
  return <section className="adminPanel adminConsole"><div className="adminConsoleHeader"><div><span className="adminEyebrow">BID WORLD · CONTROL CENTER</span><h2>Admin Dashboard</h2><p>Manage members, payments, network and platform activity.</p></div><span className="adminSecure"><ShieldCheck size={15}/> Secure Admin</span></div><div className="adminDashboardLayout"><nav className="adminQuickNav" aria-label="Admin sections">
 <b>MAIN MENU</b>
-<a href="#admin-overview">Overview</a>
+<a href="#admin-overview"><LayoutDashboard size={15}/> Overview</a>
 <span className="adminNavGroup">MEMBERS & NETWORK</span>
-<a href="#admin-members">Members & Duplicate IDs</a>
-<a href="#admin-sponsors">Sponsors & Team</a>
+<a href="#admin-members"><Users size={15}/> Members & Duplicate IDs</a>
+<a href="#admin-sponsors"><Handshake size={15}/> Sponsors & Team</a>
 <span className="adminNavGroup">MONEY & PACKAGES</span>
-<a href="#admin-payments">Payment Approvals</a>
-<a href="#admin-packages">Packages & Benefits</a>
-<a href="#admin-commission">Commissions</a>
-<a href="#admin-wallets">Wallets</a>
-<a href="#admin-withdrawals">Withdrawals</a>
+<a href="#admin-payments"><CreditCard size={15}/> Payment Approvals</a>
+<a href="#admin-packages"><Package size={15}/> Packages & Benefits</a>
+<a href="#admin-commission"><Percent size={15}/> Commissions</a>
+<a href="#admin-wallets"><Wallet size={15}/> Wallets</a>
+<a href="#admin-withdrawals"><ArrowDownToLine size={15}/> Withdrawals</a>
 <span className="adminNavGroup">BIDDING</span>
-<a href="#admin-auctions">Auctions</a>
-<a href="#admin-fixedbid">Fixed Bid</a>
-<a href="#admin-winning">Winner & Payment</a>
-<a href="#admin-delivery">Delivery</a>
+<a href="#admin-auctions"><Gavel size={15}/> Auctions</a>
+<a href="#admin-fixedbid"><Target size={15}/> Fixed Bid</a>
+<a href="#admin-winning"><Trophy size={15}/> Winner & Payment</a>
+<a href="#admin-delivery"><Truck size={15}/> Delivery</a>
 <span className="adminNavGroup">SYSTEM</span>
-<a href="#admin-reports">Reports</a>
-<a href="#admin-notifications">Notifications</a>
-<a href="#admin-roles">Admin Access</a>
-<a href="#admin-settings">Settings</a>
-<a href="#admin-audit">Activity Log</a>
+<a href="#admin-reports"><FileText size={15}/> Reports</a>
+<a href="#admin-notifications"><Bell size={15}/> Notifications</a>
+<a href="#admin-roles"><ShieldCheck size={15}/> Admin Access</a>
+<a href="#admin-settings"><Settings size={15}/> Settings</a>
+<a href="#admin-audit"><ClipboardList size={15}/> Activity Log</a>
 </nav><div className="adminDashboardContent"><div id="admin-overview" className="packageIntro"><span className="workspaceIcon"><ShieldCheck/></span><div><h3>Administrator overview</h3><p>Operational overview with audited sponsor controls. Financial approvals and money movement remain disabled until their secure workflows are configured.</p></div><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>{error&&<div className="notice">{error}</div>}<div className="adminStats">{tiles.map(([label,value,Icon])=><article key={label}><Icon size={20}/><small>{label}</small><b>{value.toLocaleString('en-IN')}</b></article>)}</div><div className="adminSimpleGuide"><b>Start here</b><span>Use the menu to open one section at a time. Pending payments need review first; member and sponsor tools are grouped together. Items marked “Not enabled” are not active yet.</span></div><div className="adminModuleDetail" id="admin-packages"><h4>Package Management</h4><p>Package catalogue, price, description, Bid Wallet activation credit, visibility and activation rules. Package editing is not yet connected to a secure Admin RPC.</p><span>Not enabled · no changes can be made here yet.</span></div>
 <div className="adminModuleDetail" id="admin-commission"><h4>Referral Commission Plan</h4><p>Configure per-package and per-level fixed or percentage commissions, eligibility, effective dates and immutable rule versions. Duplicate-ID commissions must credit the Main ID Income Wallet.</p><span>Not enabled · commission rules must be implemented and tested server-side.</span></div>
 <div className="adminModuleDetail" id="admin-wallets"><h4>Wallet Management</h4><p>Separate Bid Wallet and Income Wallet balances, ledger history, idempotency references and reconciliation. Bid Wallet remains bidding-only; no manual balance editing is exposed.</p><span>Read-only until secure wallet administration is implemented.</span></div>
