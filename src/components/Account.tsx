@@ -2,6 +2,7 @@ import {useEffect,useState} from 'react';
 import {UserRound,RefreshCw,ShieldCheck,IdCard,Wallet,PackageCheck,LockKeyhole,Truck,Trophy} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {money} from '../lib/format';
+import {csvDocument} from '../lib/csv';
 import Referrals from './Referrals';
 import WalletHistory from './WalletHistory';
 import PlacementTree from './PlacementTree';
@@ -61,7 +62,7 @@ export default function Account(){
   withdrawals.forEach(x=>rows.push(['Withdrawal request',x.requested_at,x.request_id,String(x.amount),x.currency||'INR',x.status,x.rejection_reason||'']));
   winningPayments.forEach(x=>rows.push(['Winning payment',x.created_at,x.auction?.title||x.campaign?.title||x.id,String(x.amount),'INR',x.status,x.paid_at||'Not paid']));
   deliveries.forEach(x=>rows.push(['Delivery',x.updated_at,x.tracking_number||x.winning_item_payment_id,'','',x.status,(x.carrier||'Courier not set')+' · '+(x.delivered_at?'Delivered':x.shipped_at?'Shipped':'Not shipped')]));
-  const csv='\\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(',')).join('\\r\\n');
+  const csv=csvDocument(rows);
   const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='biddworld-my-personal-report.csv';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
  }
  if(loading)return <div className="workspace">Loading your account…</div>;
