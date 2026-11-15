@@ -309,3 +309,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Admin Main ID directory now sends the search term to the Admin-checked paginated RPC, searches all Main IDs server-side, loads subsequent matching pages with the same query, and exports all matching pages to CSV.
 - This is still source-only integration. The new RPC migration `20261116090000_admin_members_sponsors_pagination.sql` is NOT applied to Production; live Production still has the legacy 500-row RPC. Do not use the updated UI against Production until a reviewed migration reconciliation is approved and deployed.
 - No Production database, data, settings, financial records, or migrations were changed.
+
+
+## Member genealogy pagination batch (2026-11-16)
+
+- Added bounded, authenticated server-side sponsor genealogy pagination, cross-page search, level filtering and Load More to the member Referrals workspace.
+- Added source-only migration `20261116100000_member_genealogy_pagination.sql` and regression tests.
+- Initial CI: 21/21 test files and 83/83 tests passed; TypeScript build exposed nullable Supabase client narrowing in an async callback. Corrected in the follow-up fix commit; verify the new CI run before treating the batch as green.
+- Production migration not applied; no Production records or financial settings changed.

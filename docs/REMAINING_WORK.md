@@ -150,3 +150,12 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Server-side Main ID search, paginated continuation and complete matching-result CSV export are implemented in source.
 - Commit `53bc09805e88e0ffc37108431593682a43b4326f` passed CI run `43757646055`: 20/20 Vitest files, TypeScript build and Vite production build.
 - Production RPC migration is still unapplied; do not deploy this UI to Production until migration reconciliation is reviewed.
+
+
+## Sponsor genealogy scalable search and pagination (2026-11-16)
+
+- Added the authenticated `get_my_mlm_dashboard_page(integer,integer,text,integer)` RPC migration to return a bounded 50-row page, total match count, continuation flag and summary fields. Page size is capped at 100; offsets and depth values are validated; recursive traversal remains cycle-safe.
+- Updated the member Referrals workspace to search the complete sponsor downline server-side, filter by depth and load subsequent pages without fetching the full genealogy payload at once.
+- Added static regression coverage for the frontend RPC contract and SQL safeguards.
+- The first CI run for this commit passed all 21 test files / 83 tests but failed TypeScript build because the nullable Supabase client was not narrowed inside an async callback. The source correction is included in the following fix commit; final CI result is pending.
+- The new migration remains source-only and is NOT applied to Production. No Production data/schema/settings or financial records were changed.
