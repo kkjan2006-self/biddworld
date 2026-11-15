@@ -130,3 +130,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Campaign product, title and description are restored into the editor; saving updates the same draft rather than creating a duplicate. Cancel clears edit state.
 - Non-draft campaigns remain read-only. Entry pricing, participant limits, scheduling, winner selection, wallet debits, settlement and payouts remain unavailable pending owner-defined rules and approval.
 - No Production SQL, settings, records, wallet balances or financial state were changed. Tests were not run in this implementation phase.
+
+
+## Auction draft editing batch (2026-11-16)
+
+- Added Admin editing for existing auction records only while their status is `draft`; published/live/closed records remain read-only in this editor.
+- The editor restores product, title, description, image, category, starting price, increment and schedule values, and saves through the existing `admin_save_auction_draft` RPC using the existing auction ID.
+- Validates title length, numeric price/increment and chronological start/end values before calling the RPC. Cancelling clears the edit state.
+- Read-only Production inspection confirmed the existing RPC checks trusted Admin JWT role, draft product status, valid price/increment, draft-only update, and writes an audit record. No Production changes were made.
+- Auction bidding, publication, winner selection, settlement and all financial activity remain disabled. Tests were not run.
