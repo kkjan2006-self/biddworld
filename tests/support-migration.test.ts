@@ -16,7 +16,7 @@ describe('member support ticket migration security contract', () => {
 
   it('allows member inserts only for their own new open tickets', () => {
     expect(migration).toMatch(/create policy support_tickets_insert_owner[\s\S]*?with check \([\s\S]*?user_id = \(select auth\.uid\(\)\)[\s\S]*?status = 'open'[\s\S]*?admin_response is null/i);
-    expect(migration).toMatch(/grant insert \(user_id, subject, message\) to authenticated/i);
+    expect(migration).toMatch(/grant insert \(user_id, subject, message\) on public\.support_tickets to authenticated/i);
   });
 
   it('restricts updates to trusted admins and only exposes intended columns', () => {
