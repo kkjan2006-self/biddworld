@@ -333,3 +333,9 @@ footer{background:#2c1048;color:#f4e9ff}
 .memberDashboard .memberModuleState{padding:7px 10px;border-radius:8px;background:#fff6e5;color:#946514}
 .memberDashboard .activationList article{border:1px solid #e4edf7;border-radius:11px;padding:13px;margin:8px 0;background:#fbfdff}
 @media(max-width:560px){.memberConsoleHeader{margin:-13px -13px 13px;padding:14px;align-items:flex-start}.memberConsoleHeader h2{font-size:18px}.memberConsoleBadge{font-size:9px;padding:7px 9px}.memberDashboardContent .accountProfile{flex-wrap:wrap}.memberDashboardContent .accountVerified{margin-left:0}}
+
+/* Icon-led navigation for faster scanning */
+.adminDashboardLayout>.adminQuickNav a{display:flex!important;align-items:center!important;gap:10px!important}
+.adminDashboardLayout>.adminQuickNav a svg{flex:0 0 16px!important;opacity:.9!important}
+.adminDashboardLayout>.adminQuickNav a:hover svg,.adminDashboardLayout>.adminQuickNav a:focus svg{opacity:1!important}
+.memberDashboardNav a{display:flex!important;align-items:center!important;gap:9px!important}
