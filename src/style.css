@@ -289,3 +289,14 @@ footer{background:#2c1048;color:#f4e9ff}
 .memberDashboardNav .memberNavGroup{display:block;padding:13px 10px 4px;color:#73d9e5;font-size:9px;font-weight:900;letter-spacing:1.2px}
 .memberDashboardNav a{min-height:36px;display:flex;align-items:center;padding:9px 11px!important;font-size:11px!important}
 @media(max-width:760px){.memberDashboardNav .memberNavGroup{display:none}.memberDashboardNav{gap:6px!important}.memberDashboardNav a{background:#ffffff12!important;border:1px solid #ffffff12!important}}
+
+
+/* Member dashboard title bar */
+.memberConsoleHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-20px -20px 18px;padding:19px 24px;min-height:88px;color:#fff;background:linear-gradient(105deg,#0759c7 0%,#087fce 48%,#12a6b5 100%);border-radius:15px 15px 0 0;box-shadow:0 8px 22px #0874c922}
+.memberConsoleHeader>div>span{font-size:9px;font-weight:800;letter-spacing:1.5px;color:#c8efff}
+.memberConsoleHeader h2{font:800 21px Manrope,sans-serif;color:#fff;margin:4px 0}
+.memberConsoleHeader p{font-size:11px;color:#e5f5ff;margin:0}
+.memberConsoleBadge{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid #ffffff45;border-radius:30px;background:#ffffff20;color:#fff;font-size:10px;font-weight:800;white-space:nowrap}
+.memberDashboardNav .memberNavGroup{display:block;padding:12px 10px 4px;color:#72d8e5;font-size:9px;font-weight:900;letter-spacing:1.1px}
+.memberDashboardNav a{min-height:37px;display:flex;align-items:center;border-radius:9px}
+@media(max-width:560px){.memberConsoleHeader{margin:-13px -13px 13px;padding:15px 14px;min-height:76px;align-items:flex-start}.memberConsoleHeader h2{font-size:18px}.memberConsoleBadge{font-size:9px;padding:7px 9px}.memberConsoleHeader p{max-width:220px;line-height:1.5}}
