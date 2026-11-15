@@ -76,3 +76,10 @@ A read-only check found `package_activations_enabled=true`, `bid_wallet_enabled=
 - Added additive migration `20261116040000_member_support_tickets.sql` with owner-only member reads, trusted `app_metadata.role=admin` access, constrained member inserts, Admin-only updates, timestamps and Admin update audit events.
 - The UI is linked from the signed-in navigation. No email/SMS provider, push delivery, attachments, SLA automation or support notifications are included yet.
 - Migration is source-only and has NOT been applied to Production. No Production data/schema/settings were changed. The new module has not yet been built or tested.
+
+
+### Support module verification follow-up
+
+- Support audit logging now targets the existing `audit_logs.metadata` column.
+- Added `tests/support-migration.test.ts` to verify the migration security contract.
+- CI now includes pushes to `completion-work`; GitHub currently reports no workflow run for the latest branch commit. Build, TypeScript, unit tests and live RLS behavior remain unverified.

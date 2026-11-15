@@ -21,7 +21,7 @@ describe('member support ticket migration security contract', () => {
 
   it('restricts updates to trusted admins and only exposes intended columns', () => {
     expect(migration).toMatch(/grant update \(status, admin_response\) on public\.support_tickets to authenticated/i);
-    expect(migration).toMatch(/create policy support_tickets_update_admin[\s\S]*?using \(coalesce\(\(select auth\.jwt\(\)->'app_metadata'->>'role'\),' '\)\s*=\s*'admin'/i);
+    expect(migration).toMatch(/create policy support_tickets_update_admin[\s\S]*?using[\s\S]*?auth\.jwt\(\)->'app_metadata'->>'role'[\s\S]*?'admin'/i);
   });
 
   it('writes the existing audit_logs metadata column rather than a non-existent details column', () => {

@@ -168,3 +168,10 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added `20261116040000_member_support_tickets.sql` with RLS, least-privilege column grants, server-enforced ownership/admin checks, timestamps and audit logging.
 - Added signed-in Support navigation without changing existing member/Admin routes. The module is non-financial.
 - Remaining: run build/typecheck/unit/integration tests; inspect actual Production table grants and policies during the final reconciliation; add email/SMS/push dispatch only after a free, approved provider and consent design exist. Migration is not applied to Production.
+
+
+## Support security correction and CI scope (2026-11-16)
+
+- Corrected the support audit trigger to write `audit_logs.metadata`, matching the existing schema (the initial draft referenced a non-existent `details` column).
+- Added static migration contract tests covering owner/admin RLS, restricted member insert and Admin update grants, audit schema compatibility and input bounds.
+- Expanded the existing CI push trigger to include `completion-work`; the workflow has not yet reported a run for this branch, so no test/build success is claimed.
