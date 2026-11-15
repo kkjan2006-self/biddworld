@@ -9,7 +9,7 @@ const projectUrl = (
 const publishableKey = (
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  'sb_publishable_hdgI3LooDiX9yf91dcYQ_qSI8AqoY'
+  'sb_publishable_hdgI3LooDiX9yf91OzvyYQ_qSI8AqoY'
 ).trim();
 
 export const configured = Boolean(projectUrl && publishableKey);
