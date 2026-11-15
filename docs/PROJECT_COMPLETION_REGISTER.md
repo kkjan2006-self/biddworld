@@ -122,3 +122,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Confirmed missing live RPCs for member identity, member ID listing, member profile updates and product publish/hide; confirmed the Duplicate ID one-argument/two-argument signature mismatch; recorded the referral plan depth migration gap.
 - Recorded that the financial approval guard is not deployed and that Production still reports package activation, Bid Wallet and Income Wallet feature switches enabled while bidding, withdrawals, commissions and other execution switches are disabled. No Production settings were changed.
 - This is a reconciliation/audit deliverable, not a completed feature module or security certification. Tests remain deferred; Production remains untouched.
+
+
+## Fixed Bid draft editing batch (2026-11-16)
+
+- Admin can reopen and update an existing Fixed Bid campaign only while its status is `draft`, using the existing Admin-only `admin_save_fixed_bid_campaign_draft` RPC contract.
+- Campaign product, title and description are restored into the editor; saving updates the same draft rather than creating a duplicate. Cancel clears edit state.
+- Non-draft campaigns remain read-only. Entry pricing, participant limits, scheduling, winner selection, wallet debits, settlement and payouts remain unavailable pending owner-defined rules and approval.
+- No Production SQL, settings, records, wallet balances or financial state were changed. Tests were not run in this implementation phase.
