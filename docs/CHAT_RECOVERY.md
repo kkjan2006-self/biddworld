@@ -144,3 +144,10 @@
 - Public auction listings now use deterministic 100-row server pages with Load More. Fixed Bid public catalogue uses deterministic 50-row pages with Load More. Existing member/admin financial locks are unchanged.
 - Admin member directory remains limited by the live `admin_list_members_sponsors()` RPC to its first 500 Main IDs. A secure paginated/search RPC and matching UI remain outstanding; the Production RPC was inspected read-only and no Production change was made.
 - CI validates repository source only. It does not apply pending migrations or certify live Production RPC/RLS/Storage behavior.
+
+
+## Admin member directory pagination — 2026-11-16
+
+- Added a forward-only source migration for a trusted-Admin, bounded 100-row Main ID directory RPC with stable ordering and optional text search.
+- Admin member directory now loads first 100 and supports Load More. Search remains client-side over loaded records for this batch; full-history export and server-side search UI are next items.
+- Added static migration/UI regression tests. Migration is source-only and NOT applied to Production.

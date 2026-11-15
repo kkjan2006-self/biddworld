@@ -132,3 +132,10 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Read-only Production inspection confirms `admin_list_members_sponsors()` currently returns only the newest 500 Main IDs and has no search/offset parameters.
 - The Admin UI filters and exports only this loaded result. A versioned, Admin-checked paginated/search RPC plus Load More/full-history export is required before the member directory/report can be called complete.
 - No Production changes were made during this inspection.
+
+
+## Admin member directory pagination batch — 2026-11-16
+
+- Added source-only Admin-checked RPC `admin_list_members_sponsors_page(text,integer,integer)` with bounded 100-row pages, stable created_at/ID ordering and optional safe text filtering across Main ID, name, phone and sponsor ID.
+- Admin directory now loads the first 100 Main IDs and exposes Load More. Current UI search remains scoped to records already loaded; server-side search wiring and full-history filtered CSV export remain outstanding.
+- No Production migration or data change was made.
