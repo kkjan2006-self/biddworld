@@ -247,3 +247,40 @@ footer{background:#2c1048;color:#f4e9ff}
 .adminModuleDetail,.sponsorAdmin{border-radius:5px!important;box-shadow:none!important}
 @media(max-width:850px){.adminDashboardLayout{grid-template-columns:minmax(0,1fr)!important}.adminDashboardLayout>.adminQuickNav{position:static!important;max-height:none!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;overflow:visible!important}.adminDashboardLayout>.adminQuickNav>b,.adminDashboardLayout>.adminQuickNav .adminNavGroup{grid-column:1/-1!important}}
 @media(max-width:560px){.adminConsole{padding:10px!important}.adminConsoleHeader{margin:-10px -10px 12px!important;padding:13px!important;align-items:flex-start!important}.adminConsoleHeader h2{font-size:18px!important}.adminConsoleHeader .adminSecure{font-size:9px!important}.adminDashboardContent{padding:10px!important}.adminStats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}.adminStats article{min-height:76px!important;padding:10px!important}.adminStats article b{font-size:19px!important}}
+
+
+/* BiddWorld vibrant dashboard refresh: richer color, clearer hierarchy, softer surfaces */
+.adminConsole,.memberDashboard{background:linear-gradient(145deg,#f3f7ff 0%,#f8f5ff 48%,#f2fbfa 100%)!important;border:1px solid #dce6f3!important;border-radius:20px!important;box-shadow:0 16px 42px #203c6412!important}
+.adminConsoleHeader{background:linear-gradient(105deg,#0759c7 0%,#087fce 48%,#12a6b5 100%)!important;box-shadow:0 8px 22px #0874c933!important;border-radius:15px 15px 0 0!important}
+.adminDashboardLayout>.adminQuickNav,.memberDashboardNav{background:linear-gradient(180deg,#142d50 0%,#183e67 55%,#164d69 100%)!important;border-radius:15px!important;box-shadow:0 10px 25px #163b641f!important}
+.adminDashboardLayout>.adminQuickNav .adminNavGroup,.memberDashboardNav>b{color:#72d8e5!important}
+.adminDashboardLayout>.adminQuickNav a,.memberDashboardNav a{border-radius:9px!important;transition:background .18s ease,transform .18s ease!important}
+.adminDashboardLayout>.adminQuickNav a:hover,.adminDashboardLayout>.adminQuickNav a:focus,.memberDashboardNav a:hover{background:linear-gradient(90deg,#087bd4,#13a6b5)!important;color:#fff!important;transform:translateX(2px)}
+.adminDashboardContent,.memberDashboardContent{background:rgba(255,255,255,.88)!important;border:1px solid #e3eaf5!important;border-radius:15px!important;box-shadow:0 8px 24px #1b3c6510!important;padding:18px!important}
+.adminDashboardContent .packageIntro,.memberDashboard .packageIntro{background:linear-gradient(100deg,#edf6ff,#f1fbff 55%,#f3f0ff)!important;border:1px solid #dceaf8!important;border-radius:13px!important;padding:16px!important}
+.adminDashboardContent .packageIntro .workspaceIcon,.memberDashboard .packageIntro .workspaceIcon{background:linear-gradient(135deg,#087bd4,#12b8b0)!important;color:white!important;border-radius:14px!important;box-shadow:0 6px 14px #087bd433!important}
+.adminStats article{position:relative!important;overflow:hidden!important;min-height:104px!important;padding:17px!important;border:1px solid #ffffff55!important;border-radius:14px!important;box-shadow:0 8px 20px #18345118!important;transition:transform .18s ease,box-shadow .18s ease!important}
+.adminStats article:after{content:"";position:absolute;width:90px;height:90px;border:18px solid #ffffff22;border-radius:50%;right:-24px;bottom:-43px}
+.adminStats article:hover{transform:translateY(-3px)!important;box-shadow:0 13px 25px #18345124!important}
+.adminStats article:nth-child(6n+1){background:linear-gradient(135deg,#08a6b5,#16c4c1)!important}
+.adminStats article:nth-child(6n+2){background:linear-gradient(135deg,#2875e8,#559af9)!important}
+.adminStats article:nth-child(6n+3){background:linear-gradient(135deg,#f08a18,#ffb02e)!important}
+.adminStats article:nth-child(6n+4){background:linear-gradient(135deg,#7544c7,#a46be8)!important}
+.adminStats article:nth-child(6n+5){background:linear-gradient(135deg,#11996e,#25c58b)!important}
+.adminStats article:nth-child(6n){background:linear-gradient(135deg,#e04e83,#f4779c)!important}
+.adminSimpleGuide{background:linear-gradient(100deg,#eaf5ff,#f0fbff)!important;border:1px solid #cfe7fb!important;border-left:5px solid #168de0!important;border-radius:12px!important;padding:16px 18px!important}
+.adminModuleDetail,.sponsorAdmin,.memberDashboard .accountProfile,.memberDashboard .accountSection{border:1px solid #e2eaf4!important;border-radius:13px!important;box-shadow:0 5px 16px #18345109!important}
+.adminModuleDetail{background:linear-gradient(115deg,#fff 0%,#fbfdff 100%)!important;padding:19px!important}
+.adminModuleDetail h4,.sponsorAdmin h4{color:#174a79!important}
+.adminModuleDetail>span{display:inline-flex!important;background:#fff3dc!important;color:#9a6412!important;border-radius:20px!important;padding:6px 10px!important}
+.adminDashboardContent .mlmCards article:nth-child(4n+1){background:linear-gradient(135deg,#e4f8fb,#d4f1f7)!important;border-color:#b9e8ef!important}
+.adminDashboardContent .mlmCards article:nth-child(4n+2){background:linear-gradient(135deg,#e8f0ff,#dce8ff)!important;border-color:#cbdcff!important}
+.adminDashboardContent .mlmCards article:nth-child(4n+3){background:linear-gradient(135deg,#fff2df,#ffe7c5)!important;border-color:#f8dcb5!important}
+.adminDashboardContent .mlmCards article:nth-child(4n){background:linear-gradient(135deg,#f2eaff,#e9dcff)!important;border-color:#ddcefa!important}
+.memberDashboardNav{padding:15px!important}
+.memberDashboard{padding:20px!important}
+.memberDashboard .accountWalletGrid article:first-child{background:linear-gradient(145deg,#e2fbf3,#f5fffb)!important;border:1px solid #bdebd9!important;border-top:4px solid #13a878!important}
+.memberDashboard .accountWalletGrid article:last-child{background:linear-gradient(145deg,#f0eaff,#faf7ff)!important;border:1px solid #dfd0fb!important;border-top:4px solid #8855d6!important}
+.memberDashboard .accountIdGrid article{background:linear-gradient(145deg,#fff5df,#fffdf7)!important;border:1px solid #f6e2b7!important;border-top:4px solid #f2ae36!important}
+@media(max-width:850px){.adminDashboardContent,.memberDashboardContent{padding:13px!important}}
+@media(max-width:560px){.adminConsole,.memberDashboard{border-radius:14px!important}.adminConsoleHeader{background:linear-gradient(110deg,#0759c7,#0b9fc0)!important}.adminStats article{min-height:88px!important;border-radius:12px!important}.adminDashboardLayout>.adminQuickNav{border-radius:12px!important}.adminDashboardLayout>.adminQuickNav a{background:#ffffff0c!important}.memberDashboardNav{border-radius:12px!important}.memberDashboardContent{border-radius:12px!important}}
