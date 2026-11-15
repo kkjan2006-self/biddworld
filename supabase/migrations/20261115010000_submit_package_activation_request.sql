@@ -92,12 +92,14 @@ $function$;
 revoke all on function private.submit_package_activation(uuid, text)
   from public, anon, authenticated;
 
+-- The public entry point is a narrow SECURITY DEFINER wrapper. The private
+-- implementation independently validates auth.uid() and all member inputs.
 create or replace function public.submit_package_activation(
   p_package_id uuid,
   p_payment_reference text
 ) returns jsonb
 language sql
-security invoker
+security definer
 set search_path = ''
 as $function$
   select private.submit_package_activation(p_package_id, p_payment_reference);
