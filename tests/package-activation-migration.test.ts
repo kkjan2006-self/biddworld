@@ -40,12 +40,12 @@ describe('package activation migration contract', () => {
     expect(review).toMatch(/status\s*=\s*'credited'/i);
   });
   it('exposes bidding only through an authenticated definer wrapper with a fixed search path', () => {
-    expect(bidWrapper).toMatch(/create or replace function public\.place_bid\\(p_auction_id uuid\\)[\\s\\S]*?security definer/i);
+    expect(bidWrapper).toMatch(/create or replace function public\.place_bid\(p_auction_id uuid\)[\s\S]*?security definer/i);
     expect(bidWrapper).toMatch(/set search_path = pg_catalog, public, private/i);
-    expect(bidWrapper).toMatch(/select private\.place_bid\\(p_auction_id\\)/i);
-    expect(bidWrapper).toMatch(/revoke all on function public\.place_bid\\(uuid\\) from public, anon/i);
-    expect(bidWrapper).toMatch(/grant execute on function public\.place_bid\\(uuid\\) to authenticated/i);
-    expect(bidWrapper).toMatch(/revoke all on function private\.place_bid\\(uuid\\) from public, anon, authenticated/i);
+    expect(bidWrapper).toMatch(/select private\.place_bid\(p_auction_id\)/i);
+    expect(bidWrapper).toMatch(/revoke all on function public\.place_bid\(uuid\) from public, anon/i);
+    expect(bidWrapper).toMatch(/grant execute on function public\.place_bid\(uuid\) to authenticated/i);
+    expect(bidWrapper).toMatch(/revoke all on function private\.place_bid\(uuid\) from public, anon, authenticated/i);
   });
 
   it('keeps the production MLM dashboard aligned with canonical database statuses', () => {
