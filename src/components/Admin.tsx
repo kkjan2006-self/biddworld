@@ -138,11 +138,12 @@ export default function Admin(){
  },[role,refresh]);
  useEffect(()=>{
   if(!supabase||role!=='admin')return;
+  const client=supabase;
   let active=true;
   const timer=window.setTimeout(async()=>{
    setMemberMoreBusy(true);setMemberMessage('');
    try{
-    const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});
+    const{data,error}=await client.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});
     if(error)throw error;
     if(!active)return;
     const batch=(data??[]) as SponsorMember[];
