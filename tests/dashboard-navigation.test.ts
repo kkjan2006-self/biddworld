@@ -36,4 +36,11 @@ describe('dashboard navigation integrity', () => {
     expect(walletHistory).toMatch(/Load 100 more transactions/);
     expect(walletHistory).toMatch(/setPage\(current\s*=>\s*current\s*\+\s*1\)/);
   });
+
+  it('keeps winner, delivery and account-security tools tied to the signed-in member', () => {
+    expect(account).toContain(".eq('winner_member_id',p.main_member_id)");
+    expect(account).toContain(".in('winning_item_payment_id',paymentIds)");
+    expect(account).toContain("supabase.auth.updateUser({password:newPassword})");
+    expect(account).toContain("supabase.auth.signOut({scope:'global'})");
+  });
 });
