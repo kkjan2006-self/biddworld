@@ -89,7 +89,7 @@ export default function Admin(){
    if(!duplicateResult.error)setDuplicateIds((duplicateResult.data??[]) as DuplicateId[]);
    if(!packageResult.error)setPackages((packageResult.data??[]) as AdminPackage[]);
    if(!referralResult.error)setReferralPlans((referralResult.data??[]) as ReferralPlan[]);
-   if(!withdrawalResult.error)setWithdrawalRequests((withdrawalResult.data??[]) as WithdrawalRequest[]);
+   if(!withdrawalResult.error)setWithdrawalRequests((withdrawalResult.data??[]) as WithdrawalRequest[]);else setWithdrawalMessage('Withdrawal queue could not be loaded: '+withdrawalResult.error.message);
    if(!auctionProductResult.error)setAuctionProducts((auctionProductResult.data??[]) as AuctionProduct[]);
    if(!auctionResult.error)setAuctionRows((auctionResult.data??[]) as AuctionRow[]);
    if(!fixedCampaignResult.error)setFixedCampaigns((fixedCampaignResult.data??[]) as FixedBidCampaign[]);
@@ -99,7 +99,6 @@ export default function Admin(){
    if(!walletTransactionResult.error)setWalletTransactions((walletTransactionResult.data??[]) as WalletTransaction[]);else setWalletMessage('Wallet ledger: '+walletTransactionResult.error.message);
    if(!notificationResult.error)setNotificationTemplates((notificationResult.data??[]) as NotificationTemplate[]);else setTemplateMessage(notificationResult.error.message);
    if(!adminAccountsResult.error)setAdminAccounts((adminAccountsResult.data??[]) as AdminAccount[]);else setAdminAccountsMessage(adminAccountsResult.error.message);
-   else setWithdrawalMessage('Withdrawal queue could not be loaded: '+withdrawalResult.error.message);
    if(results.some(x=>x.error))setError('Some totals are hidden by current database permissions or unavailable.');
    setCounts(Object.fromEntries(results.map(x=>[x.key,x.count??0])) as unknown as Counts);
    setLoading(false);
