@@ -8,6 +8,7 @@ const readMigration = (name: string) =>
 describe('package activation migration contract', () => {
   const submission = readMigration('20261115010000_submit_package_activation_request.sql');
   const review = readMigration('20261115020000_admin_package_activation_review.sql');
+  const reconciliation = readMigration('20261115074500_reconcile_mlm_dashboard_statuses.sql');
 
   it('uses a narrow authenticated wrapper while the private function validates the caller', () => {
     expect(submission).toMatch(/create or replace function private\.submit_package_activation/i);
@@ -36,5 +37,12 @@ describe('package activation migration contract', () => {
   it('uses only valid production commission status values in dashboard aggregates', () => {
     expect(review).not.toMatch(/status\s+in\s*\(\s*'credited'\s*,\s*'paid'\s*\)/i);
     expect(review).toMatch(/status\s*=\s*'credited'/i);
+  });
+  it('keeps the production MLM dashboard aligned with canonical database statuses', () => {
+    expect(reconciliation).toMatch(/payment_status\s*=\s*'approved'/i);
+    expect(reconciliation).toMatch(/status\s*=\s*'credited'/i);
+    expect(reconciliation).not.toMatch(/payment_status\s*=\s*'verified'/i);
+    expect(reconciliation).not.toMatch(/status\s+in\s*\(\s*'credited'\s*,\s*'paid'\s*\)/i);
+    expect(reconciliation).toMatch(/auth\.jwt\(\)->'app_metadata'->>'role'/i);
   });
 });
