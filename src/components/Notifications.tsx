@@ -23,7 +23,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
    <label>Category<select value={category} onChange={e=>setCategory(e.target.value)}><option value="general">General</option><option value="account">Account</option><option value="support">Support</option><option value="security">Security</option></select></label>
    <button className="primary" disabled={busy} type="submit"><Send size={15}/> Send notification</button>
   </form>}
-  <div className="memberReportHeading"><h4>{isAdmin?'Recent notifications':`Inbox · ${unread} unread`} ({items.length}{hasMore?' loaded':''})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
+  <div className="memberReportHeading"><h4>{isAdmin?'Recent notifications':`Inbox · ${unread} unread shown`} ({items.length}{hasMore?' loaded':''})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
   {busy&&items.length===0?<div className="empty">Loading notifications…</div>:items.length===0?<div className="empty">No notifications yet.</div>:<div className="activationList">{items.map(item=><article key={item.id} style={{display:'block',opacity:item.read_at ? 0.65 : 1}}>
    <div style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap'}}><b>{item.title}</b><small>{item.category.toUpperCase()} · {new Date(item.created_at).toLocaleString('en-IN')}</small></div>
    <p style={{whiteSpace:'pre-wrap'}}>{item.message}</p>
