@@ -197,3 +197,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added static migration-contract coverage for the `product-media` bucket MIME/size limits, public-read versus trusted-Admin write policies, privileged RPC claim checks, draft-only product creation/editing and anonymous EXECUTE revocation.
 - This test coverage does not prove Storage behavior or live Production compatibility. The migration remains source-only; Storage bucket/policy state and the `audit_logs` column contract still require reconciliation before rollout.
 - Product image selection is still a path/URL field in the Admin UI; an end-to-end file picker, upload, object cleanup and upload-error UX remain outstanding.
+
+
+## Support-to-notifications integration and current CI — 2026-11-16
+
+- Added `20261116060000_support_ticket_notifications.sql`: trusted Admin status/response changes create a bounded in-app notification for the ticket owner. The trigger uses an empty search path, validates the Admin `app_metadata.role` claim and revokes direct client EXECUTE privileges.
+- Added `tests/support-ticket-notifications.test.ts` covering Admin claim validation, owner recipient, status/response change detection, message length and function ACL.
+- Corrected the test's SQL closing-parenthesis whitespace assertion. GitHub Actions run `43752553469` for commit `af4ae55f71e62905644fba19f70c5f4ee6a7c911` passed all configured unit tests, TypeScript type-check and Vite production build.
+- Product media upload is already present in `Admin.tsx`: JPG/PNG/WebP, 5 MB maximum, Storage upload and public URL assignment. Remaining work is orphan/replaced-object cleanup and live Storage-policy validation; static migration tests do not prove live Storage behavior.
+- All related migrations remain unapplied to Production. No Production schema, data, settings, wallet balances or financial operations were changed.
