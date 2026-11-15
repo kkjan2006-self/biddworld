@@ -114,3 +114,15 @@ Security review details:
 - Admin sponsor-management and reporting RPCs inspected explicitly require an authenticated user with app_metadata.role='admin'. However, `admin_get_member_structure()` and `admin_get_mlm_overview()` require an admin role; the role-check pattern is consistent with the reviewed RPC set.
 
 These findings are documented for a narrow future forward-only correction. No Production functions, grants, constraints, or data were changed.
+
+
+### Narrow MLM dashboard status reconciliation prepared (2026-11-15)
+
+- Added `supabase/migrations/20261115074500_reconcile_mlm_dashboard_statuses.sql` as a forward-only, narrowly scoped correction for the two live dashboard RPCs.
+- The correction changes activation reporting from the impossible `payment_status='verified'` predicate to the live allowed value `approved`, retaining the active-activation filter.
+- It removes the unreachable `paid` branch from referral commission totals because the live `referral_commissions` constraint permits only `pending`, `credited`, and `reversed`. The separate winning-item payment status domain is unchanged.
+- Both full function definitions were reconstructed from the inspected live Production definitions; authorization checks, SECURITY DEFINER mode, and empty search_path are preserved.
+- The SQL was executed inside `BEGIN ... ROLLBACK` against BiddWorld-Production and completed successfully. The transaction was rolled back; **no Production function or data change was persisted**.
+- This migration is committed to the repository only. It has **not** been applied to Production. Do not apply until the complete production drift review is finished and deployment is explicitly approved.
+- Supabase's current database-function guidance recommends a fixed search_path for SECURITY DEFINER functions; the existing empty search_path and schema-qualified references were retained. See https://supabase.com/docs/guides/database/functions.
+- The November 2026 Supabase breaking-change review found no current database-function change affecting this SQL. The notable CLI v3 local-by-default behavior is relevant only if/when the CLI is used for deployment.
