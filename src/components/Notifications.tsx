@@ -1,0 +1,34 @@
+import {useCallback,useEffect,useState} from 'react';
+import {Bell,Send,RefreshCw,CheckCheck} from 'lucide-react';
+import {supabase} from '../lib/supabase';
+
+type Notice={id:string;user_id:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
+export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
+ const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+ const load=useCallback(async()=>{if(!supabase){setError('Notifications are unavailable until Supabase is configured.');return;}setBusy(true);setError('');const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).limit(100);setBusy(false);if(loadError){setError(loadError.message);return;}setItems((data??[]) as Notice[])},[]);
+ useEffect(()=>{void load()},[load]);
+ async function send(e:React.FormEvent<HTMLFormElement>){e.preventDefault();if(!supabase||busy)return;const target=userId.trim();if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){setError('Enter a valid member user UUID.');return;}if(title.trim().length<3||title.trim().length>120||message.trim().length<5||message.trim().length>2000){setError('Title must be 3–120 characters and message 5–2,000 characters.');return;}setBusy(true);setError('');setNotice('');const {error:sendError}=await supabase.from('member_notifications').insert({user_id:target,title:title.trim(),message:message.trim(),category});setBusy(false);if(sendError){setError(sendError.message);return;}setUserId('');setTitle('');setMessage('');setNotice('Notification sent to the selected member.');await load();}
+ async function markRead(id:string){if(!supabase)return;const readAt=new Date().toISOString();const {error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).eq('id',id).is('read_at',null);if(updateError){setError(updateError.message);return;}setItems(rows=>rows.map(row=>row.id===id?{...row,read_at:readAt}:row));}
+ const unread=items.filter(item=>!item.read_at).length;
+ return <section className="accountSection" style={{display:'block',maxWidth:980,margin:'0 auto'}}>
+  <h3><Bell size={20}/> {isAdmin?'Member Notifications':'Notifications'}</h3>
+  <p className="memberModuleHint">{isAdmin?'Send an in-app notification to one member using their Auth user UUID.':'Your recent BiddWorld account and support notifications.'}</p>
+  {error&&<div className="notice" role="alert">{error}</div>}{notice&&<div className="notice" role="status">{notice}</div>}
+  {isAdmin&&<form className="memberWithdrawalForm" onSubmit={send}>
+   <label>Member Auth User UUID<input required value={userId} onChange={e=>setUserId(e.target.value)} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"/></label>
+   <label>Title<input required minLength={3} maxLength={120} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Notification title"/></label>
+   <label>Message<textarea required minLength={5} maxLength={2000} rows={3} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Write a clear account notification"/></label>
+   <label>Category<select value={category} onChange={e=>setCategory(e.target.value)}><option value="general">General</option><option value="account">Account</option><option value="support">Support</option><option value="security">Security</option></select></label>
+   <button className="primary" disabled={busy} type="submit"><Send size={15}/> Send notification</button>
+  </form>}
+  <div className="memberReportHeading"><h4>{isAdmin?'Recent notifications':`Inbox · ${unread} unread`} ({items.length})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
+  {busy&&items.length===0?<div className="empty">Loading notifications…</div>:items.length===0?<div className="empty">No notifications yet.</div>:<div className="activationList">{items.map(item=><article key={item.id} style={{display:'block',opacity:item.read_at ? 0.65 : 1}}>
+   <div style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap'}}><b>{item.title}</b><small>{item.category.toUpperCase()} · {new Date(item.created_at).toLocaleString('en-IN')}</small></div>
+   <p style={{whiteSpace:'pre-wrap'}}>{item.message}</p>
+   {isAdmin&&<small>Recipient: {item.user_id}</small>}
+   {!isAdmin&&!item.read_at&&<button className="outline small" type="button" onClick={()=>void markRead(item.id)}><CheckCheck size={14}/> Mark as read</button>}
+   {item.read_at&&<small>Read {new Date(item.read_at).toLocaleString('en-IN')}</small>}
+  </article>)}</div>}
+  <small className="memberModuleState">In-app inbox only. Email, SMS and push delivery are not configured.</small>
+ </section>;
+}
