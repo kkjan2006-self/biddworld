@@ -102,3 +102,15 @@ A fresh read-only Supabase catalogue inspection was performed after the source a
 ### Current gate
 
 Implementation can continue on completion-work using source-only changes. The Production integration is not rollout-ready until the branch migration set is reconciled against the live schema and function signatures, the financial interlock is installed through an owner-approved rollout, and the deferred test/security phase is completed. The 21/21 RLS result must not be represented as a complete security review.
+
+## Expanded read-only security and grant review — 2026-11-16
+
+- Reconfirmed 21 public application tables and RLS enabled on all 21.
+- Supabase Security Advisor reports 43 authenticated-callable SECURITY DEFINER function signatures, one anon-callable SECURITY DEFINER function (lookup_sponsor), one RLS-enabled table with no direct policies (notification_templates), and leaked-password protection disabled.
+- A read-only pg_proc inventory found trusted auth.uid() and app_metadata role checks in the Admin SECURITY DEFINER function bodies inspected at inventory level; member dashboard/withdrawal functions use authenticated-user checks. This is not a substitute for a full manual review of every function body.
+- lookup_sponsor(text) is intentionally callable by anon for signup validation and returns an active Main ID and display name. Enumeration/rate limiting and data minimization remain a security review item.
+- notification_templates has no direct RLS policy; access is intended through Admin-checked RPCs. Confirm all grants and RPC access remain aligned.
+- Authenticated direct table grants on package_activations, wallet_accounts, wallet_transactions, withdrawal_requests and winning_item_payments are SELECT-only in the inspected Production grant snapshot. Financial writes occur through privileged RPCs/triggers, so the Admin approval RPC and database interlock are critical.
+- Performance Advisor reports one unindexed FK on notification_templates.created_by and 17 unused indexes. Do not drop unused indexes without workload review.
+- Production still has package_activations_enabled=true, bid_wallet_enabled=true, and income_wallet_enabled=true; financial_model_approved is absent. The new expanded interlock and feature-toggle approval check are source-only and NOT applied. Do not approve package activation, credit wallets, post commissions, place bids, enter Fixed Bid, process withdrawals or settle winners in Production.
+- No Production settings, rows, schema, Storage objects or migrations were changed in this audit.

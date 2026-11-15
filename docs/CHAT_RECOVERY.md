@@ -106,3 +106,8 @@
 - Added per-section Load More pagination for package activation, auction bid, Fixed Bid, referral commission and winning-payment histories, with deterministic ID tie-break ordering.
 - Winner history loads linked delivery records for newly fetched payment IDs. Wallet history and full CSV exports retain their own pagination.
 - Added focused static regression tests. No Production changes or financial writes.
+
+## Bulk completion register refresh — 2026-11-16
+
+- Updated the module matrix to reflect member support/inbox pagination, complete member activity CSV export, Admin paginated historical exports and source-only financial interlock expansion.
+- Production remains read-only. Security Advisor findings and the distinction between source-only guards and live Production state are recorded in the reconciliation audit.
