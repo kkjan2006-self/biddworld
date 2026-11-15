@@ -129,3 +129,10 @@
 - Replaced the unbounded/100-row campaign fetch with deterministic 50-row server pagination and a Load More control.
 - Added stable created_at + ID ordering, refresh reset, loading/error feedback, and product image display when an image path exists.
 - Read-only campaign display remains enforced; no entry, wallet or payment actions were added.
+
+
+## Public auction catalogue pagination — 2026-11-16
+
+- Replaced the unbounded auction listing query with deterministic 100-row server pages and a Load More control.
+- Existing 9-card client pagination, search/category filters, sort options and listing details remain intact for loaded records. Bidding remains available only on live listings and still uses the existing server RPC.
+- Added static tests for bounded first-page and continuation queries and the visible continuation control. This does not yet search unloaded pages; the UI reports the number of listings loaded.
