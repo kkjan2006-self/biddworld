@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const migration = readFileSync(
-  resolve(process.cwd(), 'supabase/migrations/20261116040000_member_support_tickets.sql'),
+  resolve(process.cwd(), 'supabase/migrations/20261116041000_member_support_tickets.sql'),
   'utf8',
 );
 
@@ -25,8 +25,8 @@ describe('member support ticket migration security contract', () => {
   });
 
   it('writes the Production audit_logs.details column', () => {
-    expect(migration).toMatch(/insert into public\.audit_logs\(actor_user_id, action, entity_type, entity_id, metadata\)/i);
-    expect(migration).toMatch(/insert into public\.audit_logs\([^)]*details/i);
+    expect(migration).toMatch(/insert into public\.audit_logs\(actor_user_id, action, entity_type, entity_id, details\)/i);
+    expect(migration).not.toMatch(/insert into public\.audit_logs\([^)]*metadata/i);
   });
 
   it('bounds user-controlled content and updates timestamps server-side', () => {

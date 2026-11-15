@@ -23,6 +23,9 @@ create policy delivery_tracking_select_own on public.delivery_tracking for selec
  where p.id=delivery_tracking.winning_item_payment_id and m.owner_user_id=(select auth.uid()))
 );
 
+drop trigger if exists enforce_delivery_tracking_feature on public.delivery_tracking;
+create trigger enforce_delivery_tracking_feature before insert or update on public.delivery_tracking for each row execute function private.enforce_feature_gate();
+
 create or replace function public.admin_list_delivery_tracking(p_limit integer default 100,p_offset integer default 0)
 returns table(tracking_id uuid,payment_id uuid,member_code text,winner_name text,item_title text,amount numeric,payment_status text,carrier text,tracking_number text,status text,shipped_at timestamptz,delivered_at timestamptz,updated_at timestamptz)
 language plpgsql stable security definer set search_path='' as $function$
