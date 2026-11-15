@@ -1,3 +1,8 @@
+-- Enforce payment-reference uniqueness under concurrent submissions.
+create unique index if not exists package_activations_payment_reference_ci_uidx
+  on public.package_activations (lower(btrim(payment_reference)))
+  where payment_reference is not null and btrim(payment_reference) <> '';
+
 -- Secure administrator review for package activation requests.
 -- Benefit amount is snapshotted when the member submits the request.
 alter table public.package_activations
@@ -220,7 +225,7 @@ begin
     'direct_relationships',(select count(*) from public.referrals),
     'pending_activations',(select count(*) from public.package_activations where payment_status='pending'),
     'verified_activations',(select count(*) from public.package_activations where payment_status='approved'),
-    'commission_total',(select coalesce(sum(amount),0) from public.referral_commissions where status in ('credited','paid')),
+    'commission_total',(select coalesce(sum(amount),0) from public.referral_commissions where status = 'credited'),
     'withdrawal_pending',(select count(*) from public.withdrawal_requests where status='pending'),
     'tree',(select coalesce(jsonb_agg(jsonb_build_object('member_code',m.member_code,'display_name',coalesce(nullif(p.display_name,''),'Member'),'status',m.status,'created_at',m.created_at,'sponsor_code',s.member_code) order by m.created_at desc),'[]'::jsonb)
       from public.member_ids m join public.profiles p on p.id=m.owner_user_id
@@ -263,7 +268,7 @@ begin
   'total_downline',(select count(*) from member_data),
   'active_members',(select count(*) from member_data where status='active'),
   'active_activations',(select count(*) from public.package_activations pa where pa.member_id=v_main and pa.payment_status='approved' and pa.activation_status='active'),
-  'commission_total',(select coalesce(sum(amount),0) from public.referral_commissions where credited_main_member_id=v_main and status in ('credited','paid')),
+  'commission_total',(select coalesce(sum(amount),0) from public.referral_commissions where credited_main_member_id=v_main and status = 'credited'),
   'bid_wallet',(select coalesce(balance,0) from public.wallet_accounts where member_id=v_main and wallet_type='bid'),
   'income_wallet',(select coalesce(balance,0) from public.wallet_accounts where member_id=v_main and wallet_type='income'),
   'tree',(select coalesce(jsonb_agg(jsonb_build_object('member_code',member_code,'display_name',display_name,'status',status,'created_at',created_at,'depth',depth,'sponsor_code',sponsor_code) order by depth,created_at),'[]'::jsonb) from member_data)
