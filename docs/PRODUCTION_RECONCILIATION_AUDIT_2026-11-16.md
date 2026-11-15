@@ -87,3 +87,18 @@ The `financial_model_approved` setting is absent from the current settings snaps
 - Source code inspection: completed for frontend RPC call inventory and relevant migration definitions.
 - Tests: not run, intentionally deferred until implementation completion as requested.
 - Production migrations/data/settings: untouched.
+
+## Direct Production catalogue snapshot — 2026-11-16 (read-only)
+
+A fresh read-only Supabase catalogue inspection was performed after the source audit above:
+
+- Project BiddWorld-Production is reachable and reports ACTIVE_HEALTHY on PostgreSQL 17.11 in ap-south-1.
+- The public schema currently contains 21 application tables. All 21 report RLS enabled.
+- The live migration ledger contains 30 applied migrations; its latest entry is 20261115163218_admin_audit_log_pagination.
+- The current source-only migrations dated 20261116 and the other branch-forward migrations listed above are not represented in that live ledger.
+- The live schema contains the core member, package, wallet, referral, auction, fixed-bid, withdrawal, winning-payment, delivery, audit, settings and notification-template tables. Table presence and RLS-enabled status alone do not prove that every policy, grant, trigger, function or workflow is correct.
+- The live database contains existing member/package/wallet rows. No row contents were modified, no DDL/DML was issued, and no migration was applied during this inspection.
+
+### Current gate
+
+Implementation can continue on completion-work using source-only changes. The Production integration is not rollout-ready until the branch migration set is reconciled against the live schema and function signatures, the financial interlock is installed through an owner-approved rollout, and the deferred test/security phase is completed. The 21/21 RLS result must not be represented as a complete security review.
