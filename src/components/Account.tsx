@@ -8,9 +8,12 @@ type Member={id:string;member_code:string;id_type:string;status:string;created_a
 type Activation={id:string;activation_number:number;amount_paid:number;currency:string;payment_status:string;activation_status:string;submitted_at:string;package:{name:string}|null};
 type WalletRow={wallet_type:string;balance:number;currency:string};
 type WithdrawalRow={request_id:string;amount:number;currency:string;status:string;requested_at:string;reviewed_at:string|null;rejection_reason:string|null};
+type AuctionBid={id:string;bid_amount:number;status:string;created_at:string;auction:{title:string;status:string;ends_at:string}|null};
+type FixedBidRow={id:string;bid_amount:number;status:string;created_at:string;campaign:{title:string;status:string}|null};
+type CommissionRow={id:string;level_number:number;amount:number;status:string;created_at:string};
 export default function Account(){
  const [profile,setProfile]=useState<{display_name:string|null;phone:string|null;status:string;main_member_id:string|null}|null>(null);
- const [members,setMembers]=useState<Member[]>([]);const [activations,setActivations]=useState<Activation[]>([]);const [wallets,setWallets]=useState<WalletRow[]>([]);
+ const [members,setMembers]=useState<Member[]>([]);const [activations,setActivations]=useState<Activation[]>([]);const [wallets,setWallets]=useState<WalletRow[]>([]);const [auctionBids,setAuctionBids]=useState<AuctionBid[]>([]);const [fixedBids,setFixedBids]=useState<FixedBidRow[]>([]);const [commissions,setCommissions]=useState<CommissionRow[]>([]);
  const [loading,setLoading]=useState(true);const [error,setError]=useState('');
  const [withdrawals,setWithdrawals]=useState<WithdrawalRow[]>([]);const [withdrawAmount,setWithdrawAmount]=useState('');const [payoutDetails,setPayoutDetails]=useState('');const [withdrawMessage,setWithdrawMessage]=useState('');const [withdrawBusy,setWithdrawBusy]=useState(false);
  async function load(){
@@ -22,18 +25,30 @@ export default function Account(){
   if(pe||!p){setError('Your member profile is not available yet.');setLoading(false);return;}
   setProfile(p);
   if(p.main_member_id){
-   const [m,a,w,wr]=await Promise.all([
+   const [m,a,w,wr,b,fb,rc]=await Promise.all([
     supabase.from('member_ids').select('id,member_code,id_type,status,created_at').eq('owner_user_id',user.id).order('created_at'),
     supabase.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,submitted_at,package:packages(name)').eq('member_id',p.main_member_id).order('submitted_at',{ascending:false}).limit(50),
     supabase.from('wallet_accounts').select('wallet_type,balance,currency').eq('member_id',p.main_member_id),
-    supabase.rpc('member_list_my_withdrawals')
+    supabase.rpc('member_list_my_withdrawals'),
+    supabase.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,ends_at)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).limit(100),
+    supabase.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).limit(100),
+    supabase.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',p.main_member_id).order('created_at',{ascending:false}).limit(100)
    ]);
-   if(m.error||a.error||w.error||wr.error)setError('Some account history is hidden by current database permissions.');
-   setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);setWithdrawals((wr.data??[]) as WithdrawalRow[]);
+   if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error)setError('Some account history is hidden by current database permissions.');
+   setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);setWithdrawals((wr.data??[]) as WithdrawalRow[]);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);
   }
   setLoading(false);
  }
  useEffect(()=>{void load()},[]);
+ function exportMemberReport(){
+  const rows:string[][]=[['Report','Reference','Amount (INR)','Status']];
+  activations.forEach(x=>rows.push(['Package activation',x.package?.name||x.id,String(x.amount_paid),x.activation_status+'/'+x.payment_status]));
+  auctionBids.forEach(x=>rows.push(['Auction bid',x.auction?.title||x.id,String(x.bid_amount),x.status]));
+  fixedBids.forEach(x=>rows.push(['Fixed bid',x.campaign?.title||x.id,String(x.bid_amount),x.status]));
+  commissions.forEach(x=>rows.push(['Referral commission','Level '+x.level_number,String(x.amount),x.status]));
+  const csv=rows.map(row=>row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(',')).join('\\r\\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='biddworld-my-report.csv';link.click();URL.revokeObjectURL(url);
+ }
  if(loading)return <div className="workspace">Loading your account…</div>;
  return <section className="accountWorkspace memberDashboard"><div className="memberConsoleHeader"><div><span>MY BIDDWORLD</span><h2>Member Dashboard</h2><p>Your account, wallets, packages and activity in one place</p></div><span className="memberConsoleBadge"><ShieldCheck size={15}/> Member Workspace</span></div><div className="memberDashboardLayout"><aside className="memberDashboardNav"><b>MY WORKSPACE</b><span className="memberNavGroup">OVERVIEW</span><a href="#member-overview">Dashboard Home</a><span className="memberNavGroup">MY ACCOUNT</span><a href="#member-profile">My Profile</a><a href="#member-ids">Member IDs</a><a href="#member-network">My Network</a><span className="memberNavGroup">MY MONEY</span><a href="#member-wallets">Wallet Balances</a><a href="#member-transactions">Transactions</a><a href="#member-withdrawals">Withdrawals</a><span className="memberNavGroup">MY ACTIVITY</span><a href="#member-activations">Packages</a><a href="#member-auctions">Auctions</a><a href="#member-fixedbid">Fixed Bid</a><a href="#member-reports">My Reports</a></aside><div className="memberDashboardContent">
   <div className="packageIntro" id="member-overview"><span className="workspaceIcon"><UserRound/></span><div><h3>My account</h3><p>Your registered member details, IDs, wallet balances and activation history.</p></div><button className="outline small accountRefresh" onClick={()=>void load()}><RefreshCw size={14}/> Refresh</button></div>
@@ -44,9 +59,9 @@ export default function Account(){
   <div className="accountSection" id="member-network"><h4>My Network & Genealogy</h4><Referrals/></div>
   <div className="accountSection" id="member-transactions"><h4>Wallet Transactions</h4><WalletHistory/></div>
   <div className="accountSection" id="member-activations"><h4><PackageCheck size={17}/> Package activation history</h4>{activations.length?<div className="activationList">{activations.map(a=><article key={a.id}><div><b>{a.package?.name||'Membership package'} · #{a.activation_number}</b><small>{new Date(a.submitted_at).toLocaleDateString()} · {money(Number(a.amount_paid),a.currency||'INR')}</small></div><div><span>{a.payment_status}</span><small>{a.activation_status}</small></div></article>)}</div>:<div className="empty">No package activation requests found.</div>}</div>
-  <div className="accountSection" id="member-auctions"><h4>Auction Activity</h4><p className="memberModuleHint">Your bids, auction participation, current bid status and completed auction history.</p><small className="memberModuleState">No member auction history is available yet.</small></div>
-  <div className="accountSection" id="member-fixedbid"><h4>Fixed Bid Activity</h4><p className="memberModuleHint">Fixed Bid campaign entries, participation status and campaign results.</p><small className="memberModuleState">Fixed Bid result rules are pending Admin configuration.</small></div>
+  <div className="accountSection" id="member-auctions"><h4>Auction Activity</h4><p className="memberModuleHint">Your latest 100 bids, bid amounts and auction status.</p>{auctionBids.length?<div className="activationList">{auctionBids.map(x=><article key={x.id}><div><b>{x.auction?.title||'Auction'}</b><small>{new Date(x.created_at).toLocaleString()}</small></div><div><b>{money(Number(x.bid_amount),'INR')}</b><small>{x.status} · {x.auction?.status||'status unavailable'}</small></div></article>)}</div>:<div className="empty">No auction bids found for your Main ID.</div>}</div>
+  <div className="accountSection" id="member-fixedbid"><h4>Fixed Bid Activity</h4><p className="memberModuleHint">Your latest 100 Fixed Bid campaign entries and their recorded status.</p>{fixedBids.length?<div className="activationList">{fixedBids.map(x=><article key={x.id}><div><b>{x.campaign?.title||'Fixed Bid campaign'}</b><small>{new Date(x.created_at).toLocaleString()}</small></div><div><b>{money(Number(x.bid_amount),'INR')}</b><small>{x.status} · {x.campaign?.status||'status unavailable'}</small></div></article>)}</div>:<div className="empty">No Fixed Bid entries found for your Main ID. Campaign participation remains unavailable until enabled.</div>}</div>
   <div className="accountSection" id="member-withdrawals"><h4>Withdrawal Requests</h4><p className="memberModuleHint">Submit a request from your Income Wallet. Admin review and payout are separate steps.</p><form className="memberWithdrawalForm" onSubmit={async e=>{e.preventDefault();if(!supabase||withdrawBusy)return;setWithdrawBusy(true);setWithdrawMessage('');let details:Record<string,string>;try{details=JSON.parse(payoutDetails);if(!details||typeof details!=='object'||Array.isArray(details))throw new Error();}catch{setWithdrawMessage('Enter payout details as valid JSON, for example bank name and account number.');setWithdrawBusy(false);return;}const{error}=await supabase.rpc('member_create_withdrawal_request',{p_amount:Number(withdrawAmount),p_payout_details:details});if(error)setWithdrawMessage(error.message);else{setWithdrawMessage('Withdrawal request submitted for Admin review.');setWithdrawAmount('');setPayoutDetails('');await load();}setWithdrawBusy(false);}}><label>Amount (INR)<input type="number" min="1" step="0.01" required value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} placeholder="Enter amount"/></label><label>Bank / UPI payout details (JSON)<textarea required rows={3} value={payoutDetails} onChange={e=>setPayoutDetails(e.target.value)} placeholder='{"method":"UPI","upi_id":"name@bank"}'/></label><button className="primary" type="submit" disabled={withdrawBusy}>{withdrawBusy?'Submitting…':'Submit withdrawal request'}</button>{withdrawMessage&&<small role="status">{withdrawMessage}</small>}</form>{withdrawals.length?<div className="activationList">{withdrawals.map(w=><article key={w.request_id}><div><b>{money(Number(w.amount),w.currency||'INR')}</b><small>{new Date(w.requested_at).toLocaleString()}</small></div><div><span>{w.status}</span>{w.rejection_reason&&<small>{w.rejection_reason}</small>}</div></article>)}</div>:<div className="empty">No withdrawal requests yet.</div>}</div>
-  <div className="accountSection" id="member-reports"><h4>My Reports</h4><p className="memberModuleHint">Joining date, referrals, team levels, package activations, commissions and wallet statement reports.</p><small className="memberModuleState">Detailed report exports are being implemented.</small></div>
+  <div className="accountSection" id="member-reports"><h4>My Reports</h4><p className="memberModuleHint">Download a personal CSV summary of package activations, auction bids, Fixed Bid entries and referral commissions currently loaded for your Main ID.</p><button className="outline" type="button" onClick={exportMemberReport}>Download my activity report (CSV)</button><small className="memberModuleState">Personal records only · latest 100 rows per activity · no other members’ data.</small></div>
  </div></div></section>;
 }
