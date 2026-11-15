@@ -227,3 +227,74 @@ All checks below were read-only and targeted only project hbqatszyzqobgtauyuzy (
 5. Expand tests beyond the current 36 unit tests to isolated RPC/security integration tests and Android browser checks.
 6. Finish Member Dashboard gaps (duplicate-ID attribution, sponsor details, notifications, account security) and Admin report/filter/export gaps without replacing existing modules.
 
+
+## Follow-up recovery and preservation audit — 2026-11-15
+
+This section supersedes conflicting earlier snapshots in this document and records the additional owner-requested development preserved after the main recovery prompt.
+
+### Owner development preserved from GitHub history
+
+The following work remains in the current main branch; it was not replaced or rolled back:
+
+- Admin package draft create/edit (feb4cee), versioned five-level referral plan drafts (e09f434), read-only wallet balances/ledger (a42bf64, 7598be2), read-only withdrawal queue (6a0e5d0), product/auction drafts (5d46af9), Fixed Bid drafts (b013737), winning payment register (2566186), delivery tracking (2e81aac), Admin CSV exports (5b64477, 9d40de7), notification-template drafts (583c065), read-only Admin access view (9c33d64) and system-health panel (8583214).
+- Platform Settings UI and server-side feature gates (15da896, 9404740), plus responsive Telugu explanations and mobile layout fixes.
+- Member dashboard live genealogy/wallet data (2f4ebcf), withdrawal request UI (5077546), auction/Fixed Bid/report activity (bdaa5bf), placement tree and commission history (af053c0), one-section-at-a-time navigation (8bec18a, 327eab5), dashboard summary cards (88117fc, de0611d), personal CSV report (bfaca0a), transaction filters/export (d8efcad) and paginated wallet history (3aed363).
+- Admin wallet-ledger pagination (b52477c), withdrawal queue pagination (2f5de43), audit-log date filters (2fc65d8) and server-side audit pagination (b01a6f7, 5f3d45f).
+- Existing visual and navigation decisions from the preceding Admin and Member Dashboard redesign commits are preserved.
+
+### Follow-up defects corrected
+
+- Removed a redundant placeholder Admin wallet section that reused id="admin-wallets" alongside the real read-only wallet ledger. The real ledger module and its data loading remain intact. There is now exactly one Admin wallet section target.
+- The Member Wallet History already fetched 100-row pages but did not render a control to request the next page. Added the “Load 100 more transactions” control, retaining wallet/direction filters and CSV export.
+- Added Member “Winner & Delivery History” using the member's own winning_item_payments and delivery_tracking RLS policies.
+- Added Member Account Security: authenticated password update through Supabase Auth and global session sign-out. No password is stored in BiddWorld.
+- Added navigation regression tests for unique Admin targets, Member section targets, wallet pagination, and member-scoped winner/delivery/security paths.
+
+### Latest code and automated verification
+
+- Latest inspected main commit: ce1520f4b107123212bb1f9d5e5bffe020fe59ad.
+- Latest CI run for that commit: 43738110894 — success; 6 test files and 40 tests passed; TypeScript type-check and Vite production build passed.
+- The immediately preceding application-code commit c298491094c709c01c1df1306abacc18586f20f1 includes the Member Winner/Delivery and Account Security implementation. The latest commit after it adds the regression test.
+- GitHub Pages/GoDaddy build workflow for the latest commit was still running at the time of this audit. Do not claim the newest preview deployment is complete until its deploy job reports success. The GoDaddy package is only a generated artifact, not a GoDaddy deployment.
+
+### Current Production data and configuration
+
+Read-only checks were performed only against BiddWorld-Production (hbqatszyzqobgtauyuzy). No production records, schema, settings, policies, grants or functions were changed in this follow-up.
+
+- 21 public tables; RLS is enabled on all 21.
+- Current observed rows: 2 Auth users, 2 profiles, 2 member IDs, 2 packages, 4 wallet accounts, 1 referral-plan version with 5 rules, 1 referral relationship, 2 audit-log rows and 16 app settings.
+- Package activations, wallet transactions, referral commissions, products, auctions, Fixed Bid campaigns/entries, bids, withdrawals, winning payments and delivery records remain at zero.
+- The intended BiddWorld 1:5 Growth Package remains inactive: ₹3,000 price / ₹3,500 Bid Wallet credit. Its version-1 referral plan is inactive and contains five fixed ₹200 level rules, each requiring an active Main ID and capped at depth 5.
+- A second inactive package row named ", basic package" remains in Production at ₹3,000 / ₹2,500 Bid Wallet credit. It has not been edited or deleted; confirm its origin and intended disposition before changing it.
+- Current settings: registration, sponsor referrals, package activations, Bid Wallet and Income Wallet are true; automatic placement, duplicate IDs, referral commissions, withdrawals, bidding, Fixed Bid, winner selection, winning payments, delivery tracking and notifications are false.
+- Package activations being true does not make the intended package purchasable while that package remains inactive.
+
+### Corrected backend feature-gate review
+
+The live database has private.enforce_feature_gate() triggers on member IDs, referrals, package activations, wallet transactions, bids, referral commissions, withdrawals, Fixed Bid campaigns, winning payments and delivery tracking.
+
+These triggers enforce the matching server-side setting, including:
+- Package activation insert/activation requires package_activations_enabled.
+- Bid and Income Wallet transaction inserts require their corresponding wallet switch.
+- Bid creation requires bidding_enabled and validates each wallet debit against the matching wallet switch.
+- Sponsor referral writes, duplicate ID activation, credited commissions, withdrawals, live Fixed Bid campaigns, paid winning payments and delivery changes are gated by their server-side settings.
+
+Therefore, earlier statements that the current package-activation and bid wallet switches were not enforced by the backend are superseded: the triggers are present and their definitions were read from Production. private.place_bid() performs the atomic wallet debit; the database triggers add the wallet-specific switch checks. No live bid was attempted.
+
+admin_set_feature_setting() permits enabling only the currently whitelisted, implemented settings: registration, sponsor referrals, duplicate IDs, package activations, Bid Wallet, Income Wallet and delivery tracking. It rejects enabling unfinished workflows such as referral commission payouts, withdrawals, bidding, Fixed Bid, winner selection, winning payments and notifications.
+
+### Remaining work and launch blockers
+
+1. Migration reproducibility: Production reports 30 applied migration versions while the repository currently contains 19 SQL migration files. The mapping and clean-database replay path are not yet verified. Do not replay baseline migrations, fabricate migration history or reset Production. Reconstruct and reconcile the missing/combined migration source before adding further Production DDL.
+2. Dependencies: no root package-lock.json; the last dependency audit reported 6 findings (2 moderate, 2 high, 2 critical). Review advisories and lock exact dependency versions without forced major upgrades.
+3. Security: leaked-password protection remains disabled in Supabase Auth. Security advisor SECURITY DEFINER findings need function-by-function review; the reviewed Admin RPCs check app_metadata.role='admin', member RPCs derive data from auth.uid(), and the public place_bid / submit_package_activation wrappers delegate to private functions that authenticate. lookup_sponsor is intentionally callable by anon for signup lookup and still needs rate-limit/enumeration review.
+4. Performance: one missing index on notification_templates.created_by; 23 unused-index notices. Do not drop indexes based only on low-traffic unused-index notices.
+5. Admin gaps: wallet balances/ledger are read-only; withdrawal queue is read-only; reports export currently loaded records as CSV rather than a complete paginated/date-filtered historical report set; notification templates are inactive drafts; role/access screen is read-only; a dedicated Security Audit view remains to be completed.
+6. Package and commission gaps: package editor currently manages inactive name/description/price/Bid Wallet credit drafts, not full benefits/visibility/effective-date/activation-rule management. Referral-plan UI currently edits fixed amounts; the database supports fixed/percentage rule types, but the commission posting engine and historical immutable commission snapshots still need full implementation and isolated tests.
+7. Financial workflows: withdrawal minimum/maximum/fees, bank verification, reserved-balance semantics, Admin review and payout settlement are incomplete. Keep withdrawals OFF. No real commission engine/payout is active.
+8. Auction and Fixed Bid: product/auction and Fixed Bid draft creation exists. Reserve-price schema, auction publishing and live status controls, participant/bid registers, concurrency/winner calculation and Fixed Bid entry/participant/winner rules remain incomplete. Keep bidding and Fixed Bid OFF.
+9. Winner/payment/delivery: winner and payment register is read-only; no winner selection or settlement is active. Admin delivery tracking is limited to paid winning-payment records; member read-only delivery history is now available. Address collection and courier-provider integration remain external/incomplete. Keep winning payments and delivery tracking OFF until the complete flow is tested.
+10. Notifications: template drafts exist, but no in-app notification event table, recipient delivery/read workflow or notification center is implemented. Keep notifications OFF.
+11. Member gaps: profile, IDs, packages, wallets, network, placement, transactions, commissions, auction/Fixed Bid activity, withdrawals, personal CSV, winner/delivery history and account security are represented. Notification center and any future sponsor/contact details not exposed by the current member-scoped RLS/RPCs remain pending.
+12. Final validation: Android-device responsive and end-to-end workflow tests still need to be performed. Domain and GoDaddy hosting remain unpurchased and undeployed.
+
