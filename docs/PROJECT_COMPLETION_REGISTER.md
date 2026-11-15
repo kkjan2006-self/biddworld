@@ -114,3 +114,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Reconciled the Admin UI with the branch migration `20261115230000_duplicate_under_id_placement_attribution.sql`: Duplicate ID creation requires both an active owner Main ID and a different active Under / Placement ID, and sends the migration's two-argument RPC signature.
 - The placement selector is sourced from the Admin member-structure result and filters to active IDs. The database migration enforces ownership separation and stores the placement parent; IDs remain Pending for review. Approval remains disabled until the returned placement parent is present.
 - Read-only Production inspection previously found the currently deployed RPC still has the older one-argument signature. The branch's forward migration is not applied to Production by design; this UI workflow becomes available in Production only after owner-approved migration rollout and reconciliation. No Production data or schema changed; no tests run.
+
+
+## Production reconciliation audit — 2026-11-16
+
+- Added `docs/PRODUCTION_RECONCILIATION_AUDIT_2026-11-16.md` from a read-only comparison of the frontend RPC inventory, live Production function catalogue, migration history, selected RLS policies and feature settings.
+- Confirmed missing live RPCs for member identity, member ID listing, member profile updates and product publish/hide; confirmed the Duplicate ID one-argument/two-argument signature mismatch; recorded the referral plan depth migration gap.
+- Recorded that the financial approval guard is not deployed and that Production still reports package activation, Bid Wallet and Income Wallet feature switches enabled while bidding, withdrawals, commissions and other execution switches are disabled. No Production settings were changed.
+- This is a reconciliation/audit deliverable, not a completed feature module or security certification. Tests remain deferred; Production remains untouched.

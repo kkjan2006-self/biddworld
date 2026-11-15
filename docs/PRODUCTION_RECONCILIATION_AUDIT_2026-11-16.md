@@ -1,0 +1,89 @@
+# BiddWorld Production Reconciliation Audit — 2026-11-16
+
+## Scope and safety
+
+This is a read-only snapshot of the connected `BiddWorld-Production` project (`hbqatszyzqobgtauyuzy`) and the `completion-work` source branch. No SQL DDL/DML, migrations, settings, Storage operations, or Production data changes were executed. The audit does not constitute a security certification or a test run.
+
+## Current source branch
+
+- Branch: `completion-work`
+- Audited HEAD before this audit document: `fe68fd9b25e9368ced8ad456a881cb4d9f39abf4`
+- Recent source-only migrations include financial approval guard, public product catalogue, Admin product/media management, configurable referral plan depth, member profile self-service, member identity summary, and Duplicate ID Under-ID placement attribution.
+
+## UI-to-Production RPC reconciliation
+
+The frontend RPC inventory was compared with the live public function catalogue.
+
+### Frontend RPCs not currently present in Production
+
+- `member_get_my_identity()`
+- `member_list_my_ids()`
+- `member_update_my_profile(text,text)`
+- `admin_set_product_active(uuid,boolean)`
+
+These are defined by source migrations or planned Admin product management code, but the connected Production function catalogue does not currently expose them. Member identity/profile/ID features and product publish/hide must not be described as live-ready until the matching migrations are reviewed and applied by the owner.
+
+### RPC signature mismatch
+
+- Production currently exposes `admin_create_duplicate_member_id(p_main_member_code text)`.
+- The branch's `20261115230000_duplicate_under_id_placement_attribution.sql` intentionally replaces it with `admin_create_duplicate_member_id(p_main_member_code text,p_under_member_code text)`, sets `placement_parent_id`, returns `under_member_code`, and updates the Admin list RPC to return placement information.
+- The Admin UI now matches the branch migration's two-argument signature and requires an active Under / Placement ID. It will not work against the currently deployed one-argument Production RPC until the migration is owner-approved and applied.
+
+### Present but restricted / older behavior
+
+- `admin_save_referral_plan_draft` exists in Production, but the branch's `20261116030000_admin_configurable_referral_plan_depth.sql` is not present in the Production migration history. Production remains subject to the existing five-level restriction until the branch migration is reviewed and applied.
+- `admin_list_auction_products` and `admin_save_product_draft` exist in the live function catalogue; `admin_set_product_active` does not.
+
+## Production migration history versus branch
+
+The Production migration history does not include these later branch migrations:
+
+- `20261115190000_member_profile_self_service.sql`
+- `20261115203000_member_identity_summary.sql`
+- `20261115230000_duplicate_under_id_placement_attribution.sql`
+- `20261116000000_financial_approval_guard.sql`
+- `20261116010000_public_active_product_catalogue.sql`
+- `20261116020000_admin_product_management_and_media.sql`
+- `20261116030000_admin_configurable_referral_plan_depth.sql`
+
+The production migration ledger contains earlier migrations with related feature names under different version identifiers. Do not assume that a matching feature label means the later branch migration has been applied; reconcile actual function definitions, policies, triggers, and Storage state before any rollout.
+
+## Read-only RLS observations
+
+- `member_ids`, `profiles`, `wallet_accounts`, `wallet_transactions`, and `withdrawal_requests` currently expose owner-scoped authenticated SELECT policies.
+- `products` has an authenticated SELECT policy restricted to `status='published'`.
+- This snapshot does not inspect every table/policy, Storage bucket/policy, trigger, grant, or edge function. Full security review remains pending.
+
+## Financial safety blockers
+
+The current Production settings snapshot reports:
+
+- `package_activations_enabled=true`
+- `bid_wallet_enabled=true`
+- `income_wallet_enabled=true`
+- `referral_commissions_enabled=false`
+- `withdrawals_enabled=false`
+- `bidding_enabled=false`
+- `fixed_bid_enabled=false`
+- `winning_payment_enabled=false`
+- `duplicate_ids_enabled=false`
+- `automatic_placement_enabled=false`
+
+The `financial_model_approved` setting is absent from the current settings snapshot. The source-only database guard migration has not been applied. The Admin frontend's package-approval lock is not a substitute for a server-side database guard. Treat package approval, wallet credits, commissions, withdrawals, bidding debits, and winning payments as blocked until the owner-approved financial/legal review and reviewed server-side guard are in place. Do not change Production settings as part of this work.
+
+## Next implementation dependencies
+
+1. Finish member account/profile/identity integration against the branch migrations; keep member identity and profile fields server-controlled.
+2. Reconcile Duplicate ID placement creation/list/status workflows against the two-argument branch migration.
+3. Reconcile product publish/hide and media policies with the actual Production Storage state before rollout.
+4. Complete auction and fixed-bid lifecycle, including validation, timing, anti-abuse, and winner settlement; keep financial execution disabled.
+5. Reconcile Admin referral plan depth, package request review, and financial interlock.
+6. Only after implementation completion, run the requested full test matrix and security review. Do not claim passing tests before execution.
+7. Owner approval is required before applying any Production migration or changing any financial setting. Domain/hosting purchase remains deferred.
+
+## Verification status
+
+- Production inspection: read-only SQL catalogue queries only.
+- Source code inspection: completed for frontend RPC call inventory and relevant migration definitions.
+- Tests: not run, intentionally deferred until implementation completion as requested.
+- Production migrations/data/settings: untouched.
