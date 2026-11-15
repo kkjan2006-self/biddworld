@@ -45,9 +45,9 @@ export default function Account(){
     supabase.from('wallet_accounts').select('wallet_type,balance,currency').eq('member_id',p.main_member_id),
     supabase.rpc('member_list_my_withdrawals'),
     supabase.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
-    supabase.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).limit(100),
-    supabase.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',p.main_member_id).order('created_at',{ascending:false}).limit(100),
-    supabase.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',p.main_member_id).order('created_at',{ascending:false}).limit(100)
+    supabase.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
+    supabase.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
+    supabase.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99)
    ]);
    const paymentIds=(wp.data??[]).map((row:any)=>row.id as string);
    const deliveryResult=paymentIds.length?await supabase.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}):{data:[],error:null};

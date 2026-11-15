@@ -5,7 +5,7 @@ const account=readFileSync(resolve(process.cwd(),'src/components/Account.tsx'),'
 describe('member dashboard history pagination',()=>{
  it('uses bounded deterministic first-page queries for member histories',()=>{
   expect(account).toContain(".range(0,49)");
-  expect(account).toContain(".range(0,99)");
+  expect((account.match(/\\.range\\(0,99\\)/g)??[]).length).toBeGreaterThanOrEqual(4);
   expect(account).toContain(".order('id',{ascending:false})");
  });
  it('provides paginated continuation for activations, bids, commissions and winner records',()=>{
