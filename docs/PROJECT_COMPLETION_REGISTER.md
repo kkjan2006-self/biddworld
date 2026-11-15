@@ -147,3 +147,16 @@ Work through the incomplete items in dependency order: member/public experience 
 - RPCs enforce the trusted `app_metadata.role=admin` claim, accept only draft products, validate title/price/increment/date ranges, restrict edits to existing draft auctions, and write audit records. Execution is granted only to authenticated users; each function performs its own Admin check.
 - Migration is committed as source only. It has NOT been applied to Production. The migration follows the reconciled live schema (`products.name/status`, auction `updated_at`); baseline schema drift remains a rollout prerequisite.
 - No bidding, publication, winner selection, wallet movement, settlement or payouts were enabled. No tests were run.
+
+
+## Recovery checkpoint (2026-11-16)
+
+- Verified `completion-work` exists and its current HEAD at recovery was `b9cb37c7dd20306a810fa352d98997fc8ac7ff28`. This supersedes the older commit hash included in the user prompt.
+- Repository metadata reports linked GitHub push/admin permissions. The default branch is `main`; all project work remains on `completion-work`.
+- Verified Production project is `ACTIVE_HEALTHY` on PostgreSQL 17.11 in `ap-south-1`.
+- Read-only Supabase migration ledger reports 30 applied migrations; latest is `20261115163218_admin_audit_log_pagination`.
+- Current combined commit status reports four Vercel contexts failed with build-rate-limit destinations. This does not prove the source build itself fails. GitHub Actions result was not independently verified in this pass.
+- No local build, typecheck, Vitest, browser E2E or security test was run during recovery.
+- Added `docs/PROJECT_RECOVERY_AUDIT_2026-11-16.md` with source inventory, production snapshot, known drift, blockers and next execution sequence.
+- No Production SQL, migration, settings, Storage, member data, financial data, domain or hosting changes were performed.
+- Recovery snapshot is not a completion or production-readiness claim.
