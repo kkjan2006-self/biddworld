@@ -122,3 +122,10 @@
 - Production remains unchanged: 21/21 public tables RLS-enabled, 30 applied migrations, latest 20261115163218_admin_audit_log_pagination. No Production SQL, DDL/DML, settings, Storage, wallet balances, commissions, payouts, domain or hosting changes were made.
 - Vercel deployment status contexts still report build-rate-limit failures; GitHub Actions build success does not establish a Vercel deployment. No deployment or paid upgrade was attempted.
 - This is a verified source build/test checkpoint, not a Production-readiness certificate. Final module completion, complete RPC/RLS/Storage audit, owner-defined business rules, integration/browser testing, legal/compliance review and deployment preparation remain outstanding.
+
+
+## Fixed Bid catalogue pagination — 2026-11-16
+
+- Replaced the unbounded/100-row campaign fetch with deterministic 50-row server pagination and a Load More control.
+- Added stable created_at + ID ordering, refresh reset, loading/error feedback, and product image display when an image path exists.
+- Read-only campaign display remains enforced; no entry, wallet or payment actions were added.
