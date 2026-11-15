@@ -71,3 +71,11 @@
 - GitHub file reads confirm both components and the new test are present on `completion-work`. A successful GitHub Actions run for this exact latest code has not yet been verified.
 - Vercel status contexts show `build-rate-limit` failures. These indicate provider build limits, not a confirmed source build failure.
 - Production Supabase remains read-only: no SQL, migrations, settings, Storage, member records, wallet balances, commissions, payouts or financial actions were changed.
+
+
+## Bulk completion continuation — complete personal report (2026-11-16)
+
+- Audited the Member Dashboard data loader and found the CSV report previously exported only currently loaded rows (50 activations and up to 100 rows for other activity types).
+- Reworked report export to re-check the authenticated user/Main ID and independently page through all report tables in deterministic 500-row batches, including delivery records in bounded payment-ID batches.
+- Added a focused regression test and updated the completion register.
+- No Production changes. Live database access remains read-only; financial actions remain locked.

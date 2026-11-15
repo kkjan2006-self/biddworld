@@ -231,3 +231,13 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added a Vitest static contract test for bounded first-page and subsequent-page queries and the visible pagination controls.
 - These are source-only UI changes. No Production schema, data, Storage, feature settings or financial state was changed.
 - CI has not yet been verified for these commits. Vercel status contexts currently report build-rate-limit failures; these are provider limits and do not establish whether the TypeScript/Vite build passes.
+
+
+## Complete Member Activity Report — 2026-11-16
+
+- Replaced the latest-100-only CSV report with a complete personal activity export.
+- Export re-verifies the signed-in user and Main ID, then retrieves package activations, auction bids, Fixed Bid entries, referral commissions and winning payments in deterministic 500-row pages.
+- Delivery tracking is fetched in bounded batches based only on the current Main ID's winning-payment IDs. Wallet balances, member IDs and the member's existing withdrawal history are included.
+- Added export-busy state, success record count and clear error feedback. CSV uses the shared formula-safe serializer.
+- Added static Vitest coverage for page bounds, deterministic ordering, personal identity scope and included data sources.
+- Source-only change on `completion-work`. No Production schema/data/settings or financial activity was changed. Verification for this new commit is pending.
