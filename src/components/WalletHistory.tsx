@@ -28,7 +28,7 @@ export default function WalletHistory(){
 
  useEffect(()=>{
   let active=true;
-  if(page===0)setRows([]);setError('');setLoading(true);
+  if(page===0){setRows([]);setLoading(true);}else setLoadingMore(true);setError('');
   async function load(){
    if(!supabase||!userId){if(active)setLoading(false);return;}
    const {data:profile,error:pError}=await supabase.from('profiles').select('main_member_id').eq('id',userId).maybeSingle();
@@ -38,7 +38,7 @@ export default function WalletHistory(){
    if(!active)return;
    if(qError)setError('Transaction history is unavailable for this account.');
    else {const batch=(data??[]) as Tx[];setRows(current=>page===0?batch:[...current,...batch]);setHasMore(batch.length===100);}
-   setLoading(false);
+   setLoading(false);setLoadingMore(false);
   }
   void load();return()=>{active=false;};
  },[userId,refresh,page]);
