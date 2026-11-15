@@ -109,9 +109,8 @@ Work through the incomplete items in dependency order: member/public experience 
 - This client-side lock is an interim safeguard only. A trusted Admin could still call the exposed review RPC directly until the reviewed database guard is applied. Production must remain untouched per owner instruction; treat installation/reconciliation of the database guard as a hard launch blocker.
 
 
-## Duplicate ID creation safety alignment — 2026-11-16
+## Duplicate ID placement workflow alignment — 2026-11-16
 
-- Read-only Production inspection confirmed the current admin_create_duplicate_member_id RPC accepts only p_main_member_code; the previous Admin UI incorrectly sent an unsupported p_under_member_code argument, so creation would fail with a function-signature mismatch.
-- Updated the Admin UI to call the actual one-argument RPC and accurately describe the resulting Main-ID ownership link.
-- Production's current duplicate-list RPC does not return a placement parent, and the creation RPC does not set one. The Admin UI now leaves newly created IDs Pending and disables approval until a placement parent is present. This prevents activating an ID that has not completed the required placement review.
-- Full placement assignment/automatic-placement logic remains a blocker; no placement rules were invented. No Production data, schema, migrations, or settings were changed. No tests were run.
+- Reconciled the Admin UI with the branch migration `20261115230000_duplicate_under_id_placement_attribution.sql`: Duplicate ID creation requires both an active owner Main ID and a different active Under / Placement ID, and sends the migration's two-argument RPC signature.
+- The placement selector is sourced from the Admin member-structure result and filters to active IDs. The database migration enforces ownership separation and stores the placement parent; IDs remain Pending for review. Approval remains disabled until the returned placement parent is present.
+- Read-only Production inspection previously found the currently deployed RPC still has the older one-argument signature. The branch's forward migration is not applied to Production by design; this UI workflow becomes available in Production only after owner-approved migration rollout and reconciliation. No Production data or schema changed; no tests run.
