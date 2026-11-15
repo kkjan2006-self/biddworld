@@ -26,7 +26,7 @@ This register is an implementation inventory, not a claim of launch readiness. I
 | Admin reports | CSV exports for currently loaded records | Server-side filtered/date-range pagination, complete exports, wallet/commission/duplicate/team reports, printable/PDF reporting |
 | Notifications | Inactive templates can be created/edited | Provider integration, recipient targeting, dispatch queue, retries, delivery logs, preferences/consent and opt-out |
 | Admin access | Server-side role checks and read-only admin account list | Secure first-admin provisioning procedure and auditable role lifecycle (no client-side role assignment) |
-| Settings/system health | Admin feature settings and health display | Finish documented feature-to-backend enforcement mapping, eliminate unsafe switch combinations and document operator procedures |
+| Settings/system health | Admin feature settings and health display; feature-group headings, labels and descriptions are now consistently English | Finish documented feature-to-backend enforcement mapping, eliminate unsafe switch combinations and document operator procedures |
 | Security/operations | RLS-enabled tables, RPC-based privileged writes, audit log UI, security documentation | Complete function/grant/policy review, abuse/rate limiting, monitoring, backup/restore plan, privacy/terms/legal review and incident/support procedures |
 
 ## Confirmed high-priority incomplete items
@@ -51,3 +51,8 @@ This register is an implementation inventory, not a claim of launch readiness. I
 ## Completion approach
 
 Work through the incomplete items in dependency order: member/public experience and CRUD surfaces; admin operational tooling; non-financial backend workflows; owner-defined financial business rules and secure RPCs; then the final independent verification, testing and deployment phase. Verification/deployment is intentionally deferred until the implementation work is complete, as requested by the project owner.
+
+
+## Latest implementation note
+
+- Admin Platform Settings feature groups were translated to English to match the required English application UI. This is a presentation-only change; it does not enable any feature, alter financial rules, or change database state.
