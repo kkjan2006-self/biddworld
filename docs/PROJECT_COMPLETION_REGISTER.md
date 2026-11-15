@@ -160,3 +160,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added `docs/PROJECT_RECOVERY_AUDIT_2026-11-16.md` with source inventory, production snapshot, known drift, blockers and next execution sequence.
 - No Production SQL, migration, settings, Storage, member data, financial data, domain or hosting changes were performed.
 - Recovery snapshot is not a completion or production-readiness claim.
+
+
+## Member Support module (2026-11-16)
+
+- Added `src/components/Support.tsx` for member ticket submission/history and Admin queue response/status management.
+- Added `20261116040000_member_support_tickets.sql` with RLS, least-privilege column grants, server-enforced ownership/admin checks, timestamps and audit logging.
+- Added signed-in Support navigation without changing existing member/Admin routes. The module is non-financial.
+- Remaining: run build/typecheck/unit/integration tests; inspect actual Production table grants and policies during the final reconciliation; add email/SMS/push dispatch only after a free, approved provider and consent design exist. Migration is not applied to Production.
