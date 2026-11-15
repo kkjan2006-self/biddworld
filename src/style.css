@@ -423,3 +423,14 @@ footer{background:#2c1048;color:#f4e9ff}
 
 .adminModuleDetail .featureBackendPending{display:block;color:#9a5b12;font-size:12px;line-height:1.4;font-weight:700}
 .adminModuleDetail .featureSettingControl input:disabled{cursor:not-allowed;opacity:.55}
+
+/* Member overview summary: responsive, touch-friendly cards */
+.memberOverviewCards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 4px}
+.memberOverviewCards article{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;padding:16px;border:1px solid #dce8f5;border-radius:12px;background:linear-gradient(145deg,#f4f9ff,#fff);box-shadow:0 5px 15px #18345108}
+.memberOverviewCards article:nth-child(4n+2){background:linear-gradient(145deg,#f3efff,#fff);border-color:#e4d9fa}
+.memberOverviewCards article:nth-child(4n+3){background:linear-gradient(145deg,#eafaf4,#fff);border-color:#d0efe1}
+.memberOverviewCards article:nth-child(4n){background:linear-gradient(145deg,#fff6e8,#fff);border-color:#f4e4c8}
+.memberOverviewCards small{font-size:11px;color:#64758a;font-weight:700}
+.memberOverviewCards b{font-size:18px;line-height:1.35;color:#174a79;overflow-wrap:anywhere}
+.memberOverviewCards span{font-size:10px;line-height:1.45;color:#778397}
+@media(max-width:560px){.memberOverviewCards{grid-template-columns:1fr;gap:9px}.memberOverviewCards article{padding:13px}.memberOverviewCards b{font-size:16px}}
