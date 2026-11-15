@@ -82,3 +82,17 @@ No Production data or schema was changed during this review. Advisor findings ar
 - Vercel checks for that commit still report provider build-rate limiting. Treat Vercel as not deployed until a successful Vercel check appears.
 - The repository migration `20261115020000_admin_package_activation_review.sql` combines package-activation schema/RPC work with dashboard function replacements. Although its dashboard definitions correct the `verified` → `approved` status mismatch, do not run this entire migration against Production merely to fix the dashboard: Production migration history and live schema are already divergent. Extract and validate a narrow forward-only dashboard reconciliation only after the full object/schema drift review.
 - No Production migration or data change was made during this step.
+
+
+### Public-schema table privilege review (2026-11-15)
+
+Read-only inspection of the live Production `public` schema found:
+
+- All 20 ordinary public tables inspected have RLS enabled. No table without RLS was found in this inventory.
+- No ordinary public views were returned by the current `pg_views` query.
+- The `authenticated` role has broad table-level privileges (including INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES and TRIGGER) on many exposed business tables. The currently inspected RLS policy set is predominantly SELECT-only and contains no member-facing write policies for those tables, so RLS currently blocks direct writes; however, the broad grants are unnecessary exposure and weaken defense-in-depth if a write policy is added accidentally later.
+- The frontend source files inspected contain no direct Supabase `.insert()`, `.update()`, `.upsert()` or `.delete()` calls; privileged writes are intended to go through RPCs.
+- Candidate hardening: revoke direct DML/DDL-like table privileges from `authenticated` on public business tables, then explicitly grant only the SELECT access required by the frontend and keep privileged mutations inside audited SECURITY DEFINER RPCs with strict authorization checks. Before drafting the migration, verify every frontend query and each RPC execution context so this does not break legitimate reads or privileged flows.
+- RLS is enabled but not forced on these tables. This is not by itself a vulnerability for ordinary API roles; table owners and SECURITY DEFINER functions can bypass RLS, so privileged function review remains necessary.
+
+This was an inventory only. No grants, policies, tables, functions, or data were changed in Production.
