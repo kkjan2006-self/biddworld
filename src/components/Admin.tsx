@@ -96,12 +96,17 @@ export default function Admin(){
  const [featureMessage,setFeatureMessage]=useState('');
  useEffect(()=>{
   if(!supabase){setLoading(false);return;}
-  let active=true;
+  let active=true,authEventReceived=false;
   const applyRole=(session:{user?:{app_metadata?:Record<string,unknown>} }|null)=>setRole(String(session?.user?.app_metadata?.role??''));
   const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{
+   authEventReceived=true;
    if(active)applyRole(session);
   });
-  void supabase.auth.getSession().then(({data:{session}})=>{if(active)applyRole(session);});
+  void supabase.auth.getSession().then(({data:{session}})=>{
+   if(active&&!authEventReceived)applyRole(session);
+  }).catch(()=>{
+   if(active&&!authEventReceived)setRole('');
+  });
   return()=>{active=false;subscription.unsubscribe();};
  },[]);
  useEffect(()=>{
