@@ -499,3 +499,8 @@ Work through the incomplete items in dependency order: member/public experience 
 ## Pending activation regression test alignment (2026-11-16)
 
 - Updated the existing pending activation filter regression test to assert the current filtered-export label/count. This corrects a stale UI assertion after connecting the existing filters to CSV export.
+
+
+### Withdrawal report test alignment (2026-11-16)
+
+- Updated the complete-export regression assertion for the new filtered withdrawal CSV filename. Export still fetches all secured RPC pages before applying the selected filters.

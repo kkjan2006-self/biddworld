@@ -9,7 +9,7 @@ describe('complete paginated Admin CSV exports', () => {
   for (const rpc of ['admin_list_withdrawal_requests','admin_list_winning_item_payments','admin_list_delivery_tracking','admin_list_audit_logs_page']) expect(admin).toContain("rpc('"+rpc+"'");
  });
  it('exports complete withdrawal, winning payment, delivery and audit histories', () => {
-  for (const file of ['biddworld-withdrawal-requests-complete.csv','biddworld-winning-payments-filtered-complete.csv','biddworld-delivery-tracking-filtered-complete.csv','biddworld-audit-log-complete.csv']) expect(admin).toContain(file);
+  for (const file of ['biddworld-withdrawal-requests-filtered-complete.csv','biddworld-winning-payments-filtered-complete.csv','biddworld-delivery-tracking-filtered-complete.csv','biddworld-audit-log-complete.csv']) expect(admin).toContain(file);
   expect(admin).toContain('Preparing complete ');
   expect(admin).toContain('Exported '+"'"+'+rows.length+');
  });
