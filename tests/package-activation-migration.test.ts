@@ -20,6 +20,17 @@ describe('package activation migration contract', () => {
     expect(submission).toMatch(/grant execute on function public\.submit_package_activation\(uuid, text\)[\s\S]*?to authenticated/i);
   });
 
+  it('allows an inactive newly registered Main ID to submit a pending package request', () => {
+    const lifecycle = readMigration('20261115220000_inactive_until_verified_package_activation.sql');
+    const privateBody = lifecycle.split('create or replace function private.submit_package_activation')[1]
+      ?.split('create or replace function private.activate_member_after_verified_topup')[0] ?? '';
+    expect(lifecycle).toMatch(/values\s*\([\s\S]*?'inactive'\s*\)/i);
+    expect(privateBody).toMatch(/where owner_user_id = v_uid and id_type = 'main'\s+for update/i);
+    expect(privateBody).not.toMatch(/status\s*=\s*'active'/i);
+    expect(privateBody).toContain("'pending', 'pending'");
+    expect(privateBody).not.toMatch(/update public\.wallet_accounts/i);
+  });
+
   it('does not activate or credit a wallet when a member submits a payment reference', () => {
     const privateBody = submission.split('create or replace function public.submit_package_activation')[0];
     expect(privateBody).toContain("'pending', 'pending'");
