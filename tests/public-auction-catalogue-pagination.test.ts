@@ -8,6 +8,12 @@ describe('public auction catalogue pagination',()=>{
   expect(app).toContain(".order('ends_at').order('id',{ascending:false}).range(offset,offset+99)");
   expect(app).toContain('setAuctionHasMore((data??[]).length===100)');
  });
+ it('invalidates stale page responses and prevents overlapping Load More requests',()=>{
+  expect(app).toContain('const auctionPageRequest=useRef(0)');
+  expect(app).toContain('auctionPageBusy.current=true');
+  expect(app).toContain('requestId!==auctionPageRequest.current');
+  expect(app).toContain('finally{if(requestId===auctionPageRequest.current){auctionPageBusy.current=false;setAuctionLoadingMore(false)}}');
+ });
  it('exposes Load More without enabling non-live bidding',()=>{
   expect(app).toContain('Load more auctions');
   expect(app).toContain("a.status==='live'");
