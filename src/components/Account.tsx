@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {UserRound,RefreshCw,ShieldCheck,IdCard,Wallet,PackageCheck,LockKeyhole,Truck,Trophy} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {money} from '../lib/format';
@@ -25,24 +25,31 @@ export default function Account(){
  const [members,setMembers]=useState<Member[]>([]);const [activations,setActivations]=useState<Activation[]>([]);const [wallets,setWallets]=useState<WalletRow[]>([]);const [auctionBids,setAuctionBids]=useState<AuctionBid[]>([]);const [fixedBids,setFixedBids]=useState<FixedBidRow[]>([]);const [commissions,setCommissions]=useState<CommissionRow[]>([]);const [winningPayments,setWinningPayments]=useState<WinningPayment[]>([]);const [deliveries,setDeliveries]=useState<DeliveryRow[]>([]);
  const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [reportBusy,setReportBusy]=useState(false);const [reportMessage,setReportMessage]=useState('');const [historyLoading,setHistoryLoading]=useState('');const [historyHasMore,setHistoryHasMore]=useState({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
  const [activeSection,setActiveSection]=useState('member-overview');
+ const loadRequest=useRef(0),loadMounted=useRef(true);
  const [withdrawals,setWithdrawals]=useState<WithdrawalRow[]>([]);const [withdrawEnabled,setWithdrawEnabled]=useState(false);const [withdrawAmount,setWithdrawAmount]=useState('');const [payoutMethod,setPayoutMethod]=useState('UPI');const [payoutName,setPayoutName]=useState('');const [payoutReference,setPayoutReference]=useState('');const [withdrawMessage,setWithdrawMessage]=useState('');const [withdrawBusy,setWithdrawBusy]=useState(false);
  const [newPassword,setNewPassword]=useState(''),[confirmNewPassword,setConfirmNewPassword]=useState(''),[securityMessage,setSecurityMessage]=useState(''),[securityBusy,setSecurityBusy]=useState(false);const [currentEmail,setCurrentEmail]=useState(''),[newEmail,setNewEmail]=useState(''),[emailChangeMessage,setEmailChangeMessage]=useState(''),[emailChangeBusy,setEmailChangeBusy]=useState(false);
  async function load(){
+  const request=++loadRequest.current;
+  const isCurrent=()=>loadMounted.current&&request===loadRequest.current;
   setLoading(true);setError('');
   const client=supabase;
   try{
    if(!client){setError('No Supabase project is connected. Configure the intended Preview or Test environment to view account details. Do not connect Production for testing.');return;}
    const {data:{user},error:userError}=await client.auth.getUser();
+   if(!isCurrent())return;
    if(userError)throw new Error('Your session could not be verified. Please sign in again.');
    if(!user)throw new Error('Sign in to view your member account.');
    setCurrentEmail(user.email??'');
    const {data:p,error:pe}=await client.from('profiles').select('display_name,phone,status,main_member_id').eq('id',user.id).maybeSingle();
+   if(!isCurrent())return;
    if(pe)throw new Error('Your member profile could not be loaded. Please retry.');
    if(!p)throw new Error('Your member profile is not available yet.');
    const {data:identity,error:identityError}=await client.rpc('member_get_my_identity');
+   if(!isCurrent())return;
    if(identityError)setError('Some member identity details are temporarily unavailable.');
    setProfile({...p,...(identity??{})});setProfileName(p.display_name??'');setProfilePhone(p.phone??'');
    const {data:withdrawSetting,error:withdrawSettingError}=await client.from('app_settings').select('setting_value').eq('setting_key','withdrawals_enabled').maybeSingle();
+   if(!isCurrent())return;
    setWithdrawEnabled(!withdrawSettingError&&withdrawSetting?.setting_value===true);
    if(withdrawSettingError)setError('Withdrawal availability could not be confirmed. Withdrawal requests remain unavailable until the setting can be verified.');
    if(p.main_member_id){
@@ -56,20 +63,22 @@ export default function Account(){
      client.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
      client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99)
     ]);
+    if(!isCurrent())return;
     const paymentIds=(wp.data??[]).map((row:any)=>row.id as string);
     const deliveryResult=paymentIds.length?await client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}):{data:[],error:null};
+    if(!isCurrent())return;
     if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)setError('Some account history is unavailable because one or more database requests failed. You can retry loading your account.');
     setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);setWithdrawals((wr.data??[]) as WithdrawalRow[]);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
    }else{
     setMembers([]);setActivations([]);setWallets([]);setWithdrawals([]);setAuctionBids([]);setFixedBids([]);setCommissions([]);setWinningPayments([]);setDeliveries([]);setHistoryHasMore({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
    }
   }catch{
-   setError('Account details could not be loaded. Check your connection and try again.');
+   if(isCurrent())setError('Account details could not be loaded. Check your connection and try again.');
   }finally{
-   setLoading(false);
+   if(isCurrent())setLoading(false);
   }
  }
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{loadMounted.current=true;void load();return()=>{loadMounted.current=false;loadRequest.current+=1;}},[]);
  async function loadHistoryPage<T>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
  if(!supabase||!profile?.main_member_id||historyLoading)return;
  const client=supabase;const memberId=profile.main_member_id;setHistoryLoading(key);
