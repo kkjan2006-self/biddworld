@@ -796,3 +796,13 @@ Notifications now provide loaded-record title/message/category search and catego
 
 
 - CI follow-up correction: the first run exposed an outdated navigation test assertion after pagination was moved into a guarded handler, plus a missing handler insertion caught by the new lifecycle test. The guarded handler is now explicitly present, and the no-session path also releases the pagination lock. The corrected test and build run is pending; earlier failed CI runs are retained as failure history, not represented as passing.
+
+
+## Member workspace async lifecycle batch — 2026-11-16
+
+- Notifications inbox: refresh requests now invalidate older page requests; Load More uses a synchronous in-flight guard; stale responses cannot append to refreshed data; unmount invalidates pending requests.
+- Support queue: same refresh/page request sequencing and synchronous pagination lock, with stale-response protection and unmount invalidation.
+- Referral dashboard: Auth event ordering is protected against a late initial session lookup; team pagination uses a synchronous lock and stale request identity so an older page cannot append after filters or refresh change.
+- Added `tests/member-workspace-request-lifecycle.test.ts` for Notifications, Support and Referral request lifecycle guarantees.
+- Source commits: `96bdb6492334a649e48283f654897e87066b46f5`, `bfa608235c64c9ec02eb9e2436e87c4ce8c149a4`, `9502da15745dac0f13d32d369babb6c8a8cf594d`, `7267465bcfe88c99008304fb5d2252635830e8b7`, `d05fde82ade20f20826565e2384b81028357de44`; test commit: `101cd5017fc0e565f980972d23bf9af160c199f3`.
+- No business rules, financial configuration, RPC definitions, database schema, Production Supabase data/settings, wallet balances, commissions, payments, bids or withdrawals were changed. CI verification pending.
