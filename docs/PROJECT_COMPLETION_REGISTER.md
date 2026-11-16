@@ -1138,3 +1138,12 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Database RLS remains the authoritative security boundary; explicit client filters are defense in depth and reduce unnecessary rows returned to member clients.
 - Added `tests/member-support-inbox-owner-scope.test.ts` for both read paths and Admin separation.
 - Details: `docs/MEMBER_SUPPORT_INBOX_OWNER_SCOPE_2026-11-17.md`. CI must pass on the latest branch commit. No Production schema, data, settings or financial records were changed.
+
+
+## Authentication request resilience — 2026-11-17
+
+- Registration and sign-in now recover from thrown network failures and always clear the shared busy state.
+- Password reset, confirmation resend and password recovery now have exception-safe loading states and clear network-error messages.
+- Email is trimmed before sign-in/registration submission; sponsor validation and inactive-until-verified registration messaging are retained.
+- Added `tests/auth-network-failure-recovery.test.ts`; it is a static source-contract test, not a live Supabase Auth simulation.
+- Details: `docs/AUTH_NETWORK_FAILURE_RECOVERY_2026-11-17.md`. CI must pass on the final branch commit. No Supabase accounts, settings, schema or Production data were changed.
