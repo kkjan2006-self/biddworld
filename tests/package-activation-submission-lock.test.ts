@@ -16,8 +16,8 @@ describe('Package activation request server-side lock', () => {
   it('keeps the package request pending-only and does not activate or credit wallets', () => {
     const migration = read('supabase/migrations/20261116200000_lock_package_activation_submission.sql');
     expect(migration).toContain("'pending', 'pending'");
-    expect(migration).not.toMatch(/update\\s+public\\.(profiles|member_ids|wallet_accounts)/i);
-    expect(migration).not.toMatch(/insert\\s+into\\s+public\\.wallet_transactions/i);
+    expect(migration).not.toMatch(/update\s+public\.(profiles|member_ids|wallet_accounts)/i);
+    expect(migration).not.toMatch(/insert\s+into\s+public\.wallet_transactions/i);
   });
 
   it('retains the active Main ID requirement for withdrawal requests', () => {
