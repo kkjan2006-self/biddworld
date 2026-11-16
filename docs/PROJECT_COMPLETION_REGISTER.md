@@ -653,3 +653,8 @@ Signup now distinguishes email-confirmation-required responses from immediate se
 ## Member account security batch — 2026-11-16
 
 Account Security now displays the authenticated email address and lets the member request an email change through Supabase Auth. The UI does not directly overwrite profile email fields; the new address is subject to Supabase's configured verification flow. Password update and global sign-out remain available. Production Auth settings were not changed.
+
+
+## Admin member directory search batch — 2026-11-16
+
+Member Directory now submits search terms to `admin_list_members_sponsors_page` from the server, resets pagination when a new search is applied, and carries the applied query into Load More. A Clear action restores the unfiltered first page. This avoids implying that browser-side filtering of only the currently loaded 100 records searches the entire directory.
