@@ -370,3 +370,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Replacing a staged image removes the previous temporary object; Admin can explicitly discard an unattached upload. Switching to an existing product or entering a manual image URL also detaches and attempts to remove the temporary object.
 - Successfully saving the product draft marks the staged object as attached, so it is not deleted. Existing product images and auction references are never automatically removed.
 - Storage removal failures are surfaced for manual Admin cleanup. This is source-only; no Storage objects, Production policies, schema or data were changed. Final tests remain deferred until implementation completion.
+
+
+## Admin notification template draft hardening — 2026-11-16
+
+- Added explicit input validation for template name, channel, message body and email subject before calling the Admin RPC.
+- Added exception-safe save handling so network/RPC failures display an error and always release the busy state.
+- Added Cancel Edit/reset behavior and clearer editing feedback; templates continue to save only as inactive drafts and no notification is sent.
+- Provider integration, recipient targeting, delivery tracking, unsubscribe/consent handling and end-to-end notification testing remain pending. No Production data, policies, RPCs or settings were changed.
