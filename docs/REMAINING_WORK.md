@@ -202,3 +202,11 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Hardened Member Profile self-service validation and error handling to match the existing server RPC constraints. Only the caller's display name and phone can be changed; identity, sponsor, status and wallet data remain server-controlled.
 - Added static contract tests for both changes. Execution is pending; do not treat the tests as passed until CI confirms.
 - No Production schema, data, Storage, feature settings or financial state was changed.
+
+
+## Public Product catalogue full-history search batch — 2026-11-16
+
+- Replaced browser-only filtering of the first 100 loaded Products with a server-side search RPC covering the complete published catalogue, while retaining deterministic pagination and Load More for the matching result set.
+- The RPC is `SECURITY INVOKER`, so existing table RLS remains in force; it returns only published products, validates search/page bounds, and is executable by anonymous and authenticated visitors for public catalogue reading.
+- Added static regression tests for RLS-preserving invocation, published-only filtering, search bounds and pagination contract. CI verification is pending.
+- Migration `20261116120000_public_product_catalogue_search.sql` is source-only and has NOT been applied to Production. No Production data, schema, settings, Storage or financial state was changed.
