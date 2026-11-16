@@ -7,7 +7,7 @@ const account=readFileSync(resolve(process.cwd(),'src/components/Account.tsx'),'
 describe('Member dashboard initial loading',()=>{
  it('starts the account data request automatically when the dashboard mounts',()=>{
   expect(account).toContain("import {useEffect,useRef,useState} from 'react'");
-  expect(account).toContain('useEffect(()=>{void load();},[]);');
+  expect(account).toContain('useEffect(()=>{loadMounted.current=true;void load();return()=>{loadMounted.current=false;loadRequest.current+=1;}},[]);');
   expect(account.indexOf('async function load(){')).toBeLessThan(account.indexOf('useEffect(()=>{void load();},[]);'));
  });
  it('retains a manual refresh action and always releases the initial loading state',()=>{
