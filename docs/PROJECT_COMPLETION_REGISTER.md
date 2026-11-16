@@ -784,3 +784,12 @@ Notifications now provide loaded-record title/message/category search and catego
 - Code commit: `fa9aa339c0f4343acfa1dfe76ff339d9eabec549`; test commit: `0e7115c140a89d43b3ea105988204f864a0a2416`.
 - The previous Package catalogue code, test and register CI runs all completed successfully: runs `43845691811`, `43845747538`, and `43845771972`. This new Admin batch CI is pending.
 - No SQL/RPC, schema, Production data/settings, wallet balances, commissions, payments, withdrawals or financial activation controls were changed.
+
+
+## Public catalogue and member wallet lifecycle batch — 2026-11-16
+
+- Public auction and product catalogue page requests now use request identities and synchronous in-flight locks. Duplicate Load More taps cannot issue overlapping requests; a query refresh or newer first-page request invalidates an older continuation response so stale rows cannot be appended to the wrong catalogue state.
+- Wallet History now prevents an initial Auth lookup from overwriting a newer Auth state event, catches rejected session lookups, prevents duplicate pagination requests before React updates the disabled state, and releases the in-flight lock after success or failure.
+- Added regression tests for auction/product stale-response and duplicate-request guards, Wallet History auth ordering, pagination cleanup and read-only Main-ID scoping.
+- Source commits: `0dd38d2cb94b4ddf7a4dad98d454c4142e391c5d`, `ae28969cb60b6e201e1620d00b82cff0221f06ea`, `5be245866f412cf0f119065c7ee1ddca7ce9735d`; regression test commits: `5b6fb59192fb5ad5087a8802f51c1a59de592d64`, `b51d65e7087e7c8a728f97cacebcffbd773fff69`, `ad27de46fa44d36467290a3cce3cbd72aa2f38df`.
+- This is source/test-only. No RPC, schema, Production Supabase data/settings, wallet balances, commissions, payments, bids, withdrawals or financial controls were changed. CI verification is pending.
