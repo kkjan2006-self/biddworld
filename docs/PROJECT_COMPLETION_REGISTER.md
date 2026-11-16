@@ -930,3 +930,15 @@ Notifications now provide loaded-record title/message/category search and catego
 - No pg_cron/pg_net/pgmq/pg_timetable extension or `cron.job` relation was found. No DB scheduler is evidenced for time-based auction/fixed-bid closing.
 - Evidence: `docs/PRODUCTION_RLS_GRANTS_SCHEDULER_REVIEW_2026-11-16.md`.
 - All checks were read-only; Production state unchanged.
+
+
+## 2026-11-16 — Auth provisioning, Storage and default privilege review
+
+- Latest previous CI runs `43858774382` and `43858745904` completed successfully.
+- Live Auth signup trigger creates profile and Main ID as active, initializes zero-balance Bid/Income Wallets and links a validated sponsor when sponsor referrals are enabled. Source migration `20261116150000_enforce_inactive_signup_until_verified.sql` changes new profiles/Main IDs to inactive, but remains unapplied to Production.
+- Source-only migration `20261116160000_minimize_public_sponsor_lookup.sql` returns a boolean instead of member code/name, but still needs rate limiting at API/edge layer.
+- Source-only migration `20261116190000_bid_request_idempotency.sql` addresses repeated bid requests with stable client keys; TEST migration/API/concurrency verification remains required.
+- Production Storage has no configured buckets and no Storage RLS policies were found. Receipt uploads/product media are not ready for launch.
+- Production default ACLs for public schema objects are broad for anon/authenticated (future tables CRUD, functions EXECUTE, sequences usage/select/update). Existing explicit grants/RLS do not eliminate the future migration hazard. Every migration needs explicit least-privilege grants and RLS assertions.
+- Evidence: `docs/PRODUCTION_AUTH_STORAGE_DEFAULT_PRIVILEGES_REVIEW_2026-11-16.md`.
+- All Production checks were read-only; no live state changed.
