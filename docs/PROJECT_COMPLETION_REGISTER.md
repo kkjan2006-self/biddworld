@@ -882,3 +882,16 @@ Notifications now provide loaded-record title/message/category search and catego
 - The live Admin package-review SECURITY DEFINER RPC can approve a pending package activation, credit the Bid Wallet ledger and activate the Main ID. The existing Production feature-gate triggers consult the two settings above, which were both true at audit time. The requested owner financial approval guard is source-only and absent from the Production migration ledger.
 - **Do not use Admin package approval in Production** until the financial interlock has been reconciled and installed under an explicitly approved rollout. No settings were switched off and no package, member or wallet records were changed because Production changes have not been authorized.
 - Additional catalogue snapshot: all 21 public tables have RLS enabled (none FORCE RLS); `notification_templates` has zero direct policies; `fixed_bids` has owner-only SELECT and no INSERT policy; ten feature-gate triggers were found. See the migration reconciliation report for the complete point-in-time details.
+
+
+## 2026-11-16 — Financial RPC read-only audit and CI repair
+
+- Reviewed live Production definitions for package approval, feature toggles, wallet reporting and withdrawal request/list RPCs; no Production writes were performed.
+- Confirmed live package approval can credit Bid Wallet and activate a package without the source-only trusted owner-approval guard.
+- Confirmed live feature-setting RPC has no trusted owner-approval check and can enable package activation/Bid Wallet/Income Wallet.
+- Confirmed live withdrawal request checks current Income Wallet balance under row lock and prevents a second open request, but does not reserve/debit funds, enforce a configured minimum, or independently verify active Main-ID status.
+- No Admin withdrawal settlement mutation RPC was found in the inspected public RPC catalogue; the Admin RPC found is list-only.
+- Source/UI financial approval lock remains in place. Do not approve package activations, post credits, enable financial settings, or process withdrawals in Production.
+- New evidence report: `docs/PRODUCTION_FINANCIAL_RPC_REVIEW_2026-11-16.md`.
+- CI regression test briefly failed because the new assertions did not load `Admin.tsx`; fixed in commit `f2bce4c5b9e8608a91a3d13d8064d1aa86bc3dbe`. CI run `43854387609` passed on that commit.
+- No Production migration, setting, member, wallet, payment or financial data was changed.
