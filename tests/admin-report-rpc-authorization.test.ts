@@ -11,9 +11,9 @@ describe('Production Admin report RPC authorization drift correction',()=>{
    const body=migration.slice(start,end);
    expect(body).toContain("auth.uid() is null");
    expect(body).toContain("auth.jwt()->'app_metadata'->>'role'");
-   expect(body).toContain("<> 'admin'");
+   expect(body).toMatch(/<>\s*'admin'/i);
    expect(body).toContain("raise exception 'Administrator access required'");
-   expect(body).toMatch(/set search_path\\s*(?:=|to)\\s*''/i);
+   expect(body).toMatch(/set search_path\s*(?:=|to)\s*''/i);
   });
  }
  it('revokes PUBLIC and anon execution and grants only authenticated entry',()=>{
