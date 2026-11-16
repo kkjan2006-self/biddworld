@@ -3,8 +3,8 @@
 ## Read-only snapshot
 
 - Repository branch: `completion-work`
-- Repository HEAD at snapshot: `e3d9ce65b82a2942caee3367f3f49471b48a6d31`
-- Source SQL migration files: **42**
+- Repository HEAD at refreshed source inventory: `fdf14664b52bfc2e2f7a762d6e4e956f7e4267ef`
+- Source SQL migration files: **43**
 - Production Supabase migration ledger rows: **30**
 - Exact timestamp-prefix matches: **4** (matching migration filename timestamp only; not proof that SQL content is identical)
 - Production migration versions without a same-version source filename: **26**
@@ -54,6 +54,7 @@
 40. `supabase/migrations/20261116150000_enforce_inactive_signup_until_verified.sql`
 41. `supabase/migrations/20261116160000_minimize_public_sponsor_lookup.sql`
 42. `supabase/migrations/20261116170000_minimize_member_withdrawal_payout_data.sql`
+43. `supabase/migrations/20261116190000_bid_request_idempotency.sql`
 
 ## Production migration ledger (read-only)
 
@@ -130,3 +131,12 @@
 ## Critical financial gate
 
 Keep package approval/credits, commissions, wallet ledger writes, auction bids/debits, Fixed Bid participation, withdrawals and winner settlement disabled until the economic/legal model is approved and database-level interlocks are deployed and independently tested. The retained draft economics still indicate ₹3,000 revenue versus ₹3,500 Bid Wallet credit plus up to ₹1,000 referral obligations (₹1,500 deficit before expenses).
+
+
+## Refreshed branch delta — 2026-11-16
+
+The branch inventory was refreshed at `fdf14664b52bfc2e2f7a762d6e4e956f7e4267ef`. The current tree contains **43** migration files, one more than the earlier 42-file snapshot: `20261116190000_bid_request_idempotency.sql`. The Production ledger snapshot remains the previously observed 30 rows; this branch refresh did not query or modify Production.
+
+The new idempotency migration is source-only until a reviewed forward-only rollout is approved. Its presence does not establish that Production has the corresponding request-idempotency constraint or RPC behavior. The migration filename is not a substitute for checking live constraints, function definitions, grants, and retry semantics.
+
+The earlier 4 exact timestamp-prefix matches and 26 Production versions without same-version source filenames remain historical results from the read-only ledger snapshot. They must be recalculated against a fresh live ledger before any rollout; do not treat this document as a current live database query.
