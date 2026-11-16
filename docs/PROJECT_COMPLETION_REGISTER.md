@@ -808,3 +808,12 @@ Notifications now provide loaded-record title/message/category search and catego
 - No business rules, financial configuration, RPC definitions, database schema, Production Supabase data/settings, wallet balances, commissions, payments, bids or withdrawals were changed. CI verification pending.
 
 - Additional UI resilience in this batch: Placement Tree now presents an explicit Retry action when its secured tree RPC fails; regression coverage was added. Commit: `bb5ddf8ea1e63f073236a523b49ffe03d9a62d50`; test update: `dc966d577c682f0fe004c3af671eb0704f402602`.
+
+
+## Public catalogue recovery and RPC inventory refresh — 2026-11-16
+
+- Added accessible Retry actions to the public Auctions and Products first-page error states; retry resets the visible page and refreshes both catalogue requests without changing any backend or financial behavior.
+- Updated the frontend RPC manifest from all ten React surfaces: 44 literal RPC call/surface entries at source snapshot `39320b8814fe7e33a50513772336803a73b2b5cb`. Existing completeness tests compare the manifest against the current source.
+- Production RPC gaps remain blocked by the read-only snapshot documented in `FRONTEND_PRODUCTION_RPC_AND_ADVISOR_REVIEW_2026-11-16.md`; refreshing the source manifest does not certify Production availability.
+- Public catalogue source commit: `a86cde57920ed7eff62cf633d822f7035696059f`; test commits: `ce49f27e1d39afdf2be284728ff3e2e271e45adc`, `39320b8814fe7e33a50513772336803a73b2b5cb`; RPC inventory commit: `e651ec63eaaf8764be7c83bb4bfbb33a9dc7fb85`.
+- No Production database, migration ledger, Auth, Storage, financial settings, wallet or member data was changed.
