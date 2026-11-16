@@ -543,3 +543,11 @@ A further direct read-only inspection was completed against the connected `BiddW
 3. Add rate-limit/abuse protection for public sponsor lookup without breaking signup.
 4. Owner to review and enable leaked-password protection in Auth settings.
 5. Do not apply migrations or alter financial settings without explicit owner approval.
+
+
+## Critical Admin RPC authorization drift correction (2026-11-16)
+
+- A fresh read-only Production catalog inspection found the live definitions of `admin_get_member_structure()` and `admin_get_mlm_overview()` did not contain the Admin-role guard present in the current source migrations. Both RPCs were executable by authenticated callers, so this represented a member-to-admin report data exposure risk.
+- Added forward-only migration `20261116130000_restore_admin_report_rpc_authorization.sql` to restore `auth.uid()` plus trusted `auth.jwt()->'app_metadata'->>'role' = 'admin'` checks, fixed empty search_path, and revoke PUBLIC/anon execution while granting authenticated invocation (the function body enforces Admin role).
+- Added regression tests for both function bodies and ACL statements.
+- Migration is committed to GitHub only and is **NOT applied to Production**. Owner approval and non-production verification are required before deployment. No Production data/settings/schema were changed during this batch.
