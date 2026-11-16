@@ -24,7 +24,8 @@ describe('Admin Duplicate ID pagination and search',()=>{
  });
  it('loads the first page, preserves search for subsequent pages and exposes Load More',()=>{
   expect(admin).toContain("admin_list_duplicate_ids_page',{p_search:appliedDuplicateSearch.trim()||null,p_limit:50,p_offset:0}");
-  expect(admin).toContain('p_offset:duplicateIds.length');
+  expect(admin).toContain('const offset=duplicateIds.length;');
+  expect(admin).toContain('p_search:search,p_limit:50,p_offset:offset');
   expect(admin).toContain('Load More Duplicate IDs');
  });
 });
