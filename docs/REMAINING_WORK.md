@@ -396,3 +396,5 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 
 - [ ] Reconcile and non-production test Duplicate ID two-argument placement RPC before Production rollout; Production currently has only the one-argument function.
 - [ ] Define and test whether Duplicate ID activation/reactivation must be blocked when its linked Main ID or placement parent is suspended/closed; current source status RPC does not revalidate these linked states.
+
+- [ ] For existing Production members, perform a separately reviewed read-only eligibility report and owner-approved migration plan if historical inactive/active status reconciliation is required. Do not bulk change statuses as part of signup lifecycle migration.

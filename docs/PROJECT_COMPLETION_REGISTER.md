@@ -599,3 +599,5 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - Follow-up workflow `43793006069` exposed a second overly broad negative assertion: it matched the trigger's legitimate read of the approval setting rather than only checking that the Admin feature-switch function cannot write that setting. Narrowed the assertion to the function body and the exact INSERT pattern. Re-run CI pending.
 
 - The Batch 21 rerun revealed the negative regex was still double-escaped in the generated test file. Replaced it with direct string assertions scoped to the Admin feature-setting function body to avoid regex-escaping ambiguity.
+
+- Batch 24: removed blanket historical profile/Main-ID status reconciliation from `20261115220000_inactive_until_verified_package_activation.sql`. It now provisions new accounts as inactive and activates only on verified package approval; existing account statuses are not bulk rewritten. Added regression tests for this data-safety guarantee.

@@ -212,30 +212,5 @@ on public.package_activations
 for each row
 execute function private.activate_member_after_verified_topup();
 
--- Reconcile existing ordinary member accounts: only an approved, active
--- package activation qualifies. Preserve explicitly suspended/closed states.
-update public.member_ids m
-   set status = case when exists (
-     select 1 from public.package_activations a
-      where a.member_id = m.id
-        and a.payment_status = 'approved'
-        and a.activation_status = 'active'
-   ) then 'active' else 'inactive' end
- where m.id_type = 'main'
-   and m.status in ('active', 'inactive');
-
-update public.profiles p
-   set status = case when exists (
-     select 1
-       from public.member_ids m
-       join public.package_activations a on a.member_id = m.id
-      where m.owner_user_id = p.id
-        and m.id_type = 'main'
-        and a.payment_status = 'approved'
-        and a.activation_status = 'active'
-   ) then 'active' else 'inactive' end
- where p.status in ('active', 'inactive')
-   and exists (
-     select 1 from public.member_ids m
-      where m.owner_user_id = p.id and m.id_type = 'main'
-   );
+-- Existing account statuses are intentionally not bulk-updated by this migration.
+-- Historical reconciliation requires a separately reviewed, owner-approved plan.
