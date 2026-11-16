@@ -987,3 +987,12 @@ Notifications now provide loaded-record title/message/category search and catego
 - Production package activation and Bid Wallet switches were still `true` in the read-only snapshot despite the source/UI financial lock. This reinforces that source UI guards do not replace live database interlocks.
 - Added `tests/registration-inactive-ui-contract.test.ts` and `docs/REGISTRATION_ACTIVATION_LIFECYCLE_REVIEW_2026-11-16.md`.
 - No Production writes, registrations, status changes, financial transactions, settings changes or migrations were performed.
+
+
+## 2026-11-16 — Package submission direct-RPC guard
+
+- Follow-up review found that the branch's package submission RPC accepted an inactive Main ID (intended) but did not itself check `package_activations_enabled` or `financial_model_approved`. A direct authenticated RPC call could therefore create a pending payment request despite the UI lock.
+- Added source-only migration `20261116200000_lock_package_activation_submission.sql`: fail closed unless both settings are true; request remains pending-only and never activates or credits a wallet. Private implementation remains inaccessible directly to authenticated/anon/public; the existing authenticated public wrapper remains the entry point.
+- Added `tests/package-activation-submission-lock.test.ts`, including the active Main ID withdrawal guard assertion from the existing source-only withdrawal migration.
+- Details: `docs/REGISTRATION_ACTIVATION_SECURITY_FOLLOWUP_2026-11-16.md`.
+- Production remains read-only; no payment, setting, migration or member state was changed.
