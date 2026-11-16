@@ -8,9 +8,10 @@ describe('Inactive account and package activation messaging', () => {
   it('does not tell inactive members to pay while package activation is locked', () => {
     const account = read('src/components/Account.tsx');
     const packages = read('src/components/Packages.tsx');
-    expect(account).toContain('Paid package activation is currently locked');
+    expect(account).toContain('Both your member profile and Main ID must be active');
+    expect(account).toContain('Package activation remains locked');
     expect(account).toContain('Do not make any package payment');
-    expect(account).toContain('remain inactive until an approved activation process');
+    
     expect(account).not.toContain('submit payment for an available package');
     expect(packages).toContain('Paid package activation is not currently open.');
   });
