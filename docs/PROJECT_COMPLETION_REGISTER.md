@@ -404,3 +404,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added automated source-contract tests for the manifest, registration, offline fallback and cache boundaries.
 - This is the installability/offline foundation, not a claim that Android installation, browser compatibility or offline authenticated workflows have been device-tested. Those remain in final QA.
 - No Supabase migrations or Production changes were made.
+
+
+## Member inbox and Support workflow usability batch (2026-11-16)
+
+- Member notification inbox now provides an unread-only view over loaded rows and a bulk mark-as-read action. Bulk updates are limited to unread records and rely on the existing owner-scoped RLS policy; Admin notification authoring does not expose this member action.
+- Support workspace now filters loaded tickets by status and case-insensitive subject/message/response text for both member and Admin views. The UI explicitly labels filters as applying to loaded records; existing 100-row pagination and database RLS remain in place.
+- Added source-contract regression tests for both changes. CI is required to verify tests, TypeScript and production build.
+- No migrations, Production schema/data/settings, wallet balances or financial workflows were changed.

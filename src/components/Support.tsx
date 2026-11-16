@@ -16,6 +16,8 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const [notice,setNotice]=useState('');
  const [error,setError]=useState('');
  const [hasMore,setHasMore]=useState(false);
+ const [search,setSearch]=useState('');
+ const [statusFilter,setStatusFilter]=useState<'all'|Ticket['status']>('all');
 
  const load=useCallback(async()=>{
   if(!supabase){setError('Support is unavailable until the BiddWorld database is configured.');return;}
@@ -66,6 +68,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   setNotice('Support ticket updated.');await load();
  }
  const date=(value:string)=>new Date(value).toLocaleString('en-IN');
+ const visibleTickets=tickets.filter(ticket=>(statusFilter==='all'||ticket.status===statusFilter)&&(!search.trim()||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
  return <section className="accountSection" style={{display:'block',maxWidth:980,margin:'0 auto'}}>
   <h3><MessageCircle size={20}/> {isAdmin?'Member Support Queue':'Support & Help'}</h3>
   <p className="memberModuleHint">{isAdmin?'Review member requests and record a status and response.':'Send a private request to the BiddWorld support team and follow its status here.'}</p>
@@ -76,7 +79,8 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    <button className="primary" type="submit" disabled={busy||!supabase}><Send size={16}/> {busy?'Submitting…':'Submit support request'}</button>
   </form>}
   <div className="memberReportHeading"><h4>{isAdmin?'Recent member requests':'My support requests'} ({tickets.length}{hasMore?' loaded':''})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
-  {busy&&tickets.length===0?<div className="empty">Loading support requests…</div>:tickets.length===0?<div className="empty">No support requests found.</div>:<div className="activationList">{tickets.map(ticket=><article key={ticket.id} style={{display:'block'}}>
+  <div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:12}}><label>Search loaded requests<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Subject or message"/></label><label>Filter by status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as typeof statusFilter)}><option value="all">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select></label></div>
+  {busy&&tickets.length===0?<div className="empty">Loading support requests…</div>:tickets.length===0?<div className="empty">No support requests found.</div>:visibleTickets.length===0?<div className="empty">No loaded support requests match these filters.</div>:<div className="activationList">{visibleTickets.map(ticket=><article key={ticket.id} style={{display:'block'}}>
    <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}><b>{ticket.subject}</b><span className="protected">{ticket.status.replace('_',' ').toUpperCase()}</span></div>
    {isAdmin&&<small>Ticket {ticket.id.slice(0,8).toUpperCase()} · Member {ticket.user_id.slice(0,8)} </small>}
    <p style={{whiteSpace:'pre-wrap'}}>{ticket.message}</p><small>Submitted: {date(ticket.created_at)} · Updated: {date(ticket.updated_at)}</small>
