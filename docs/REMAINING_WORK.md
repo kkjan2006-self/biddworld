@@ -298,3 +298,10 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Connected the existing pending-activation search and inclusive submitted-date filters to the CSV export; added a matching/total count and disabled export for reversed date ranges.
 - The existing `admin_list_pending_activations()` RPC returns the complete pending-review queue (no page limit in its migration). The report is explicitly scoped to pending requests and is not represented as an approved/rejected historical activation archive.
 - No approval/rejection action, wallet credit, payment, Supabase schema/RPC or Production data changed.
+
+
+## Admin Withdrawal report filters (2026-11-16)
+
+- Added search, status and inclusive request-date filters to the withdrawal CSV export.
+- Filters are applied after the existing export helper retrieves every 100-row page from `admin_list_withdrawal_requests`; date range uses `requested_at`. Reversed ranges disable export.
+- Export remains read-only. No withdrawal approval, payout, wallet balance, financial setting, Supabase schema/RPC or Production data changed.

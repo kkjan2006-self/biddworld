@@ -487,3 +487,10 @@ Work through the incomplete items in dependency order: member/public experience 
 ## CI regression correction (2026-11-16)
 
 - Updated the existing complete-report export contract test to expect the filtered-complete filenames now produced by the Winning Payments and Delivery report filters. This resolves a stale filename assertion; no application behavior changed in this correction.
+
+
+## Admin Withdrawal report filters (2026-11-16)
+
+- Added search, status and inclusive request-date filters to the withdrawal CSV export.
+- Filters are applied after the existing export helper retrieves every 100-row page from `admin_list_withdrawal_requests`; date range uses `requested_at`. Reversed ranges disable export.
+- Export remains read-only. No withdrawal approval, payout, wallet balance, financial setting, Supabase schema/RPC or Production data changed.
