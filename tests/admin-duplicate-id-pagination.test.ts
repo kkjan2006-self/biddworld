@@ -7,7 +7,7 @@ const admin=readFileSync(resolve(process.cwd(),'src/components/Admin.tsx'),'utf8
 
 describe('Admin Duplicate ID pagination and search',()=>{
  it('requires a trusted Admin claim and bounds page size and offset',()=>{
-  expect(sql).toMatch(/auth\.jwt\(\)->'app_metadata'->>'role'\) <> 'admin'/i);
+  expect(sql).toContain("coalesce(auth.jwt()->'app_metadata'->>'role','') <> 'admin'");
   expect(sql).toContain('v_limit < 1 or v_limit > 100');
   expect(sql).toContain('v_offset < 0 or v_offset > 1000000');
  });

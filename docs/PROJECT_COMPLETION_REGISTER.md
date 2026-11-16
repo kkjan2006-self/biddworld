@@ -343,3 +343,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Admin Duplicate ID management now searches the full result set and loads subsequent pages while retaining the applied search.
 - Regression tests cover Admin authorization, bounded pagination, search fields, stable ordering, RPC grants and UI continuation.
 - Migration is not applied to Production; duplicate ID creation/activation remains disabled by the financial approval lock. No Production data or settings changed.
+
+
+## Admin Duplicate ID pagination CI correction — 2026-11-16
+
+- First CI run `43785205823` caught a mismatch in the new test's authorization regex (the SQL authorization clause itself was present); 22/23 test files and 91/92 tests passed before the assertion stopped the build.
+- Corrected the assertion to match the exact trusted Admin claim and made the UI surface a clear directory-load error when the source-only RPC has not been installed.
+- Corrected an obsolete Admin member-directory note that still described the former 500-row limitation.
+- Re-run CI is required before treating this batch as verified.

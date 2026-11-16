@@ -180,3 +180,9 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 
 - Admin Duplicate ID list now has source-side full-history search and 50-row Load More using a new Admin-checked RPC.
 - Migration `20261116110000_admin_duplicate_id_pagination.sql` is source-only and not applied to Production. Duplicate ID activation remains locked; this batch improves administrative visibility only.
+
+
+## Admin Duplicate ID pagination CI correction — 2026-11-16
+
+- Corrected a false-negative static test assertion; first CI run failed only this assertion (22/23 files, 91/92 tests passed), and TypeScript/build steps were skipped as a result.
+- Admin UI now displays the missing-RPC error instead of silently showing an empty Duplicate ID list. The migration remains source-only.
