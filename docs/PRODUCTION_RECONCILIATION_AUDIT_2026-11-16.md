@@ -307,3 +307,6 @@ This grant review is not a complete certification of all service-role consumers,
 - This is a source migration contract, not proof that the currently deployed Production function bodies match the branch or that every internal SQL statement is safe. Trigger-only functions and intentional public catalogue/sponsor lookup endpoints still need contextual review.
 - Existing read-only Production checks remain launch blockers: 30 applied migration records do not align with all source migrations; Duplicate ID RPC signature drift; sponsor lookup enumeration/rate limiting; leaked-password protection disabled; source-only financial approval and activity-lockdown migrations not installed; payout data minimization and active-Main withdrawal checks not installed.
 - Production has not been migrated, modified, or written to. No app settings, user records, wallet balances, ledgers, or Storage objects were changed.
+
+
+- The new source-level SECURITY DEFINER contract test initially failed to parse due escaped template-literal delimiters. Follow-up corrects this; Production state is unchanged.

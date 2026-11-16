@@ -36,11 +36,11 @@ describe('public SECURITY DEFINER migration contract', () => {
     for (const item of latest.values()) {
       if (!/security\s+definer/i.test(item.header)) continue;
       if (!/set\s+search_path\s*(?:(?:to\s+)?|(?:=\s*))['"]?[^;\n]+/i.test(item.header)) {
-        findings.push(\`\${item.path}: \${item.name} has no fixed search_path\`);
+        findings.push(`${item.path}: ${item.name} has no fixed search_path`);
       }
       const revokePattern = new RegExp('revoke\\s+all\\s+on\\s+function\\s+' + item.name.replace('.', '\\.') + '\\s*\\(', 'i');
       if (!revokePattern.test(allSql)) {
-        findings.push(\`\${item.path}: \${item.name} has no explicit EXECUTE revocation\`);
+        findings.push(`${item.path}: ${item.name} has no explicit EXECUTE revocation`);
       }
     }
     expect(findings, findings.join('\n')).toEqual([]);

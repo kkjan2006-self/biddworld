@@ -439,3 +439,6 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Confirmed the latest credential-scan CI and wallet-ledger append-only CI passed before this batch. New batch CI is required before treating the contract test as verified.
 - Remaining blockers are not small UI tasks: complete Production migration/function reconciliation; non-Production PostgreSQL integration tests; public sponsor lookup rate limiting; Auth leaked-password protection; full RPC body review; secret inventory/history/deployed bundle review; financial/legal model approval; and real browser/mobile E2E.
 - Financial package, commissions, bids, Fixed Bid, winner settlement and withdrawals remain prohibited until owner/legal/economic approval and database enforcement are independently verified.
+
+
+- Follow-up corrected template-literal escaping in the migration-wide SECURITY DEFINER contract test after CI detected a parse error; awaiting clean CI confirmation.

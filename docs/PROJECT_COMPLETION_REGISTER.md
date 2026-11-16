@@ -623,3 +623,6 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - Added a repository-wide SQL migration test covering public SECURITY DEFINER search_path pinning and EXECUTE revocation.
 - Latest verified preceding CI: wallet ledger append-only batch and credential scanner correction passed; current batch CI pending.
 - Production Supabase remains unchanged. Development completion estimate is not a launch-readiness certification.
+
+
+- CI initially caught escaped template-literal delimiters in the new SECURITY DEFINER contract test; corrected in the follow-up commit. The test is not counted as passed until follow-up CI completes.
