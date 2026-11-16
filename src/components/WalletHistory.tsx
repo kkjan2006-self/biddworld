@@ -49,7 +49,7 @@ export default function WalletHistory(){
     if(qError)throw qError;
     const batch=(data??[]) as Tx[];setRows(current=>page===0?batch:[...current,...batch]);setHasMore(batch.length===100);
    }catch(e){if(active)setError(e instanceof Error?e.message:'Transaction history could not be loaded. Please retry.');}
-   finally{if(active){setLoading(false);setLoadingMore(false);}}
+   finally{if(active){loadMoreBusy.current=false;setLoading(false);setLoadingMore(false);}}
   }
   void load();return()=>{active=false;};
  },[userId,refresh,page]);
