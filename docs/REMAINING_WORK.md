@@ -384,3 +384,8 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - The prior concern is therefore a **Production migration-drift / rollout-order issue**, not a missing source implementation. Production currently has not applied the 20261115/16 source migrations and its live RPC still requires an active Main ID.
 - Added a regression test asserting inactive Main IDs can submit pending package requests without wallet credit, and that the branch migration retains the pending-only lifecycle.
 - Before deployment, reconcile and test the entire ordered migration chain together; do not apply the signup trigger migration in isolation. No Production changes made.
+
+
+## Immediate Production launch blocker — Admin package approval (2026-11-16)
+
+Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the Bid Wallet and activate a package when an Admin approves a pending request. It checks trusted Admin role but does not itself check the owner financial-approval setting. The database-level interlock migrations `20261116000000_financial_approval_guard.sql` and `20261116080000_financial_activity_lockdown.sql` are not applied in Production. Do not use package approval or enable paid activation. Reconcile and test the complete forward-only migration chain in non-production, then obtain explicit owner approval before Production rollout. The Admin UI lock alone is not an adequate security boundary.
