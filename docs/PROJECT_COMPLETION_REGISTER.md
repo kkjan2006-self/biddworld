@@ -428,3 +428,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - The same combined filter is applied to the complete Main-ID-scoped CSV export, not just the currently loaded 100-row screen. Invalid reversed date ranges are blocked and clearly reported; date filters can be cleared without reloading wallet records.
 - Added regression tests for date boundaries, complete export parity and retention of Main ID scope/pagination.
 - No wallet balances, ledger rows, financial RPCs, Supabase migrations, Production data/schema/settings or financial enablement were changed.
+
+
+## Admin complete wallet ledger export (2026-11-16)
+
+- Added a dedicated complete Admin wallet-transaction CSV export using the existing authenticated `admin_list_wallet_transactions` RPC in 100-row pages until the final page.
+- Export includes transaction/member IDs, wallet type, direction, amount, balance-after, reference metadata, description and timestamp. It is read-only and does not alter balances or ledger records.
+- Clarified the Reports screen about which exports are complete paginated RPC exports and which remain limited to currently returned source-RPC records (package activations, referral plans, auctions and Fixed Bid campaigns).
+- Added regression tests for the RPC pagination contract, ledger fields and report-scope wording.
+- No migrations, Production schema/data/settings, wallet balances or financial workflows were changed.
