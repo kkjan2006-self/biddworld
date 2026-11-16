@@ -283,3 +283,11 @@ This grant review is not a complete certification of all service-role consumers,
 - The browser client uses only the Supabase publishable key, with legacy anon-key fallback; `.env.example` explicitly warns not to put service-role or secret keys in `VITE_` variables.
 - This is a source-text scan, not a scan of deployed JavaScript bundles, Git history, GitHub Actions secrets, or Supabase Edge Function secrets. Continue to keep privileged keys out of client code and public build variables.
 - Production table grants checked in the previous batch show `service_role` has broad write privileges. That is expected only for trusted server-side operations; actual service-role consumer inventory and secret-handling review remain outstanding.
+
+
+## Wallet ledger append-only source hardening — 2026-11-16
+
+- The source-only `20261116080000_financial_activity_lockdown.sql` now additionally installs a BEFORE UPDATE OR DELETE trigger on `wallet_transactions`; historical ledger rows are immutable and corrections must be compensating transactions.
+- This closes a source-level gap in the earlier INSERT-only financial approval guard. Static tests assert the trigger and private-function ACL.
+- This remains unexecuted SQL contract coverage. Validate all existing legitimate correction/reversal paths in a disposable PostgreSQL/Supabase environment before any owner-approved Production rollout.
+- Production remains untouched; no migration, data, setting, Storage object or financial record was changed.

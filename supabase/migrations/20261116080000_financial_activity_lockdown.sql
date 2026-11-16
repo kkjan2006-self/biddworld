@@ -142,3 +142,27 @@ drop trigger if exists require_financial_model_approval_on_fixed_bid on public.f
 create trigger require_financial_model_approval_on_fixed_bid
 before insert on public.fixed_bids
 for each row execute function private.require_financial_model_approval();
+
+
+-- A financial ledger is append-only: corrections must be represented by a
+-- compensating transaction, never by editing or deleting historical rows.
+create or replace function private.prevent_wallet_transaction_mutation()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $function$
+begin
+ raise exception 'Wallet ledger rows are immutable; post a compensating transaction instead'
+   using errcode='55000';
+end;
+$function$;
+
+revoke all on function private.prevent_wallet_transaction_mutation()
+ from public,anon,authenticated;
+
+drop trigger if exists prevent_wallet_transaction_mutation
+ on public.wallet_transactions;
+create trigger prevent_wallet_transaction_mutation
+before update or delete on public.wallet_transactions
+for each row execute function private.prevent_wallet_transaction_mutation();

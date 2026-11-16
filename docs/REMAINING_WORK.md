@@ -415,3 +415,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 
 - [x] Source scan of 18 browser TS/JS files found no service-role or secret-key pattern; browser Supabase config uses publishable/anon key only.
 - [ ] Complete deployed-bundle, Git-history and CI secret review; audit service_role consumers separately.
+
+
+## Wallet ledger immutability hardening — 2026-11-16
+
+- Extended the source-only financial interlock migration with an append-only wallet ledger rule: UPDATE and DELETE attempts on `wallet_transactions` are rejected; corrections must use compensating ledger entries.
+- Added static migration-contract coverage for the immutable-ledger trigger and its client-role EXECUTE revocation.
+- This is source/CI contract coverage only. It has not been exercised against PostgreSQL, and the migration remains unapplied in Production. Before rollout, validate compatibility with every legitimate ledger maintenance/reversal workflow in a disposable database.
+- No Production schema, settings, rows, grants or financial records were changed.

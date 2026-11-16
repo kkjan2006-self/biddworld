@@ -60,3 +60,10 @@ describe('global financial approval interlock',()=>{
   expect(sql).toContain("tg_table_name='wallet_transactions' and tg_op='INSERT'");
   expect(sql).toContain('raise exception');
  });
+
+ it('keeps wallet ledger history append-only and rejects updates/deletes',()=>{
+  expect(sql).toContain('create or replace function private.prevent_wallet_transaction_mutation()');
+  expect(sql).toContain('before update or delete on public.wallet_transactions');
+  expect(sql).toContain('Wallet ledger rows are immutable');
+  expect(sql).toContain('revoke all on function private.prevent_wallet_transaction_mutation()');
+ });
