@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {ShieldCheck,Users,PackageCheck,Gavel,Wallet,RefreshCw,AlertCircle,Network,UserCheck,LayoutDashboard,Handshake,CreditCard,Package,Percent,ArrowDownToLine,Target,Trophy,Truck,FileText,Bell,Settings,ClipboardList} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {csvDocument} from '../lib/csv';
@@ -38,6 +38,7 @@ export default function Admin(){
  const [role,setRole]=useState(''),[counts,setCounts]=useState(empty),[loading,setLoading]=useState(true),[error,setError]=useState('');
  const [refresh,setRefresh]=useState(0),[activeSection,setActiveSection]=useState('overview');
  const [overview,setOverview]=useState<MlmOverview|null>(null),[structure,setStructure]=useState<StructureReport|null>(null),[members,setMembers]=useState<SponsorMember[]>([]),[memberHasMore,setMemberHasMore]=useState(false),[memberMoreBusy,setMemberMoreBusy]=useState(false),[memberMessage,setMemberMessage]=useState(''),[memberSearch,setMemberSearch]=useState(''),[appliedMemberSearch,setAppliedMemberSearch]=useState(''),[memberSearchBusy,setMemberSearchBusy]=useState(false),[selectedMemberCode,setSelectedMemberCode]=useState(''),[defaultSponsor,setDefaultSponsor]=useState(''),[memberCode,setMemberCode]=useState(''),[sponsorCode,setSponsorCode]=useState(''),[sponsorMessage,setSponsorMessage]=useState(''),[savingSponsor,setSavingSponsor]=useState(false);
+ const memberSearchRequest=useRef(0);
  const [pendingActivations,setPendingActivations]=useState<PendingActivation[]>([]);
  const [activationSearch,setActivationSearch]=useState(''),[activationFrom,setActivationFrom]=useState(''),[activationTo,setActivationTo]=useState('');
  const [withdrawalRequests,setWithdrawalRequests]=useState<WithdrawalRequest[]>([]),[withdrawalMessage,setWithdrawalMessage]=useState('');
@@ -111,6 +112,7 @@ export default function Admin(){
  },[]);
  useEffect(()=>{
   let active=true;
+  const memberRequestAtStart=memberSearchRequest.current;
   setCounts(empty);setError('');setLoading(true);
   async function load(){
    if(!supabase||role!=='admin'){if(active)setLoading(false);return;}
@@ -123,7 +125,7 @@ export default function Admin(){
     return {key,count:result.count,error:result.error};
    })),supabase.rpc('admin_list_members_sponsors_page',{p_search:null,p_limit:100,p_offset:0}),supabase.rpc('admin_get_mlm_overview'),supabase.rpc('admin_get_member_structure'),supabase.rpc('admin_list_pending_activations'),supabase.rpc('admin_list_audit_logs_page',{p_limit:100,p_offset:0}),supabase.rpc('admin_get_feature_settings'),supabase.rpc('admin_list_duplicate_ids_page',{p_search:appliedDuplicateSearch.trim()||null,p_limit:50,p_offset:0}),supabase.rpc('admin_list_packages'),supabase.rpc('admin_list_referral_plans'),supabase.rpc('admin_list_withdrawal_requests',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_auction_products'),supabase.rpc('admin_list_auctions'),supabase.rpc('admin_list_fixed_bid_campaigns'),supabase.rpc('admin_list_winning_item_payments',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_delivery_tracking',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_wallet_accounts',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_notification_templates'),supabase.rpc('admin_list_admin_accounts')]);
    if(!active)return;
-   if(!memberResult.error){const batch=(memberResult.data??[]) as SponsorMember[];setMembers(batch);setMemberHasMore(batch.length===100);}
+   if(!memberResult.error&&memberRequestAtStart===memberSearchRequest.current){const batch=(memberResult.data??[]) as SponsorMember[];setMembers(batch);setMemberHasMore(batch.length===100);}
    if(!overviewResult.error)setOverview(overviewResult.data as MlmOverview);
    if(!structureResult.error)setStructure(structureResult.data as StructureReport);
    if(!pendingResult.error)setPendingActivations((pendingResult.data??[]) as PendingActivation[]);
@@ -157,15 +159,16 @@ export default function Admin(){
   const client=supabase;
   let active=true;
   const timer=window.setTimeout(async()=>{
+   const request=++memberSearchRequest.current;
    setMemberMoreBusy(true);setMemberMessage('');
    try{
     const{data,error}=await client.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});
     if(error)throw error;
-    if(!active)return;
+    if(!active||request!==memberSearchRequest.current)return;
     const batch=(data??[]) as SponsorMember[];
     setMembers(batch);setAppliedMemberSearch(memberSearch.trim());setMemberHasMore(batch.length===100);
-   }catch(e){if(active)setMemberMessage(e instanceof Error?e.message:'Member search failed.');}
-   finally{if(active)setMemberMoreBusy(false);}
+   }catch(e){if(active&&request===memberSearchRequest.current)setMemberMessage(e instanceof Error?e.message:'Member search failed.');}
+   finally{if(active&&request===memberSearchRequest.current)setMemberMoreBusy(false);}
   },250);
   return()=>{active=false;window.clearTimeout(timer);};
  },[memberSearch,role,refresh]);
@@ -242,7 +245,7 @@ async function saveDefaultSponsor(){if(!supabase||savingSponsor)return;setSaving
   const loadMoreAuditLogs=async()=>{if(!supabase||auditMoreBusy||!auditHasMore)return;setAuditMoreBusy(true);try{const {data,error}=await supabase.rpc('admin_list_audit_logs_page',{p_limit:100,p_offset:auditLogs.length});if(error)throw error;const batch=(data??[]) as AuditEntry[];setAuditLogs(current=>[...current,...batch]);setAuditHasMore(batch.length===100);}catch(e){setError('Could not load more audit log entries: '+(e instanceof Error?e.message:'Please retry.'));}finally{setAuditMoreBusy(false);}};
  const loadMoreWalletTransactions=async()=>{if(!supabase||walletMoreBusy||!walletHasMore)return;setWalletMoreBusy(true);try{const {data,error}=await supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:walletTransactions.length});if(error)throw error;const batch=(data??[]) as WalletTransaction[];setWalletTransactions(current=>[...current,...batch]);setWalletHasMore(batch.length===100);}catch(e){setWalletMessage('Could not load more wallet transactions: '+(e instanceof Error?e.message:'Please retry.'));}finally{setWalletMoreBusy(false);}};
  const exportAllWalletTransactions=async()=>{if(!supabase||walletExportBusy)return;setWalletExportBusy(true);setWalletExportMessage('');try{let all:WalletTransaction[]=[];for(let offset=0;;offset+=100){const {data,error}=await supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:offset});if(error)throw error;const batch=(data??[]) as WalletTransaction[];all=all.concat(batch);if(batch.length<100)break;}if(!all.length){setWalletExportMessage('No wallet ledger records available.');return;}downloadReport('complete-wallet-ledger.csv',['Transaction ID','Member ID','Wallet','Type','Direction','Amount','Balance After','Reference Type','Reference ID','Description','Created At'],all.map(x=>[x.transaction_id,x.member_code,x.wallet_type,x.transaction_type,x.direction,x.amount,x.balance_after,x.reference_type,x.reference_id,x.description,x.created_at]));setWalletExportMessage('Exported '+all.length+' wallet ledger records.');}catch(e){setWalletExportMessage(e instanceof Error?e.message:'Wallet ledger export failed.');}finally{setWalletExportBusy(false);}};
- const searchMembers=async()=>{if(!supabase||memberSearchBusy||memberMoreBusy)return;setMemberSearchBusy(true);setMemberMessage('');setSelectedMemberCode('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});if(error)throw error;const batch=(data??[]) as SponsorMember[];setMembers(batch);setAppliedMemberSearch(memberSearch.trim());setMemberHasMore(batch.length===100);}catch(e){setMemberMessage(e instanceof Error?e.message:'Could not search member records.');}finally{setMemberSearchBusy(false);}};
+ const searchMembers=async()=>{if(!supabase||memberSearchBusy||memberMoreBusy)return;const request=++memberSearchRequest.current;setMemberSearchBusy(true);setMemberMessage('');setSelectedMemberCode('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});if(error)throw error;if(request!==memberSearchRequest.current)return;const batch=(data??[]) as SponsorMember[];setMembers(batch);setAppliedMemberSearch(memberSearch.trim());setMemberHasMore(batch.length===100);}catch(e){if(request===memberSearchRequest.current)setMemberMessage(e instanceof Error?e.message:'Could not search member records.');}finally{if(request===memberSearchRequest.current)setMemberSearchBusy(false);}};
  const loadMoreMembers=async()=>{if(!supabase||memberMoreBusy||!memberHasMore)return;setMemberMoreBusy(true);setMemberMessage('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:appliedMemberSearch.trim()||null,p_limit:100,p_offset:members.length});if(error)throw error;const batch=(data??[]) as SponsorMember[];setMembers(current=>[...current,...batch]);setMemberHasMore(batch.length===100);}catch(e){setMemberMessage(e instanceof Error?e.message:'Could not load more member records.');}finally{setMemberMoreBusy(false);}};
  const loadMoreWithdrawals=async()=>{if(!supabase||withdrawalMoreBusy||!withdrawalHasMore)return;setWithdrawalMoreBusy(true);try{const {data,error}=await supabase.rpc('admin_list_withdrawal_requests',{p_limit:100,p_offset:withdrawalRequests.length});if(error)throw error;const batch=(data??[]) as WithdrawalRequest[];setWithdrawalRequests(current=>[...current,...batch]);setWithdrawalHasMore(batch.length===100);}catch(e){setWithdrawalMessage('Could not load more withdrawal requests: '+(e instanceof Error?e.message:'Please retry.'));}finally{setWithdrawalMoreBusy(false);}};
  const filteredMembers=members;
