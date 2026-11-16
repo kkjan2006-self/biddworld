@@ -954,3 +954,14 @@ Notifications now provide loaded-record title/message/category search and catego
 - Existing Vitest checks are source-text contract tests, not PostgreSQL integration/concurrency tests. No disposable TEST project was used in this audit; do not claim full idempotency behavior tested.
 - Required TEST cases and rollout blockers: `docs/BID_IDEMPOTENCY_PRODUCTION_COMPATIBILITY_REVIEW_2026-11-16.md`.
 - Production remained read-only; bidding remains disabled and no bids or wallet entries were created.
+
+
+## 2026-11-16 — Inactive member / package lock messaging alignment
+
+- Reviewed the member dashboard inactive-state banner against the package catalogue's explicit lock and the Admin payment-verification screen's database financial lock.
+- Found contradictory guidance: the member dashboard told inactive members to submit payment for an available package even though the package module explicitly says paid activation is closed and instructs members not to submit payments.
+- Updated `src/components/Account.tsx` to state that package activation is locked, members must not pay, and inactive status remains until an approved activation process is formally opened and Admin verifies it.
+- Added `tests/inactive-account-package-lock-copy.test.ts` to assert the member and package messaging stay consistent.
+- This is a copy/safety improvement only; it does not change activation logic, settings, database state, wallets, or payments.
+- Latest code/test commits: `0cf3e68d7aa3d0265fae1d480b1a08c74f7811c3` and `5aa9178a44bd89c57c9fced334dd6a6460eab939`.
+- CI for both commits was still running at register preparation time; verify before claiming pass.
