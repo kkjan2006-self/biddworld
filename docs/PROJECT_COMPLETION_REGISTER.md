@@ -595,3 +595,5 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 
 - Workflow `43792820737` executed 154 tests: 153 passed and one new assertion failed because its regular expression accidentally matched a literal backslash instead of optional whitespace. The application and SQL guard assertions passed; npm audit reported zero vulnerabilities.
 - Corrected the test expression to a whitespace-tolerant regex. No production code or database change was needed for this test-only correction. Re-run CI to confirm.
+
+- Follow-up workflow `43793006069` exposed a second overly broad negative assertion: it matched the trigger's legitimate read of the approval setting rather than only checking that the Admin feature-switch function cannot write that setting. Narrowed the assertion to the function body and the exact INSERT pattern. Re-run CI pending.
