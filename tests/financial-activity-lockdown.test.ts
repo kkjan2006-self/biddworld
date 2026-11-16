@@ -67,3 +67,12 @@ describe('global financial approval interlock',()=>{
   expect(sql).toContain('Wallet ledger rows are immutable');
   expect(sql).toContain('revoke all on function private.prevent_wallet_transaction_mutation()');
  });
+
+ 
+ it('forces every financial feature switch to false on rollout, overriding permissive legacy defaults',()=>{
+  for(const key of ['package_activations_enabled','bid_wallet_enabled','income_wallet_enabled','referral_commissions_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled']){
+   expect(sql).toContain("('"+key+"','false'::jsonb,now())");
+  }
+  expect(sql).toMatch(/on conflict\(setting_key\) do update\s+set setting_value=excluded\.setting_value/i);
+  expect(sql).not.toMatch(/\('(package_activations_enabled|bid_wallet_enabled|income_wallet_enabled)','true'::jsonb/i);
+ });

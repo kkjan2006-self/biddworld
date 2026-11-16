@@ -2,6 +2,22 @@
 -- withdrawal request, and winner-payment settlement.
 -- Source-only until explicitly reviewed and applied by the project owner.
 
+-- Fail closed on rollout even if an earlier feature-settings migration seeded
+-- permissive defaults. This migration never enables a financial feature.
+insert into public.app_settings(setting_key,setting_value,updated_at) values
+ ('financial_model_approved','false'::jsonb,now()),
+ ('package_activations_enabled','false'::jsonb,now()),
+ ('bid_wallet_enabled','false'::jsonb,now()),
+ ('income_wallet_enabled','false'::jsonb,now()),
+ ('referral_commissions_enabled','false'::jsonb,now()),
+ ('withdrawals_enabled','false'::jsonb,now()),
+ ('bidding_enabled','false'::jsonb,now()),
+ ('fixed_bid_enabled','false'::jsonb,now()),
+ ('winning_payment_enabled','false'::jsonb,now())
+on conflict(setting_key) do update
+ set setting_value=excluded.setting_value,updated_at=now();
+
+
 create or replace function private.require_financial_model_approval()
 returns trigger
 language plpgsql
