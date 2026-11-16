@@ -855,3 +855,14 @@ Notifications now provide loaded-record title/message/category search and catego
 - Production's actual `fixed_bids` table has `member_id`, `bid_amount`, `status` and a unique `idempotency_key`; no per-member-per-campaign uniqueness constraint appeared in the table metadata. The baseline repository schema is not authoritative for this project state.
 - The Production `fixed_bid_campaigns` table uses a `configuration jsonb` column and does not expose the legacy baseline's `entry_amount`, `starts_at` or `ends_at` columns. Existing Admin draft RPCs were confirmed by read-only `pg_proc` inspection.
 - No Production data, schema, migrations, RPCs, feature flags or financial settings were modified. All inspection queries were SELECT-only.
+
+
+## Fixed Bid Production audit — 2026-11-16
+
+- Confirmed the live Production schema and Admin RPCs using read-only metadata/catalogue queries. The live campaign table uses `configuration jsonb` and text statuses (including `live`); the old baseline migration is not the live schema contract.
+- Confirmed the live entry table has no per-member-per-campaign unique constraint, but only a unique idempotency key; Production RLS has no INSERT policy for `fixed_bids`.
+- Confirmed no Fixed Bid entry/draw/special-winner/refund RPCs exist in the Production function catalogue. Admin draft RPCs exist but only save/list draft campaign metadata.
+- Confirmed `fixed_bid_enabled=false` and `winning_payment_enabled=false`. Wallet feature settings are currently true; the source-only financial activity lockdown migration is not in the current Production migration ledger and must not be assumed active.
+- Confirmed migration drift: Production ledger lists 30 migrations and includes `20261115151930_admin_fixed_bid_campaign_draft_management`, while the source tree has 43 migration files and lacks that exact migration file. No migration was applied.
+- Restored the member catalogue status query to `live` to match Production. This correction is in source only; the latest CI result will be checked separately.
+- All Production inspection was read-only. No production schema, rows, RPCs, flags, wallets, entries or financial records were changed.
