@@ -25,7 +25,9 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   if(!supabase){setError('Support is unavailable until the BiddWorld database is configured.');setTickets([]);setHasMore(false);return;}
   setBusy(true);setError('');
   try{
-   const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);
+   let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
+   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}
+   const {data,error:loadError}=await request.range(0,PAGE_SIZE-1);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
@@ -34,13 +36,15 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    setResponse(Object.fromEntries(rows.map(row=>[row.id,row.admin_response??''])));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
- },[]);
+ },[isAdmin]);
  const loadMore=useCallback(async()=>{
   if(!supabase||loadMoreBusy.current||busy||!hasMore)return;
   loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
   try{
    const from=tickets.length;
-   const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);
+   let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
+   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}
+   const {data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
@@ -49,7 +53,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
- },[busy,hasMore,tickets.length]);
+ },[busy,hasMore,tickets.length,isAdmin]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
 
  async function submit(e:React.FormEvent<HTMLFormElement>){
