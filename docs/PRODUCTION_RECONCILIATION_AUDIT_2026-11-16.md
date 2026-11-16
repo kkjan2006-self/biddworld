@@ -233,3 +233,11 @@ Compared the source-only `20261116140000_require_active_main_id_for_withdrawals.
 - Therefore the current branch Duplicate ID creation UI is not Production-compatible until the forward migration is reconciled and applied. Do not run this UI against Production yet; the RPC signature mismatch will fail. No Production changes were made.
 - Additional source review item: `admin_set_duplicate_id_status(uuid,text)` checks Admin authorization and lifecycle state, but does not revalidate the linked Main ID and placement parent when activating/reactivating a Duplicate ID. Add this to non-production integration tests and decide the intended behavior if either linked ID becomes suspended/closed before changing Production.
 - Regression tests added for separate Sponsor/Under attribution, active parent validation, same-owner rejection, pending-only creation, and legacy RPC removal.
+
+## CI verification update — 2026-11-16
+
+- Source branch commit `e6d308437d89d3158bbca30433525baa0ee0812b` passed GitHub Actions run `43794384681`.
+- CI reported 44 test files / 162 tests passing; the build step completed and npm audit reported zero vulnerabilities at that run.
+- These checks validate source-level tests/build/dependency metadata only. They do not validate live Production migrations, actual Supabase Auth email delivery, browser/mobile PWA behavior, payment flows, or end-to-end financial controls.
+- The inactive-until-verified migration no longer performs historical bulk status updates. Its trigger only activates the specific Main ID and profile tied to a package activation row transitioning to approved/active.
+- Production remains unchanged; the financial interlock is still source-only and must be reconciled and owner-approved before rollout.

@@ -605,3 +605,5 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - CI correction for Batch 24: initial regression assertion matched the legitimate row-level profile activation inside the verified-package trigger. Narrowed the assertion to reject only historical bulk CASE/EXISTS status reconciliation; it now permits activation of the specific member tied to an approved package.
 
 - Follow-up CI test correction: the data-safety regression now rejects only the former historical bulk CASE/EXISTS status updates. It intentionally permits the trigger's row-specific activation updates after the matching package row is approved and active.
+
+- Batch 24 CI verification: latest corrected commit `e6d308437d89d3158bbca30433525baa0ee0812b` passed GitHub Actions run `43794384681`. The workflow reports 44 test files and 162 tests passed; the job also completed the production build and dependency audit with 0 reported vulnerabilities. An earlier test assertion incorrectly rejected the legitimate row-specific activation trigger; it was narrowed to reject only the removed historical bulk CASE/EXISTS status updates.

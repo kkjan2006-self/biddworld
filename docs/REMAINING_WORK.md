@@ -398,3 +398,7 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - [ ] Define and test whether Duplicate ID activation/reactivation must be blocked when its linked Main ID or placement parent is suspended/closed; current source status RPC does not revalidate these linked states.
 
 - [ ] For existing Production members, perform a separately reviewed read-only eligibility report and owner-approved migration plan if historical inactive/active status reconciliation is required. Do not bulk change statuses as part of signup lifecycle migration.
+
+- [x] Batch 24: remove historical bulk member/profile status rewrites from the inactive-until-verified package lifecycle migration; retain only row-specific activation after approved package transition.
+- [x] CI: latest commit `e6d308437d89d3158bbca30433525baa0ee0812b` passed (44 test files, 162 tests; build completed; npm audit reported 0 vulnerabilities in that run).
+- [ ] Complete non-production Supabase integration tests for signup trigger, pending package request, Admin approval rejection under the financial guard, and row-specific account activation. Do not run these against Production.
