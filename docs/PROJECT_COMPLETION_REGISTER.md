@@ -1179,3 +1179,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Initial Admin workspace loading no longer overwrites a member search started after it began.
 - Added `tests/admin-member-directory-search-race.test.ts`; latest-commit CI is the verification gate.
 - Details: `docs/ADMIN_MEMBER_DIRECTORY_SEARCH_RACE_2026-11-17.md`. No Production data was changed.
+
+
+## Admin Duplicate ID directory request ordering — 2026-11-17
+
+- Added request-generation ownership to prevent stale workspace loads and Load More responses from replacing the current Duplicate ID search results.
+- Captured the active search and page offset before pagination; stale errors and loading cleanup are ignored.
+- Added `tests/admin-duplicate-directory-request-order.test.ts`; latest-commit CI is the verification gate.
+- Details: `docs/ADMIN_DUPLICATE_DIRECTORY_REQUEST_ORDER_2026-11-17.md`. No Production data was changed.
