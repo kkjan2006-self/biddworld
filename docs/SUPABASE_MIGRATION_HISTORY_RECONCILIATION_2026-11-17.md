@@ -54,3 +54,14 @@ Required next work:
 ## Safety record
 
 This was a read-only inspection. No Production DDL/DML, migration, ledger edit, Auth setting, Storage bucket, member, wallet, payment, bid or withdrawal operation was performed. `main` was not modified.
+
+## Additional RPC implementation drift observed
+
+Further read-only inspection of the live function definitions found:
+
+- `public.member_create_withdrawal_request(numeric,jsonb)` checks authentication, amount format, feature switch, Income Wallet balance and open requests, but the live definition does **not** verify that the caller's Main ID belongs to that user and has `status='active'`. The branch migration `20261116140000_require_active_main_id_for_withdrawals.sql` adds that ownership-and-active-state check. It is not deployed.
+- `public.member_list_my_withdrawals()` currently returns the complete stored `payout_details` JSON. Branch migration `20261116170000_minimize_member_withdrawal_payout_data.sql` changes the response to the payout method label only. The member UI currently renders only the method label, but the live RPC response still carries the wider object.
+- `public.admin_list_duplicate_ids()` currently returns a non-paginated legacy response without placement-parent details. The current Admin UI calls `admin_list_duplicate_ids_page`, which is absent from Production. The placement-aware and paginated branch migrations remain TEST-only.
+- `public.get_my_placement_tree()` exists with no arguments and its JSON keys (`root_member_code`, `tree`) and tree fields match the inspected current PlacementTree component. This is a limited contract match; runtime integration has not been performed.
+
+These are source/live drift observations, not a statement that the branch migrations are ready to apply. Keep Production read-only until exact SQL history and a clean TEST replay are available.
