@@ -1051,3 +1051,35 @@ Notifications now provide loaded-record title/message/category search and catego
 5. Complete the Production routine/grant/policy/trigger/Storage reconciliation before preparing a forward-only rollout plan. No Production changes without explicit owner approval.
 
 This checkpoint updates evidence only. It does not increase the implementation completion percentage or certify authentication, integration, Production safety or launch readiness.
+
+## Live recovery checkpoint — 2026-11-17
+
+### Branch and CI verification
+- Live `completion-work` branch was re-read before editing. Starting HEAD: `117896cf886b00950b178b8d2b4cb9bd3b119fcc` (`Implement lazy loading for tab modules`).
+- The supplied latest commit was exact. Its GitHub Actions CI run `43921846842` completed successfully.
+- Verified run output: 60/60 Vitest files and 228/228 tests passed; `tsc -b && vite build` completed; npm audit reported 0 vulnerabilities. Build output confirms separate Account (44.28 kB), Admin (101.66 kB), and shared initial bundle (313.75 kB) chunks. Warnings include Node.js 20 action deprecation and transitive `punycode` / `url.parse()` deprecations.
+- Five commits were added after the prior recovery checkpoint: continuation protocol, `.gitignore`, generated TypeScript build-info file, lockfile, and lazy-loaded tab modules. No application feature was removed in this sequence.
+- The repository contains `BiddWorld-Complete.zip`; its freshness/content has not been verified and it must not be represented as the latest deliverable.
+
+### Source and PWA inspection
+- The branch contains React 18, TypeScript 5.7, Vite 6.4, Supabase JS 2.57 and Vitest 4.1, with exact dependency versions recorded in `package-lock.json`.
+- The nine secondary workspaces (Packages, Referrals, WalletHistory, FixedBid, Admin, Support, Notifications, Account and DashboardPreview) are dynamically imported and rendered through an accessible Suspense fallback.
+- PWA source includes a relative-scope standalone manifest, SVG app icon, production-only service worker registration using Vite BASE_URL, and same-origin GET-only static/app-shell caching. Supabase/cross-origin/API traffic and non-GET requests are excluded from service-worker caching. Offline behavior is shell-only; no authenticated or financial data is persisted.
+- Existing PWA tests are source-contract tests. Android Chrome install prompt, standalone launch, offline fallback and update lifecycle have not been physically verified on a device.
+- Repository hygiene finding: `tsconfig.tsbuildinfo` is a generated TypeScript cache file tracked in the repository and was not ignored. The current checkpoint removes this generated artifact and adds the ignore rule; no source feature is affected. A regression test is added for lazy workspace imports and Suspense fallbacks.
+
+### Fresh read-only Production verification
+- Supabase metadata: `BiddWorld-Production`, ref `hbqatszyzqobgtauyuzy`, region `ap-south-1`, PostgreSQL `17.11.0.019`, `ACTIVE_HEALTHY`.
+- Migration ledger remains at 30 applied entries; latest is `20261115163218_admin_audit_log_pagination`. The 2026-11-16 source migrations are not represented in this ledger and the existing reconciliation matrix remains a blocker to rollout.
+- Fresh catalogue snapshot: 21/21 public tables have RLS enabled (0 FORCE RLS), 20 public policies, 43 public routines, 10 public triggers, and 0 Storage buckets. RLS enabled does not prove policy or privileged-function correctness.
+- Live Auth trigger `private.handle_new_auth_user()` still inserts `profiles.status='active'` and Main `member_ids.status='active'`. This is a confirmed Production/source lifecycle mismatch.
+- Current settings snapshot: registration, package activation, Bid Wallet and Income Wallet true; bidding, Fixed Bid, duplicate IDs, referral commissions, withdrawals and winning payments false. No `financial_model_approved` row was found.
+- Auth email-confirmation provider settings, redirect allow-list, password policy and email delivery were not exposed by these read-only calls; they remain unknown and are not claimed verified.
+- No Production DDL/DML, migration, setting change, signup, test member, wallet, payment or financial operation was performed.
+
+### Current implementation and verification boundaries
+- Existing register describes a substantial UI/source baseline, but several backend modules remain draft/read-only or depend on unimplemented workflows and owner decisions. Do not equate page presence with completed functionality.
+- CI validates static source tests and the frontend build only. It does not replay the Supabase migration chain, test live RPC integration, or certify production grants/RLS.
+- A separate disposable TEST Supabase project is not currently evidenced as connected; end-to-end Auth and financial transaction testing remain NOT VERIFIED.
+- Next priority: finish exact auth route/role-guard and frontend-to-live-RPC contract mapping; then reconstruct all 17 unmatched historical Production migrations, compare live definitions and build a clean-room disposable TEST migration rehearsal. No Production changes without explicit authorization.
+- This checkpoint is evidence and repository hygiene only; it does not increase the implementation completion estimate or claim launch readiness.
