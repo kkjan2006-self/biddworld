@@ -11,16 +11,16 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   const seq=++requestSeq.current;loadMoreBusy.current=false;
   if(!supabase){setError('Notifications are unavailable until Supabase is configured.');setItems([]);setHasMore(false);return;}
   setBusy(true);setError('');
-  try{const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
+  try{let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);}const {data,error:loadError}=await request.range(0,PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
   catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
- },[]);
+ },[isAdmin]);
  const loadMore=useCallback(async()=>{
   if(!supabase||loadMoreBusy.current||busy||!hasMore)return;loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
-  try{const from=items.length;const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);}
+  try{const from=items.length;let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);}const {data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);}
   catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
- },[busy,hasMore,items.length]);
+ },[busy,hasMore,items.length,isAdmin]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
  async function send(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();if(!supabase||busy)return;const target=userId.trim();
