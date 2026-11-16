@@ -7,7 +7,7 @@ const admin=readFileSync(resolve(process.cwd(),'src/components/Admin.tsx'),'utf8
 describe('Admin member directory search request ordering',()=>{
  it('uses a request generation to prevent older responses replacing newer searches',()=>{
   expect(admin).toContain("import {useEffect,useMemo,useRef,useState} from 'react'");
-  expect(admin).toContain('const memberSearchRequest=useRef(0);');
+  expect(admin).toContain('const memberSearchRequest=useRef(0),duplicateSearchRequest=useRef(0);');
   expect(admin).toContain('const request=++memberSearchRequest.current;');
   expect(admin).toContain('if(!active||request!==memberSearchRequest.current)return;');
  });
