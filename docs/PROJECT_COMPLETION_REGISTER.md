@@ -663,3 +663,8 @@ Member Directory now submits search terms to `admin_list_members_sponsors_page` 
 ## Member wallet statement usability batch — 2026-11-16
 
 Wallet History now supports transaction-type selection and description/reference search alongside existing wallet, direction and UTC date filters. It reports the number of matching loaded records and provides one action to clear all filters. The UI explicitly distinguishes loaded-record filtering from the full Main-ID CSV export, which continues retrieving all records before applying the selected filters. No wallet mutation or financial RPC was added.
+
+
+## Member communications and Fixed Bid discovery batch — 2026-11-16
+
+Notifications now provide loaded-record title/message/category search and category filtering, with a single clear-filter action and matching-result count; unread filtering remains explicit and scoped to loaded inbox records. Support now states how many loaded requests match its search/status filters and provides a clear-filter action. Fixed Bid campaign discovery now reports matching loaded campaigns and provides a clear-filter action. These changes are presentation/read-only improvements; no new database columns, RPC assumptions, financial actions or Production changes were introduced.
