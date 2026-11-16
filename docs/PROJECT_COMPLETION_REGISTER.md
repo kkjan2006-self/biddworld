@@ -774,3 +774,13 @@ Notifications now provide loaded-record title/message/category search and catego
 - Added regression assertions for stale/unmounted request protection, loading cleanup and the existing package activation lock.
 - Source commit: `def68a7e30f33783b96832161df90425a7df0226`; regression test commit: `98936ac0bd2822a72968c7f8918980a58b9dab58`.
 - No package activation, payment, wallet credit, commission, RPC, schema, Production data or settings were changed. CI for this batch is pending.
+
+
+## Admin report pagination recovery — 2026-11-16
+
+- Admin audit-log, wallet-ledger and withdrawal-request Load More operations now catch rejected RPC/network promises, preserve an actionable error message, and always release their busy indicators in `finally`.
+- Successful page append, bounded 100-row paging and existing read-only behavior are unchanged.
+- Added regression tests for all three rejection/cleanup paths.
+- Code commit: `fa9aa339c0f4343acfa1dfe76ff339d9eabec549`; test commit: `0e7115c140a89d43b3ea105988204f864a0a2416`.
+- The previous Package catalogue code, test and register CI runs all completed successfully: runs `43845691811`, `43845747538`, and `43845771972`. This new Admin batch CI is pending.
+- No SQL/RPC, schema, Production data/settings, wallet balances, commissions, payments, withdrawals or financial activation controls were changed.
