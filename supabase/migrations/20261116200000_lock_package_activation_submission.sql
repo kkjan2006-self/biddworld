@@ -86,7 +86,7 @@ $function$;
 
 revoke all on function private.submit_package_activation(uuid, text)
   from public, anon, authenticated;
-grant execute on function private.submit_package_activation(uuid, text)
-  to postgres, service_role;
+-- The function owner retains implicit execution rights; callers use the
+-- existing authenticated-only public wrapper.
 
 -- Keep the narrow public entry point and its authenticated-only grant intact.
