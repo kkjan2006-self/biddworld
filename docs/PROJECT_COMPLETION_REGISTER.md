@@ -616,3 +616,10 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 
 - [x] Batch 28: read-only credential-pattern scan of all 18 browser source files; no service-role/secret credential patterns found. `.env.example` documents publishable-key-only browser configuration.
 - [ ] Scan deployed bundles, Git history and CI secret usage; source scan alone is not a full secret-exposure audit.
+
+
+## 2026-11-16 — Bulk security hardening batch
+
+- Added a repository-wide SQL migration test covering public SECURITY DEFINER search_path pinning and EXECUTE revocation.
+- Latest verified preceding CI: wallet ledger append-only batch and credential scanner correction passed; current batch CI pending.
+- Production Supabase remains unchanged. Development completion estimate is not a launch-readiness certification.

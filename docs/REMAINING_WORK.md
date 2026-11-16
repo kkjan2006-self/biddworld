@@ -431,3 +431,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - The current GitHub Pages deployment workflow injects only the Supabase publishable key, which is a browser-safe public credential; it does not inject a service-role key.
 - This is a source-text regression guard, not a Git-history scan, deployed-bundle inspection, GitHub Actions secret inventory, Edge Function secret inventory, or proof that external integrations never expose privileged credentials.
 - No credential values were retrieved or printed. No Production setting, schema, data or financial operation was changed.
+
+
+## Bulk security and production-readiness batch — 2026-11-16
+
+- Added a migration-wide static contract test for every public SECURITY DEFINER SQL function: each declaration must pin `search_path` and explicitly revoke default EXECUTE before granting intended roles.
+- Confirmed the latest credential-scan CI and wallet-ledger append-only CI passed before this batch. New batch CI is required before treating the contract test as verified.
+- Remaining blockers are not small UI tasks: complete Production migration/function reconciliation; non-Production PostgreSQL integration tests; public sponsor lookup rate limiting; Auth leaked-password protection; full RPC body review; secret inventory/history/deployed bundle review; financial/legal model approval; and real browser/mobile E2E.
+- Financial package, commissions, bids, Fixed Bid, winner settlement and withdrawals remain prohibited until owner/legal/economic approval and database enforcement are independently verified.

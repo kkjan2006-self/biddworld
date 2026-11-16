@@ -305,3 +305,10 @@ admin_set_feature_setting() permits enabling only the currently whitelisted, imp
 - GitHub Actions run `43752553469` for `completion-work` commit `af4ae55f71e62905644fba19f70c5f4ee6a7c911` passed configured unit tests, TypeScript type-check and Vite build after fixing a whitespace-sensitive static assertion.
 - Support ticket Admin status/response changes now have a source migration to notify the ticket owner in-app. The migration is not deployed; no live RLS/trigger test or Production change occurred.
 - Product image upload exists in the Admin UI; live Storage policy verification and uploaded-object cleanup remain open.
+
+
+## Security gates added in bulk audit — 2026-11-16
+
+- CI now checks all source SQL migrations for public SECURITY DEFINER functions missing a fixed search_path or explicit EXECUTE revocation.
+- This is a static source guard only. Before launch, compare deployed function definitions and grants to source, test RPC ownership/Admin authorization in a disposable database, and inspect all views, triggers, policies and Storage rules.
+- No Production migration or setting change is authorized by this test.

@@ -299,3 +299,11 @@ This grant review is not a complete certification of all service-role consumers,
 - Read-only inspection of `.github/workflows/deploy-pages.yml` confirms the Pages build receives only the Supabase publishable key. This key is intended for browser use and must still be protected by RLS and RPC authorization.
 - Scope limitation: Git history, repository/organization Actions secret metadata, deployed bundle artifacts, and external Edge Function secrets are not covered by this test or inspection. No secret values were accessed.
 - No Production changes were made.
+
+
+## Bulk RPC security-contract audit — 2026-11-16
+
+- Reviewed the branch migration set for public `SECURITY DEFINER` functions, fixed `search_path`, and explicit default EXECUTE revocation. Added a repository-wide Vitest contract that scans every SQL migration and fails if a public SECURITY DEFINER declaration omits either control.
+- This is a source migration contract, not proof that the currently deployed Production function bodies match the branch or that every internal SQL statement is safe. Trigger-only functions and intentional public catalogue/sponsor lookup endpoints still need contextual review.
+- Existing read-only Production checks remain launch blockers: 30 applied migration records do not align with all source migrations; Duplicate ID RPC signature drift; sponsor lookup enumeration/rate limiting; leaked-password protection disabled; source-only financial approval and activity-lockdown migrations not installed; payout data minimization and active-Main withdrawal checks not installed.
+- Production has not been migrated, modified, or written to. No app settings, user records, wallet balances, ledgers, or Storage objects were changed.
