@@ -825,3 +825,5 @@ Notifications now provide loaded-record title/message/category search and catego
 - Admin Auth initialization now ignores a late `getSession()` result after an Auth state event and safely handles a rejected session lookup, avoiding an unhandled rejection or stale role overwrite.
 - Added regression coverage in `tests/admin-initial-workspace-resilience.test.ts` for rejected initial requests, loading cleanup, unmount safety and Auth event ordering.
 - These are frontend resilience changes only. Admin role authorization remains enforced server-side; no Production database or financial behavior was changed.
+
+- The Admin overview now exposes a keyboard-accessible Retry action directly in the alert when its initial workspace load fails; this complements the existing header refresh action.
