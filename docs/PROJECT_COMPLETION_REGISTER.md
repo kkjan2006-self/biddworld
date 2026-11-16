@@ -793,3 +793,6 @@ Notifications now provide loaded-record title/message/category search and catego
 - Added regression tests for auction/product stale-response and duplicate-request guards, Wallet History auth ordering, pagination cleanup and read-only Main-ID scoping.
 - Source commits: `0dd38d2cb94b4ddf7a4dad98d454c4142e391c5d`, `ae28969cb60b6e201e1620d00b82cff0221f06ea`, `5be245866f412cf0f119065c7ee1ddca7ce9735d`; regression test commits: `5b6fb59192fb5ad5087a8802f51c1a59de592d64`, `b51d65e7087e7c8a728f97cacebcffbd773fff69`, `ad27de46fa44d36467290a3cce3cbd72aa2f38df`.
 - This is source/test-only. No RPC, schema, Production Supabase data/settings, wallet balances, commissions, payments, bids, withdrawals or financial controls were changed. CI verification is pending.
+
+
+- CI follow-up correction: the first run exposed an outdated navigation test assertion after pagination was moved into a guarded handler, plus a missing handler insertion caught by the new lifecycle test. The guarded handler is now explicitly present, and the no-session path also releases the pagination lock. The corrected test and build run is pending; earlier failed CI runs are retained as failure history, not represented as passing.
