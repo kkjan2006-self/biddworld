@@ -1171,3 +1171,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Guards cover authentication, profile, identity, settings, history and delivery reads; unmount invalidates outstanding work.
 - Added `tests/member-account-refresh-concurrency.test.ts` and updated the initial-load regression test for the guarded loading-state cleanup.
 - Details: `docs/MEMBER_ACCOUNT_REFRESH_CONCURRENCY_2026-11-17.md`. CI is required on the latest branch commit; no Production data was changed.
+
+
+## Admin member directory search race protection — 2026-11-17
+
+- Added request-generation ownership across debounced search, explicit Search and Clear; stale results/errors/loading cleanup cannot override a newer request.
+- Initial Admin workspace loading no longer overwrites a member search started after it began.
+- Added `tests/admin-member-directory-search-race.test.ts`; latest-commit CI is the verification gate.
+- Details: `docs/ADMIN_MEMBER_DIRECTORY_SEARCH_RACE_2026-11-17.md`. No Production data was changed.
