@@ -755,3 +755,13 @@ Notifications now provide loaded-record title/message/category search and catego
 - Updated the pagination regression assertion to check the applied search contract. Updated the member report source assertion to follow the scoped Supabase client used by the exception-safe loader/export.
 - CI initially exposed two stale test assumptions and the applied-search mismatch. Follow-up correction is committed; latest source commit `1ee9b7257386c2edba784a4df3e14f6bc63ec37b` passed GitHub Actions run `43843577708`: **49 test files / 187 tests passed**, TypeScript type-check passed, Vite production build passed, and npm audit reported **0 vulnerabilities**.
 - No Production database, Auth, Storage, settings, member records, wallets, commissions, payments or payouts were changed. This CI result verifies repository tests/build only; it is not Production integration or launch certification.
+
+
+## Fixed Bid catalogue request lifecycle — 2026-11-16
+
+- Added a synchronous in-flight guard so rapid taps cannot start overlapping Fixed Bid catalogue page requests before React updates the disabled button state.
+- Added request identity and mounted-component guards so stale responses and responses after unmount do not update the UI.
+- Loading and pagination busy indicators are released in `finally`, including rejected requests; existing read-only catalogue behavior, page size, filters and server ordering are preserved.
+- Added regression assertions for overlap prevention, stale/unmounted response guards, and busy-state cleanup.
+- Source commits: `3c2e287b40a355c1d9827b71d3eff5d366c4fb3d`; test commit: `d9e2f390b0946d4718cf3463ab15e158f2890d9e`.
+- This is a source-level resilience change only. No RPC, schema, Production data/settings, wallet or financial behavior was changed. CI verification for this batch is pending.
