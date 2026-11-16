@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {readFileSync,readdirSync,statSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 const client=readFileSync(resolve(process.cwd(),'src/lib/supabase.ts'),'utf8');
@@ -23,7 +23,6 @@ describe('browser Supabase client security contract',()=>{
 });
 
  it('scans tracked browser and deployment configuration for private Supabase credentials',()=>{
-  const {readdirSync,statSync}=require('node:fs');
   const roots=['src','public','.github/workflows','supabase/functions'];
   const files:string[]=[];
   const walk=(path:string)=>{
