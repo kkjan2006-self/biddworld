@@ -3,6 +3,7 @@ import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 const review=readFileSync(resolve(process.cwd(),'supabase/migrations/20261115020000_admin_package_activation_review.sql'),'utf8');
 const guard=readFileSync(resolve(process.cwd(),'supabase/migrations/20261116080000_financial_activity_lockdown.sql'),'utf8');
+const admin=readFileSync(resolve(process.cwd(),'src/components/Admin.tsx'),'utf8');
 describe('Admin package approval financial interlock',()=>{
  it('keeps package review restricted to trusted Admin metadata',()=>{
   const start=review.indexOf('create or replace function public.admin_review_package_activation');
