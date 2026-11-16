@@ -494,3 +494,8 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added search, status and inclusive request-date filters to the withdrawal CSV export.
 - Filters are applied after the existing export helper retrieves every 100-row page from `admin_list_withdrawal_requests`; date range uses `requested_at`. Reversed ranges disable export.
 - Export remains read-only. No withdrawal approval, payout, wallet balance, financial setting, Supabase schema/RPC or Production data changed.
+
+
+## Pending activation regression test alignment (2026-11-16)
+
+- Updated the existing pending activation filter regression test to assert the current filtered-export label/count. This corrects a stale UI assertion after connecting the existing filters to CSV export.

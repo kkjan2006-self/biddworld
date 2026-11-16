@@ -14,6 +14,6 @@ describe('Admin pending package activation review filters',()=>{
  it('keeps financial approval locked while filters only change the displayed request list',()=>{
   expect(admin).toContain('disabled={FINANCIAL_APPROVAL_LOCKED||reviewingActivation!==\'\'}');
   expect(admin).toContain('Filters do not change payment status or approval controls.');
-  expect(admin).toContain('Export Activations CSV ({pendingActivations.length})');
+  expect(admin).toContain('Export Filtered Activations CSV ({filteredActivations.length})');
  });
 });
