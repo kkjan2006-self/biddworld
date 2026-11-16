@@ -965,3 +965,15 @@ Notifications now provide loaded-record title/message/category search and catego
 - This is a copy/safety improvement only; it does not change activation logic, settings, database state, wallets, or payments.
 - Latest code/test commits: `0cf3e68d7aa3d0265fae1d480b1a08c74f7811c3` and `5aa9178a44bd89c57c9fced334dd6a6460eab939`.
 - CI for both commits was still running at register preparation time; verify before claiming pass.
+
+
+## 2026-11-16 — Admin Duplicate ID / sponsor controls audit
+
+- Verified latest previous CI run `43860555307` passed.
+- Read-only Production inspection found the live `admin_create_duplicate_member_id(text)` signature still takes one argument, while Admin UI calls the two-argument `(p_main_member_code,p_under_member_code)` contract. Branch migration `20261115230000_duplicate_under_id_placement_attribution.sql` provides the newer placement-aware function but is not live in the audited Production catalogue.
+- Added a contract test to keep the Admin call, migration signature and placement fields aligned.
+- Live duplicate status RPC is Admin-only, row-locks the target, audits changes, and prevents reopening closed IDs; it does not validate placement-parent eligibility when activating an ID. Lifecycle rule review remains open.
+- Live sponsor cycle check prevents sequential cycles but has no graph-wide serialization lock around read/check/write; concurrent sponsor changes can potentially create a cycle. Requires a shared transaction advisory lock across every referral graph mutation and TEST concurrency coverage.
+- No broad Main ID status mutation control was identified in the reviewed Admin UI/RPC set; do not invent one before defining account, package, wallet and appeal consequences.
+- Full findings and rollout tests: `docs/ADMIN_DUPLICATE_ID_SPONSOR_CONTROLS_REVIEW_2026-11-16.md`.
+- No Production writes, feature toggles, member status changes or Duplicate IDs were performed.
