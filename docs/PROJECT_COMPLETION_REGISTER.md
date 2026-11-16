@@ -1083,3 +1083,16 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - A separate disposable TEST Supabase project is not currently evidenced as connected; end-to-end Auth and financial transaction testing remain NOT VERIFIED.
 - Next priority: finish exact auth route/role-guard and frontend-to-live-RPC contract mapping; then reconstruct all 17 unmatched historical Production migrations, compare live definitions and build a clean-room disposable TEST migration rehearsal. No Production changes without explicit authorization.
 - This checkpoint is evidence and repository hygiene only; it does not increase the implementation completion estimate or claim launch readiness.
+
+### CI confirmation and Supabase advisor snapshot — 2026-11-17
+- Checkpoint commit `a9637a62aca53d910c5291140abb5da60f417f8c` was verified as the live `completion-work` HEAD.
+- GitHub Actions run `43931163798` completed successfully on that exact commit: 61/61 Vitest files and 230/230 tests passed; TypeScript project check and Vite production build passed; npm audit reported 0 vulnerabilities.
+- New test `tests/lazy-workspace-loading.test.ts` protects all nine dynamic workspace imports and their accessible Suspense fallback. `.gitignore` now ignores `*.tsbuildinfo`; generated tracked `tsconfig.tsbuildinfo` was removed. These changes do not remove application functionality.
+- Fresh Supabase advisors (read-only) returned:
+  - Security: one RLS-enabled table without direct policies (`notification_templates`); one anonymous-callable SECURITY DEFINER function (`public.lookup_sponsor(text)`); 43 authenticated-callable SECURITY DEFINER function findings; and leaked-password protection disabled.
+  - Performance: one unindexed foreign key on `notification_templates.created_by`, plus 17 indexes currently reported unused.
+  - Health: no findings.
+- Treat the 43 authenticated SECURITY DEFINER findings as a review queue, not an instruction to revoke all execution: trusted Admin RPCs intentionally expose authenticated wrappers but must each enforce trusted `app_metadata.role` checks, fixed search_path, bounded inputs and appropriate data scope. The anonymous `lookup_sponsor(text)` finding is a genuine privacy hardening target; source migration `20261116160000_minimize_public_sponsor_lookup.sql` is not deployed to Production.
+- Do not automatically add the missing `notification_templates` policy: zero direct policies may be the intended deny-by-default posture because the Admin path is through guarded RPCs. Confirm expected access before changing.
+- Do not drop the 17 unused indexes based on a single snapshot; low traffic and short observation history can make useful indexes appear unused. Validate query plans and workload before any index change.
+- No Production settings, Auth configuration, schema, policies, grants, Storage, member data or financial records were changed. Leaked-password protection remains a dashboard configuration item that requires a separately approved Production settings change.
