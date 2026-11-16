@@ -919,3 +919,14 @@ Notifications now provide loaded-record title/message/category search and catego
 - Member dashboard and placement tree are rooted through the caller's own profile Main ID; data minimization review remains required.
 - Evidence: `docs/PRODUCTION_PRIVILEGED_RPC_MEMBER_DATA_REVIEW_2026-11-16.md`.
 - Read-only Production inspection only; no live state changed.
+
+
+## 2026-11-16 — Production RLS, grants, SECURITY DEFINER and scheduler review
+
+- Production catalogue review found 47 SECURITY DEFINER functions across public/private schemas; 43 callable by authenticated and one callable by anon (`lookup_sponsor(text)`). A full line-by-line review of all authenticated-callable functions remains required.
+- All 20 ordinary public tables inspected have RLS enabled. Authenticated direct table grants are SELECT-only; no direct authenticated write grants were found. Member data policies are owner-scoped; catalogue policies are status-scoped; audit logs are role-scoped.
+- No FORCE RLS is enabled. Privileged postgres-owned SECURITY DEFINER functions may bypass RLS, making their internal checks essential.
+- `auth.users` has one BiddWorld provisioning trigger invoking the private postgres-owned handler.
+- No pg_cron/pg_net/pgmq/pg_timetable extension or `cron.job` relation was found. No DB scheduler is evidenced for time-based auction/fixed-bid closing.
+- Evidence: `docs/PRODUCTION_RLS_GRANTS_SCHEDULER_REVIEW_2026-11-16.md`.
+- All checks were read-only; Production state unchanged.
