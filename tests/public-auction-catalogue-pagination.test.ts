@@ -19,4 +19,9 @@ describe('public auction catalogue pagination',()=>{
   expect(app).toContain("a.status==='live'");
   expect(app).toContain('auctionLoadingMore');
  });
+ it('shows an accessible retry action when the first auction page fails',()=>{
+  expect(app).toContain('role="alert">{auctionError}');
+  expect(app).toContain('>Retry</button>');
+  expect(app).toContain('setPage(1);setRefresh(v=>v+1)');
+ });
 });
