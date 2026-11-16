@@ -362,3 +362,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - The new migration `20261116110000_admin_duplicate_id_pagination.sql` remains source-only and is NOT applied to Production. Duplicate ID activation remains blocked by the financial approval interlock.
 - Production read-only Security Advisor snapshot (2026-11-16): 43 authenticated-callable SECURITY DEFINER routines (the individual routines must be reviewed for Admin/caller checks), one anon-callable `lookup_sponsor(text)` SECURITY DEFINER routine used by sponsor validation, and one RLS-enabled table without direct policies (`notification_templates`). Performance findings: one unindexed FK on `notification_templates.created_by` and 17 unused indexes (do not remove without workload review).
 - Production migration history remains at 30 applied migrations, latest `20261115163218_admin_audit_log_pagination`. No Production SQL, schema, data, settings, Storage or financial records were changed.
+
+
+## Product media upload lifecycle improvement — 2026-11-16
+
+- Admin product image uploads now use collision-resistant UUID object names and retain the path of the currently staged, not-yet-attached upload.
+- Replacing a staged image removes the previous temporary object; Admin can explicitly discard an unattached upload. Switching to an existing product or entering a manual image URL also detaches and attempts to remove the temporary object.
+- Successfully saving the product draft marks the staged object as attached, so it is not deleted. Existing product images and auction references are never automatically removed.
+- Storage removal failures are surfaced for manual Admin cleanup. This is source-only; no Storage objects, Production policies, schema or data were changed. Final tests remain deferred until implementation completion.
