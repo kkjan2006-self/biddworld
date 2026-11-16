@@ -423,3 +423,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Added static migration-contract coverage for the immutable-ledger trigger and its client-role EXECUTE revocation.
 - This is source/CI contract coverage only. It has not been exercised against PostgreSQL, and the migration remains unapplied in Production. Before rollout, validate compatibility with every legitimate ledger maintenance/reversal workflow in a disposable database.
 - No Production schema, settings, rows, grants or financial records were changed.
+
+
+## Repository credential-surface regression guard — 2026-11-16
+
+- Expanded browser-credential security tests to scan tracked browser source, public assets, GitHub workflow YAML and any Supabase Edge Function source for service-role/secret environment-variable assignments and Supabase secret-key tokens.
+- The current GitHub Pages deployment workflow injects only the Supabase publishable key, which is a browser-safe public credential; it does not inject a service-role key.
+- This is a source-text regression guard, not a Git-history scan, deployed-bundle inspection, GitHub Actions secret inventory, Edge Function secret inventory, or proof that external integrations never expose privileged credentials.
+- No credential values were retrieved or printed. No Production setting, schema, data or financial operation was changed.

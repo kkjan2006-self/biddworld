@@ -291,3 +291,11 @@ This grant review is not a complete certification of all service-role consumers,
 - This closes a source-level gap in the earlier INSERT-only financial approval guard. Static tests assert the trigger and private-function ACL.
 - This remains unexecuted SQL contract coverage. Validate all existing legitimate correction/reversal paths in a disposable PostgreSQL/Supabase environment before any owner-approved Production rollout.
 - Production remains untouched; no migration, data, setting, Storage object or financial record was changed.
+
+
+## Repository-wide browser/deployment credential guard — 2026-11-16
+
+- Added a Vitest regression check over `src/`, `public/`, `.github/workflows/`, and `supabase/functions/` (when present) for private Supabase service-role/secret environment-variable assignments and `sb_secret_...` tokens.
+- Read-only inspection of `.github/workflows/deploy-pages.yml` confirms the Pages build receives only the Supabase publishable key. This key is intended for browser use and must still be protected by RLS and RPC authorization.
+- Scope limitation: Git history, repository/organization Actions secret metadata, deployed bundle artifacts, and external Edge Function secrets are not covered by this test or inspection. No secret values were accessed.
+- No Production changes were made.

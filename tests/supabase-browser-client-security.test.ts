@@ -21,3 +21,26 @@ describe('browser Supabase client security contract',()=>{
   expect(client).toContain('createClient(projectUrl, publishableKey');
  });
 });
+
+ it('scans tracked browser and deployment configuration for private Supabase credentials',()=>{
+  const {readdirSync,statSync}=require('node:fs');
+  const roots=['src','public','.github/workflows','supabase/functions'];
+  const files:string[]=[];
+  const walk=(path:string)=>{
+   let entries:string[]=[];
+   try{entries=readdirSync(path);}catch{return;}
+   for(const entry of entries){
+    const full=resolve(path,entry);
+    let stat;
+    try{stat=statSync(full);}catch{continue;}
+    if(stat.isDirectory())walk(full);
+    else if(stat.isFile()&&/\\.(?:[cm]?[jt]sx?|ya?ml|html)$/i.test(entry))files.push(full);
+   }
+  };
+  roots.forEach(walk);
+  const forbidden=/(?:VITE_)?SUPABASE_(?:SERVICE_ROLE|SECRET)_KEY\\s*[:=]|sb_secret_[A-Za-z0-9_-]{8,}/i;
+  for(const path of files){
+   const content=readFileSync(path,'utf8');
+   expect(content, path).not.toMatch(forbidden);
+  }
+ });
