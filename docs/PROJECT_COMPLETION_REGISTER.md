@@ -325,3 +325,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - CI: 21/21 Vitest files passed; TypeScript build and Vite production bundle passed; npm audit reported 0 vulnerabilities.
 - Member Referrals now supports full-downline server-side search, level filtering and 50-row paginated Load More using new authenticated RPC migration `20261116100000_member_genealogy_pagination.sql`.
 - The SQL migration is source-only and NOT applied to Production. No Production data, schema, settings or financial records changed.
+
+
+## Member package activation safety lock — 2026-11-16
+
+- Removed the member-facing UTR/payment-reference form and activation RPC call from the package catalogue.
+- Package catalogue entries, if present, are informational only; displayed wallet benefits are explicitly marked as proposed and not issued.
+- Free member registration remains available. Paid activation requests remain locked until explicit owner financial/legal approval and independent verification of the database interlock.
+- Added regression tests for the fail-closed UI, absence of payment submission controls/RPC calls and clear informational labels.
+- This UI guard does not replace the database trigger/RPC interlock. The financial-approval and lockdown migrations remain source-only and Production migration reconciliation is still required.

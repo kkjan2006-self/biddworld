@@ -167,3 +167,10 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Member Referrals now uses authenticated server-side search and level filtering with bounded 50-row pages and Load More. SQL migration remains unapplied in Production.
 - Latest read-only Production check: 30 migrations, 21/21 public tables RLS enabled, 43 authenticated-callable SECURITY DEFINER warnings plus one anon-callable signup lookup, leaked-password protection disabled, one unindexed FK and 17 unused indexes. Full security review and live migration reconciliation remain blockers.
 - No Production data/schema/settings/migrations or financial records changed.
+
+
+## Member package activation safety lock — 2026-11-16
+
+- Member package page no longer accepts payment references or calls `submit_package_activation`. Package rows are informational only and any Bid Wallet amount is labeled as proposed/not issued.
+- Free registration remains available. Paid activation remains disabled until owner financial/legal approval and independent database verification.
+- Regression coverage added for the UI fail-closed state. This is a client-side guard only; Production backend safeguards remain unverified because migrations have not been applied.
