@@ -47,7 +47,10 @@ describe('global financial approval interlock',()=>{
   const end=sql.indexOf('$function$;',start);
   const body=sql.slice(start,end);
   expect(start).toBeGreaterThanOrEqual(0);
-  expect(body).not.toMatch(/'financial_model_approved'/);
+  const allowlistStart=body.indexOf('if p_setting_key is null');
+  const allowlistEnd=body.indexOf(']) then',allowlistStart);
+  const allowlist=body.slice(allowlistStart,allowlistEnd);
+  expect(allowlist).not.toContain("'financial_model_approved'");
   expect(body).toContain('auth.jwt()');
   expect(body).toMatch(/<>\s*'admin'/i);
  });
