@@ -186,3 +186,11 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 
 - Corrected a false-negative static test assertion; first CI run failed only this assertion (22/23 files, 91/92 tests passed), and TypeScript/build steps were skipped as a result.
 - Admin UI now displays the missing-RPC error instead of silently showing an empty Duplicate ID list. The migration remains source-only.
+
+
+## Admin Duplicate ID pagination — verified 2026-11-16
+
+- Source commit `9e42ee4af7b3b49958f18e55a7505c218ad3feb0` passed CI run `43785364112`: 23/23 test files, 92/92 tests, TypeScript build, Vite production build; npm audit 0 vulnerabilities.
+- New duplicate directory RPC migration remains unapplied. The Admin UI will surface an explicit RPC load error until source migrations are reconciled and deployed to the intended database.
+- Production Security Advisor still reports 43 authenticated-callable SECURITY DEFINER functions, one anon-callable sponsor lookup, one RLS-enabled table without direct policies, one unindexed FK and 17 unused indexes. These require function-by-function review; do not blanket-revoke or drop indexes.
+- Major blockers remain: Production/source migration and RPC drift, duplicate-ID enablement and placement policy validation, commission engine and owner-approved financial rules, auction/Fixed Bid winner rules and settlement, withdrawal payout integration, live RLS/Storage/integration/browser E2E tests, and final deployment readiness.

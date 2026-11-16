@@ -351,3 +351,14 @@ Work through the incomplete items in dependency order: member/public experience 
 - Corrected the assertion to match the exact trusted Admin claim and made the UI surface a clear directory-load error when the source-only RPC has not been installed.
 - Corrected an obsolete Admin member-directory note that still described the former 500-row limitation.
 - Re-run CI is required before treating this batch as verified.
+
+
+## Admin Duplicate ID pagination — verified 2026-11-16
+
+- Final source commit `9e42ee4af7b3b49958f18e55a7505c218ad3feb0` passed GitHub Actions run `43785364112`.
+- CI: 23/23 Vitest files and 92/92 tests passed; TypeScript project build and Vite production bundle passed; dependency audit reported 0 vulnerabilities.
+- Admin Duplicate ID directory now has Admin-checked server-side search across Duplicate ID, Main ID, Under ID, names, phone and status, with bounded 50-row pages, total count and Load More.
+- First CI run `43785205823` failed one test assertion because the test regex did not match the valid SQL claim expression; corrected in the follow-up commit. The SQL authorization condition itself was present in both versions.
+- The new migration `20261116110000_admin_duplicate_id_pagination.sql` remains source-only and is NOT applied to Production. Duplicate ID activation remains blocked by the financial approval interlock.
+- Production read-only Security Advisor snapshot (2026-11-16): 43 authenticated-callable SECURITY DEFINER routines (the individual routines must be reviewed for Admin/caller checks), one anon-callable `lookup_sponsor(text)` SECURITY DEFINER routine used by sponsor validation, and one RLS-enabled table without direct policies (`notification_templates`). Performance findings: one unindexed FK on `notification_templates.created_by` and 17 unused indexes (do not remove without workload review).
+- Production migration history remains at 30 applied migrations, latest `20261115163218_admin_audit_log_pagination`. No Production SQL, schema, data, settings, Storage or financial records were changed.
