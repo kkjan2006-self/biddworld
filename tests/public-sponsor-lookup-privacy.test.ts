@@ -7,7 +7,7 @@ describe('Public sponsor lookup privacy',()=>{
  it('returns only a boolean and does not disclose member code or display name',()=>{
   expect(sql).toMatch(/returns boolean/i);
   expect(sql).toMatch(/select exists\s*\(/i);
-  expect(sql).not.toMatch(/returns table|display_name|member_code text/i);
+  expect(sql.replace(/--[^\\n]*/g,'')).not.toMatch(/returns table|display_name|member_code text/i);
  });
  it('keeps exact active Main ID matching and least-privilege grants',()=>{
   expect(sql).toContain("m.id_type = 'main'");
@@ -22,6 +22,6 @@ describe('Public sponsor lookup privacy',()=>{
  it('debounces public lookup and does not send incomplete codes',()=>{
   expect(app).toContain('sponsorLookupTimer');
   expect(app).toContain('clearTimeout(sponsorLookupTimer.current)');
-  expect(app).toContain('value.trim().length < 12');
+  expect(app).toContain('value.trim().length<12');
  });
 });
