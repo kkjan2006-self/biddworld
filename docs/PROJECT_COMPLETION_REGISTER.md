@@ -895,3 +895,15 @@ Notifications now provide loaded-record title/message/category search and catego
 - New evidence report: `docs/PRODUCTION_FINANCIAL_RPC_REVIEW_2026-11-16.md`.
 - CI regression test briefly failed because the new assertions did not load `Admin.tsx`; fixed in commit `f2bce4c5b9e8608a91a3d13d8064d1aa86bc3dbe`. CI run `43854387609` passed on that commit.
 - No Production migration, setting, member, wallet, payment or financial data was changed.
+
+
+## 2026-11-16 — Auction bidding and referral RPC review
+
+- Rechecked latest CI: run `43854574837` passed on commit `ddfeb5052ea5bfc1851217fbf3d2319d3d687ca8`.
+- Read-only Production review of `private.place_bid`: active Main ID ownership, auction row lock/time checks, Bid Wallet-first then Income Wallet deduction, balance checks, ledger debits and auction update occur in one transaction.
+- Critical retry issue: `place_bid` generates a new random idempotency key internally on every call; a client retry after timeout can create and charge a second bid. Stable client request idempotency is required before enabling bidding.
+- Package activation submission has unique case-insensitive payment-reference indexes and unique member activation numbering. Submission is pending-only; Admin approval remains financially unsafe without the trusted owner-approval database guard.
+- Referral plan draft/list functions and a unique commission row key exist; no commission calculation-and-credit RPC was found in the inspected function catalogue. Full private routine/grant/background-job audit remains outstanding.
+- Live feature triggers gate bid, package activation, referral commission and wallet transaction inserts/updates. Do not enable financial features based on those gates alone.
+- Evidence report: `docs/PRODUCTION_BIDDING_REFERRAL_RPC_REVIEW_2026-11-16.md`.
+- All inspection was read-only; no Production state was changed.
