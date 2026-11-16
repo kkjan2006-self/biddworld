@@ -291,3 +291,10 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Filters run after the exporter retrieves every 100-row page from the existing secured Admin RPC, so they apply to the complete fetched dataset rather than only the first on-screen page.
 - Winning-payment date range uses `created_at`; delivery date range uses `updated_at` with `shipped_at` fallback. Export filenames and controls identify filtered complete exports.
 - No payment, delivery, wallet, auction, Fixed Bid, Supabase schema/RPC or Production data was changed. This is reporting only.
+
+
+## Admin Package Activation report filters (2026-11-16)
+
+- Connected the existing pending-activation search and inclusive submitted-date filters to the CSV export; added a matching/total count and disabled export for reversed date ranges.
+- The existing `admin_list_pending_activations()` RPC returns the complete pending-review queue (no page limit in its migration). The report is explicitly scoped to pending requests and is not represented as an approved/rejected historical activation archive.
+- No approval/rejection action, wallet credit, payment, Supabase schema/RPC or Production data changed.
