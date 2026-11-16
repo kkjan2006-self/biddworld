@@ -5,7 +5,6 @@
 -- Fail closed on rollout even if an earlier feature-settings migration seeded
 -- permissive defaults. This migration never enables a financial feature.
 insert into public.app_settings(setting_key,setting_value,updated_at) values
- ('financial_model_approved','false'::jsonb,now()),
  ('package_activations_enabled','false'::jsonb,now()),
  ('bid_wallet_enabled','false'::jsonb,now()),
  ('income_wallet_enabled','false'::jsonb,now()),

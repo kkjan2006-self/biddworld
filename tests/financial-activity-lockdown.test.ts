@@ -70,6 +70,7 @@ describe('global financial approval interlock',()=>{
 
  
  it('forces every financial feature switch to false on rollout, overriding permissive legacy defaults',()=>{
+  expect(sql).not.toMatch(/\('financial_model_approved','false'::jsonb,now\(\)\)\s*on conflict/i);
   for(const key of ['package_activations_enabled','bid_wallet_enabled','income_wallet_enabled','referral_commissions_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled']){
    expect(sql).toContain("('"+key+"','false'::jsonb,now())");
   }
