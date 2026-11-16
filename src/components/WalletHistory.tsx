@@ -38,14 +38,16 @@ export default function WalletHistory(){
   if(page===0){setRows([]);setLoading(true);}else setLoadingMore(true);setError('');
   async function load(){
    if(!supabase||!userId){if(active)setLoading(false);return;}
-   const {data:profile,error:pError}=await supabase.from('profiles').select('main_member_id').eq('id',userId).maybeSingle();
-   if(!active)return;
-   if(pError||!profile?.main_member_id){setError('Sign in with an account linked to a Main ID to view transactions.');setLoading(false);return;}
-   const {data,error:qError}=await supabase.from('wallet_transactions').select('id,transaction_type,direction,amount,balance_after,description,created_at,wallet_account:wallet_accounts(wallet_type,currency)').eq('member_id',profile.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(page*100,page*100+99);
-   if(!active)return;
-   if(qError)setError('Transaction history is unavailable for this account.');
-   else {const batch=(data??[]) as Tx[];setRows(current=>page===0?batch:[...current,...batch]);setHasMore(batch.length===100);}
-   setLoading(false);setLoadingMore(false);
+   try{
+    const {data:profile,error:pError}=await supabase.from('profiles').select('main_member_id').eq('id',userId).maybeSingle();
+    if(!active)return;
+    if(pError||!profile?.main_member_id)throw new Error('Sign in with an account linked to a Main ID to view transactions.');
+    const {data,error:qError}=await supabase.from('wallet_transactions').select('id,transaction_type,direction,amount,balance_after,description,created_at,wallet_account:wallet_accounts(wallet_type,currency)').eq('member_id',profile.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(page*100,page*100+99);
+    if(!active)return;
+    if(qError)throw qError;
+    const batch=(data??[]) as Tx[];setRows(current=>page===0?batch:[...current,...batch]);setHasMore(batch.length===100);
+   }catch(e){if(active)setError(e instanceof Error?e.message:'Transaction history could not be loaded. Please retry.');}
+   finally{if(active){setLoading(false);setLoadingMore(false);}}
   }
   void load();return()=>{active=false;};
  },[userId,refresh,page]);

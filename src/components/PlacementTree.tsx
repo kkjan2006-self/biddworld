@@ -14,11 +14,14 @@ export default function PlacementTree(){
   let active=true;
   async function load(){
    setLoading(true);setError('');
-   if(!supabase){setError('Database connection is unavailable.');setLoading(false);return;}
-   const {data,error}=await supabase.rpc('get_my_placement_tree');
-   if(!active)return;
-   if(error)setError(error.message);else setData(data as PlacementResult);
-   setLoading(false);
+   try{
+    if(!supabase)throw new Error('Database connection is unavailable. Configure the intended Preview or Test environment.');
+    const {data,error:loadError}=await supabase.rpc('get_my_placement_tree');
+    if(!active)return;
+    if(loadError)throw loadError;
+    setData(data as PlacementResult);
+   }catch(e){if(active)setError(e instanceof Error?e.message:'Placement tree could not be loaded. Please retry.');}
+   finally{if(active)setLoading(false);}
   }
   void load();
   return()=>{active=false};

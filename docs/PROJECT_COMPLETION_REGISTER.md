@@ -710,3 +710,10 @@ Notifications now provide loaded-record title/message/category search and catego
 
 - Notification inbox load, pagination, Admin send, individual read and mark-all-read now handle rejected requests with actionable errors and guaranteed busy-state cleanup.
 - Existing RLS and database operations are unchanged. No Production database changes or financial actions were performed. Tests remain deferred.
+
+
+## Wallet history and placement tree resilience — 2026-11-16
+
+- Wallet transaction history handles rejected profile/ledger requests and always clears initial/pagination loading indicators; stale requests remain cancellation-safe.
+- Placement tree loading now reports actionable errors and always clears its loading state, including when the RPC rejects.
+- Read-only behavior and existing database permissions are unchanged. No Production data/schema/settings or financial actions were changed. Tests remain deferred.
