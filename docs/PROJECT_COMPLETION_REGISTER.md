@@ -443,3 +443,11 @@ Work through the incomplete items in dependency order: member/public experience 
 
 - Connected the Reports screen to the existing complete paginated wallet-ledger export action rather than maintaining a duplicate implementation. This avoids duplicate code and keeps one source of truth for its loading/error state and CSV generation.
 - No new database calls or financial behavior were introduced; export remains read-only.
+
+
+## Admin wallet ledger search and date filters (2026-11-16)
+
+- Added client-side search over the currently loaded Admin wallet ledger (Main ID, wallet, transaction type/direction, reference and description) and inclusive UTC From/To date filters.
+- Added a clear-filters action, matching-row count, and reversed-range warning. The UI explicitly states filters cover loaded rows only.
+- The complete CSV export continues fetching all secured RPC pages independently of these screen filters, so the filters cannot silently narrow the archival export.
+- Added source-contract regression tests. No wallet records, balances, RPCs, schema or Production settings changed.
