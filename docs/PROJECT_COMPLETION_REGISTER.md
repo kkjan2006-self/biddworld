@@ -1015,3 +1015,39 @@ Notifications now provide loaded-record title/message/category search and catego
 - Repository has no `supabase/config.toml`; no TEST project endpoint/config is established in the branch.
 - Found legacy baseline schema in `0001_biddworld.sql`, later migrations use a newer schema shape, `0002_place_bid_rpc.sql` is an older bid implementation, and `001_initial_schema.sql` is empty. The full chain must be replayed from a clean TEST database before rollout.
 - Added `docs/SUPABASE_MIGRATION_CHAIN_READINESS_REVIEW_2026-11-16.md` with clean-room validation plan. No TEST or Production database writes were performed.
+
+## Live recovery and authentication audit checkpoint — 2026-11-16 18:58 IST
+
+### Repository and CI
+- Live `completion-work` HEAD re-confirmed as `daec136252d5b9db5f35de2e963b4c684a98bd1f`; the previously supplied checkpoint is still current.
+- GitHub Actions run `43874908720` completed successfully: 60/60 Vitest files, 228/228 tests, TypeScript project build and Vite production bundle passed; npm audit reported 0 vulnerabilities.
+- The build emitted a >500 kB main-chunk advisory and Node 20 action deprecation warnings. These are cleanup items, not failed tests.
+- GitHub commit status also contains four failed Vercel deployment contexts with the explicit reason `Deployment rate limited — retry in 24 hours`. This is separate from the successful GitHub Actions CI; no deployment or paid upgrade was attempted.
+- The register is stored at `docs/PROJECT_COMPLETION_REGISTER.md` (not repository root).
+
+### Fresh read-only Production verification
+- Connected project metadata confirms `BiddWorld-Production`, ref `hbqatszyzqobgtauyuzy`, region `ap-south-1`, PostgreSQL `17.11.0.019`, status `ACTIVE_HEALTHY`.
+- Fresh migration ledger query returned 30 rows, latest `20261115163218_admin_audit_log_pagination`. The branch migrations dated 2026-11-16 remain unrecorded in the Production ledger.
+- Fresh catalogue query: 21/21 ordinary public tables have RLS enabled; this is not a full policy/function security certification. Production Storage buckets: 0.
+- Fresh feature setting snapshot: registration and sponsor referrals true; package activations, Bid Wallet and Income Wallet true; bidding, Fixed Bid, duplicate IDs, referral commissions, withdrawals and winning payments false. No `financial_model_approved` setting row exists.
+- Fresh `auth.users` trigger definition still creates both `profiles.status` and Main `member_ids.status` as `active`. This conflicts with the intended inactive-until-admin-verified lifecycle.
+- Fresh Production routine signatures still include `place_bid(uuid)` and `admin_create_duplicate_member_id(text)`; branch source expects the newer idempotent bid key and placement-aware duplicate-ID signature. Production package approval routine remains `admin_review_package_activation(uuid,boolean)`.
+- No Production SQL write, migration, setting update, signup, test member, wallet or financial operation was executed.
+
+### Authentication and member activation — source audit
+- Existing UI source implements email/password signup and login, email confirmation handling, resend confirmation, password reset, PASSWORD_RECOVERY handling, password update, session restoration via `onAuthStateChange` plus `getUser()`, and sign-out.
+- Signup collects name, phone and optional sponsor metadata. UI copy says accounts remain inactive until Admin verification.
+- Existing tests cover inactive profile/Main-ID migration contracts, signup UI contract and dashboard dual-status warning. Latest CI passed these static/source tests.
+- Source migration `20261116150000_enforce_inactive_signup_until_verified.sql` creates new profiles and Main IDs inactive while retaining registration/sponsor feature-switch validation. It is not applied to Production.
+- Source migration `20261116200000_lock_package_activation_submission.sql` adds database-side checks for both `package_activations_enabled` and `financial_model_approved` before a pending activation request is created. It is not applied to Production.
+- Account UI displays a dual-status inactive warning; this is not an authorization boundary. Financial safety must be enforced by the live database RPCs/triggers.
+- Supabase Auth email-confirmation configuration, redirect allow-list, password policy and provider delivery settings were not exposed by the read-only project metadata/catalogue queries; do not infer their live values.
+
+### Critical rollout blockers and next work
+1. Do not approve package activations or enable financial actions: Production currently has package activation and wallet switches ON but no owner financial approval row or live approval interlock. This is an immediate operational risk; do not use the Production package-review action.
+2. Do not apply the inactive-signup or package-lock migrations until the complete historical migration/object reconciliation and disposable TEST rehearsal are complete. Do not bulk-change existing member statuses.
+3. A disposable Supabase TEST project is not currently evidenced as connected. Therefore signup/login/email confirmation/password reset/session E2E must remain NOT VERIFIED; do not test with real Production accounts.
+4. Next source audit: inspect the complete signup/confirmation/recovery/session route behavior and member/admin role guards, map each auth RPC to the current Production signature and grants, then design tests for a disposable TEST project.
+5. Complete the Production routine/grant/policy/trigger/Storage reconciliation before preparing a forward-only rollout plan. No Production changes without explicit owner approval.
+
+This checkpoint updates evidence only. It does not increase the implementation completion percentage or certify authentication, integration, Production safety or launch readiness.
