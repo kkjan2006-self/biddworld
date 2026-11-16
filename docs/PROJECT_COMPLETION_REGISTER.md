@@ -977,3 +977,13 @@ Notifications now provide loaded-record title/message/category search and catego
 - No broad Main ID status mutation control was identified in the reviewed Admin UI/RPC set; do not invent one before defining account, package, wallet and appeal consequences.
 - Full findings and rollout tests: `docs/ADMIN_DUPLICATE_ID_SPONSOR_CONTROLS_REVIEW_2026-11-16.md`.
 - No Production writes, feature toggles, member status changes or Duplicate IDs were performed.
+
+
+## 2026-11-16 — Registration / Main ID activation lifecycle audit
+
+- Confirmed the registration modal offers free registration, treats Sponsor Referral ID as optional, and states that the account remains INACTIVE until Admin verification.
+- Read-only Production inspection confirms `registration_enabled=true`, `sponsor_referrals_enabled=true`, `duplicate_ids_enabled=false`; the default sponsor points to an active Main ID.
+- Critical deployment mismatch remains: live `private.handle_new_auth_user()` still creates new profiles and Main IDs with `active` status. Branch migration `20261116150000_enforce_inactive_signup_until_verified.sql` changes new records to `inactive` and preserves registration/sponsor feature-switch enforcement, but is not deployed to Production.
+- Production package activation and Bid Wallet switches were still `true` in the read-only snapshot despite the source/UI financial lock. This reinforces that source UI guards do not replace live database interlocks.
+- Added `tests/registration-inactive-ui-contract.test.ts` and `docs/REGISTRATION_ACTIVATION_LIFECYCLE_REVIEW_2026-11-16.md`.
+- No Production writes, registrations, status changes, financial transactions, settings changes or migrations were performed.
