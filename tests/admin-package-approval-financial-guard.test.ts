@@ -11,7 +11,7 @@ describe('Admin package approval financial interlock',()=>{
   expect(start).toBeGreaterThanOrEqual(0);
   expect(body).toContain('auth.uid()');
   expect(body).toContain("auth.jwt()->'app_metadata'->>'role'");
-  expect(body).toMatch(/<>\\s*'admin'/i);
+  expect(body).toMatch(/<>\s*'admin'/i);
  });
  it('database triggers block the review RPC wallet credit and activation writes without approval',()=>{
   expect(guard).toContain("where setting_key='financial_model_approved'");
@@ -25,6 +25,6 @@ describe('Admin package approval financial interlock',()=>{
   expect(guard).toContain("p_setting_key<>all(array[");
   expect(guard).toContain("if p_enabled and p_setting_key=any(v_financial_keys)");
   expect(guard).toContain('Financial feature % is locked until the owner approves');
-  expect(guard).not.toMatch(/setting_key\\s*=\\s*'financial_model_approved'.*p_enabled/is);
+  expect(guard).not.toMatch(/setting_key\s*=\s*'financial_model_approved'.*p_enabled/is);
  });
 });

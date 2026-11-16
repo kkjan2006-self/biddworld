@@ -589,3 +589,9 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - The prior concern is therefore a **Production migration-drift / rollout-order issue**, not a missing source implementation. Production currently has not applied the 20261115/16 source migrations and its live RPC still requires an active Main ID.
 - Added a regression test asserting inactive Main IDs can submit pending package requests without wallet credit, and that the branch migration retains the pending-only lifecycle.
 - Before deployment, reconcile and test the entire ordered migration chain together; do not apply the signup trigger migration in isolation. No Production changes made.
+
+
+## Batch 20 CI correction (2026-11-16)
+
+- Workflow `43792820737` executed 154 tests: 153 passed and one new assertion failed because its regular expression accidentally matched a literal backslash instead of optional whitespace. The application and SQL guard assertions passed; npm audit reported zero vulnerabilities.
+- Corrected the test expression to a whitespace-tolerant regex. No production code or database change was needed for this test-only correction. Re-run CI to confirm.
