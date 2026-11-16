@@ -262,3 +262,16 @@ This is a targeted review of `app_settings` and the matching setting-writing fun
 - CI: 44 test files and 163 tests passed; type-check/build succeeded.
 - The regression assertion is scoped to the Admin feature-key allowlist. The guard must read `financial_model_approved`; the ordinary Admin feature RPC must not accept it as a caller-supplied setting key.
 - This is source-level verification. Production remains on the old RPC and has not received the financial lock migrations.
+
+
+## Wallet write-path and table-grant verification — 2026-11-16
+
+A read-only Production query checked grants on `wallet_accounts`, `wallet_transactions`, `package_activations`, `withdrawal_requests`, `referral_commissions`, `bids`, `fixed_bids`, and `winning_item_payments`:
+
+- `authenticated` has SELECT only on these eight tables; no direct INSERT/UPDATE/DELETE privileges were observed.
+- `anon` has no table grants on these tables.
+- `service_role` has broad table privileges, as expected for a trusted backend role; its use must remain server-side and secrets must never enter the browser.
+- Production `private.place_bid` updates wallet balances and then inserts wallet ledger entries and a bid within the same PostgreSQL function transaction. Production `admin_review_package_activation` similarly updates the Bid Wallet and inserts the package-credit ledger entry before changing activation state. The source-only BEFORE INSERT ledger trigger raises an exception while approval is false; PostgreSQL transaction semantics should roll back earlier balance updates from that same RPC call. This rollback behavior still requires an executable integration test in a disposable non-Production Supabase project before rollout.
+- The current Production functions remain unguarded by the new source triggers. Do not approve package activations, enable bidding, process wallet credits, commissions, withdrawals, or winner settlements in Production until the migration is reconciled and deployed under explicit approval.
+
+This grant review is not a complete certification of all service-role consumers, all RLS policies, or all privileged functions. It is a targeted write-surface check.

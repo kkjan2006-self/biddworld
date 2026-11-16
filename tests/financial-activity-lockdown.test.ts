@@ -54,3 +54,9 @@ describe('global financial approval interlock',()=>{
   expect(body).toContain('auth.jwt()');
   expect(body).toMatch(/<>\s*'admin'/i);
  });
+
+ it('guards the ledger write used by balance-changing RPCs and relies on PostgreSQL statement rollback',()=>{
+  expect(sql).toContain('before insert on public.wallet_transactions');
+  expect(sql).toContain("tg_table_name='wallet_transactions' and tg_op='INSERT'");
+  expect(sql).toContain('raise exception');
+ });
