@@ -5,6 +5,7 @@ const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 const notifications=read('src/components/Notifications.tsx');
 const support=read('src/components/Support.tsx');
 const referrals=read('src/components/Referrals.tsx');
+const placement=read('src/components/PlacementTree.tsx');
 describe('member workspace async request lifecycle',()=>{
  it('invalidates stale and unmounted notification requests and serializes pagination',()=>{
   expect(notifications).toContain('const requestSeq=useRef(0),loadMoreBusy=useRef(false)');
