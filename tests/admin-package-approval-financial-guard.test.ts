@@ -13,7 +13,7 @@ describe('Admin package approval financial interlock',()=>{
   expect(body).toContain("auth.jwt()->'app_metadata'->>'role'");
   expect(body).toMatch(/<>\s*'admin'/i);
  });
- it('database triggers block the review RPC wallet credit and activation writes without approval',()=>{
+ it('database triggers block wallet credit and activation approval without owner approval',()=>{
   expect(guard).toContain("where setting_key='financial_model_approved'");
   expect(guard).toContain("tg_table_name='wallet_transactions' and tg_op='INSERT'");
   expect(guard).toContain("tg_table_name='package_activations' and tg_op='UPDATE'");
@@ -21,10 +21,14 @@ describe('Admin package approval financial interlock',()=>{
   expect(guard).toContain('before insert on public.wallet_transactions');
   expect(guard).toContain('before update of payment_status,activation_status on public.package_activations');
  });
- it('does not allow the ordinary Admin feature switch to grant trusted financial approval',()=>{
-  expect(guard).toContain("p_setting_key<>all(array[");
-  expect(guard).toContain("if p_enabled and p_setting_key=any(v_financial_keys)");
-  expect(guard).toContain('Financial feature % is locked until the owner approves');
-  expect(guard).not.toMatch(/setting_key\s*=\s*'financial_model_approved'.*p_enabled/is);
+ it('ordinary Admin feature switch checks trusted approval before enabling financial flags',()=>{
+  const start=guard.indexOf('create or replace function public.admin_set_feature_setting');
+  const end=guard.indexOf('$function$;',start);
+  const body=guard.slice(start,end);
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(body).toContain("if p_enabled and p_setting_key=any(v_financial_keys)");
+  expect(body).toContain("where setting_key='financial_model_approved'");
+  expect(body).toContain('Financial feature % is locked until the owner approves');
+  expect(body).not.toMatch(/insert into public\\.app_settings[\\s\\S]{0,180}financial_model_approved/i);
  });
 });

@@ -389,3 +389,6 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 ## Immediate Production launch blocker — Admin package approval (2026-11-16)
 
 Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the Bid Wallet and activate a package when an Admin approves a pending request. It checks trusted Admin role but does not itself check the owner financial-approval setting. The database-level interlock migrations `20261116000000_financial_approval_guard.sql` and `20261116080000_financial_activity_lockdown.sql` are not applied in Production. Do not use package approval or enable paid activation. Reconcile and test the complete forward-only migration chain in non-production, then obtain explicit owner approval before Production rollout. The Admin UI lock alone is not an adequate security boundary.
+
+
+- [ ] Apply and validate source-only `20261116170000_minimize_member_withdrawal_payout_data.sql` only after non-production migration testing; it reduces member withdrawal history to payout method only while Admin review retains payout details.

@@ -215,3 +215,11 @@ Compared the source-only `20261116140000_require_active_main_id_for_withdrawals.
 - **Critical financial finding:** Production `admin_review_package_activation(uuid,boolean)` is executable by authenticated callers but internally requires trusted Admin metadata. On approval it credits Bid Wallet and marks the activation approved/active. The live definition has no explicit `financial_model_approved` check. Production has no approval-guard triggers from branch migrations `20261116000000` / `20261116080000`; therefore the Admin UI lock is not sufficient protection against a privileged Admin approval. Keep this RPC unused and package approvals disabled until the database interlock migration chain is reconciled, tested in non-production and explicitly owner-approved.
 - The source branch's `20261116080000_financial_activity_lockdown.sql` adds database triggers for wallet ledger inserts and activation approval updates, and prevents ordinary Admin feature switches from enabling protected financial features without trusted approval. Added a regression test asserting the Admin approval RPC is Admin-gated and the DB-level triggers cover both write paths. This is source-only and **not active in Production**.
 - No Production data, settings, RPCs, policies, grants, or migrations were changed.
+
+
+## Member withdrawal payout-data minimization — 2026-11-16
+
+- The member dashboard's withdrawal history displays only the payout method label, but Production `member_list_my_withdrawals()` currently returns the full `payout_details` JSON, including stored UPI/bank identifiers that the member history UI does not need.
+- Added source-only migration `20261116170000_minimize_member_withdrawal_payout_data.sql` to preserve the RPC's existing result shape while returning only `{method: ...}` in `payout_details`. This avoids a frontend contract change and reduces unnecessary exposure in the member session.
+- Admin withdrawal listing still retains payout details for the authorized Admin review workflow; its Admin role gate and pagination were separately inspected.
+- Added regression tests for the SQL projection and member UI usage. Migration is not applied to Production; reconcile it with the full migration chain and test on a non-production database first.
