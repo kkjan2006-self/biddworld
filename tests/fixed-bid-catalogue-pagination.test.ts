@@ -24,3 +24,19 @@ describe('Fixed Bid catalogue filtering',()=>{
   expect(source).toContain('No loaded campaigns match these filters.');
  });
 });
+
+describe('Fixed Bid catalogue request lifecycle',()=>{
+ it('prevents overlapping page requests and ignores stale or unmounted responses',()=>{
+  expect(source).toContain("import {useEffect,useRef,useState} from 'react'");
+  expect(source).toContain('const mounted=useRef(true),requestId=useRef(0),requestInFlight=useRef(false)');
+  expect(source).toContain('if(requestInFlight.current)return');
+  expect(source).toContain('if(!mounted.current||request!==requestId.current)return');
+  expect(source).toContain('if(mounted.current&&request===requestId.current)setError');
+  expect(source).toContain('requestId.current+=1');
+ });
+ it('releases request locks and loading indicators after completion',()=>{
+  expect(source).toContain('requestInFlight.current=false');
+  expect(source).toContain('setLoading(false);setLoadingMore(false)');
+  expect(source).toContain('return()=>{mounted.current=false;requestId.current+=1}');
+ });
+});
