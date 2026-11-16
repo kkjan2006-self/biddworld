@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Gift, RefreshCw, ShieldCheck } from 'lucide-react';
 import { configured, supabase } from '../lib/supabase';
 import { money } from '../lib/format';
@@ -20,13 +20,19 @@ export default function Packages() {
   const [items, setItems] = useState<PackageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const mountedRef = useRef(false);
+  const requestIdRef = useRef(0);
 
   async function load() {
+    const requestId = ++requestIdRef.current;
+    const isCurrent = () => mountedRef.current && requestIdRef.current === requestId;
     setLoading(true);
     setError('');
     if (!supabase) {
-      setItems([]);
-      setLoading(false);
+      if (isCurrent()) {
+        setItems([]);
+        setLoading(false);
+      }
       return;
     }
     try {
@@ -35,17 +41,28 @@ export default function Packages() {
         .select('id,name,description,price,currency,bid_wallet_credit')
         .eq('is_active', true)
         .order('price', { ascending: true });
-      if (queryError) setError('Packages could not be loaded. Please try again later.');
-      else setItems((data ?? []) as PackageItem[]);
+      if (!isCurrent()) return;
+      if (queryError) {
+        setItems([]);
+        setError('Packages could not be loaded. Please try again later.');
+      } else setItems((data ?? []) as PackageItem[]);
     } catch {
+      if (!isCurrent()) return;
       setItems([]);
       setError('A network error prevented packages from loading. Please retry.');
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
   }
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    mountedRef.current = true;
+    void load();
+    return () => {
+      mountedRef.current = false;
+      requestIdRef.current += 1;
+    };
+  }, []);
 
   return <section className="packageWorkspace">
     <div className="packageIntro"><span className="workspaceIcon"><Gift /></span>
