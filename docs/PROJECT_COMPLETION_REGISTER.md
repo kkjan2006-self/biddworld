@@ -907,3 +907,15 @@ Notifications now provide loaded-record title/message/category search and catego
 - Live feature triggers gate bid, package activation, referral commission and wallet transaction inserts/updates. Do not enable financial features based on those gates alone.
 - Evidence report: `docs/PRODUCTION_BIDDING_REFERRAL_RPC_REVIEW_2026-11-16.md`.
 - All inspection was read-only; no Production state was changed.
+
+
+## 2026-11-16 — Privileged RPC and member-data review
+
+- CI run `43854827419` passed on commit `e6c33bd9d11974d97d4b8d977b321ee1f0faf5a1`.
+- Selected Admin SECURITY DEFINER RPCs checked Admin role in their function bodies; Duplicate ID creation checks its feature flag and starts new IDs as pending.
+- Critical: live `admin_set_feature_setting` still permits enabling package activation and wallet-related switches without a trusted owner-level financial approval interlock. Live package approval similarly credits Bid Wallet without checking such approval. Keep financial features locked; UI guard alone is insufficient.
+- Sponsor reassignment checks for cycles but does not serialize concurrent graph edits; add transaction-level graph mutation locking and concurrency tests.
+- Public `lookup_sponsor` is executable by anon and returns exact active Main ID code/display name. Review enumeration/privacy controls.
+- Member dashboard and placement tree are rooted through the caller's own profile Main ID; data minimization review remains required.
+- Evidence: `docs/PRODUCTION_PRIVILEGED_RPC_MEMBER_DATA_REVIEW_2026-11-16.md`.
+- Read-only Production inspection only; no live state changed.
