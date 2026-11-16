@@ -1096,3 +1096,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Do not automatically add the missing `notification_templates` policy: zero direct policies may be the intended deny-by-default posture because the Admin path is through guarded RPCs. Confirm expected access before changing.
 - Do not drop the 17 unused indexes based on a single snapshot; low traffic and short observation history can make useful indexes appear unused. Validate query plans and workload before any index change.
 - No Production settings, Auth configuration, schema, policies, grants, Storage, member data or financial records were changed. Leaked-password protection remains a dashboard configuration item that requires a separately approved Production settings change.
+
+
+## Frontend-to-Production RPC contract audit — 2026-11-17
+- Read-only source-to-live comparison performed at branch snapshot `825057437428160e87810ac7976607b40545991b` against `BiddWorld-Production`.
+- Identified eight current UI RPC names absent from the Production public function catalogue, plus incompatible contracts for `admin_create_duplicate_member_id`, `place_bid`, and `lookup_sponsor`. Exact details and the intended source migration paths are in `docs/PRODUCTION_FRONTEND_RPC_CONTRACT_AUDIT_2026-11-17.md`.
+- Confirmed that Production `lookup_sponsor(text)` returns a table containing member code and display name, while current branch expects a boolean. Added a strict frontend compatibility helper that accepts either boolean true or a legacy row whose member code exactly matches the requested code; the legacy display name is ignored. Added regression tests.
+- Production currently has no Storage buckets, while Admin product media upload expects `product-media`; this flow remains unverified/unavailable until a separate TEST setup is validated.
+- No Production DDL/DML, migration, setting, Auth, Storage, member, wallet, payment or financial operation was performed. This checkpoint is not a Production integration certification.
