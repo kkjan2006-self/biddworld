@@ -54,3 +54,34 @@ Do not implement the eligibility check, UI wording, or database constraint until
 6. Keep `fixed_bid_enabled=false` and the financial approval interlock intact until the owner explicitly approves the financial/legal model and rollout.
 
 This document records requirements and safe sequencing; it does not claim that the Fixed Bid workflows have been implemented or tested.
+
+
+## Authoritative Production snapshot (read-only, 2026-11-16)
+
+Project identity was confirmed as `BiddWorld-Production`, ref `hbqatszyzqobgtauyuzy`, PostgreSQL 17.11. The following facts come from read-only project metadata, `list_migrations`, `list_tables`, `pg_proc`, `pg_constraint`, `pg_trigger`, `pg_indexes`, and `pg_policies` queries. No write statements were run.
+
+### Live schema — authoritative over the stale baseline file
+
+- `fixed_bid_campaigns` uses `configuration jsonb`, `status text`, `created_at`, and `updated_at`; it does **not** have `entry_amount`, `starts_at`, or `ends_at` columns.
+- Its status check allows `draft`, `scheduled`, `live`, `paused`, `ended`, `cancelled`. The member catalogue's `live` filter is correct for Production; the interim `active` change was reverted.
+- `fixed_bids` contains `campaign_id`, `member_id`, `bid_amount`, `status`, `idempotency_key`, `created_at`. Its status check allows `submitted`, `accepted`, `rejected`, `voided`.
+- The only unique constraint/index on `fixed_bids` beyond its primary key is unique `idempotency_key`; there is no unique `(campaign_id, member_id)` constraint in Production. Therefore the live database does not currently impose a one-entry-per-member restriction.
+- The Admin RPCs exist in Production: `admin_list_fixed_bid_campaigns()` and `admin_save_fixed_bid_campaign_draft(uuid,uuid,text,text)`. The save RPC only creates/updates a draft and writes an audit log; it does not configure fees, closing mode, target entries or winner rules.
+- Production RLS exposes only SELECT for `fixed_bids`, scoped to the current owner's member ID. No INSERT policy was found. The public campaign SELECT policy permits only `scheduled`, `live`, `ended`.
+- No entry, random draw, special-winner, campaign close, cancellation refund, or Fixed Bid settlement RPC was found in the Production function catalogue.
+- The only Fixed Bid table trigger found is `enforce_fixed_bid_feature` on campaign insert/status update. No financial-approval trigger is attached to `fixed_bids` in Production. Entry writes are currently unavailable through the member Data API because there is no INSERT policy, and `fixed_bid_enabled=false`; do not enable it.
+- Production currently reports `fixed_bid_enabled=false` and `winning_payment_enabled=false`. The queried settings did not return a `financial_model_approved` row. Wallet feature settings currently report true, so the source-only financial lockdown migration must not be assumed to be active in Production.
+
+### Migration-history drift
+
+- Production's migration ledger currently lists 30 migrations, ending at `20261115163241_admin_platform_health_summary`.
+- The source branch currently contains 43 migration files with different timestamps/names and includes later lockdown and pagination migrations that are not in the Production ledger.
+- Production lists `20261115151930_admin_fixed_bid_campaign_draft_management`, but no matching migration file is present in the current source tree.
+- Consequently, do not apply the source migration directory wholesale, do not replay migrations, and do not infer that a source-only trigger or feature setting exists in Production. A formal migration reconciliation is a prerequisite to any deployment.
+
+### Implementation implications
+
+- Design the future campaign configuration around the live `configuration jsonb` contract or first prepare a reviewed forward migration to normalized columns. Do not write code against the obsolete baseline columns without a migration plan.
+- The existing `fixed_bids` table can represent multiple entries for a member, with each row being a ticket, but any new entry RPC must enforce a unique idempotency key and secure atomic debit. Keep the current lack of INSERT access and the feature flag disabled.
+- Before any entry flow is built, add a database-enforced financial approval interlock to the reconciled schema, ensure exact per-wallet debit allocation is retained for refunds, and add a secure server-side entry RPC. No client-side direct insert.
+- Existing production wallet ledger is append-only by project requirements; refunds must be compensating, idempotent credits to the same wallet sources. This is not implemented for Fixed Bid.
