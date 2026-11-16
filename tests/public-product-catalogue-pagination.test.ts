@@ -12,7 +12,7 @@ describe('public product catalogue pagination',()=>{
   expect(app).toContain('Load more products');
   expect(app).toContain('The product catalogue could not be loaded.');
   expect(app).toContain('More products could not be loaded.');
-  expect(app).toContain("eq('status','published')");
+  expect(app).toContain("rpc('public_list_active_products_page'");
  });
 });
 
