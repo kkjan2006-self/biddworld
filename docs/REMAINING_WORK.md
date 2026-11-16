@@ -450,3 +450,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - [x] Exact version-prefix comparison: 4 timestamp matches; 26 Production ledger rows have no same-version source filename. Semantic similarity is not proof of identical SQL.
 - [ ] Recover/reconstruct authoritative SQL for Production versions missing from source; compare live objects and prepare a forward-only reconciliation plan. Never replay baseline migrations or fabricate history.
 - [ ] Rehearse the complete ordered chain in a disposable non-Production database before explicit owner approval. Production remains untouched.
+
+## Route-level code splitting batch — 2026-11-16
+
+- Converted all nine tab-level workspaces (Packages, Referrals, WalletHistory, FixedBid, Admin, Support, Notifications, Account, DashboardPreview) from static imports to `React.lazy` with a shared `WorkspaceFallback` Suspense placeholder styled like the existing workspace panel, including the wallet tab's inline history module.
+- Initial JavaScript bundle reduced from approximately 506 KB to approximately 314 KB (about 93 KB gzipped versus about 135 KB); the Admin console now loads as a separate ~102 KB chunk only when an authorized admin opens it, and the member dashboard as a separate ~44 KB chunk only when a member opens it.
+- Verified locally: TypeScript project build passed, Vite 6 production bundle built successfully, and all 60 test files / 228 tests passed. No routes, permissions, authentication, financial locks or feature switches were changed; no dependencies were added; no database changes were made.
+- Git sync note: this Bolt workspace is not a git checkout, so the changes could not be committed or pushed to `completion-work` from here; use Bolt's publish/version history to sync, then confirm CI on GitHub.
+- Remaining work is unchanged: database financial interlock rollout, migration reconciliation, sponsor-lookup rate limiting, leaked-password protection, live integration/E2E testing and owner financial/legal approval.
