@@ -6,13 +6,7 @@ describe('Admin initial workspace request resilience',()=>{
  it('catches rejected initial RPC batches and exposes an actionable error',()=>{
   expect(admin).toContain('}catch(loadError){');
   expect(admin).toContain("loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.'");
-  it('prevents a late initial session lookup from overriding an Auth event',()=>{
-  expect(admin).toContain('let active=true,authEventReceived=false;');
-  expect(admin).toContain('if(active&&!authEventReceived)applyRole(session);');
-  expect(admin).toContain('}).catch(()=>{');
-  expect(admin).toContain("if(active&&!authEventReceived)setRole('');");
  });
-});
  it('always releases the initial loading state while mounted',()=>{
   expect(admin).toContain('}finally{\n    if(active)setLoading(false);');
  });
@@ -20,5 +14,11 @@ describe('Admin initial workspace request resilience',()=>{
   expect(admin).toContain('if(active)setError(loadError instanceof Error?');
   expect(admin).toContain('if(active)setLoading(false);');
   expect(admin).toContain('void load();return()=>{active=false;};');
+ });
+ it('prevents a late initial session lookup from overriding an Auth event',()=>{
+  expect(admin).toContain('let active=true,authEventReceived=false;');
+  expect(admin).toContain('if(active&&!authEventReceived)applyRole(session);');
+  expect(admin).toContain('}).catch(()=>{');
+  expect(admin).toContain("if(active&&!authEventReceived)setRole('');");
  });
 });
