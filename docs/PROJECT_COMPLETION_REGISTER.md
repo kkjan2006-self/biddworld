@@ -838,3 +838,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - Confirmed the checked auction draft migration does not define the Fixed Bid Admin RPCs currently called by the UI. Their source definitions and actual Production signatures need reconciliation before implementation.
 - Special Winner eligibility remains an owner decision (entrant-only vs any registered member), so that single rule is intentionally not guessed.
 - Documentation only. No application code, schema, migrations, Production Supabase data/settings, financial ledger, entries, refunds, winners or feature flags were changed. No tests or CI are claimed as run by this documentation update.
+
+
+## Fixed Bid catalogue status correction — 2026-11-16
+
+- Corrected the member Fixed Bid catalogue to query the actual `auction_status` enum value `active` rather than the nonexistent `live` value. The UI continues to display the friendly label “LIVE”.
+- Updated the status filter to use `active` internally and updated the regression test accordingly.
+- This is a read-only catalogue correction; no entry, payment, winner, refund, feature-flag, schema or Production data workflow was enabled.
+- Changes are source-only on `completion-work`; CI status must be checked separately before calling the change verified.
