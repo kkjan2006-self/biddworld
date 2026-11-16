@@ -6,7 +6,7 @@ const migration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261115
 describe('member profile self-service safeguards',()=>{
  it('validates the same name and phone rules before calling the RPC',()=>{
   expect(account).toContain('name.length<2||name.length>100');
-  expect(account).toContain('/^\\\\+?[0-9][0-9 ()-]{7,15}$/');
+  expect(account).toContain('Enter a valid mobile number.');
   expect(account).toContain("p_display_name:name,p_phone:phone");
  });
  it('always releases the saving state and surfaces server errors',()=>{
