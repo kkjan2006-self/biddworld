@@ -1129,3 +1129,12 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Live package submission requires an active Main ID, conflicting with intended inactive-until-verified onboarding; live withdrawal request lacks the branch active-Main-ID ownership check; withdrawal history still returns full payout JSON.
 - `admin_set_member_sponsor` has a recursive cycle check but no serialization lock, so concurrent graph edits remain a race risk. Source migration contains the same non-serialized check.
 - Full matrix and priorities: `docs/PRODUCTION_RPC_SECURITY_CONTRACT_MATRIX_2026-11-17.md`. No live RPCs were executed and Production was not changed.
+
+
+## Member inbox and support owner-scope hardening — 2026-11-17
+
+- Member Notifications now explicitly scopes initial and continuation reads to the authenticated user's own `user_id`; Admin mode retains its separate queue path.
+- Member Support now explicitly scopes initial and continuation reads to the authenticated user's own `user_id`; Admin mode retains its separate queue path.
+- Database RLS remains the authoritative security boundary; explicit client filters are defense in depth and reduce unnecessary rows returned to member clients.
+- Added `tests/member-support-inbox-owner-scope.test.ts` for both read paths and Admin separation.
+- Details: `docs/MEMBER_SUPPORT_INBOX_OWNER_SCOPE_2026-11-17.md`. CI must pass on the latest branch commit. No Production schema, data, settings or financial records were changed.
