@@ -21,7 +21,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,items.length]);
- useEffect(()=>{void load()},[load]);
+ useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
  async function send(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();if(!supabase||busy)return;const target=userId.trim();
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){setError('Enter a valid member user UUID.');return;}
