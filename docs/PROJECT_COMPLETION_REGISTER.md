@@ -676,3 +676,10 @@ Notifications now provide loaded-record title/message/category search and catego
 - Added explicit `preview`, `test` and `live` build modes. Test mode refuses the known Production project reference; Live mode accepts only the approved Production project reference.
 - Documented that email-confirmation enable/disable is controlled by Supabase Auth project settings, not a client-side switch. Disable it only in a separate disposable TEST project; require it enabled in LIVE.
 - A separate test Supabase project is not currently confirmed as available. No test records were inserted, no hosted Auth settings were changed, and Production was not modified. Test execution remains blocked until the isolated project is provisioned.
+
+
+## Explicit environment visibility — 2026-11-16
+
+- The application header area now displays a persistent environment banner: Preview, Test or Live. Test mode warns against real member/payment information; Live mode warns that real member data may be present.
+- Supabase configuration failures now display the specific configuration/safety error from the environment guard instead of only a generic Preview notice.
+- This is a client-side environment indicator, not an authorization boundary. Database RLS, trusted server-side role checks and financial interlocks remain mandatory. No Supabase project settings or Production data were changed.
