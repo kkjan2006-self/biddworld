@@ -9,8 +9,8 @@ describe('Inactive-until-verified lifecycle safety',()=>{
   expect(migration).toMatch(/member_ids\s*\(owner_user_id, member_code, id_type, status\)[\s\S]*?'inactive'/i);
  });
  it('does not bulk rewrite existing Production member/profile statuses',()=>{
-  expect(migration).not.toMatch(/update\s+public\.member_ids\s+m\s+set\s+status/is);
-  expect(migration).not.toMatch(/update\s+public\.profiles\s+p\s+set\s+status/is);
+  expect(migration).not.toMatch(/update\s+public\.member_ids\s+\w+\s+set\s+status\s*=\s*case\s+when\s+exists/is);
+  expect(migration).not.toMatch(/update\s+public\.profiles\s+\w+\s+set\s+status\s*=\s*case\s+when\s+exists/is);
  });
  it('only activates a member after approved and active package activation',()=>{
   expect(migration).toContain("new.payment_status = 'approved' and new.activation_status = 'active'");

@@ -603,3 +603,5 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - Batch 24: removed blanket historical profile/Main-ID status reconciliation from `20261115220000_inactive_until_verified_package_activation.sql`. It now provisions new accounts as inactive and activates only on verified package approval; existing account statuses are not bulk rewritten. Added regression tests for this data-safety guarantee.
 
 - CI correction for Batch 24: initial regression assertion matched the legitimate row-level profile activation inside the verified-package trigger. Narrowed the assertion to reject only historical bulk CASE/EXISTS status reconciliation; it now permits activation of the specific member tied to an approved package.
+
+- Follow-up CI test correction: the data-safety regression now rejects only the former historical bulk CASE/EXISTS status updates. It intentionally permits the trigger's row-specific activation updates after the matching package row is approved and active.
