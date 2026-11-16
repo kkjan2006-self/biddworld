@@ -69,6 +69,7 @@ export default function Account(){
    setLoading(false);
   }
  }
+ useEffect(()=>{void load();},[]);
  async function loadHistoryPage<T>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
  if(!supabase||!profile?.main_member_id||historyLoading)return;
  const client=supabase;const memberId=profile.main_member_id;setHistoryLoading(key);
