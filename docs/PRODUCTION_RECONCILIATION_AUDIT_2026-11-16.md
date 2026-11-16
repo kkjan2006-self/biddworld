@@ -151,3 +151,36 @@ Implementation can continue on completion-work using source-only changes. The Pr
 - Security Advisor still flags 43 authenticated-callable SECURITY DEFINER signatures, one anon-callable SECURITY DEFINER signup lookup (`lookup_sponsor`), and leaked-password protection disabled. Performance Advisor flags one unindexed FK on `notification_templates.created_by` and 17 currently unused indexes. These require function-by-function grant/body review and workload-aware remediation; do not blanket revoke or drop indexes.
 - The Production schema contains existing member/package/wallet rows. No Production SQL, DDL/DML, data, migration history, settings, Storage objects or financial records were changed during this turn.
 - Production still lacks the source-only financial approval interlock; `financial_model_approved` was not present in the inspected settings. Package activation, wallet, bidding and payout controls remain blocked from owner approval. Do not enable financial operations.
+
+
+## Fresh Production drift and security verification — 2026-11-16 (read-only)
+
+A further direct read-only inspection was completed against the connected `BiddWorld-Production` project. No SQL writes, migrations, settings changes, Storage operations, or row changes were performed.
+
+### Confirmed migration drift
+
+- Production migration ledger currently contains **30 applied migrations**; latest is `20261115163218_admin_audit_log_pagination`.
+- The branch contains forward migrations dated `20261116` that are not present in the Production ledger. The financial approval guard and expanded financial activity lockdown remain source-only.
+- Production still exposes the one-argument `admin_create_duplicate_member_id(p_main_member_code text)`; the branch workflow expects the two-argument placement-aware signature. Do not use the branch Duplicate ID placement workflow against Production until its migration is owner-approved and reconciled.
+- Production `place_bid` and `submit_package_activation` are SECURITY DEFINER wrappers that delegate to private SECURITY DEFINER implementations. The private implementations inspected derive the member from `auth.uid()`; bidding is additionally disabled by the current feature setting. This does not remove the need to install and verify the expanded source-only financial interlock before any financial enablement.
+
+### Security review findings
+
+- Catalog inventory confirms public Admin SECURITY DEFINER RPCs are executable by `authenticated` but not `anon`; the inspected Admin RPC bodies contain authenticated-user and `app_metadata.role = admin` checks. This is an inventory-level check, not a line-by-line certification of every function.
+- `lookup_sponsor(text)` remains intentionally callable by `anon` and `authenticated`, returns exact-match active Main ID code and display name, and has no rate limiting in its current definition. Signup requires this lookup, so do not revoke it without replacing the signup flow. Rate limiting, enumeration controls and privacy review remain launch blockers.
+- Supabase Security Advisor currently reports leaked-password protection disabled. Enable it through the Auth security settings after owner review; it was not changed during this audit.
+- Security Advisor reports multiple authenticated-callable SECURITY DEFINER functions. The execute grant alone is not proof of a vulnerability; every function body must be checked for authentication, ownership or trusted Admin authorization, fixed search_path and data minimization.
+
+### Financial interlock — do not enable
+
+- The Production settings snapshot still has `package_activations_enabled=true`, `bid_wallet_enabled=true`, and `income_wallet_enabled=true`; the `financial_model_approved` setting is absent.
+- Production has not received `20261116000000_financial_approval_guard.sql` or `20261116080000_financial_activity_lockdown.sql`. The source guard is therefore not active in Production.
+- Treat package approval, wallet ledger writes, commission credits, bid debits, Fixed Bid entries, withdrawals and winner settlement as prohibited until a complete forward-only migration is reconciled, independently tested and explicitly approved by the owner. Keep financial features disabled; do not infer safety from client-side locks.
+
+### Required next actions
+
+1. Reconcile every source migration against actual Production object definitions, not only migration version names; prepare a forward-only plan and dry-run in a safe non-production environment.
+2. Review every exposed SECURITY DEFINER RPC body, especially the Admin RPCs, member withdrawal request, sponsor lookup and bid/package wrappers.
+3. Add rate-limit/abuse protection for public sponsor lookup without breaking signup.
+4. Owner to review and enable leaked-password protection in Auth settings.
+5. Do not apply migrations or alter financial settings without explicit owner approval.
