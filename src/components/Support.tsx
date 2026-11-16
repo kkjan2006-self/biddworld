@@ -50,7 +50,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,tickets.length]);
- useEffect(()=>{void load()},[load]);
+ useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
 
  async function submit(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();if(!supabase||busy)return;
