@@ -817,3 +817,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - Production RPC gaps remain blocked by the read-only snapshot documented in `FRONTEND_PRODUCTION_RPC_AND_ADVISOR_REVIEW_2026-11-16.md`; refreshing the source manifest does not certify Production availability.
 - Public catalogue source commit: `a86cde57920ed7eff62cf633d822f7035696059f`; test commits: `ce49f27e1d39afdf2be284728ff3e2e271e45adc`, `39320b8814fe7e33a50513772336803a73b2b5cb`; RPC inventory commit: `e651ec63eaaf8764be7c83bb4bfbb33a9dc7fb85`.
 - No Production database, migration ledger, Auth, Storage, financial settings, wallet or member data was changed.
+
+
+## Admin workspace resilience — 2026-11-16
+
+- Admin initial workspace loading now catches rejected RPC/query promises, displays an actionable load error and always clears the loading state while mounted.
+- Admin Auth initialization now ignores a late `getSession()` result after an Auth state event and safely handles a rejected session lookup, avoiding an unhandled rejection or stale role overwrite.
+- Added regression coverage in `tests/admin-initial-workspace-resilience.test.ts` for rejected initial requests, loading cleanup, unmount safety and Auth event ordering.
+- These are frontend resilience changes only. Admin role authorization remains enforced server-side; no Production database or financial behavior was changed.
