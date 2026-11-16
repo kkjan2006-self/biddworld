@@ -504,3 +504,9 @@ Work through the incomplete items in dependency order: member/public experience 
 ### Withdrawal report test alignment (2026-11-16)
 
 - Updated the complete-export regression assertion for the new filtered withdrawal CSV filename. Export still fetches all secured RPC pages before applying the selected filters.
+
+
+## Browser Supabase credential security check (2026-11-16)
+
+- Added a regression test confirming the browser client uses only the public publishable/legacy anon key variables, retains session refresh/persistence, and contains no service-role or Supabase secret key.
+- `.env.example` explicitly warns against placing service-role/secret keys in `VITE_` variables. The configured browser key is a public publishable key; database authorization must continue to rely on RLS and server-side RPC checks.
