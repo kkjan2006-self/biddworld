@@ -1121,3 +1121,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Inspected Admin RPC bodies explicitly check authenticated user and JWT app_metadata Admin role. Do not mass-revoke authenticated execution without per-routine review.
 - Ten public triggers route through `private.enforce_feature_gate()`. Legacy `place_bid(uuid)` uses a non-empty search_path and remains a hardening/review item.
 - Full evidence and interpretation: `docs/PRODUCTION_RLS_FUNCTION_GRANTS_TRIGGER_AUDIT_2026-11-17.md`. No Production changes or function executions were performed.
+
+## Production RPC security and contract matrix — 2026-11-17
+- Inspected 43 public function overloads. All 36 Admin overloads (34 names) contain auth UID and JWT app_metadata role guard markers; none is anon-callable. All 43 public functions have explicit search_path settings.
+- `lookup_sponsor(text)` is the only anon-callable SECURITY DEFINER function and returns member code + display name; source boolean-only contract remains undeployed.
+- Live `place_bid(uuid)` delegates to an auth-gated private routine but generates a fresh UUID each invocation; the UI expects the source two-argument idempotent contract.
+- Live package submission requires an active Main ID, conflicting with intended inactive-until-verified onboarding; live withdrawal request lacks the branch active-Main-ID ownership check; withdrawal history still returns full payout JSON.
+- `admin_set_member_sponsor` has a recursive cycle check but no serialization lock, so concurrent graph edits remain a race risk. Source migration contains the same non-serialized check.
+- Full matrix and priorities: `docs/PRODUCTION_RPC_SECURITY_CONTRACT_MATRIX_2026-11-17.md`. No live RPCs were executed and Production was not changed.
