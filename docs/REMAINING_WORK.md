@@ -412,3 +412,6 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - [x] Read-only Production grant check across eight financial tables: no direct authenticated INSERT/UPDATE/DELETE grants; anon has no grants.
 - [ ] Prove rollback of wallet balance changes when the financial interlock rejects a later ledger insert, using an isolated non-Production Supabase database. Production is not a test environment.
 - [ ] Audit trusted service_role consumers separately; never expose service_role credentials to browser code.
+
+- [x] Source scan of 18 browser TS/JS files found no service-role or secret-key pattern; browser Supabase config uses publishable/anon key only.
+- [ ] Complete deployed-bundle, Git-history and CI secret review; audit service_role consumers separately.

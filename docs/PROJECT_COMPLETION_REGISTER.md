@@ -613,3 +613,6 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - Latest financial approval-key access regression verification: commit `e027992d8b928fc70db97fb0a8e51ef75ca18215`, GitHub Actions run `43795161226` passed. CI reports 44 test files / 163 tests passed; type-check/build completed successfully. The new test verifies the trusted approval key is absent from the ordinary Admin feature-setting allowlist (while allowing the guard to read it).
 
 - Read-only Production grant audit: authenticated role has SELECT only (no direct write grants) on wallet accounts/ledger, package activations, withdrawals, referral commissions, bids, Fixed Bids and winner payments; anon has no grants. Source-only ledger BEFORE INSERT guard is expected to abort and roll back balance mutations performed earlier in the same RPC transaction, but this must be proven in a disposable non-Production integration environment.
+
+- [x] Batch 28: read-only credential-pattern scan of all 18 browser source files; no service-role/secret credential patterns found. `.env.example` documents publishable-key-only browser configuration.
+- [ ] Scan deployed bundles, Git history and CI secret usage; source scan alone is not a full secret-exposure audit.

@@ -275,3 +275,11 @@ A read-only Production query checked grants on `wallet_accounts`, `wallet_transa
 - The current Production functions remain unguarded by the new source triggers. Do not approve package activations, enable bidding, process wallet credits, commissions, withdrawals, or winner settlements in Production until the migration is reconciled and deployed under explicit approval.
 
 This grant review is not a complete certification of all service-role consumers, all RLS policies, or all privileged functions. It is a targeted write-surface check.
+
+
+## Browser credential surface review — 2026-11-16
+
+- Read-only inspection of all 18 TypeScript/JavaScript source files under `src/` found no occurrences of `service_role`, `sb_secret_`, `SUPABASE_SERVICE_ROLE_KEY`, or Vite service-role/secret variable names.
+- The browser client uses only the Supabase publishable key, with legacy anon-key fallback; `.env.example` explicitly warns not to put service-role or secret keys in `VITE_` variables.
+- This is a source-text scan, not a scan of deployed JavaScript bundles, Git history, GitHub Actions secrets, or Supabase Edge Function secrets. Continue to keep privileged keys out of client code and public build variables.
+- Production table grants checked in the previous batch show `service_role` has broad write privileges. That is expected only for trusted server-side operations; actual service-role consumer inventory and secret-handling review remain outstanding.
