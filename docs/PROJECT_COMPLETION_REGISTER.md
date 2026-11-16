@@ -827,3 +827,14 @@ Notifications now provide loaded-record title/message/category search and catego
 - These are frontend resilience changes only. Admin role authorization remains enforced server-side; no Production database or financial behavior was changed.
 
 - The Admin overview now exposes a keyboard-accessible Retry action directly in the alert when its initial workspace load fails; this complements the existing header refresh action.
+
+
+## Fixed Bid requirements audit — 2026-11-16
+
+- Re-audited `completion-work` at source HEAD `a81e1f08362f26bf64cf8c1760528d83dffb87f6`.
+- Captured the owner's confirmed Fixed Bid rules, current schema/UI gaps, backend safety requirements and delivery gates in `docs/FIXED_BID_IMPLEMENTATION_CONTRACT.md`.
+- Confirmed the baseline `fixed_bids` uniqueness constraint conflicts with unlimited entries; the campaign schema currently has no explicit time-vs-entry-target close mode; member catalogue is read-only and has no target progress display.
+- Confirmed the financial activity lock still blocks Fixed Bid entry inserts and the feature flag is fail-closed. These safeguards were not changed.
+- Confirmed the checked auction draft migration does not define the Fixed Bid Admin RPCs currently called by the UI. Their source definitions and actual Production signatures need reconciliation before implementation.
+- Special Winner eligibility remains an owner decision (entrant-only vs any registered member), so that single rule is intentionally not guessed.
+- Documentation only. No application code, schema, migrations, Production Supabase data/settings, financial ledger, entries, refunds, winners or feature flags were changed. No tests or CI are claimed as run by this documentation update.
