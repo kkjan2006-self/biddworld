@@ -724,3 +724,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - Delivery tracking save, Fixed Bid draft save, product draft save/publication, and auction draft save now handle rejected RPC requests with visible errors and `finally`-based busy-state cleanup.
 - Successful save behavior and draft-only safeguards are retained; no auction or Fixed Bid campaign was activated and no financial transaction was performed.
 - No Production schema, settings, or data were changed. Tests remain deferred.
+
+
+## Admin member-finance configuration workflows — 2026-11-16
+
+- Duplicate ID creation and status changes, referral-plan draft saves, package draft saves, and package-payment review now handle rejected RPC requests with clear errors and guaranteed busy-state cleanup.
+- Added non-negative numeric validation for referral reward drafts and package price/proposed credit inputs.
+- Package approval remains locked by the existing owner financial/legal interlock; no wallet credits, commissions, or package activations were issued.
+- No Production schema, settings, or data were changed. Tests remain deferred.
