@@ -696,3 +696,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - Support inbox initial load and pagination now clean up busy state even when requests throw unexpectedly and retain a useful error for retry.
 - Member ticket submission and Admin response/status updates now use exception-safe cleanup, so the form does not remain stuck after network/runtime failures.
 - These changes preserve existing RLS/RPC authorization and do not add email/SMS dispatch, attachment storage, or new status permissions. No Production data/settings or financial flows were changed.
+
+
+## Member workspace resilience and environment guidance — 2026-11-16
+
+- MLM dashboard now uses one debounced, cancellation-safe request path for initial loads, refresh, search and depth filters; stale responses cannot replace newer filter results.
+- MLM genealogy pagination now handles thrown request failures and always releases its loading state when the active request completes.
+- Account and package empty-configuration messages now direct operators to the selected Preview/separate Test environment rather than encouraging a Production connection for testing.
+- Paid package activation remains fail-closed. No database settings, schema, member data or financial records were changed. No tests were run in this development-only batch.

@@ -29,7 +29,7 @@ export default function Account(){
  const [newPassword,setNewPassword]=useState(''),[confirmNewPassword,setConfirmNewPassword]=useState(''),[securityMessage,setSecurityMessage]=useState(''),[securityBusy,setSecurityBusy]=useState(false);const [currentEmail,setCurrentEmail]=useState(''),[newEmail,setNewEmail]=useState(''),[emailChangeMessage,setEmailChangeMessage]=useState(''),[emailChangeBusy,setEmailChangeBusy]=useState(false);
  async function load(){
   setLoading(true);setError('');
-  if(!supabase){setError('Connect the production database to view account details.');setLoading(false);return;}
+  if(!supabase){setError('No Supabase project is connected. Configure the intended Preview or Test environment to view account details. Do not connect Production for testing.');setLoading(false);return;}
   const {data:{user}}=await supabase.auth.getUser();
   if(!user){setError('Sign in to view your member account.');setLoading(false);return;}setCurrentEmail(user.email??'');
   const {data:p,error:pe}=await supabase.from('profiles').select('display_name,phone,status,main_member_id').eq('id',user.id).maybeSingle();

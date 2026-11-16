@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Users, RefreshCw, Network, UserCheck, Wallet, Gift, Search, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -11,9 +11,34 @@ export default function Referrals(){
  const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all');
  const request=useRef(0);
  useEffect(()=>{if(!supabase){setLoading(false);return}let active=true;const{data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{if(active)setUserId(s?.user?.id??null)});void supabase.auth.getUser().then(({data})=>{if(active)setUserId(data.user?.id??null)});return()=>{active=false;subscription.unsubscribe()}},[]);
- useEffect(()=>{let active=true;const seq=++request.current;setData(null);setError('');setLoading(true);setLoadingMore(false);async function load(){if(!supabase||!userId){if(active)setLoading(false);return}const{data,error}=await supabase.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:0,p_search:null,p_depth:null});if(!active||seq!==request.current)return;if(error)setError(error.message);else setData(data as Dashboard);setLoading(false)}void load();return()=>{active=false}},[userId,refresh]);
- useEffect(()=>{const client=supabase;if(!client||!userId)return;const seq=++request.current;const timer=window.setTimeout(async()=>{setLoading(true);setError('');const{data,error}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:0,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});if(seq!==request.current)return;if(error)setError(error.message);else setData(data as Dashboard);setLoading(false)},250);return()=>{window.clearTimeout(timer);if(request.current===seq)request.current++}},[query,depth,userId]);
- async function loadMore(){const client=supabase;if(!client||!data?.has_more||loadingMore)return;setLoadingMore(true);setError('');const offset=data.tree.length;const{data:next,error}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});if(error)setError(error.message);else setData(current=>current?({...next,tree:[...current.tree,...(next as Dashboard).tree]} as Dashboard):next as Dashboard);setLoadingMore(false)}
+ useEffect(()=>{
+  let active=true;
+  const seq=++request.current;
+  setData(null);setError('');setLoading(true);setLoadingMore(false);
+  const timer=window.setTimeout(async()=>{
+   if(!supabase||!userId){if(active)setLoading(false);return;}
+   try{
+    const {data:result,error:loadError}=await supabase.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:0,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
+    if(!active||seq!==request.current)return;
+    if(loadError)throw loadError;
+    setData(result as Dashboard);
+   }catch(e){if(active&&seq===request.current)setError(e instanceof Error?e.message:'Your team dashboard could not be loaded. Please retry.');}
+   finally{if(active&&seq===request.current)setLoading(false);}
+  },query.trim()||depth!=='all'?250:0);
+  return()=>{active=false;window.clearTimeout(timer);};
+ },[userId,refresh,query,depth]);
+ async function loadMore(){
+  const client=supabase;if(!client||!data?.has_more||loadingMore||loading)return;
+  const seq=request.current;setLoadingMore(true);setError('');
+  try{
+   const offset=data.tree.length;
+   const {data:next,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
+   if(seq!==request.current)return;
+   if(loadError)throw loadError;
+   setData(current=>current?({...next,tree:[...current.tree,...(next as Dashboard).tree]} as Dashboard):next as Dashboard);
+  }catch(e){if(seq===request.current)setError(e instanceof Error?e.message:'More team members could not be loaded. Please retry.');}
+  finally{if(seq===request.current)setLoadingMore(false);}
+ }
  const cards=data?[['My Main ID',data.main_member_code,Users],['Direct Referrals',data.direct_referrals,UserCheck],['Total Team',data.total_downline,Network],['Active Members',data.active_members,UserCheck],['Package Activations',data.active_activations,Gift],['Referral Income',money(Number(data.commission_total)),Wallet],['Bid Wallet',money(Number(data.bid_wallet)),Wallet],['Income Wallet',money(Number(data.income_wallet)),Wallet]] as const:[];
  return <section className="referralWorkspace">
   <div className="packageIntro"><span className="workspaceIcon"><Network/></span><div><h3>My MLM Dashboard</h3><p>Your sponsor genealogy, team members, wallet and referral summary.</p></div><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>

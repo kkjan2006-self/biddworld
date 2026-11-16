@@ -51,7 +51,7 @@ export default function Packages() {
     <div className="packageIntro"><span className="workspaceIcon"><Gift /></span>
       <div><h3>Membership packages</h3><p>Free member registration is available. Paid package activation is not currently open.</p></div>
     </div>
-    {!configured && <div className="notice"><b>Preview mode:</b> Connect the production database to view published package information.</div>}
+    {!configured && <div className="notice"><b>Database not connected:</b> Configure the intended Preview or separate Test environment to view package information. Do not connect Production for testing.</div>}
     {PACKAGE_ACTIVATION_LOCKED && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> No payment references, activation requests or wallet credits can be submitted until the owner approves the financial and legal model and the database safeguards are independently verified.</div>}
     {loading ? <p className="packageState">Loading package information…</p> : error ? <div className="notice">{error} <button className="outline small" onClick={() => void load()}><RefreshCw size={14}/> Retry</button></div> :
       items.length === 0 ? <div className="empty packageEmpty">No packages are currently published. Free registration remains available.</div> :
