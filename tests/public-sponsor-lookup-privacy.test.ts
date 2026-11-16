@@ -17,7 +17,7 @@ describe('Public sponsor lookup privacy',()=>{
  });
  it('does not trust lookup as the final sponsor validation',()=>{
   expect(app).toContain("sponsor_referral_id:sponsorId.trim()||null");
-  expect(app).toContain("supabase.rpc('lookup_sponsor'");
+  expect(app).toContain("client.rpc('lookup_sponsor'");
  });
  it('debounces public lookup and does not send incomplete codes',()=>{
   expect(app).toContain('sponsorLookupTimer');
