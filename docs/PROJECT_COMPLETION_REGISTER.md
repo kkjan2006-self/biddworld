@@ -1163,3 +1163,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Existing validation and Supabase-returned error handling are retained.
 - Added `tests/member-account-action-network-recovery.test.ts`; latest-commit CI is required for final verification.
 - Details: `docs/MEMBER_ACCOUNT_ACTION_NETWORK_RECOVERY_2026-11-17.md`. No Production data or Auth settings were changed.
+
+
+## Member account refresh concurrency — 2026-11-17
+
+- Account refreshes now use request generations and mounted-state guards; stale responses cannot overwrite newer data or clear the current loading state.
+- Guards cover authentication, profile, identity, settings, history and delivery reads; unmount invalidates outstanding work.
+- Added `tests/member-account-refresh-concurrency.test.ts` and updated the initial-load regression test for the guarded loading-state cleanup.
+- Details: `docs/MEMBER_ACCOUNT_REFRESH_CONCURRENCY_2026-11-17.md`. CI is required on the latest branch commit; no Production data was changed.
