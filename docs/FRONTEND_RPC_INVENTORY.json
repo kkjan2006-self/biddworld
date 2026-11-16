@@ -1,0 +1,183 @@
+{
+  "generated_from": "completion-work source inspection",
+  "snapshot_commit": "12be672b9b5930a0f87130fd96251457842860a1",
+  "note": "This inventory records frontend call sites only. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
+  "rpc_calls": [
+    {
+      "name": "admin_create_duplicate_member_id",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_get_feature_settings",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_get_member_structure",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_get_mlm_overview",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_get_platform_health",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_admin_accounts",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_auction_products",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_auctions",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_audit_logs_page",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_delivery_tracking",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_duplicate_ids_page",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_fixed_bid_campaigns",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_members_sponsors_page",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_notification_templates",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_packages",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_pending_activations",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_referral_plans",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_wallet_accounts",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_wallet_transactions",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_winning_item_payments",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_withdrawal_requests",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_review_package_activation",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_auction_draft",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_delivery_tracking",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_fixed_bid_campaign_draft",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_notification_template",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_package_draft",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_product_draft",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_referral_plan_draft",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_set_default_sponsor",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_set_duplicate_id_status",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_set_feature_setting",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_set_member_sponsor",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_set_product_active",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "get_my_mlm_dashboard_page",
+      "ui": "src/components/Referrals.tsx"
+    },
+    {
+      "name": "get_my_placement_tree",
+      "ui": "src/components/PlacementTree.tsx"
+    },
+    {
+      "name": "lookup_sponsor",
+      "ui": "src/App.tsx"
+    },
+    {
+      "name": "member_create_withdrawal_request",
+      "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_get_my_identity",
+      "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_list_my_ids",
+      "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_list_my_withdrawals",
+      "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_update_my_profile",
+      "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "place_bid",
+      "ui": "src/App.tsx"
+    },
+    {
+      "name": "public_list_active_products_page",
+      "ui": "src/App.tsx"
+    }
+  ]
+}
