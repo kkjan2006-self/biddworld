@@ -874,3 +874,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - Classification: 4 exact version+name matches; 9 same-slug migrations with different timestamps; 17 Production ledger entries with no same-slug source file; 27 timestamped source migrations not represented in Production by version or slug; 3 unversioned baseline files.
 - Added `docs/PRODUCTION_SOURCE_MIGRATION_RECONCILIATION_2026-11-16.md` with the exact comparison lists and a safe forward-only reconciliation sequence. Filename similarity is not treated as SQL equivalence.
 - No migrations were applied and no Production schema, settings, Auth, Storage, member, financial or other data were changed. The Production database remains read-only for this audit. The source financial interlock is not active in Production unless separately reconciled and applied through an approved rollout.
+
+
+## Production financial interlock risk — 2026-11-16
+
+- A further read-only Production audit found `package_activations_enabled=true` and `bid_wallet_enabled=true`, with no `financial_model_approved` setting row.
+- The live Admin package-review SECURITY DEFINER RPC can approve a pending package activation, credit the Bid Wallet ledger and activate the Main ID. The existing Production feature-gate triggers consult the two settings above, which were both true at audit time. The requested owner financial approval guard is source-only and absent from the Production migration ledger.
+- **Do not use Admin package approval in Production** until the financial interlock has been reconciled and installed under an explicitly approved rollout. No settings were switched off and no package, member or wallet records were changed because Production changes have not been authorized.
+- Additional catalogue snapshot: all 21 public tables have RLS enabled (none FORCE RLS); `notification_templates` has zero direct policies; `fixed_bids` has owner-only SELECT and no INSERT policy; ten feature-gate triggers were found. See the migration reconciliation report for the complete point-in-time details.
