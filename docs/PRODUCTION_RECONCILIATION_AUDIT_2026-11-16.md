@@ -255,3 +255,10 @@ A further read-only Production query verified the `app_settings` table grants an
 - The approval value must only be recorded through a trusted owner-controlled operational process after documented economics/legal review. Do not expose it to normal Admin toggles or user metadata. Do not set it in Production as part of this development work.
 
 This is a targeted review of `app_settings` and the matching setting-writing functions discovered in Production, not a certification of every privileged backend pathway. Production remains unchanged.
+
+## Financial approval key regression CI update
+
+- Latest source commit `e027992d8b928fc70db97fb0a8e51ef75ca18215` passed GitHub Actions run `43795161226`.
+- CI: 44 test files and 163 tests passed; type-check/build succeeded.
+- The regression assertion is scoped to the Admin feature-key allowlist. The guard must read `financial_model_approved`; the ordinary Admin feature RPC must not accept it as a caller-supplied setting key.
+- This is source-level verification. Production remains on the old RPC and has not received the financial lock migrations.

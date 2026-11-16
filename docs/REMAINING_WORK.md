@@ -405,3 +405,6 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 
 - [x] Read-only Production check of `app_settings` table grants and RLS: authenticated SELECT only, no client writes; ordinary Admin feature-setting allowlist does not expose `financial_model_approved`.
 - [ ] Apply no Production migration until the complete migration history/object diff is reconciled, the guard is tested in a non-Production Supabase project, and the owner explicitly approves the rollout.
+
+- [x] CI: commit `e027992d8b928fc70db97fb0a8e51ef75ca18215` passed, 44 test files / 163 tests, build successful.
+- [ ] Production financial interlock migration rollout remains blocked pending non-Production Supabase integration test and explicit owner approval.
