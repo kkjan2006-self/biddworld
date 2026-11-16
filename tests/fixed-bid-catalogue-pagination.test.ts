@@ -5,7 +5,7 @@ const source=readFileSync(resolve(process.cwd(),'src/components/FixedBid.tsx'),'
 describe('Fixed Bid catalogue pagination',()=>{
  it('uses bounded stable pages for published campaign states',()=>{
   expect(source).toContain('const PAGE_SIZE=50');
-  expect(source).toContain(".in('status',['scheduled','active','ended'])");
+  expect(source).toContain(".in('status',['scheduled','live','ended'])");
   expect(source).toContain(".order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+PAGE_SIZE-1)");
  });
  it('offers continuation while keeping the campaign surface read-only',()=>{
@@ -18,7 +18,7 @@ describe('Fixed Bid catalogue pagination',()=>{
 
 describe('Fixed Bid catalogue filtering',()=>{
  it('filters loaded campaigns by status and case-insensitive campaign or product text',()=>{
-  expect(source).toContain("const [search,setSearch]=useState(''),[statusFilter,setStatusFilter]=useState<'all'|'scheduled'|'active'|'ended'>('all')");
+  expect(source).toContain("const [search,setSearch]=useState(''),[statusFilter,setStatusFilter]=useState<'all'|'scheduled'|'live'|'ended'>('all')");
   expect(source).toContain('const visibleRows=rows.filter(row=>(statusFilter===\'all\'||row.status===statusFilter)');
   expect(source).toContain('row.title,row.description??\'\',row.product?.name??\'\',row.product?.category??\'\'');
   expect(source).toContain('No loaded campaigns match these filters.');
