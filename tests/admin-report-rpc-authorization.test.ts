@@ -13,7 +13,7 @@ describe('Production Admin report RPC authorization drift correction',()=>{
    expect(body).toContain("auth.jwt()->'app_metadata'->>'role'");
    expect(body).toContain("<> 'admin'");
    expect(body).toContain("raise exception 'Administrator access required'");
-   expect(body).toContain("set search_path to ''");
+   expect(body).toMatch(/set search_path\\s*(?:=|to)\\s*''/i);
   });
  }
  it('revokes PUBLIC and anon execution and grants only authenticated entry',()=>{
