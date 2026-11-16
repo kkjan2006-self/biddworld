@@ -41,3 +41,13 @@ describe('global financial approval interlock',()=>{
   expect(admin).toContain('FINANCIAL_FEATURE_KEYS.has(key)');
  });
 });
+
+ it('does not allow the ordinary Admin feature RPC to set the trusted approval key',()=>{
+  const start=sql.indexOf('create or replace function public.admin_set_feature_setting');
+  const end=sql.indexOf('$function$;',start);
+  const body=sql.slice(start,end);
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(body).not.toMatch(/'financial_model_approved'/);
+  expect(body).toContain('auth.jwt()');
+  expect(body).toContain("<>''admin''");
+ });

@@ -241,3 +241,17 @@ Compared the source-only `20261116140000_require_active_main_id_for_withdrawals.
 - These checks validate source-level tests/build/dependency metadata only. They do not validate live Production migrations, actual Supabase Auth email delivery, browser/mobile PWA behavior, payment flows, or end-to-end financial controls.
 - The inactive-until-verified migration no longer performs historical bulk status updates. Its trigger only activates the specific Main ID and profile tied to a package activation row transitioning to approved/active.
 - Production remains unchanged; the financial interlock is still source-only and must be reconciled and owner-approved before rollout.
+
+
+## Additional financial-approval key access review — 2026-11-16
+
+A further read-only Production query verified the `app_settings` table grants and policies:
+
+- `anon`: no SELECT/INSERT/UPDATE/DELETE table privileges.
+- `authenticated`: SELECT only; no INSERT/UPDATE/DELETE.
+- `service_role`: full table privileges (expected privileged backend role).
+- The only observed RLS policy for `app_settings` is a scoped authenticated SELECT policy. It exposes a limited set of feature flags to members and broader settings to trusted Admin/Support/Finance metadata; it does not grant client-side writes.
+- Production's current `admin_set_feature_setting` allowlist does not include `financial_model_approved`; the current Production function does not implement the newer source-only financial lock. The branch migration `20261116080000_financial_activity_lockdown.sql` preserves this separation: it checks the approval value and does not expose that key through the ordinary Admin feature switch RPC.
+- The approval value must only be recorded through a trusted owner-controlled operational process after documented economics/legal review. Do not expose it to normal Admin toggles or user metadata. Do not set it in Production as part of this development work.
+
+This is a targeted review of `app_settings` and the matching setting-writing functions discovered in Production, not a certification of every privileged backend pathway. Production remains unchanged.

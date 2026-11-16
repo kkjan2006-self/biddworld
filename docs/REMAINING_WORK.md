@@ -402,3 +402,6 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - [x] Batch 24: remove historical bulk member/profile status rewrites from the inactive-until-verified package lifecycle migration; retain only row-specific activation after approved package transition.
 - [x] CI: latest commit `e6d308437d89d3158bbca30433525baa0ee0812b` passed (44 test files, 162 tests; build completed; npm audit reported 0 vulnerabilities in that run).
 - [ ] Complete non-production Supabase integration tests for signup trigger, pending package request, Admin approval rejection under the financial guard, and row-specific account activation. Do not run these against Production.
+
+- [x] Read-only Production check of `app_settings` table grants and RLS: authenticated SELECT only, no client writes; ordinary Admin feature-setting allowlist does not expose `financial_model_approved`.
+- [ ] Apply no Production migration until the complete migration history/object diff is reconciled, the guard is tested in a non-Production Supabase project, and the owner explicitly approves the rollout.
