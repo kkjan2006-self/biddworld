@@ -210,3 +210,13 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - The RPC is `SECURITY INVOKER`, so existing table RLS remains in force; it returns only published products, validates search/page bounds, and is executable by anonymous and authenticated visitors for public catalogue reading.
 - Added static regression tests for RLS-preserving invocation, published-only filtering, search bounds and pagination contract. CI verification is pending.
 - Migration `20261116120000_public_product_catalogue_search.sql` is source-only and has NOT been applied to Production. No Production data, schema, settings, Storage or financial state was changed.
+
+
+## Installable PWA foundation batch (2026-11-16)
+
+- Added a Web App Manifest with standalone display, app scope/start URL, theme/background colours and scalable 192/512 SVG app icons.
+- Added production-only service-worker registration using Vite BASE_URL, so GitHub Pages /biddworld/ and future root-domain hosting use the correct scope without cross-origin API caching.
+- Added a versioned same-origin app-shell cache, network-first navigation fallback and same-origin static-asset cache; Supabase/API requests are not intercepted or cached.
+- Added automated source-contract tests for the manifest, registration, offline fallback and cache boundaries.
+- This is the installability/offline foundation, not a claim that Android installation, browser compatibility or offline authenticated workflows have been device-tested. Those remain in final QA.
+- No Supabase migrations or Production changes were made.

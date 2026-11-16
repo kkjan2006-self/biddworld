@@ -394,3 +394,13 @@ Work through the incomplete items in dependency order: member/public experience 
 - Member profile self-service now validates display-name length and phone format before calling the existing self-only RPC, validates the response shape, surfaces errors and always releases the saving state. Server-side update remains restricted to the caller's own display name and phone; member IDs, sponsor, status and financial fields are not editable through this workflow.
 - Added source-contract tests for product pagination and member profile safeguards. Tests have been authored but have not yet been executed in this batch.
 - Code commits: `cc9e6366` (product catalogue), `6e42728f` (member profile hardening). Test commits: `b2391637`, `4110e9e7`, `a5fbd57a`, `8009b4af`. No Production database, Storage, settings or financial records were changed.
+
+
+## Installable PWA foundation batch (2026-11-16)
+
+- Added a Web App Manifest with standalone display, app scope/start URL, theme/background colours and scalable 192/512 SVG app icons.
+- Added production-only service-worker registration using Vite BASE_URL, so GitHub Pages /biddworld/ and future root-domain hosting use the correct scope without cross-origin API caching.
+- Added a versioned same-origin app-shell cache, network-first navigation fallback and same-origin static-asset cache; Supabase/API requests are not intercepted or cached.
+- Added automated source-contract tests for the manifest, registration, offline fallback and cache boundaries.
+- This is the installability/offline foundation, not a claim that Android installation, browser compatibility or offline authenticated workflows have been device-tested. Those remain in final QA.
+- No Supabase migrations or Production changes were made.
