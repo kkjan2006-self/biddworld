@@ -846,3 +846,12 @@ Notifications now provide loaded-record title/message/category search and catego
 - Updated the status filter to use `active` internally and updated the regression test accordingly.
 - This is a read-only catalogue correction; no entry, payment, winner, refund, feature-flag, schema or Production data workflow was enabled.
 - Changes are source-only on `completion-work`; CI status must be checked separately before calling the change verified.
+
+
+## Production schema reconciliation correction — 2026-11-16
+
+- Read-only inspection of the actual `BiddWorld-Production` project (`hbqatszyzqobgtauyuzy`) showed that the live `fixed_bid_campaigns.status` is text constrained to values including `scheduled`, `live`, `paused`, `ended` and `cancelled`. The old repository baseline `0001_biddworld.sql` instead declares a different `auction_status` enum with `active` and no `live`.
+- The interim catalogue change that queried `active` was therefore incorrect for the connected Production schema and has been reverted. The member catalogue and regression test again use `live`.
+- Production's actual `fixed_bids` table has `member_id`, `bid_amount`, `status` and a unique `idempotency_key`; no per-member-per-campaign uniqueness constraint appeared in the table metadata. The baseline repository schema is not authoritative for this project state.
+- The Production `fixed_bid_campaigns` table uses a `configuration jsonb` column and does not expose the legacy baseline's `entry_amount`, `starts_at` or `ends_at` columns. Existing Admin draft RPCs were confirmed by read-only `pg_proc` inspection.
+- No Production data, schema, migrations, RPCs, feature flags or financial settings were modified. All inspection queries were SELECT-only.
