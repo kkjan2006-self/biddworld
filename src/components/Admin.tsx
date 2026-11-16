@@ -109,7 +109,8 @@ export default function Admin(){
   setCounts(empty);setError('');setLoading(true);
   async function load(){
    if(!supabase||role!=='admin'){if(active)setLoading(false);return;}
-   const specs=[['members','profiles',null],['packages','packages',null],['pendingActivations','package_activations','payment_status'],['pendingWithdrawals','withdrawal_requests','status'],['auctions','auctions',null],['campaigns','fixed_bid_campaigns',null]] as const;
+   try{
+    const specs=[['members','profiles',null],['packages','packages',null],['pendingActivations','package_activations','payment_status'],['pendingWithdrawals','withdrawal_requests','status'],['auctions','auctions',null],['campaigns','fixed_bid_campaigns',null]] as const;
    const [results,memberResult,overviewResult,structureResult,pendingResult,auditResult,settingsResult,duplicateResult,packageResult,referralResult,withdrawalResult,auctionProductResult,auctionResult,fixedCampaignResult,winningPaymentResult,deliveryResult,walletAccountResult,walletTransactionResult,notificationResult,adminAccountsResult]=await Promise.all([Promise.all(specs.map(async ([key,table,column])=>{
     let q=supabase!.from(table).select('id',{count:'exact',head:true});
     if(column)q=q.eq(column,'pending');
@@ -138,7 +139,11 @@ export default function Admin(){
    if(!adminAccountsResult.error)setAdminAccounts((adminAccountsResult.data??[]) as AdminAccount[]);else setAdminAccountsMessage(adminAccountsResult.error.message);
    if(results.some(x=>x.error))setError('Some totals are hidden by current database permissions or unavailable.');
    setCounts(Object.fromEntries(results.map(x=>[x.key,x.count??0])) as unknown as Counts);
-   setLoading(false);
+   }catch(loadError){
+    if(active)setError(loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.');
+   }finally{
+    if(active)setLoading(false);
+   }
   }
   void load();return()=>{active=false;};
  },[role,refresh,appliedDuplicateSearch]);
