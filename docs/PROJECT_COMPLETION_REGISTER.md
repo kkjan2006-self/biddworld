@@ -1147,3 +1147,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Email is trimmed before sign-in/registration submission; sponsor validation and inactive-until-verified registration messaging are retained.
 - Added `tests/auth-network-failure-recovery.test.ts`; it is a static source-contract test, not a live Supabase Auth simulation.
 - Details: `docs/AUTH_NETWORK_FAILURE_RECOVERY_2026-11-17.md`. CI must pass on the final branch commit. No Supabase accounts, settings, schema or Production data were changed.
+
+
+## Member dashboard automatic initial loading — 2026-11-17
+
+- Fixed a missing mount-time invocation in `Account.tsx`: member data now loads automatically when the dashboard opens instead of waiting for a manual Refresh click.
+- Kept the manual Refresh action and existing authenticated profile / Main-ID-scoped history reads.
+- Added `tests/member-dashboard-initial-load.test.ts`; CI verification is required on the final commit.
+- Details: `docs/MEMBER_DASHBOARD_AUTOMATIC_INITIAL_LOAD_2026-11-17.md`. No Production data or Supabase settings were changed.
