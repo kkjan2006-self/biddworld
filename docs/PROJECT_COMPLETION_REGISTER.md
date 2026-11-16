@@ -806,3 +806,5 @@ Notifications now provide loaded-record title/message/category search and catego
 - Added `tests/member-workspace-request-lifecycle.test.ts` for Notifications, Support and Referral request lifecycle guarantees.
 - Source commits: `96bdb6492334a649e48283f654897e87066b46f5`, `bfa608235c64c9ec02eb9e2436e87c4ce8c149a4`, `9502da15745dac0f13d32d369babb6c8a8cf594d`, `7267465bcfe88c99008304fb5d2252635830e8b7`, `d05fde82ade20f20826565e2384b81028357de44`; test commit: `101cd5017fc0e565f980972d23bf9af160c199f3`.
 - No business rules, financial configuration, RPC definitions, database schema, Production Supabase data/settings, wallet balances, commissions, payments, bids or withdrawals were changed. CI verification pending.
+
+- Additional UI resilience in this batch: Placement Tree now presents an explicit Retry action when its secured tree RPC fails; regression coverage was added. Commit: `bb5ddf8ea1e63f073236a523b49ffe03d9a62d50`; test update: `dc966d577c682f0fe004c3af671eb0704f402602`.
