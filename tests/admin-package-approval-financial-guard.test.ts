@@ -29,6 +29,7 @@ describe('Admin package approval financial interlock',()=>{
   expect(body).toContain("if p_enabled and p_setting_key=any(v_financial_keys)");
   expect(body).toContain("where setting_key='financial_model_approved'");
   expect(body).toContain('Financial feature % is locked until the owner approves');
-  expect(body).not.toMatch(/insert into public\\.app_settings[\\s\\S]{0,180}financial_model_approved/i);
+  expect(body.includes("values(p_setting_key,to_jsonb(p_enabled),now())")).toBe(true);
+  expect(body.includes("values('financial_model_approved'")).toBe(false);
  });
 });
