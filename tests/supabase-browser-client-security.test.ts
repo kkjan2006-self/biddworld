@@ -33,11 +33,11 @@ describe('browser Supabase client security contract',()=>{
     let stat;
     try{stat=statSync(full);}catch{continue;}
     if(stat.isDirectory())walk(full);
-    else if(stat.isFile()&&/\\.(?:[cm]?[jt]sx?|ya?ml|html)$/i.test(entry))files.push(full);
+    else if(stat.isFile()&&/\.(?:[cm]?[jt]sx?|ya?ml|html)$/i.test(entry))files.push(full);
    }
   };
   roots.forEach(walk);
-  const forbidden=/(?:VITE_)?SUPABASE_(?:SERVICE_ROLE|SECRET)_KEY\\s*[:=]|sb_secret_[A-Za-z0-9_-]{8,}/i;
+  const forbidden=/(?:VITE_)?SUPABASE_(?:SERVICE_ROLE|SECRET)_KEY\s*[:=]|sb_secret_[A-Za-z0-9_-]{8,}/i;
   for(const path of files){
    const content=readFileSync(path,'utf8');
    expect(content, path).not.toMatch(forbidden);
