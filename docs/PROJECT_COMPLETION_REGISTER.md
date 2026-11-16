@@ -1155,3 +1155,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Kept the manual Refresh action and existing authenticated profile / Main-ID-scoped history reads.
 - Added `tests/member-dashboard-initial-load.test.ts`; CI verification is required on the final commit.
 - Details: `docs/MEMBER_DASHBOARD_AUTOMATIC_INITIAL_LOAD_2026-11-17.md`. No Production data or Supabase settings were changed.
+
+
+## Member account action network recovery — 2026-11-17
+
+- Withdrawal submission, email change, password change and global sign-out now catch thrown network failures and release their loading states in `finally` blocks.
+- Existing validation and Supabase-returned error handling are retained.
+- Added `tests/member-account-action-network-recovery.test.ts`; latest-commit CI is required for final verification.
+- Details: `docs/MEMBER_ACCOUNT_ACTION_NETWORK_RECOVERY_2026-11-17.md`. No Production data or Auth settings were changed.
