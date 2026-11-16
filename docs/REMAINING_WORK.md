@@ -267,3 +267,11 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Added a clear-filters action, matching-row count, and reversed-range warning. The UI explicitly states filters cover loaded rows only.
 - The complete CSV export continues fetching all secured RPC pages independently of these screen filters, so the filters cannot silently narrow the archival export.
 - Added source-contract regression tests. No wallet records, balances, RPCs, schema or Production settings changed.
+
+
+## Admin pending package activation review filters (2026-11-16)
+
+- Added search on the currently loaded pending activation requests by request number, Main ID, member name, package and payment reference.
+- Added inclusive UTC submission-date filters, clear action, matching count and reversed-range warning.
+- Filtering is display-only: it does not change payment status, reject/approve behavior, financial locks or the existing CSV export scope (which remains all currently loaded pending requests).
+- Added regression tests. No package activation, wallet credit, payment status, Supabase schema or Production data was changed.
