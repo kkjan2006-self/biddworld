@@ -739,3 +739,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - Default sponsor and member sponsor updates now catch rejected RPC calls, show actionable errors, and always release the shared busy state. Successful member sponsor changes still refresh the Admin data; existing commission records are explicitly unchanged.
 - Product image upload and temporary-image cleanup now handle Storage/network exceptions and always release the upload busy state. A staged image path is retained when cleanup fails, and replacing a staged image reports cleanup failures without discarding the newly uploaded image.
 - Existing draft-only product behavior and Storage bucket/policy requirements are unchanged. This is source-only; no Production Storage or database settings/data were changed. Tests remain deferred as requested.
+
+
+## Member and marketplace async loading resilience — 2026-11-16
+
+- `src/components/Account.tsx`: the initial member-account loader now handles rejected Auth/profile/RPC/parallel history/Delivery requests, provides safe retry-oriented messages, fails closed when withdrawal availability cannot be confirmed, and always clears the initial loading state through `finally`. Partial history query errors remain visible instead of being silently treated as a fully successful load.
+- `src/App.tsx`: initial Auth lookup now catches rejected requests and avoids a stale initial lookup overwriting a newer Auth state event; subscription cleanup prevents updates after unmount. Public product and auction initial-load effects now catch rejected promises, preserve stale-request cleanup, reset pagination flags on failure, and recover wallet display state safely.
+- Commits: `669ed550f9aa8465096a6f01d67c680310887795` (Account) and `c723d335313be7258a8c523bc252278e8fca322e` (App).
+- Source-only changes on `completion-work`. No Production SQL, settings, Storage, member records, wallet balances, commissions, payments, or payouts were changed. No manual test campaign was started in this development phase; compilation and regression verification remain pending for the dedicated verification phase.
