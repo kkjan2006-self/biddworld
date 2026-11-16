@@ -467,3 +467,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Auction search covers ID, product, title, category and status. Fixed Bid search covers campaign ID, product, title, description and status.
 - CSV exports now use the matching filtered rows and show matching versus loaded counts. UI text explicitly states these source RPC results are not guaranteed complete-history exports.
 - Referral plan export remains clearly labelled as plan drafts, not a commission payout history. No Supabase schema/RPC, Production data, bidding, settlement or wallet behavior changed.
+
+
+## Admin Winning Payment and Delivery report filters (2026-11-16)
+
+- Added search, status and inclusive date-range controls for Winning Payments and Delivery Tracking report exports.
+- Filters run after the exporter retrieves every 100-row page from the existing secured Admin RPC, so they apply to the complete fetched dataset rather than only the first on-screen page.
+- Winning-payment date range uses `created_at`; delivery date range uses `updated_at` with `shipped_at` fallback. Export filenames and controls identify filtered complete exports.
+- No payment, delivery, wallet, auction, Fixed Bid, Supabase schema/RPC or Production data was changed. This is reporting only.
