@@ -8,7 +8,7 @@ describe('Member dashboard initial loading',()=>{
  it('starts the account data request automatically when the dashboard mounts',()=>{
   expect(account).toContain("import {useEffect,useRef,useState} from 'react'");
   expect(account).toContain('useEffect(()=>{loadMounted.current=true;void load();return()=>{loadMounted.current=false;loadRequest.current+=1;}},[]);');
-  expect(account.indexOf('async function load(){')).toBeLessThan(account.indexOf('useEffect(()=>{void load();},[]);'));
+  expect(account.indexOf('async function load(){')).toBeLessThan(account.indexOf('useEffect(()=>{loadMounted.current=true;void load();return()=>{loadMounted.current=false;loadRequest.current+=1;}},[]);'));
  });
  it('retains a manual refresh action and always releases the initial loading state',()=>{
   expect(account).toContain('onClick={()=>void load()}');
