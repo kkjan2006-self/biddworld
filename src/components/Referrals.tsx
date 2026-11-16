@@ -9,11 +9,11 @@ type Dashboard={main_member_code:string;direct_referrals:number;total_downline:n
 
 export default function Referrals(){
  const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all');
- const request=useRef(0);
- useEffect(()=>{if(!supabase){setLoading(false);return}let active=true;const{data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{if(active)setUserId(s?.user?.id??null)});void supabase.auth.getUser().then(({data})=>{if(active)setUserId(data.user?.id??null)});return()=>{active=false;subscription.unsubscribe()}},[]);
+ const request=useRef(0),loadMoreBusy=useRef(false);
+ useEffect(()=>{if(!supabase){setLoading(false);return}let active=true,authEventObserved=false;const{data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{authEventObserved=true;if(active)setUserId(s?.user?.id??null)});void supabase.auth.getUser().then(({data,error})=>{if(active&&!authEventObserved){if(error)throw error;setUserId(data.user?.id??null)}}).catch(()=>{if(active&&!authEventObserved){setError('Your sign-in session could not be verified. Please sign in again.');setLoading(false)}});return()=>{active=false;subscription.unsubscribe()}},[]);
  useEffect(()=>{
   let active=true;
-  const seq=++request.current;
+  const seq=++request.current;loadMoreBusy.current=false;
   setData(null);setError('');setLoading(true);setLoadingMore(false);
   const timer=window.setTimeout(async()=>{
    if(!supabase||!userId){if(active)setLoading(false);return;}
@@ -28,8 +28,8 @@ export default function Referrals(){
   return()=>{active=false;window.clearTimeout(timer);};
  },[userId,refresh,query,depth]);
  async function loadMore(){
-  const client=supabase;if(!client||!data?.has_more||loadingMore||loading)return;
-  const seq=request.current;setLoadingMore(true);setError('');
+  const client=supabase;if(!client||!data?.has_more||loadMoreBusy.current||loadingMore||loading)return;
+  loadMoreBusy.current=true;const seq=request.current;setLoadingMore(true);setError('');
   try{
    const offset=data.tree.length;
    const {data:next,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
@@ -37,7 +37,7 @@ export default function Referrals(){
    if(loadError)throw loadError;
    setData(current=>current?({...next,tree:[...current.tree,...(next as Dashboard).tree]} as Dashboard):next as Dashboard);
   }catch(e){if(seq===request.current)setError(e instanceof Error?e.message:'More team members could not be loaded. Please retry.');}
-  finally{if(seq===request.current)setLoadingMore(false);}
+  finally{if(seq===request.current){loadMoreBusy.current=false;setLoadingMore(false);}}
  }
  const cards=data?[['My Main ID',data.main_member_code,Users],['Direct Referrals',data.direct_referrals,UserCheck],['Total Team',data.total_downline,Network],['Active Members',data.active_members,UserCheck],['Package Activations',data.active_activations,Gift],['Referral Income',money(Number(data.commission_total)),Wallet],['Bid Wallet',money(Number(data.bid_wallet)),Wallet],['Income Wallet',money(Number(data.income_wallet)),Wallet]] as const:[];
  return <section className="referralWorkspace">
