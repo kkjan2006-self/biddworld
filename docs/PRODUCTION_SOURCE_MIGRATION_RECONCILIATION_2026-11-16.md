@@ -121,3 +121,29 @@ These are legacy/baseline files and must not be replayed against the existing Pr
 - Keep `fixed_bid_enabled=false` and `winning_payment_enabled=false`.
 - Do not enable package activation, referral commissions, wallet credits, bidding, Fixed Bid entries, winner settlement or withdrawals.
 - Continue to use the connected Production project only for read-only audit until an explicit, reviewed rollout is approved.
+
+
+## Live Production security and financial interlock findings — 2026-11-16
+
+### Critical financial activation exposure (do not use package approval)
+
+Read-only inspection of `public.app_settings`, `public.admin_review_package_activation(uuid, boolean)`, and `private.enforce_feature_gate()` found:
+
+- `package_activations_enabled=true` and `bid_wallet_enabled=true` in Production at audit time.
+- No `financial_model_approved` setting row exists in Production.
+- The live SECURITY DEFINER Admin approval RPC checks the trusted Admin JWT role and, on approval, locks the activation/member/wallet rows, credits the Bid Wallet, inserts a wallet-ledger credit, and changes the activation/payment status to active/approved.
+- The live feature-gate trigger checks `package_activations_enabled` for activation insertion/activation and `bid_wallet_enabled` for Bid Wallet ledger writes. Both settings were true at audit time, so these existing checks do not provide the requested financial-owner approval lock.
+- The source-only `20261116000000_financial_approval_guard.sql` / `20261116080000_financial_activity_lockdown.sql` is not present in the Production migration ledger. The source UI lock is not a substitute for a database-side Production guard.
+
+**Operational warning:** Do not approve package activations or use the Production Admin package-review action until a reviewed financial interlock is reconciled and installed through an explicitly approved rollout. This audit did not change settings, apply SQL, approve/reject requests, or write wallet/member data. The user has not authorized Production changes, so no attempt was made to switch either feature setting off.
+
+### Other read-only security catalogue observations
+
+- All 21 ordinary tables in the `public` schema have RLS enabled. None of these 21 tables currently has FORCE ROW LEVEL SECURITY enabled.
+- `notification_templates` has RLS enabled and zero direct table policies in the inspected catalogue; direct table access therefore remains denied by RLS unless a privileged path is used.
+- `fixed_bids` has an owner-scoped SELECT policy only; no INSERT policy was found. Keep Fixed Bid entry submission unavailable.
+- Ten feature-gate triggers were found on `bids`, `delivery_tracking`, `fixed_bid_campaigns`, `member_ids`, `package_activations`, `referral_commissions`, `referrals`, `wallet_transactions`, `winning_item_payments`, and `withdrawal_requests`.
+- The inspected public Admin RPC signatures deny EXECUTE to `anon`; authenticated execution is granted and the inspected Admin SECURITY DEFINER functions perform trusted `app_metadata.role='admin'` checks. Continue to audit each function body and its grants individually; RLS enabled alone is not proof of complete security.
+- Production settings at audit time: `bidding_enabled=false`, `fixed_bid_enabled=false`, `withdrawals_enabled=false`, `winning_payment_enabled=false`, `referral_commissions_enabled=false`, `duplicate_ids_enabled=false`, `winner_selection_configured=false`; `package_activations_enabled=true`, `bid_wallet_enabled=true`, `sponsor_referrals_enabled=true`, `income_wallet_enabled=true`, `registration_enabled=true`. No `financial_model_approved` setting row was returned.
+
+These are point-in-time catalogue observations, not a penetration test or launch certification.
