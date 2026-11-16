@@ -167,7 +167,7 @@ A further direct read-only inspection was completed against the connected `BiddW
 ### Security review findings
 
 - Catalog inventory confirms public Admin SECURITY DEFINER RPCs are executable by `authenticated` but not `anon`; the inspected Admin RPC bodies contain authenticated-user and `app_metadata.role = admin` checks. This is an inventory-level check, not a line-by-line certification of every function.
-- `lookup_sponsor(text)` remains intentionally callable by `anon` and `authenticated`, returns exact-match active Main ID code and display name, and has no rate limiting in its current definition. Signup requires this lookup, so do not revoke it without replacing the signup flow. Rate limiting, enumeration controls and privacy review remain launch blockers.
+- At the time of the original read-only audit, `lookup_sponsor(text)` returned the exact-match active Main ID code and display name. The source branch subsequently adds `20261116160000_minimize_public_sponsor_lookup.sql`, which changes the response to a boolean while preserving signup compatibility. This privacy migration is not applied in Production. It does not implement server-side rate limiting; abuse throttling and enumeration controls remain launch blockers.
 - Supabase Security Advisor currently reports leaked-password protection disabled. Enable it through the Auth security settings after owner review; it was not changed during this audit.
 - Security Advisor reports multiple authenticated-callable SECURITY DEFINER functions. The execute grant alone is not proof of a vulnerability; every function body must be checked for authentication, ownership or trusted Admin authorization, fixed search_path and data minimization.
 
