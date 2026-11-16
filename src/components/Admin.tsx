@@ -153,7 +153,7 @@ export default function Admin(){
     if(error)throw error;
     if(!active)return;
     const batch=(data??[]) as SponsorMember[];
-    setMembers(batch);setMemberHasMore(batch.length===100);
+    setMembers(batch);setAppliedMemberSearch(memberSearch.trim());setMemberHasMore(batch.length===100);
    }catch(e){if(active)setMemberMessage(e instanceof Error?e.message:'Member search failed.');}
    finally{if(active)setMemberMoreBusy(false);}
   },250);
@@ -216,7 +216,7 @@ function exportAuctionsCsv(){downloadReport('biddworld-auctions.csv',['Auction I
 function exportFixedBidCsv(){downloadReport('biddworld-fixed-bid-campaigns.csv',['Campaign ID','Product','Title','Status','Description','Created At'],fixedCampaigns.map(x=>[x.campaign_id,x.product_name,x.title,x.status,x.description,x.created_at]));}
 function exportReferralPlansCsv(){downloadReport('biddworld-referral-plans.csv',['Package','Plan ID','Version','Plan Active','Level','Reward Type','Reward Value'],referralPlans.flatMap(x=>x.rules.map(r=>[x.package_name,x.plan_id,x.version_number,x.plan_active===true?'Yes':x.plan_active===false?'No':'Unknown',r.level,r.reward_type,r.reward_value])));}
 function exportReport(name:string,rows:unknown[][]){const blob=new Blob([csvDocument(rows)],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='biddworld-'+name+'-report.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
-function exportReportMembers(){if(!supabase)return;const client=supabase;const search=memberSearch.trim()||null;void exportPagedReport<SponsorMember>('matching member','biddworld-members-complete.csv',['Main ID','Name','Phone','Sponsor Main ID','Joined At'],offset=>client.rpc('admin_list_members_sponsors_page',{p_search:search,p_limit:100,p_offset:offset}),items=>items.map(m=>[m.member_code,m.display_name,m.phone,m.sponsor_code,m.created_at]));}
+function exportReportMembers(){if(!supabase)return;const client=supabase;const search=appliedMemberSearch.trim()||null;void exportPagedReport<SponsorMember>('matching member','biddworld-members-complete.csv',['Main ID','Name','Phone','Sponsor Main ID','Joined At'],offset=>client.rpc('admin_list_members_sponsors_page',{p_search:search,p_limit:100,p_offset:offset}),items=>items.map(m=>[m.member_code,m.display_name,m.phone,m.sponsor_code,m.created_at]));}
 function exportReportActivations(){exportReport('package-activations-filtered',[['Activation ID','Member Main ID','Member','Package','Amount','Currency','Payment Reference','Submitted At'],...filteredActivations.map(x=>[x.id,x.member_code,x.member_name,x.package_name,x.amount_paid,x.currency,x.payment_reference,x.submitted_at])]);}
 function exportReportWithdrawals(){exportWithdrawalsCsv();}
 function exportReportCommissions(){exportReport('referral-plan-drafts',[['Package','Package Active','Plan Version','Plan Active','Level','Reward Type','Reward Value'],...referralPlans.flatMap(p=>p.rules.map(r=>[p.package_name,p.package_active,p.version_number,p.plan_active,r.level,r.reward_type,r.reward_value]))]);}
