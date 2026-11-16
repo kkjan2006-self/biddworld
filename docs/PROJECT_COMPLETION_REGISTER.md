@@ -629,3 +629,12 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 
 
 - Refreshed migration reconciliation on 2026-11-16: 42 source SQL files vs 30 Production migration rows; only 4 exact timestamp-prefix matches. Full inventory and no-same-version Production entries are recorded in `docs/MIGRATION_RECONCILIATION_MATRIX_2026-11-16.md`. This is a blocker, not authorization to apply migrations.
+
+
+## Source safety batch — financial feature fail-closed defaults (2026-11-16)
+
+- Updated 20261116080000_financial_activity_lockdown.sql so rollout explicitly forces package activations, Bid Wallet, Income Wallet, referral commissions, withdrawals, bidding, Fixed Bid and winning-payment switches to false, overriding permissive legacy defaults.
+- The ordinary Admin feature RPC still cannot enable financial features unless the trusted financial_model_approved setting is already true. The migration deliberately does not overwrite that approval key; an explicit owner approval must remain durable and cannot be created by an ordinary Admin toggle.
+- Added regression assertions for every fail-closed feature default and for preserving the owner-approval setting.
+- Latest source commits: a19cf18 (initial batch) and 9728058 (preserve explicit owner approval). Latest CI for 9728058 is running; no pass is claimed yet.
+- This is source-only. No Production Supabase settings, schema, rows, wallets or financial transactions were changed. The Production project still requires a separate reviewed forward-only migration rollout after migration reconciliation and owner approval.
