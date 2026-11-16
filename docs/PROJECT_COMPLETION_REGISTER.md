@@ -437,3 +437,9 @@ Work through the incomplete items in dependency order: member/public experience 
 - Clarified the Reports screen about which exports are complete paginated RPC exports and which remain limited to currently returned source-RPC records (package activations, referral plans, auctions and Fixed Bid campaigns).
 - Added regression tests for the RPC pagination contract, ledger fields and report-scope wording.
 - No migrations, Production schema/data/settings, wallet balances or financial workflows were changed.
+
+
+## Admin wallet ledger Reports entry-point correction (2026-11-16)
+
+- Connected the Reports screen to the existing complete paginated wallet-ledger export action rather than maintaining a duplicate implementation. This avoids duplicate code and keeps one source of truth for its loading/error state and CSV generation.
+- No new database calls or financial behavior were introduced; export remains read-only.
