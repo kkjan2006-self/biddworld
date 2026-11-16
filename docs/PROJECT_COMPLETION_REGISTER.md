@@ -334,3 +334,12 @@ Work through the incomplete items in dependency order: member/public experience 
 - Free member registration remains available. Paid activation requests remain locked until explicit owner financial/legal approval and independent verification of the database interlock.
 - Added regression tests for the fail-closed UI, absence of payment submission controls/RPC calls and clear informational labels.
 - This UI guard does not replace the database trigger/RPC interlock. The financial-approval and lockdown migrations remain source-only and Production migration reconciliation is still required.
+
+
+## Admin Duplicate ID directory pagination — 2026-11-16
+
+- Added source-only Admin-checked `admin_list_duplicate_ids_page(text,integer,integer)` with 50-row pages, bounded offsets, deterministic ordering, total count and continuation flag.
+- Search spans Duplicate ID, owner Main ID, Under ID, owner/placement display names, phone and status.
+- Admin Duplicate ID management now searches the full result set and loads subsequent pages while retaining the applied search.
+- Regression tests cover Admin authorization, bounded pagination, search fields, stable ordering, RPC grants and UI continuation.
+- Migration is not applied to Production; duplicate ID creation/activation remains disabled by the financial approval lock. No Production data or settings changed.

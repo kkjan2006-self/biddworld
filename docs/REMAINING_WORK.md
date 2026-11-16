@@ -174,3 +174,9 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Member package page no longer accepts payment references or calls `submit_package_activation`. Package rows are informational only and any Bid Wallet amount is labeled as proposed/not issued.
 - Free registration remains available. Paid activation remains disabled until owner financial/legal approval and independent database verification.
 - Regression coverage added for the UI fail-closed state. This is a client-side guard only; Production backend safeguards remain unverified because migrations have not been applied.
+
+
+## Admin Duplicate ID directory pagination — 2026-11-16
+
+- Admin Duplicate ID list now has source-side full-history search and 50-row Load More using a new Admin-checked RPC.
+- Migration `20261116110000_admin_duplicate_id_pagination.sql` is source-only and not applied to Production. Duplicate ID activation remains locked; this batch improves administrative visibility only.
