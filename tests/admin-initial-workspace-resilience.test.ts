@@ -7,6 +7,11 @@ describe('Admin initial workspace request resilience',()=>{
   expect(admin).toContain('}catch(loadError){');
   expect(admin).toContain("loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.'");
  });
+ it('exposes a keyboard-accessible retry action for workspace load errors',()=>{
+  expect(admin).toContain('<div className="notice" role="alert">');
+  expect(admin).toContain('Retry loading Admin data');
+  expect(admin).toContain('onClick={()=>setRefresh(v=>v+1)}');
+ });
  it('always releases the initial loading state while mounted',()=>{
   expect(admin).toContain('}finally{\n    if(active)setLoading(false);');
  });
