@@ -942,3 +942,15 @@ Notifications now provide loaded-record title/message/category search and catego
 - Production default ACLs for public schema objects are broad for anon/authenticated (future tables CRUD, functions EXECUTE, sequences usage/select/update). Existing explicit grants/RLS do not eliminate the future migration hazard. Every migration needs explicit least-privilege grants and RLS assertions.
 - Evidence: `docs/PRODUCTION_AUTH_STORAGE_DEFAULT_PRIVILEGES_REVIEW_2026-11-16.md`.
 - All Production checks were read-only; no live state changed.
+
+
+## 2026-11-16 — Bid idempotency Production compatibility review
+
+- CI runs `43859286459` and `43859186877` completed successfully on the previous documentation commits.
+- Read-only comparison confirms the source bid-idempotency migration's referenced columns and status values match the inspected Production catalogue.
+- Production already has unique indexes on `bids.idempotency_key` and `wallet_transactions.idempotency_key`; the source migration uses one stable bid key and separate wallet suffix keys.
+- Live Production still exposes the old `place_bid(uuid)` private/public RPC pair that generates a fresh server-side UUID per call. The source two-argument idempotent RPC is not live.
+- Browser code retains the same request key after a network error and clears it only after a successful RPC response.
+- Existing Vitest checks are source-text contract tests, not PostgreSQL integration/concurrency tests. No disposable TEST project was used in this audit; do not claim full idempotency behavior tested.
+- Required TEST cases and rollout blockers: `docs/BID_IDEMPOTENCY_PRODUCTION_COMPATIBILITY_REVIEW_2026-11-16.md`.
+- Production remained read-only; bidding remains disabled and no bids or wallet entries were created.
