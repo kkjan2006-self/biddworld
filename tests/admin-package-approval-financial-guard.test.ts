@@ -32,4 +32,20 @@ describe('Admin package approval financial interlock',()=>{
   expect(body.includes("values(p_setting_key,to_jsonb(p_enabled),now())")).toBe(true);
   expect(body.includes("values('financial_model_approved'")).toBe(false);
  });
+
+ it('blocks Admin UI package approval before invoking the live crediting RPC',()=>{
+  const start=admin.indexOf('async function reviewActivation');
+  const end=admin.indexOf('function downloadReport',start);
+  const body=admin.slice(start,end);
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(body).toContain('if(approve && FINANCIAL_APPROVAL_LOCKED)');
+  expect(body).toContain('return;');
+  expect(body.indexOf('if(approve && FINANCIAL_APPROVAL_LOCKED)')).toBeLessThan(body.indexOf("supabase.rpc('admin_review_package_activation'"));
+  expect(body).toContain('admin_review_package_activation');
+ });
+ it('keeps Admin financial feature switches fail-closed in the UI while allowing disable actions',()=>{
+  expect(admin).toContain('const FINANCIAL_APPROVAL_LOCKED = true;');
+  expect(admin).toContain('if(enabled&&FINANCIAL_APPROVAL_LOCKED&&FINANCIAL_FEATURE_KEYS.has(key))');
+  expect(admin).toContain('FINANCIAL_FEATURE_KEYS');
+ });
 });
