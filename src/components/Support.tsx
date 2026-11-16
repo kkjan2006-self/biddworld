@@ -1,4 +1,4 @@
-import {useCallback,useEffect,useState} from 'react';
+import {useCallback,useEffect,useRef,useState} from 'react';
 import {MessageCircle,Send,RefreshCw,ShieldCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 
@@ -6,6 +6,7 @@ type Ticket={id:string;user_id:string;subject:string;message:string;status:'open
 const PAGE_SIZE=100;
 
 export default function Support({isAdmin=false}:{isAdmin?:boolean}){
+ const requestSeq=useRef(0),loadMoreBusy=useRef(false);
  const [tickets,setTickets]=useState<Ticket[]>([]);
  const [subject,setSubject]=useState('');
  const [message,setMessage]=useState('');
@@ -20,31 +21,34 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const [statusFilter,setStatusFilter]=useState<'all'|Ticket['status']>('all');
 
  const load=useCallback(async()=>{
+  const seq=++requestSeq.current;loadMoreBusy.current=false;
   if(!supabase){setError('Support is unavailable until the BiddWorld database is configured.');setTickets([]);setHasMore(false);return;}
   setBusy(true);setError('');
   try{
    const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);
    if(loadError)throw loadError;
+   if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
    setTickets(rows);setHasMore(rows.length===PAGE_SIZE);
    setStatus(Object.fromEntries(rows.map(row=>[row.id,row.status])));
    setResponse(Object.fromEntries(rows.map(row=>[row.id,row.admin_response??''])));
-  }catch(e){setError(e instanceof Error?e.message:'Support requests could not be loaded. Please retry.');}
-  finally{setBusy(false);}
+  }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Support requests could not be loaded. Please retry.');}
+  finally{if(seq===requestSeq.current)setBusy(false);}
  },[]);
  const loadMore=useCallback(async()=>{
-  if(!supabase||busy||!hasMore)return;
-  setBusy(true);setError('');
+  if(!supabase||loadMoreBusy.current||busy||!hasMore)return;
+  loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
   try{
    const from=tickets.length;
    const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);
    if(loadError)throw loadError;
+   if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
    setTickets(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);
    setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
    setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
-  }catch(e){setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
-  finally{setBusy(false);}
+  }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
+  finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,tickets.length]);
  useEffect(()=>{void load()},[load]);
 
