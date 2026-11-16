@@ -20,27 +20,31 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const [statusFilter,setStatusFilter]=useState<'all'|Ticket['status']>('all');
 
  const load=useCallback(async()=>{
-  if(!supabase){setError('Support is unavailable until the BiddWorld database is configured.');return;}
+  if(!supabase){setError('Support is unavailable until the BiddWorld database is configured.');setTickets([]);setHasMore(false);return;}
   setBusy(true);setError('');
-  const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);
-  setBusy(false);
-  if(loadError){setError(loadError.message);return;}
-  const rows=(data??[]) as Ticket[];
-  setTickets(rows);setHasMore(rows.length===PAGE_SIZE);
-  setStatus(Object.fromEntries(rows.map(row=>[row.id,row.status])));
-  setResponse(Object.fromEntries(rows.map(row=>[row.id,row.admin_response??''])));
+  try{
+   const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);
+   if(loadError)throw loadError;
+   const rows=(data??[]) as Ticket[];
+   setTickets(rows);setHasMore(rows.length===PAGE_SIZE);
+   setStatus(Object.fromEntries(rows.map(row=>[row.id,row.status])));
+   setResponse(Object.fromEntries(rows.map(row=>[row.id,row.admin_response??''])));
+  }catch(e){setError(e instanceof Error?e.message:'Support requests could not be loaded. Please retry.');}
+  finally{setBusy(false);}
  },[]);
  const loadMore=useCallback(async()=>{
   if(!supabase||busy||!hasMore)return;
   setBusy(true);setError('');
-  const from=tickets.length;
-  const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);
-  setBusy(false);
-  if(loadError){setError(loadError.message);return;}
-  const rows=(data??[]) as Ticket[];
-  setTickets(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);
-  setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
-  setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
+  try{
+   const from=tickets.length;
+   const {data,error:loadError}=await supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);
+   if(loadError)throw loadError;
+   const rows=(data??[]) as Ticket[];
+   setTickets(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);
+   setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
+   setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
+  }catch(e){setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
+  finally{setBusy(false);}
  },[busy,hasMore,tickets.length]);
  useEffect(()=>{void load()},[load]);
 
@@ -49,12 +53,15 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   if(subject.trim().length<4||subject.trim().length>120){setError('Subject must contain 4–120 characters.');return;}
   if(message.trim().length<10||message.trim().length>5000){setError('Describe your issue in 10–5,000 characters.');return;}
   setBusy(true);setError('');setNotice('');
-  const {data:{user},error:userError}=await supabase.auth.getUser();
-  if(userError||!user){setBusy(false);setError('Please sign in again to submit a support request.');return;}
-  const {error:insertError}=await supabase.from('support_tickets').insert({user_id:user.id,subject:subject.trim(),message:message.trim()});
-  setBusy(false);
-  if(insertError){setError(insertError.message);return;}
-  setSubject('');setMessage('');setNotice('Your support request has been submitted.');await load();
+  try{
+   const {data:{user},error:userError}=await supabase.auth.getUser();
+   if(userError||!user)throw new Error('Please sign in again to submit a support request.');
+   const {error:insertError}=await supabase.from('support_tickets').insert({user_id:user.id,subject:subject.trim(),message:message.trim()});
+   if(insertError)throw insertError;
+   setSubject('');setMessage('');setNotice('Your support request has been submitted.');
+   await load();
+  }catch(e){setError(e instanceof Error?e.message:'Your support request could not be submitted. Please retry.');}
+  finally{setBusy(false);}
  }
  async function saveTicket(id:string){
   if(!supabase||saving)return;
@@ -62,10 +69,12 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   const nextResponse=(response[id]??'').trim();
   if(nextResponse.length>5000){setError('Admin response must be 5,000 characters or fewer.');return;}
   setSaving(id);setError('');setNotice('');
-  const {error:updateError}=await supabase.from('support_tickets').update({status:nextStatus,admin_response:nextResponse||null}).eq('id',id);
-  setSaving('');
-  if(updateError){setError(updateError.message);return;}
-  setNotice('Support ticket updated.');await load();
+  try{
+   const {error:updateError}=await supabase.from('support_tickets').update({status:nextStatus,admin_response:nextResponse||null}).eq('id',id);
+   if(updateError)throw updateError;
+   setNotice('Support ticket updated.');await load();
+  }catch(e){setError(e instanceof Error?e.message:'Support ticket could not be updated. Please retry.');}
+  finally{setSaving('');}
  }
  const date=(value:string)=>new Date(value).toLocaleString('en-IN');
  const visibleTickets=tickets.filter(ticket=>(statusFilter==='all'||ticket.status===statusFilter)&&(!search.trim()||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));

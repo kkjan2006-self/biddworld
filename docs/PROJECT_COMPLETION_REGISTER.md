@@ -689,3 +689,10 @@ Notifications now provide loaded-record title/message/category search and catego
 
 - Member/Admin notification inbox initial loading and Load More now use exception-safe busy-state cleanup and preserve actionable errors if a request rejects unexpectedly, rather than leaving the inbox stuck in a loading state.
 - No database, Supabase Auth settings, Production records or financial workflows were changed. Tests remain deferred.
+
+
+## Support workflow resilience — 2026-11-16
+
+- Support inbox initial load and pagination now clean up busy state even when requests throw unexpectedly and retain a useful error for retry.
+- Member ticket submission and Admin response/status updates now use exception-safe cleanup, so the form does not remain stuck after network/runtime failures.
+- These changes preserve existing RLS/RPC authorization and do not add email/SMS dispatch, attachment storage, or new status permissions. No Production data/settings or financial flows were changed.
