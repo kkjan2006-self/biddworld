@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {Gavel,Package,RefreshCw} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 type Campaign={id:string;title:string;description:string|null;status:string;created_at:string;product: {name:string;description:string|null;category:string|null;image_path:string|null}|null};
@@ -6,21 +6,30 @@ const PAGE_SIZE=50;
 export default function FixedBid(){
  const [rows,setRows]=useState<Campaign[]>([]),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[error,setError]=useState('');
  const [search,setSearch]=useState(''),[statusFilter,setStatusFilter]=useState<'all'|'scheduled'|'live'|'ended'>('all');
+ const mounted=useRef(true),requestId=useRef(0),requestInFlight=useRef(false);
  async function load(reset=true){
-  if(reset){setLoading(true);setError('');setRows([]);setHasMore(false);}else{if(loadingMore||!hasMore)return;setLoadingMore(true);setError('');}
-  if(!supabase){setRows([]);setLoading(false);setLoadingMore(false);return;}
+  if(requestInFlight.current)return;
+  if(!reset&&(loadingMore||!hasMore))return;
+  requestInFlight.current=true;
+  const request=++requestId.current;
+  if(reset){setLoading(true);setError('');setRows([]);setHasMore(false);}else{setLoadingMore(true);setError('');}
   try {
+   if(!supabase){if(mounted.current&&request===requestId.current){setRows([]);setHasMore(false);}return;}
    const offset=reset?0:rows.length;
    const {data,error}=await supabase.from('fixed_bid_campaigns').select('id,title,description,status,created_at,product:products(name,description,category,image_path)').in('status',['scheduled','live','ended']).order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+PAGE_SIZE-1);
    if(error)throw error;
+   if(!mounted.current||request!==requestId.current)return;
    const batch=(data??[]) as unknown as Campaign[];
    setRows(current=>reset?batch:[...current,...batch]);
    setHasMore(batch.length===PAGE_SIZE);
   } catch {
-   setError(reset?'Fixed Bid campaigns are not available yet.':'More campaigns could not be loaded. Please retry.');
-  } finally {setLoading(false);setLoadingMore(false);}
+   if(mounted.current&&request===requestId.current)setError(reset?'Fixed Bid campaigns are not available yet.':'More campaigns could not be loaded. Please retry.');
+  } finally {
+   requestInFlight.current=false;
+   if(mounted.current&&request===requestId.current){setLoading(false);setLoadingMore(false);}
+  }
  }
- useEffect(()=>{void load(true)},[]);
+ useEffect(()=>{mounted.current=true;void load(true);return()=>{mounted.current=false;requestId.current+=1}},[]);
  const visibleRows=rows.filter(row=>(statusFilter==='all'||row.status===statusFilter)&&(!search.trim()||[row.title,row.description??'',row.product?.name??'',row.product?.category??''].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
  return <section className="fixedBidList"><div className="packageIntro"><span className="workspaceIcon"><Gavel/></span><div><h3>Fixed Bid campaigns</h3><p>Scheduled, live and ended campaigns are shown. Campaign information is read-only; no entries or payments are processed here.</p></div><button className="outline small" onClick={()=>void load(true)} disabled={loading||loadingMore}><RefreshCw size={14}/> Refresh</button></div>
  {loading?<p className="packageState">Loading campaigns…</p>:error&&rows.length===0?<div className="notice">{error} <button className="outline small" onClick={()=>void load(true)}>Retry</button></div>:rows.length===0?<div className="empty">No scheduled, live or ended Fixed Bid campaigns are available.</div>:
