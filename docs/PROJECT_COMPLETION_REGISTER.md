@@ -732,3 +732,10 @@ Notifications now provide loaded-record title/message/category search and catego
 - Added non-negative numeric validation for referral reward drafts and package price/proposed credit inputs.
 - Package approval remains locked by the existing owner financial/legal interlock; no wallet credits, commissions, or package activations were issued.
 - No Production schema, settings, or data were changed. Tests remain deferred.
+
+
+## Admin sponsor and product-media workflow resilience — 2026-11-16
+
+- Default sponsor and member sponsor updates now catch rejected RPC calls, show actionable errors, and always release the shared busy state. Successful member sponsor changes still refresh the Admin data; existing commission records are explicitly unchanged.
+- Product image upload and temporary-image cleanup now handle Storage/network exceptions and always release the upload busy state. A staged image path is retained when cleanup fails, and replacing a staged image reports cleanup failures without discarding the newly uploaded image.
+- Existing draft-only product behavior and Storage bucket/policy requirements are unchanged. This is source-only; no Production Storage or database settings/data were changed. Tests remain deferred as requested.
