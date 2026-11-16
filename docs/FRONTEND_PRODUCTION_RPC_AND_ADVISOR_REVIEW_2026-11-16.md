@@ -90,3 +90,11 @@ The branch also contains `docs/PRODUCTION_RPC_LIFECYCLE_RETRY_FINDINGS_2026-11-1
 ## Verification boundary
 
 This review confirms source/live RPC contract gaps and current Advisor findings only. It is not an E2E test, live application certification, migration rehearsal, penetration test, or launch approval.
+
+
+## Refreshed frontend inventory after subsequent source-only work — 2026-11-16
+
+- Branch inventory was regenerated from all ten current React surfaces at source snapshot `39320b8814fe7e33a50513772336803a73b2b5cb`.
+- The manifest now contains 44 literal frontend RPC call-and-surface entries and is checked against the source by `tests/frontend-rpc-inventory.test.ts`.
+- This refresh does not query Production. The eight missing live RPC contracts, Duplicate ID signature mismatch, five-level referral-plan constraint, sponsor lookup response mismatch and Advisor findings above remain the latest recorded read-only Production snapshot; re-query the live catalogue before any migration rollout.
+- Public Auctions and Products now show accessible Retry actions when their first-page requests fail. This is frontend-only; it does not resolve the live Production product catalogue RPC gap.
