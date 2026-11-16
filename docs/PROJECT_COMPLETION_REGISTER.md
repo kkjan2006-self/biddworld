@@ -658,3 +658,8 @@ Account Security now displays the authenticated email address and lets the membe
 ## Admin member directory search batch — 2026-11-16
 
 Member Directory now submits search terms to `admin_list_members_sponsors_page` from the server, resets pagination when a new search is applied, and carries the applied query into Load More. A Clear action restores the unfiltered first page. This avoids implying that browser-side filtering of only the currently loaded 100 records searches the entire directory.
+
+
+## Member wallet statement usability batch — 2026-11-16
+
+Wallet History now supports transaction-type selection and description/reference search alongside existing wallet, direction and UTC date filters. It reports the number of matching loaded records and provides one action to clear all filters. The UI explicitly distinguishes loaded-record filtering from the full Main-ID CSV export, which continues retrieving all records before applying the selected filters. No wallet mutation or financial RPC was added.
