@@ -459,3 +459,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added inclusive UTC submission-date filters, clear action, matching count and reversed-range warning.
 - Filtering is display-only: it does not change payment status, reject/approve behavior, financial locks or the existing CSV export scope (which remains all currently loaded pending requests).
 - Added regression tests. No package activation, wallet credit, payment status, Supabase schema or Production data was changed.
+
+
+## Admin Auction and Fixed Bid report filters (2026-11-16)
+
+- Added loaded-record search and status filters to the Admin Auction and Fixed Bid CSV report sections.
+- Auction search covers ID, product, title, category and status. Fixed Bid search covers campaign ID, product, title, description and status.
+- CSV exports now use the matching filtered rows and show matching versus loaded counts. UI text explicitly states these source RPC results are not guaranteed complete-history exports.
+- Referral plan export remains clearly labelled as plan drafts, not a commission payout history. No Supabase schema/RPC, Production data, bidding, settlement or wallet behavior changed.
