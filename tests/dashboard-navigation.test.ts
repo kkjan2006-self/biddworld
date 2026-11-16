@@ -34,7 +34,7 @@ describe('dashboard navigation integrity', () => {
     const walletHistory = readSource('src/components/WalletHistory.tsx');
     expect(walletHistory).toMatch(/hasMore\s*&&\s*<button/i);
     expect(walletHistory).toMatch(/Load 100 more transactions/);
-    expect(walletHistory).toMatch(/setPage\(current\s*=>\s*current\s*\+\s*1\)/);
+    expect(walletHistory).toContain('setPage(current=>current+1)');
     expect(walletHistory).toMatch(/order\('created_at',\s*\{ascending:false\}\)\.order\('id',\s*\{ascending:false\}\)/);
   });
 
