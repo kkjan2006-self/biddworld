@@ -33,9 +33,10 @@ describe('Package approval atomic financial guard contract', () => {
   });
 
   it('preserves the pre-existing feature gates as separate checks', () => {
-    const featureGate = read('supabase/migrations/20261115050000_feature_gate_triggers.sql');
+    const featureGate = read('supabase/migrations/20261115154434_fix_feature_gate_trigger_row_access.sql');
+    const walletGate = read('supabase/migrations/20261115154510_extend_wallet_and_sponsor_feature_gates.sql');
     expect(featureGate).toContain('private.enforce_feature_gate()');
     expect(featureGate).toContain('enforce_package_activation_feature');
-    expect(featureGate).toContain('enforce_package_wallet_credit_feature');
+    expect(walletGate).toContain('enforce_package_wallet_credit_feature');
   });
 });
