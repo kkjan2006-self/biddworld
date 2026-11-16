@@ -996,3 +996,13 @@ Notifications now provide loaded-record title/message/category search and catego
 - Added `tests/package-activation-submission-lock.test.ts`, including the active Main ID withdrawal guard assertion from the existing source-only withdrawal migration.
 - Details: `docs/REGISTRATION_ACTIVATION_SECURITY_FOLLOWUP_2026-11-16.md`.
 - Production remains read-only; no payment, setting, migration or member state was changed.
+
+
+## 2026-11-16 — Production package approval transaction reconciliation
+
+- Re-read live Production definitions for `admin_review_package_activation`, `admin_set_feature_setting`, `submit_package_activation`, and `private.enforce_feature_gate` using SELECT-only queries.
+- Confirmed the live Admin approval RPC locks the activation, Main ID and Bid Wallet; updates the balance; inserts a deterministic activation-scoped ledger credit; updates activation to approved/active; and writes an audit record within one PostgreSQL function transaction.
+- Confirmed existing live `private.enforce_feature_gate()` triggers check feature switches only, not `financial_model_approved`. No live `private.require_financial_model_approval()` or wallet-ledger append-only trigger was found on the inspected tables.
+- Live feature snapshot: package activations, Bid Wallet and Income Wallet flags are true; bidding, fixed bid, referral commissions, withdrawals and winning payment flags are false. No `financial_model_approved` setting row was returned.
+- Added `docs/PRODUCTION_PACKAGE_APPROVAL_TRANSACTION_REVIEW_2026-11-16.md` and `tests/package-approval-atomic-guard.test.ts`.
+- Production remains strictly read-only. Do not approve package requests or toggle financial flags. Full migration rehearsal and explicit owner approval remain prerequisites.
