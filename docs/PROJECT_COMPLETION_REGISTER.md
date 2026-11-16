@@ -866,3 +866,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - Confirmed migration drift: Production ledger lists 30 migrations and includes `20261115151930_admin_fixed_bid_campaign_draft_management`, while the source tree has 43 migration files and lacks that exact migration file. No migration was applied.
 - Restored the member catalogue status query to `live` to match Production. This correction is in source only; the latest CI result will be checked separately.
 - All Production inspection was read-only. No production schema, rows, RPCs, flags, wallets, entries or financial records were changed.
+
+
+## Production/source migration reconciliation — 2026-11-16
+
+- Compared the live Production migration ledger (30 entries) with the current `completion-work` source tree (43 SQL files: 40 timestamped and 3 unversioned legacy/baseline files).
+- Classification: 4 exact version+name matches; 9 same-slug migrations with different timestamps; 17 Production ledger entries with no same-slug source file; 27 timestamped source migrations not represented in Production by version or slug; 3 unversioned baseline files.
+- Added `docs/PRODUCTION_SOURCE_MIGRATION_RECONCILIATION_2026-11-16.md` with the exact comparison lists and a safe forward-only reconciliation sequence. Filename similarity is not treated as SQL equivalence.
+- No migrations were applied and no Production schema, settings, Auth, Storage, member, financial or other data were changed. The Production database remains read-only for this audit. The source financial interlock is not active in Production unless separately reconciled and applied through an approved rollout.
