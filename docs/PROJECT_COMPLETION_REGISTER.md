@@ -626,3 +626,6 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 
 
 - CI initially caught escaped template-literal delimiters in the new SECURITY DEFINER contract test; corrected in the follow-up commit. Follow-up CI is now green; the test is included in 45 passing files / 167 passing tests.
+
+
+- Refreshed migration reconciliation on 2026-11-16: 42 source SQL files vs 30 Production migration rows; only 4 exact timestamp-prefix matches. Full inventory and no-same-version Production entries are recorded in `docs/MIGRATION_RECONCILIATION_MATRIX_2026-11-16.md`. This is a blocker, not authorization to apply migrations.

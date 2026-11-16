@@ -310,3 +310,9 @@ This grant review is not a complete certification of all service-role consumers,
 
 
 - The new source-level SECURITY DEFINER contract test initially failed to parse due escaped template-literal delimiters. Follow-up commit `14308d223c53605854078fb1b5167f1f2b64d476` corrected it; CI run `43798298345` passed with 45 test files / 167 tests, type-check/build successful and 0 npm audit vulnerabilities.
+
+
+## Exact migration-ledger inventory refresh — 2026-11-16
+
+- Re-queried Production migration history read-only: 30 rows. Enumerated the branch recursively: 42 SQL migration files. Only 4 timestamp prefixes match exactly; 26 Production ledger rows have no same-version source filename. Matching timestamps alone do not certify SQL equivalence. Full file-by-file inventory is in `docs/MIGRATION_RECONCILIATION_MATRIX_2026-11-16.md`.
+- No migrations or data changes were made. Do not apply any source migration until authoritative SQL and live objects are fully reconciled and the ordered chain is tested in a disposable database.

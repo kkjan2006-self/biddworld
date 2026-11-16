@@ -442,3 +442,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 
 
 - Follow-up corrected template-literal escaping in the migration-wide SECURITY DEFINER contract test after CI detected a parse error; CI run `43798298345` passed after the parser fix (45 files / 167 tests).
+
+
+## Migration history reconciliation — refreshed 2026-11-16
+
+- [x] Read-only count: 42 source SQL migration files on `completion-work`; 30 applied rows in Production.
+- [x] Exact version-prefix comparison: 4 timestamp matches; 26 Production ledger rows have no same-version source filename. Semantic similarity is not proof of identical SQL.
+- [ ] Recover/reconstruct authoritative SQL for Production versions missing from source; compare live objects and prepare a forward-only reconciliation plan. Never replay baseline migrations or fabricate history.
+- [ ] Rehearse the complete ordered chain in a disposable non-Production database before explicit owner approval. Production remains untouched.
