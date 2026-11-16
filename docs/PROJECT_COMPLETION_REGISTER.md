@@ -668,3 +668,11 @@ Wallet History now supports transaction-type selection and description/reference
 ## Member communications and Fixed Bid discovery batch — 2026-11-16
 
 Notifications now provide loaded-record title/message/category search and category filtering, with a single clear-filter action and matching-result count; unread filtering remains explicit and scoped to loaded inbox records. Support now states how many loaded requests match its search/status filters and provides a clear-filter action. Fixed Bid campaign discovery now reports matching loaded campaigns and provides a clear-filter action. These changes are presentation/read-only improvements; no new database columns, RPC assumptions, financial actions or Production changes were introduced.
+
+
+## Environment isolation and signup verification configuration — 2026-11-16
+
+- Removed the browser client's implicit fallback to the live Production Supabase URL and publishable key. An unconfigured preview now stays disconnected instead of silently reading/writing Production.
+- Added explicit `preview`, `test` and `live` build modes. Test mode refuses the known Production project reference; Live mode accepts only the approved Production project reference.
+- Documented that email-confirmation enable/disable is controlled by Supabase Auth project settings, not a client-side switch. Disable it only in a separate disposable TEST project; require it enabled in LIVE.
+- A separate test Supabase project is not currently confirmed as available. No test records were inserted, no hosted Auth settings were changed, and Production was not modified. Test execution remains blocked until the isolated project is provisioned.
