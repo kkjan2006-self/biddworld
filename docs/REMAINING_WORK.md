@@ -228,3 +228,11 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - Support workspace now filters loaded tickets by status and case-insensitive subject/message/response text for both member and Admin views. The UI explicitly labels filters as applying to loaded records; existing 100-row pagination and database RLS remain in place.
 - Added source-contract regression tests for both changes. CI is required to verify tests, TypeScript and production build.
 - No migrations, Production schema/data/settings, wallet balances or financial workflows were changed.
+
+
+## Fixed Bid catalogue and CI regression correction (2026-11-16)
+
+- Added client-side search and status filters (Scheduled, Live, Ended) over the Fixed Bid campaigns already loaded by the existing 50-row paginated query. Search covers campaign title/description and product name/category. The UI labels the scope as loaded campaigns and preserves pagination.
+- Corrected the notification inbox heading wording to retain the existing pagination test's explicit 'unread shown' contract while still clarifying that the count is for the current page.
+- CI run `43789281452` exposed one existing source-contract assertion expecting the phrase `unread shown`; 27 test files passed and 1 test file failed (108/109 tests passed). This batch corrects that compatibility issue and adds Fixed Bid filter regression coverage. New CI verification is pending.
+- No financial actions, migrations, Production data/schema/settings or wallet state changed. Fixed Bid remains read-only; no entries, bids or payments are enabled.
