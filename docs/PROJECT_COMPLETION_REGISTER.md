@@ -378,3 +378,11 @@ Work through the incomplete items in dependency order: member/public experience 
 - Added exception-safe save handling so network/RPC failures display an error and always release the busy state.
 - Added Cancel Edit/reset behavior and clearer editing feedback; templates continue to save only as inactive drafts and no notification is sent.
 - Provider integration, recipient targeting, delivery tracking, unsubscribe/consent handling and end-to-end notification testing remain pending. No Production data, policies, RPCs or settings were changed.
+
+
+## Public product catalogue pagination — 2026-11-16
+
+- The public Products tab now loads active published products in deterministic 100-row server pages, ordered by product name and ID, with a Load More control and loaded-count feedback.
+- Product query failures and continuation-page failures now show clear retry guidance instead of silently presenting an empty catalogue. Search continues to filter all product pages loaded in the current session.
+- The query remains read-only and restricted to `status='published'`; no Admin draft or unpublished product is exposed. No financial behavior or Production database state changed.
+- Source-only UI update on `completion-work`; CI/build verification is pending. This does not reconcile or apply the pending product catalogue migration to Production.
