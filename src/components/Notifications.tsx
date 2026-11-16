@@ -1,23 +1,25 @@
-import {useCallback,useEffect,useState} from 'react';
+import {useCallback,useEffect,useRef,useState} from 'react';
 import {Bell,Send,RefreshCw,CheckCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 
 type Notice={id:string;user_id:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
+ const requestSeq=useRef(0),loadMoreBusy=useRef(false);
  const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
  const load=useCallback(async()=>{
+  const seq=++requestSeq.current;loadMoreBusy.current=false;
   if(!supabase){setError('Notifications are unavailable until Supabase is configured.');setItems([]);setHasMore(false);return;}
   setBusy(true);setError('');
-  try{const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);if(loadError)throw loadError;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
-  catch(e){setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
-  finally{setBusy(false);}
+  try{const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
+  catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
+  finally{if(seq===requestSeq.current)setBusy(false);}
  },[]);
  const loadMore=useCallback(async()=>{
-  if(!supabase||busy||!hasMore)return;setBusy(true);setError('');
-  try{const from=items.length;const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);}
-  catch(e){setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
-  finally{setBusy(false);}
+  if(!supabase||loadMoreBusy.current||busy||!hasMore)return;loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
+  try{const from=items.length;const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);}
+  catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
+  finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,items.length]);
  useEffect(()=>{void load()},[load]);
  async function send(e:React.FormEvent<HTMLFormElement>){
