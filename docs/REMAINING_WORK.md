@@ -436,9 +436,9 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 ## Bulk security and production-readiness batch — 2026-11-16
 
 - Added a migration-wide static contract test for every public SECURITY DEFINER SQL function: each declaration must pin `search_path` and explicitly revoke default EXECUTE before granting intended roles.
-- Confirmed the latest credential-scan CI and wallet-ledger append-only CI passed before this batch. New batch CI is required before treating the contract test as verified.
+- Confirmed the latest credential-scan CI and wallet-ledger append-only CI passed before this batch. Follow-up CI `43798298345` passed (45 test files / 167 tests, type-check/build successful, npm audit 0 vulnerabilities).
 - Remaining blockers are not small UI tasks: complete Production migration/function reconciliation; non-Production PostgreSQL integration tests; public sponsor lookup rate limiting; Auth leaked-password protection; full RPC body review; secret inventory/history/deployed bundle review; financial/legal model approval; and real browser/mobile E2E.
 - Financial package, commissions, bids, Fixed Bid, winner settlement and withdrawals remain prohibited until owner/legal/economic approval and database enforcement are independently verified.
 
 
-- Follow-up corrected template-literal escaping in the migration-wide SECURITY DEFINER contract test after CI detected a parse error; awaiting clean CI confirmation.
+- Follow-up corrected template-literal escaping in the migration-wide SECURITY DEFINER contract test after CI detected a parse error; CI run `43798298345` passed after the parser fix (45 files / 167 tests).

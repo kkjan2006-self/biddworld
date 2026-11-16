@@ -312,3 +312,10 @@ admin_set_feature_setting() permits enabling only the currently whitelisted, imp
 - CI now checks all source SQL migrations for public SECURITY DEFINER functions missing a fixed search_path or explicit EXECUTE revocation.
 - This is a static source guard only. Before launch, compare deployed function definitions and grants to source, test RPC ownership/Admin authorization in a disposable database, and inspect all views, triggers, policies and Storage rules.
 - No Production migration or setting change is authorized by this test.
+
+
+## Bulk SECURITY DEFINER contract CI confirmation — 2026-11-16
+
+- Follow-up commit `14308d223c53605854078fb1b5167f1f2b64d476` passed workflow `43798298345`.
+- CI result: 45 test files / 167 tests passed; TypeScript type-check and Vite production build succeeded; npm audit reported 0 vulnerabilities.
+- Static SQL migration contract only. No live PostgreSQL integration, Production migration, setting update, or financial operation was performed.

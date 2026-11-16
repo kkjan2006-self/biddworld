@@ -621,8 +621,8 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 ## 2026-11-16 — Bulk security hardening batch
 
 - Added a repository-wide SQL migration test covering public SECURITY DEFINER search_path pinning and EXECUTE revocation.
-- Latest verified preceding CI: wallet ledger append-only batch and credential scanner correction passed; current batch CI pending.
+- Latest verified preceding CI: wallet ledger append-only batch and credential scanner correction passed; Follow-up commit `14308d223c53605854078fb1b5167f1f2b64d476` passed CI run `43798298345`: 45 test files / 167 tests passed, TypeScript type-check and Vite build succeeded, npm audit reported 0 vulnerabilities.
 - Production Supabase remains unchanged. Development completion estimate is not a launch-readiness certification.
 
 
-- CI initially caught escaped template-literal delimiters in the new SECURITY DEFINER contract test; corrected in the follow-up commit. The test is not counted as passed until follow-up CI completes.
+- CI initially caught escaped template-literal delimiters in the new SECURITY DEFINER contract test; corrected in the follow-up commit. Follow-up CI is now green; the test is included in 45 passing files / 167 passing tests.

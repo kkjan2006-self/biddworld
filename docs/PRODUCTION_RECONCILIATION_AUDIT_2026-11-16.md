@@ -309,4 +309,4 @@ This grant review is not a complete certification of all service-role consumers,
 - Production has not been migrated, modified, or written to. No app settings, user records, wallet balances, ledgers, or Storage objects were changed.
 
 
-- The new source-level SECURITY DEFINER contract test initially failed to parse due escaped template-literal delimiters. Follow-up corrects this; Production state is unchanged.
+- The new source-level SECURITY DEFINER contract test initially failed to parse due escaped template-literal delimiters. Follow-up commit `14308d223c53605854078fb1b5167f1f2b64d476` corrected it; CI run `43798298345` passed with 45 test files / 167 tests, type-check/build successful and 0 npm audit vulnerabilities.
