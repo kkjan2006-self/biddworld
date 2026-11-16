@@ -601,3 +601,5 @@ The latest exact Production definitions of `admin_get_member_structure()` and `a
 - The Batch 21 rerun revealed the negative regex was still double-escaped in the generated test file. Replaced it with direct string assertions scoped to the Admin feature-setting function body to avoid regex-escaping ambiguity.
 
 - Batch 24: removed blanket historical profile/Main-ID status reconciliation from `20261115220000_inactive_until_verified_package_activation.sql`. It now provisions new accounts as inactive and activates only on verified package approval; existing account statuses are not bulk rewritten. Added regression tests for this data-safety guarantee.
+
+- CI correction for Batch 24: initial regression assertion matched the legitimate row-level profile activation inside the verified-package trigger. Narrowed the assertion to reject only historical bulk CASE/EXISTS status reconciliation; it now permits activation of the specific member tied to an approved package.
