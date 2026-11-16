@@ -1104,3 +1104,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Confirmed that Production `lookup_sponsor(text)` returns a table containing member code and display name, while current branch expects a boolean. Added a strict frontend compatibility helper that accepts either boolean true or a legacy row whose member code exactly matches the requested code; the legacy display name is ignored. Added regression tests.
 - Production currently has no Storage buckets, while Admin product media upload expects `product-media`; this flow remains unverified/unavailable until a separate TEST setup is validated.
 - No Production DDL/DML, migration, setting, Auth, Storage, member, wallet, payment or financial operation was performed. This checkpoint is not a Production integration certification.
+
+
+## Supabase migration history reconciliation — 2026-11-17
+- Compared the 44 branch SQL files (41 timestamped plus 3 legacy/unversioned files) against the 30 Production migration-ledger rows using read-only queries.
+- Only four migration rows match by exact version and name. Nine recognizable migration names have different version timestamps; remaining entries cannot be paired by ledger metadata alone. This is not a safely replayable one-to-one migration history.
+- Confirmed an important mixed state: Production has `bids.idempotency_key` with a unique index, but still exposes only the old one-argument `place_bid(uuid)` RPC. Placement columns exist while the duplicate-ID creation RPC remains one-argument. The report records this evidence and next reconciliation steps: `docs/SUPABASE_MIGRATION_HISTORY_RECONCILIATION_2026-11-17.md`.
+- Do not apply the branch migration tail directly to Production or edit ledger entries to conceal drift. Reconstruct exact applied SQL and replay a curated chain in a separate disposable TEST project first.
+- No Production writes, migration, ledger edit, Auth setting, Storage, member, wallet, payment, bid or withdrawal operations were performed. `main` remains untouched.
