@@ -29,34 +29,46 @@ export default function Account(){
  const [newPassword,setNewPassword]=useState(''),[confirmNewPassword,setConfirmNewPassword]=useState(''),[securityMessage,setSecurityMessage]=useState(''),[securityBusy,setSecurityBusy]=useState(false);const [currentEmail,setCurrentEmail]=useState(''),[newEmail,setNewEmail]=useState(''),[emailChangeMessage,setEmailChangeMessage]=useState(''),[emailChangeBusy,setEmailChangeBusy]=useState(false);
  async function load(){
   setLoading(true);setError('');
-  if(!supabase){setError('No Supabase project is connected. Configure the intended Preview or Test environment to view account details. Do not connect Production for testing.');setLoading(false);return;}
-  const {data:{user}}=await supabase.auth.getUser();
-  if(!user){setError('Sign in to view your member account.');setLoading(false);return;}setCurrentEmail(user.email??'');
-  const {data:p,error:pe}=await supabase.from('profiles').select('display_name,phone,status,main_member_id').eq('id',user.id).maybeSingle();
-  if(pe||!p){setError('Your member profile is not available yet.');setLoading(false);return;}
-  const {data:identity}=await supabase.rpc('member_get_my_identity');
-  setProfile({...p,...(identity??{})});setProfileName(p.display_name??'');setProfilePhone(p.phone??'');
-  const {data:withdrawSetting}=await supabase.from('app_settings').select('setting_value').eq('setting_key','withdrawals_enabled').maybeSingle();
-  setWithdrawEnabled(withdrawSetting?.setting_value===true);
-  if(p.main_member_id){
-   const [m,a,w,wr,b,fb,rc,wp]=await Promise.all([
-    supabase.rpc('member_list_my_ids'),
-    supabase.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,payment_reference,bid_wallet_credit,submitted_at,verified_at,package:packages(name)').eq('member_id',p.main_member_id).order('submitted_at',{ascending:false}).order('id',{ascending:false}).range(0,49),
-    supabase.from('wallet_accounts').select('wallet_type,balance,currency').eq('member_id',p.main_member_id),
-    supabase.rpc('member_list_my_withdrawals'),
-    supabase.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
-    supabase.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
-    supabase.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
-    supabase.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99)
-   ]);
-   const paymentIds=(wp.data??[]).map((row:any)=>row.id as string);
-   const deliveryResult=paymentIds.length?await supabase.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}):{data:[],error:null};
-   if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)setError('Some account history is hidden by current database permissions.');
-   setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);setWithdrawals((wr.data??[]) as WithdrawalRow[]);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
+  const client=supabase;
+  try{
+   if(!client){setError('No Supabase project is connected. Configure the intended Preview or Test environment to view account details. Do not connect Production for testing.');return;}
+   const {data:{user},error:userError}=await client.auth.getUser();
+   if(userError)throw new Error('Your session could not be verified. Please sign in again.');
+   if(!user)throw new Error('Sign in to view your member account.');
+   setCurrentEmail(user.email??'');
+   const {data:p,error:pe}=await client.from('profiles').select('display_name,phone,status,main_member_id').eq('id',user.id).maybeSingle();
+   if(pe)throw new Error('Your member profile could not be loaded. Please retry.');
+   if(!p)throw new Error('Your member profile is not available yet.');
+   const {data:identity,error:identityError}=await client.rpc('member_get_my_identity');
+   if(identityError)setError('Some member identity details are temporarily unavailable.');
+   setProfile({...p,...(identity??{})});setProfileName(p.display_name??'');setProfilePhone(p.phone??'');
+   const {data:withdrawSetting,error:withdrawSettingError}=await client.from('app_settings').select('setting_value').eq('setting_key','withdrawals_enabled').maybeSingle();
+   setWithdrawEnabled(!withdrawSettingError&&withdrawSetting?.setting_value===true);
+   if(withdrawSettingError)setError('Withdrawal availability could not be confirmed. Withdrawal requests remain unavailable until the setting can be verified.');
+   if(p.main_member_id){
+    const [m,a,w,wr,b,fb,rc,wp]=await Promise.all([
+     client.rpc('member_list_my_ids'),
+     client.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,payment_reference,bid_wallet_credit,submitted_at,verified_at,package:packages(name)').eq('member_id',p.main_member_id).order('submitted_at',{ascending:false}).order('id',{ascending:false}).range(0,49),
+     client.from('wallet_accounts').select('wallet_type,balance,currency').eq('member_id',p.main_member_id),
+     client.rpc('member_list_my_withdrawals'),
+     client.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
+     client.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
+     client.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99),
+     client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',p.main_member_id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99)
+    ]);
+    const paymentIds=(wp.data??[]).map((row:any)=>row.id as string);
+    const deliveryResult=paymentIds.length?await client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}):{data:[],error:null};
+    if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)setError('Some account history is unavailable because one or more database requests failed. You can retry loading your account.');
+    setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);setWithdrawals((wr.data??[]) as WithdrawalRow[]);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
+   }else{
+    setMembers([]);setActivations([]);setWallets([]);setWithdrawals([]);setAuctionBids([]);setFixedBids([]);setCommissions([]);setWinningPayments([]);setDeliveries([]);setHistoryHasMore({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
+   }
+  }catch{
+   setError('Account details could not be loaded. Check your connection and try again.');
+  }finally{
+   setLoading(false);
   }
-  setLoading(false);
  }
- useEffect(()=>{void load()},[]);
  async function loadHistoryPage<T>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
  if(!supabase||!profile?.main_member_id||historyLoading)return;
  const client=supabase;const memberId=profile.main_member_id;setHistoryLoading(key);
