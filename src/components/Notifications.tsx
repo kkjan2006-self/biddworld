@@ -6,12 +6,40 @@ type Notice={id:string;user_id:string;title:string;message:string;category:strin
 const PAGE_SIZE=100;
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
- const load=useCallback(async()=>{if(!supabase){setError('Notifications are unavailable until Supabase is configured.');return;}setBusy(true);setError('');const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);setBusy(false);if(loadError){setError(loadError.message);return;}const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE)},[]);
- const loadMore=useCallback(async()=>{if(!supabase||busy||!hasMore)return;setBusy(true);setError('');const from=items.length;const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);setBusy(false);if(loadError){setError(loadError.message);return;}const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE)},[busy,hasMore,items.length]);
+ const load=useCallback(async()=>{
+  if(!supabase){setError('Notifications are unavailable until Supabase is configured.');setItems([]);setHasMore(false);return;}
+  setBusy(true);setError('');
+  try{const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,PAGE_SIZE-1);if(loadError)throw loadError;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
+  catch(e){setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
+  finally{setBusy(false);}
+ },[]);
+ const loadMore=useCallback(async()=>{
+  if(!supabase||busy||!hasMore)return;setBusy(true);setError('');
+  try{const from=items.length;const {data,error:loadError}=await supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);}
+  catch(e){setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
+  finally{setBusy(false);}
+ },[busy,hasMore,items.length]);
  useEffect(()=>{void load()},[load]);
- async function send(e:React.FormEvent<HTMLFormElement>){e.preventDefault();if(!supabase||busy)return;const target=userId.trim();if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){setError('Enter a valid member user UUID.');return;}if(title.trim().length<3||title.trim().length>120||message.trim().length<5||message.trim().length>2000){setError('Title must be 3–120 characters and message 5–2,000 characters.');return;}setBusy(true);setError('');setNotice('');const {error:sendError}=await supabase.from('member_notifications').insert({user_id:target,title:title.trim(),message:message.trim(),category});setBusy(false);if(sendError){setError(sendError.message);return;}setUserId('');setTitle('');setMessage('');setNotice('Notification sent to the selected member.');await load();}
- async function markRead(id:string){if(!supabase)return;const readAt=new Date().toISOString();const {error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).eq('id',id).is('read_at',null);if(updateError){setError(updateError.message);return;}setItems(rows=>rows.map(row=>row.id===id?{...row,read_at:readAt}:row));}
- async function markAllRead(){if(!supabase||markingAll||unread===0)return;setMarkingAll(true);setError('');setNotice('');const readAt=new Date().toISOString();const {error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).is('read_at',null);setMarkingAll(false);if(updateError){setError(updateError.message);return;}setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}));setNotice('All unread notifications have been marked as read.');}
+ async function send(e:React.FormEvent<HTMLFormElement>){
+  e.preventDefault();if(!supabase||busy)return;const target=userId.trim();
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){setError('Enter a valid member user UUID.');return;}
+  if(title.trim().length<3||title.trim().length>120||message.trim().length<5||message.trim().length>2000){setError('Title must be 3–120 characters and message 5–2,000 characters.');return;}
+  setBusy(true);setError('');setNotice('');
+  try{const {error:sendError}=await supabase.from('member_notifications').insert({user_id:target,title:title.trim(),message:message.trim(),category});if(sendError)throw sendError;setUserId('');setTitle('');setMessage('');setNotice('Notification sent to the selected member.');await load();}
+  catch(e){setError(e instanceof Error?e.message:'Notification could not be sent. Please retry.');}
+  finally{setBusy(false);}
+ }
+ async function markRead(id:string){
+  if(!supabase)return;const readAt=new Date().toISOString();
+  try{const {error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).eq('id',id).is('read_at',null);if(updateError)throw updateError;setItems(rows=>rows.map(row=>row.id===id?{...row,read_at:readAt}:row));}
+  catch(e){setError(e instanceof Error?e.message:'Notification could not be marked as read. Please retry.');}
+ }
+ async function markAllRead(){
+  if(!supabase||markingAll||unread===0)return;setMarkingAll(true);setError('');setNotice('');const readAt=new Date().toISOString();
+  try{const {error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).is('read_at',null);if(updateError)throw updateError;setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}));setNotice('All unread notifications have been marked as read.');}
+  catch(e){setError(e instanceof Error?e.message:'Unread notifications could not be updated. Please retry.');}
+  finally{setMarkingAll(false);}
+ }
  const unread=items.filter(item=>!item.read_at).length;
  const visibleItems=items.filter(item=>(!unreadOnly||isAdmin||!item.read_at)&&(categoryFilter==='all'||item.category===categoryFilter)&&(!search.trim()||[item.title,item.message,item.category].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
  const categories=[...new Set(items.map(item=>item.category).filter(Boolean))].sort();

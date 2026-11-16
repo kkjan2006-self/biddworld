@@ -704,3 +704,9 @@ Notifications now provide loaded-record title/message/category search and catego
 - MLM genealogy pagination now handles thrown request failures and always releases its loading state when the active request completes.
 - Account and package empty-configuration messages now direct operators to the selected Preview/separate Test environment rather than encouraging a Production connection for testing.
 - Paid package activation remains fail-closed. No database settings, schema, member data or financial records were changed. No tests were run in this development-only batch.
+
+
+## Notification workflow reliability — 2026-11-16
+
+- Notification inbox load, pagination, Admin send, individual read and mark-all-read now handle rejected requests with actionable errors and guaranteed busy-state cleanup.
+- Existing RLS and database operations are unchanged. No Production database changes or financial actions were performed. Tests remain deferred.
