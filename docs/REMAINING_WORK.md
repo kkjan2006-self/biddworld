@@ -194,3 +194,11 @@ GitHub Actions run `43751441554` for `completion-work` commit `c9b77e971cffb7ab4
 - New duplicate directory RPC migration remains unapplied. The Admin UI will surface an explicit RPC load error until source migrations are reconciled and deployed to the intended database.
 - Production Security Advisor still reports 43 authenticated-callable SECURITY DEFINER functions, one anon-callable sponsor lookup, one RLS-enabled table without direct policies, one unindexed FK and 17 unused indexes. These require function-by-function review; do not blanket-revoke or drop indexes.
 - Major blockers remain: Production/source migration and RPC drift, duplicate-ID enablement and placement policy validation, commission engine and owner-approved financial rules, auction/Fixed Bid winner rules and settlement, withdrawal payout integration, live RLS/Storage/integration/browser E2E tests, and final deployment readiness.
+
+
+## Bulk development batch — 2026-11-16
+
+- Completed public Product catalogue 100-row pagination with deterministic ordering, Load More, loaded-count feedback and explicit retry messaging. Search currently covers records loaded in this browser session; server-side search across the entire catalogue remains pending.
+- Hardened Member Profile self-service validation and error handling to match the existing server RPC constraints. Only the caller's display name and phone can be changed; identity, sponsor, status and wallet data remain server-controlled.
+- Added static contract tests for both changes. Execution is pending; do not treat the tests as passed until CI confirms.
+- No Production schema, data, Storage, feature settings or financial state was changed.
