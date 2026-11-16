@@ -8,6 +8,12 @@ describe('public product catalogue pagination',()=>{
   expect(app).toContain("p_offset:products.length");
   expect(app).toContain('setProductHasMore(rows[0]?.has_more===true)');
  });
+ it('keeps search pagination tied to the latest query and prevents duplicate page requests',()=>{
+  expect(app).toContain('const productPageRequest=useRef(0)');
+  expect(app).toContain('const searchAtStart=query.trim()');
+  expect(app).toContain('requestId!==productPageRequest.current');
+  expect(app).toContain('productPageBusy.current=true');
+ });
  it('offers continuation and reports failures without exposing drafts',()=>{
   expect(app).toContain('Load more products');
   expect(app).toContain('The product catalogue could not be loaded.');
