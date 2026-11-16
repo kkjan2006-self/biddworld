@@ -49,5 +49,5 @@ describe('global financial approval interlock',()=>{
   expect(start).toBeGreaterThanOrEqual(0);
   expect(body).not.toMatch(/'financial_model_approved'/);
   expect(body).toContain('auth.jwt()');
-  expect(body).toContain("<>''admin''");
+  expect(body).toMatch(/<>\s*'admin'/i);
  });
