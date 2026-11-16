@@ -184,3 +184,10 @@ A further direct read-only inspection was completed against the connected `BiddW
 3. Add rate-limit/abuse protection for public sponsor lookup without breaking signup.
 4. Owner to review and enable leaked-password protection in Auth settings.
 5. Do not apply migrations or alter financial settings without explicit owner approval.
+
+
+## Member data RLS spot-check — 2026-11-16 (read-only)
+
+Reviewed live SELECT policies for `profiles`, `member_ids`, `referrals`, `wallet_accounts`, `package_activations` and `withdrawal_requests` in BiddWorld-Production. The observed authenticated SELECT policies scope profiles/member IDs to `auth.uid()`, and related rows through a member ID whose `owner_user_id=auth.uid()`; referrals allow rows where the caller owns either endpoint. No anonymous SELECT policy was returned for these six tables. This is a focused policy inventory, not a complete write-policy, column-privacy, or end-to-end RLS certification.
+
+The same review reconfirmed Production's live `member_create_withdrawal_request` definition still lacks the source-branch active Main ID ownership guard; the new forward-only source migration remains unapplied. Production package submission also still requires an active Main ID until the pending migration chain is reconciled and applied under owner approval. Do not enable withdrawals, package approvals, wallet operations or bidding based on the source-only fixes. No Production changes made.
