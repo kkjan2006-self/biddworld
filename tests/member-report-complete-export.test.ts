@@ -10,7 +10,7 @@ describe('complete personal activity report', () => {
   for (const table of ['package_activations','bids','fixed_bids','referral_commissions','winning_item_payments','delivery_tracking']) expect(account).toContain("from('"+table+"')");
  });
  it('re-verifies the signed-in Main ID and provides export feedback', () => {
-  expect(account).toContain('supabase.auth.getUser()');
+  expect(account).toContain('client.auth.getUser()');
   expect(account).toContain('currentProfile?.main_member_id');
   expect(account).toContain('biddworld-my-complete-personal-report.csv');
   expect(account).toContain('Complete report exported:');
