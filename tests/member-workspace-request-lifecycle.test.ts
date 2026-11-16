@@ -29,4 +29,8 @@ describe('member workspace async request lifecycle',()=>{
   expect(referrals).toContain('loadMoreBusy.current=true;const seq=request.current');
   expect(referrals).toContain('loadMoreBusy.current=false;setLoadingMore(false)');
  });
+ it('provides a retry path when the placement tree RPC fails',()=>{
+  expect(placement).toContain('role="alert"');
+  expect(placement).toContain('>Retry</button>');
+ });
 });
