@@ -223,3 +223,13 @@ Compared the source-only `20261116140000_require_active_main_id_for_withdrawals.
 - Added source-only migration `20261116170000_minimize_member_withdrawal_payout_data.sql` to preserve the RPC's existing result shape while returning only `{method: ...}` in `payout_details`. This avoids a frontend contract change and reduces unnecessary exposure in the member session.
 - Admin withdrawal listing still retains payout details for the authorized Admin review workflow; its Admin role gate and pagination were separately inspected.
 - Added regression tests for the SQL projection and member UI usage. Migration is not applied to Production; reconcile it with the full migration chain and test on a non-production database first.
+
+
+## Duplicate ID placement reconciliation — 2026-11-16
+
+- Read-only Production inspection confirms `member_ids` already contains `main_member_id`, `placement_parent_id`, and `placement_position` columns.
+- Production still exposes only `admin_create_duplicate_member_id(text)`. Its current definition creates a pending Duplicate ID attached to the owner Main ID but does not accept or set an Under / placement parent.
+- Branch migration `20261115230000_duplicate_under_id_placement_attribution.sql` changes the workflow to the two-argument `admin_create_duplicate_member_id(text,text)`, separately validates the active owner Main ID and active Under ID, rejects placing a Duplicate ID under the same owner's own ID, records `placement_parent_id`, and keeps the new ID pending. The branch Admin UI now calls this two-argument flow.
+- Therefore the current branch Duplicate ID creation UI is not Production-compatible until the forward migration is reconciled and applied. Do not run this UI against Production yet; the RPC signature mismatch will fail. No Production changes were made.
+- Additional source review item: `admin_set_duplicate_id_status(uuid,text)` checks Admin authorization and lifecycle state, but does not revalidate the linked Main ID and placement parent when activating/reactivating a Duplicate ID. Add this to non-production integration tests and decide the intended behavior if either linked ID becomes suspended/closed before changing Production.
+- Regression tests added for separate Sponsor/Under attribution, active parent validation, same-owner rejection, pending-only creation, and legacy RPC removal.

@@ -392,3 +392,7 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 
 
 - [ ] Apply and validate source-only `20261116170000_minimize_member_withdrawal_payout_data.sql` only after non-production migration testing; it reduces member withdrawal history to payout method only while Admin review retains payout details.
+
+
+- [ ] Reconcile and non-production test Duplicate ID two-argument placement RPC before Production rollout; Production currently has only the one-argument function.
+- [ ] Define and test whether Duplicate ID activation/reactivation must be blocked when its linked Main ID or placement parent is suspended/closed; current source status RPC does not revalidate these linked states.
