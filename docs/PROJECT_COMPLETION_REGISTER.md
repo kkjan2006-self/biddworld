@@ -747,3 +747,11 @@ Notifications now provide loaded-record title/message/category search and catego
 - `src/App.tsx`: initial Auth lookup now catches rejected requests and avoids a stale initial lookup overwriting a newer Auth state event; subscription cleanup prevents updates after unmount. Public product and auction initial-load effects now catch rejected promises, preserve stale-request cleanup, reset pagination flags on failure, and recover wallet display state safely.
 - Commits: `669ed550f9aa8465096a6f01d67c680310887795` (Account) and `c723d335313be7258a8c523bc252278e8fca322e` (App).
 - Source-only changes on `completion-work`. No Production SQL, settings, Storage, member records, wallet balances, commissions, payments, or payouts were changed. No manual test campaign was started in this development phase; compilation and regression verification remain pending for the dedicated verification phase.
+
+
+## Member search consistency and CI correction — 2026-11-16
+
+- Admin member directory now records the applied server-side search term when the debounced first page loads. Load More and the complete CSV export reuse that exact applied term, so editing the search input cannot silently mix records from different queries.
+- Updated the pagination regression assertion to check the applied search contract. Updated the member report source assertion to follow the scoped Supabase client used by the exception-safe loader/export.
+- CI initially exposed two stale test assumptions and the applied-search mismatch. Follow-up correction is committed; latest source commit `1ee9b7257386c2edba784a4df3e14f6bc63ec37b` passed GitHub Actions run `43843577708`: **49 test files / 187 tests passed**, TypeScript type-check passed, Vite production build passed, and npm audit reported **0 vulnerabilities**.
+- No Production database, Auth, Storage, settings, member records, wallets, commissions, payments or payouts were changed. This CI result verifies repository tests/build only; it is not Production integration or launch certification.
