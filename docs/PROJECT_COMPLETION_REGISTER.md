@@ -482,3 +482,8 @@ Work through the incomplete items in dependency order: member/public experience 
 - Connected the existing pending-activation search and inclusive submitted-date filters to the CSV export; added a matching/total count and disabled export for reversed date ranges.
 - The existing `admin_list_pending_activations()` RPC returns the complete pending-review queue (no page limit in its migration). The report is explicitly scoped to pending requests and is not represented as an approved/rejected historical activation archive.
 - No approval/rejection action, wallet credit, payment, Supabase schema/RPC or Production data changed.
+
+
+## CI regression correction (2026-11-16)
+
+- Updated the existing complete-report export contract test to expect the filtered-complete filenames now produced by the Winning Payments and Delivery report filters. This resolves a stale filename assertion; no application behavior changed in this correction.
