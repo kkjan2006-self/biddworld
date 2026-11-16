@@ -765,3 +765,12 @@ Notifications now provide loaded-record title/message/category search and catego
 - Added regression assertions for overlap prevention, stale/unmounted response guards, and busy-state cleanup.
 - Source commits: `3c2e287b40a355c1d9827b71d3eff5d366c4fb3d`; test commit: `d9e2f390b0946d4718cf3463ab15e158f2890d9e`.
 - This is a source-level resilience change only. No RPC, schema, Production data/settings, wallet or financial behavior was changed. CI verification for this batch is pending.
+
+
+## Package catalogue request lifecycle — 2026-11-16
+
+- Package catalogue reads now use request identity and mounted-component guards. A newer retry supersedes an older response, and responses completing after unmount cannot update component state.
+- Network/query failures clear stale catalogue rows, show a retry-oriented error, and release the loading indicator only for the active request.
+- Added regression assertions for stale/unmounted request protection, loading cleanup and the existing package activation lock.
+- Source commit: `def68a7e30f33783b96832161df90425a7df0226`; regression test commit: `98936ac0bd2822a72968c7f8918980a58b9dab58`.
+- No package activation, payment, wallet credit, commission, RPC, schema, Production data or settings were changed. CI for this batch is pending.
