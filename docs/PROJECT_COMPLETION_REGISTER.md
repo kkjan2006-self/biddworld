@@ -683,3 +683,9 @@ Notifications now provide loaded-record title/message/category search and catego
 - The application header area now displays a persistent environment banner: Preview, Test or Live. Test mode warns against real member/payment information; Live mode warns that real member data may be present.
 - Supabase configuration failures now display the specific configuration/safety error from the environment guard instead of only a generic Preview notice.
 - This is a client-side environment indicator, not an authorization boundary. Database RLS, trusted server-side role checks and financial interlocks remain mandatory. No Supabase project settings or Production data were changed.
+
+
+## Notification loading reliability — 2026-11-16
+
+- Member/Admin notification inbox initial loading and Load More now use exception-safe busy-state cleanup and preserve actionable errors if a request rejects unexpectedly, rather than leaving the inbox stuck in a loading state.
+- No database, Supabase Auth settings, Production records or financial workflows were changed. Tests remain deferred.
