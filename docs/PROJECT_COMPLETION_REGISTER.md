@@ -717,3 +717,10 @@ Notifications now provide loaded-record title/message/category search and catego
 - Wallet transaction history handles rejected profile/ledger requests and always clears initial/pagination loading indicators; stale requests remain cancellation-safe.
 - Placement tree loading now reports actionable errors and always clears its loading state, including when the RPC rejects.
 - Read-only behavior and existing database permissions are unchanged. No Production data/schema/settings or financial actions were changed. Tests remain deferred.
+
+
+## Admin catalogue, auction and Fixed Bid workflow resilience — 2026-11-16
+
+- Delivery tracking save, Fixed Bid draft save, product draft save/publication, and auction draft save now handle rejected RPC requests with visible errors and `finally`-based busy-state cleanup.
+- Successful save behavior and draft-only safeguards are retained; no auction or Fixed Bid campaign was activated and no financial transaction was performed.
+- No Production schema, settings, or data were changed. Tests remain deferred.
