@@ -1114,3 +1114,10 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - No Production writes, migration, ledger edit, Auth setting, Storage, member, wallet, payment, bid or withdrawal operations were performed. `main` remains untouched.
 
 - Extended the migration reconciliation audit with live RPC body comparisons: Production withdrawal creation lacks the branch's active-Main-ID ownership guard; member withdrawal history returns the complete payout-details JSON rather than the branch's method-only response; Admin duplicate-ID listing is legacy/non-paginated and lacks placement fields. The placement-tree RPC name and response shape do match the current component at source-inspection level only. See the expanded reconciliation report.
+
+## Production RLS / grants / triggers audit — 2026-11-17
+- Read-only inspection confirms 21/21 ordinary public tables have RLS enabled; 20 direct policies exist and all are SELECT-only; no direct anon table privileges or authenticated direct writes were found in the inspected ACL snapshot. `notification_templates` has no direct policy and no authenticated/anon table privileges, consistent with deny-by-default.
+- All 43 public functions are SECURITY DEFINER and have explicit search_path settings. 42 are not anon-callable; `lookup_sponsor(text)` is the only anon-callable SECURITY DEFINER exception and currently returns member code plus display name. Prioritize its privacy-minimizing source migration after TEST replay.
+- Inspected Admin RPC bodies explicitly check authenticated user and JWT app_metadata Admin role. Do not mass-revoke authenticated execution without per-routine review.
+- Ten public triggers route through `private.enforce_feature_gate()`. Legacy `place_bid(uuid)` uses a non-empty search_path and remains a hardening/review item.
+- Full evidence and interpretation: `docs/PRODUCTION_RLS_FUNCTION_GRANTS_TRIGGER_AUDIT_2026-11-17.md`. No Production changes or function executions were performed.
