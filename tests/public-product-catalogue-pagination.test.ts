@@ -36,4 +36,9 @@ describe('public product catalogue search RPC',()=>{
   expect(migration).toMatch(/grant execute on function public\.public_list_active_products_page\(text,integer,integer\) to anon,authenticated/i);
   expect(migration).toMatch(/revoke all on function public\.public_list_active_products_page\(text,integer,integer\) from public/i);
  });
+ it('shows an accessible retry action when the product page fails',()=>{
+  expect(app).toContain('role="alert">{productError}');
+  expect(app).toContain('>Retry</button>');
+  expect(app).toContain('setPage(1);setRefresh(v=>v+1)');
+ });
 });
