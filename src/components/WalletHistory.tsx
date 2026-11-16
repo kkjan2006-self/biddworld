@@ -39,7 +39,7 @@ export default function WalletHistory(){
   if(page===0)loadMoreBusy.current=false;
   if(page===0){setRows([]);setLoading(true);}else setLoadingMore(true);setError('');
   async function load(){
-   if(!supabase||!userId){if(active)setLoading(false);return;}
+   if(!supabase||!userId){if(active){loadMoreBusy.current=false;setLoading(false);setLoadingMore(false);}return;}
    try{
     const {data:profile,error:pError}=await supabase.from('profiles').select('main_member_id').eq('id',userId).maybeSingle();
     if(!active)return;
@@ -53,6 +53,8 @@ export default function WalletHistory(){
   }
   void load();return()=>{active=false;};
  },[userId,refresh,page]);
+
+ function loadNextPage(){if(loadMoreBusy.current||loading||!hasMore)return;loadMoreBusy.current=true;setPage(current=>current+1);}
 
  const invalidDateRange=Boolean(dateFrom&&dateTo&&dateFrom>dateTo);
  const transactionTypes=[...new Set(rows.map(r=>r.transaction_type).filter(Boolean))].sort();
