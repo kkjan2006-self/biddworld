@@ -3,7 +3,7 @@
 ## Scope
 
 - Repository: `kkjan2006-self/biddworld`
-- Branch snapshot: `completion-work` at `9616aad1da2689d98865cfcbede3b469e4c4f4d1` (rechecked 2026-11-17)
+- Branch snapshot: `completion-work`; rechecked 2026-11-18 at `881f8cb7f99e892022bba382c46810da3b097f6f`
 - Supabase project inspected read-only: `BiddWorld-Production` (`hbqatszyzqobgtauyuzy`)
 - Source migration files: 49 total, consisting of 46 timestamped migrations and 3 legacy/unversioned SQL files (recounted from the current branch tree).
 - Production migration ledger: 30 applied entries, latest `20261115163218_admin_audit_log_pagination`.
@@ -27,7 +27,7 @@ The Production migration ledger and current branch migration filenames are **not
   - `fix_feature_gate_trigger_row_access`
   - `extend_wallet_and_sponsor_feature_gates`
   - `admin_audit_log_pagination`
-- The remaining ledger entries and branch files cannot be paired from version/name metadata alone. This does **not** prove that the underlying SQL is absent: some migrations may have been applied through the Supabase SQL editor or under a different generated version.
+- The remaining 17 Production ledger entries have no same-name timestamped source file. Exact GitHub commit-history queries for each missing `supabase/migrations/<filename>` path returned no commits. This proves those exact files are not recoverable from the current repository history; it does not prove the SQL was never applied, because some migrations may have been run manually or under other names.
 - The three unversioned legacy SQL files cannot be placed into the applied order from filenames alone.
 
 ## Live schema evidence captured (read-only)
@@ -79,3 +79,49 @@ These are source/live drift observations, not a statement that the branch migrat
 ### Next bulk engineering gate
 
 The migration replay cannot safely proceed from filenames. The missing evidence is the actual SQL body for the 30 Production ledger versions (including manually applied SQL), plus the exact current definitions for every dependent function, trigger, policy, constraint, index and grant. Reconstruct that evidence first; then produce one curated clean-install baseline and replay it on TEST. Do not use `0001_biddworld.sql` as the baseline, do not mark migrations as applied, and do not make a guessed compatibility shim for the live one-argument bid RPC.
+
+
+## 2026-11-18 exact-path recovery and current source delta
+
+The current branch still contains 49 SQL files: 3 legacy/unversioned and 46 timestamped. The Production ledger still has 30 entries. Comparison is now classified as:
+
+- 4 exact timestamp-and-name matches.
+- 9 same-name/different-timestamp pairs.
+- 17 Production ledger filenames with no corresponding source file; exact GitHub path-history lookups returned empty histories for all 17.
+- 16 timestamped source files remain unmatched by Production ledger name and need object-level classification before replay.
+
+The 17 missing Production filenames must not be recreated from their migration names. Current live catalog metadata can recover final object definitions, but not the historical migration intent/order or the original transaction boundaries.
+
+### Source definitions for known live/frontend contract gaps
+
+The following current-branch source migrations define RPCs that are still absent from Production:
+
+| Missing Production RPC | Current source migration |
+|---|---|
+| `public_list_active_products_page(text,integer,integer)` | `20261116120000_public_product_catalogue_search.sql` |
+| `member_get_my_identity()` | `20261115203000_member_identity_summary.sql` |
+| `member_list_my_ids()` | `20261115230000_duplicate_under_id_placement_attribution.sql` |
+| `member_update_my_profile(text,text)` | `20261115190000_member_profile_self_service.sql` |
+| `admin_list_members_sponsors_page(text,integer,integer)` | `20261116090000_admin_members_sponsors_pagination.sql` |
+| `admin_list_duplicate_ids_page(text,integer,integer)` | `20261116110000_admin_duplicate_id_pagination.sql` |
+| `get_my_mlm_dashboard_page(integer,integer,text,integer)` | `20261116100000_member_genealogy_pagination.sql` |
+| `admin_set_product_active(uuid,boolean)` | `20261116020000_admin_product_management_and_media.sql` |
+| `admin_update_member_profile(text,text,text)` | `20261117120000_admin_update_member_profile.sql` |
+
+The source branch also changes two live RPC signatures:
+
+- `place_bid(uuid)` → `place_bid(uuid,text)` in `20261116190000_bid_request_idempotency.sql`.
+- `admin_create_duplicate_member_id(text)` → `admin_create_duplicate_member_id(text,text)` in `20261117110000_serialize_admin_duplicate_id_placement.sql`.
+
+It narrows two disclosure contracts:
+
+- `lookup_sponsor(text)`: Production returns `member_code, display_name`; source returns a boolean.
+- `member_list_my_withdrawals()`: Production returns full `payout_details`; source retains only the payout method label.
+
+Production has 21 public tables and 20 SELECT-only RLS policies, 10 feature-gate triggers, 43 public functions/overloads, and four private helper functions. All 21 tables have RLS enabled. `support_tickets` and `member_notifications` are not yet present in Production; source migrations create them. The `product-media` Storage bucket is also absent.
+
+### Clean-install baseline decision
+
+The legacy `0001_biddworld.sql` is incompatible with the live schema (for example, it uses `profiles.email/role` and `member_ids.user_id` rather than current `owner_user_id`); `0002_place_bid_rpc.sql` is the legacy one-argument bid RPC; `001_initial_schema.sql` is empty. None is a trustworthy baseline.
+
+A separate final-state baseline must be assembled from complete verified schema evidence, including all 21 table definitions, 110 constraints, 60 indexes, 20 policies, 10 triggers, 43 public function/overload definitions, private helper definitions, ACLs/grants, and the source-only forward changes. TEST remains empty until that baseline is reviewed and replayed. Production remains SELECT-only/read-only.
