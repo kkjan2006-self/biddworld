@@ -41,6 +41,13 @@
 | `place_bid` | `(p_auction_id uuid) returns jsonb` | UI submits auction ID plus idempotency key | Bid submission contract mismatch; do not enable bidding |
 | `lookup_sponsor` | `(p_member_code text) returns TABLE(member_code text, display_name text)` | UI helper expects a boolean validity result | Signup sponsor validation must be reconciled; public lookup also needs enumeration/rate-limit review |
 
+## Frontend mismatch handling added — 2026-11-17
+
+- `lookup_sponsor`: the client accepts both the current source boolean response and the observed legacy Production table response, and checks an exact case-insensitive Main ID match. The legacy display name is ignored. The source privacy migration still needs a controlled rollout.
+- `admin_create_duplicate_member_id`: UI and source migration use the two-argument Main ID + Under ID contract. The older one-argument Production signature cannot represent placement attribution; no unsafe fallback was added. UI now reports a clear migration-pending message for missing/stale RPC signatures.
+- `place_bid`: UI and source migration use a stable idempotency key. Falling back to the one-argument Production RPC would discard retry protection, so no fallback was added. UI now reports a clear migration-pending message for missing/stale RPC signatures.
+- Added shared deployment-mismatch classification and regression tests. These messages do not make an unavailable RPC work; they make the current mismatch explicit.
+
 ## Production RPC catalogue observations
 
 - The 45-name source inventory was compared with the current public-schema function catalogue. The eight missing names above were absent.
