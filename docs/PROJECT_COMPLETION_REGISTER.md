@@ -1403,3 +1403,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Added `tests/package-activation-member-status-consistency.test.ts` for the migration contract.
 - This does not implement Main ID suspend/reactivate/close lifecycle or session revocation.
 - Migration is committed to `completion-work` only; it has NOT been applied to Production. No Production data or settings were changed. Disposable TEST Supabase runtime validation is still required before any deployment.
+
+
+## Financial Workflow Audit Reconciliation — 2026-11-17
+
+- Corrected the earlier financial workflow audit: the package activation Main ID/Profile status mismatch gap is addressed in branch source by `20261117140000_guard_package_activation_member_status.sql`.
+- New requests and approved/active transitions now require a real Main ID and owning Profile with matching `inactive` or `active` status; suspended, closed, missing, null and mismatched states are rejected while identity rows are locked.
+- Main ID suspend/reactivate/close lifecycle, global session enforcement and linked Duplicate ID cascade remain unimplemented and intentionally deferred.
+- The guard migration and contract test are source-only. No Production migration or data change was made; live PostgreSQL validation still requires a disposable TEST project.
