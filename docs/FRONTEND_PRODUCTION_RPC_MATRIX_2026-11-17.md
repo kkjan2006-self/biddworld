@@ -97,3 +97,9 @@
 - `admin_update_member_profile`, `admin_set_member_sponsor`, and `admin_list_members_sponsors_page` now show explicit missing/stale RPC deployment guidance in the Admin UI.
 - This is client-side error handling only; it does not change Production RPC availability or authorize lifecycle actions.
 - CI run `43997409594` passed on commit `64bd2e825eece0fc7f7c00c20bab31bd307a158f`.
+
+## Duplicate ID lifecycle RPC diagnostics — 2026-11-17
+
+- `admin_create_duplicate_member_id` and `admin_set_duplicate_id_status` now surface action-specific guidance when their deployed RPC contracts are missing or stale.
+- Two-argument placement attribution remains required; no legacy one-argument fallback was introduced.
+- CI run `43997847013` passed on commit `461382876f09e2b78e89f7bf453f3dfd1f667d9c`.
