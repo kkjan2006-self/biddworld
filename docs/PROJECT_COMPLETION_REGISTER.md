@@ -1420,3 +1420,13 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Test-only change; no lifecycle behavior, Production schema, member records, Auth sessions or settings were changed.
 
 - GitHub Actions run `44022844984` passed on test commit `c83508b5b93ac1149bdac1e4a5cfea11e232cd99`: 302 tests, TypeScript type-check and production build succeeded. An initial assertion expected one equivalent Admin authorization syntax; the test was corrected to accept the existing local-variable guard form, then the full CI passed.
+
+
+## Member Identity UI Enforcement — Withdrawal Requests — 2026-11-17
+
+- The Member Dashboard previously computed the combined Profile/Main ID active-state guard for its status notice, but the withdrawal request form was rendered based only on the global withdrawals feature switch.
+- Updated the withdrawal form visibility condition to require both `profile.status === 'active'` and the Main ID status to be `active`, in addition to the withdrawals feature switch.
+- Inactive, suspended, closed, missing or unverified identity states now show an explanatory read-only message while retaining existing withdrawal history.
+- Added regression coverage to `tests/member-dashboard-activation-status-guard.test.ts`.
+- This is a frontend usability guard only. The server-side `member_create_withdrawal_request` authorization/status checks remain authoritative; no RPC or database behavior was changed.
+- No Production Supabase changes or deployments were made.
