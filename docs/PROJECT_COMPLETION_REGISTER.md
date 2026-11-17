@@ -1,3 +1,15 @@
+## Fresh continuation audit — 2026-11-17
+
+- Re-verified `completion-work` HEAD: `74a08fc7b42e0a707ad98ccae679195f54cbc8f4`.
+- Latest GitHub Actions run for that exact HEAD: `43993043162`, conclusion `success`.
+- Re-read the complete 1,228-line project completion register and recursively inspected the 223-path source tree.
+- Read-only Production inspection: 30 migration-ledger rows versus 42 source SQL migration files; 21/21 public tables have RLS enabled; Production Storage has zero buckets.
+- Reconciled the 44 literal frontend RPC names against the Production public function catalogue: eight RPC names are missing; three additional present-name contracts have known signature/return-shape mismatches. Full matrix: `docs/FRONTEND_PRODUCTION_RPC_MATRIX_2026-11-17.md`.
+- Admin Member Directory currently has bounded server-side search, pagination, CSV export, sponsor correction and read-only member detail. Profile editing and Main ID account lifecycle actions are not implemented.
+- Production status constraints permit pending/active/suspended/closed for both profiles and member IDs. The Main ID/profile/linked Duplicate ID cascade and login/session behavior are not specified; do not invent these rules.
+- No source implementation or Production changes were made during this audit. The next safe Member Management batch can add Admin profile editing with audit logging, while lifecycle transitions remain gated on the owner-defined cascade behavior.
+- Production remains untouched. No deployment was initiated.
+
 ## Admin wallet ledger export safety — 2026-11-17
 
 - Wallet ledger CSV export now uses the shared bounded pagination helper, including repeated-page detection and the 100,000-row export cap. Download creation occurs only after all pages pass validation.
