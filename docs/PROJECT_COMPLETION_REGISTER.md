@@ -86,3 +86,12 @@
 - Confirmed `member_ids` has placement columns, owner-only authenticated SELECT policy, Main/Duplicate and status checks, restrictive self-FKs, and a feature-gate trigger blocking Duplicate ID activation when the setting is off.
 - Added `docs/PRODUCTION_SPONSOR_DUPLICATE_LIVE_CONTRACT_AUDIT_2026-11-17.md` with exact findings and deployment boundaries.
 - Production was queried read-only only. No DDL/DML/RPC invocation, member data export, TEST migration, or Production change was performed. Actual concurrency behavior still requires a clean TEST database and transaction-level tests.
+
+
+## 2026-11-17 — Production public-table metadata snapshot
+
+- Rechecked latest commit CI run `44047828813`: all workflow steps passed, including tests, TypeScript check and production build.
+- Captured a verbose read-only Supabase catalogue listing for the 21 Production `public` tables, including columns, types, defaults, primary keys, foreign keys and RLS-enabled flags. No table rows or personal/financial records were exported.
+- Added `docs/PRODUCTION_PUBLIC_TABLE_SCHEMA_SNAPSHOT_2026-11-17.md` as a schema-only comparison reference for the canonical TEST bootstrap.
+- This metadata snapshot is deliberately not labelled as a complete schema dump or replayable baseline; indexes, all constraints, policies, grants, triggers, types, functions and storage configuration still require separate reconciliation.
+- Production remained read-only; TEST remains untouched and empty.
