@@ -1,6 +1,6 @@
 {
   "generated_from": "completion-work source inspection",
-  "snapshot_commit": "39320b8814fe7e33a50513772336803a73b2b5cb",
+  "snapshot_commit": "9b967677c83ea7c7aadae04e64b9eaca9e07f748",
   "note": "This inventory records frontend call sites only. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
@@ -137,6 +137,10 @@
     },
     {
       "name": "admin_set_product_active",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_update_member_profile",
       "ui": "src/components/Admin.tsx"
     },
     {
