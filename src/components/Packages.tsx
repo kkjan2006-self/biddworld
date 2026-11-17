@@ -12,8 +12,7 @@ type PackageItem = {
   bid_wallet_credit: number;
 };
 
-// Fail closed: the owner has not approved the financial/legal model and the
-// Production interlock migration has not been reconciled or applied.
+// Keep package activation disabled until the owner enables the reviewed package workflow.
 const PACKAGE_ACTIVATION_LOCKED = true;
 
 export default function Packages() {
@@ -69,7 +68,7 @@ export default function Packages() {
       <div><h3>Membership packages</h3><p>Free member registration is available. Paid package activation is not currently open.</p></div>
     </div>
     {!configured && <div className="notice"><b>Database not connected:</b> Configure the intended Preview or separate Test environment to view package information. Do not connect Production for testing.</div>}
-    {PACKAGE_ACTIVATION_LOCKED && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> No payment references, activation requests or wallet credits can be submitted until the owner approves the financial and legal model and the database safeguards are independently verified.</div>}
+    {PACKAGE_ACTIVATION_LOCKED && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.</div>}
     {loading ? <p className="packageState">Loading package information…</p> : error ? <div className="notice">{error} <button className="outline small" onClick={() => void load()}><RefreshCw size={14}/> Retry</button></div> :
       items.length === 0 ? <div className="empty packageEmpty">No packages are currently published. Free registration remains available.</div> :
       <div className="packageGrid">{items.map(item => <article className="packageCard" key={item.id}>
@@ -77,7 +76,7 @@ export default function Packages() {
         <strong className="packagePrice">{money(Number(item.price), item.currency || 'INR')}</strong>
         <p>{item.description || 'Package benefits will be published after the owner-approved rules are finalized.'}</p>
         <div className="packageCredit"><span>Proposed Bid Wallet credit (not issued)</span><b>{money(Number(item.bid_wallet_credit), item.currency || 'INR')}</b></div>
-        <div className="notice">Not accepting payments or activation requests. This package is informational only while financial approval is pending.</div>
+        <div className="notice">View-only information. Package payments and activation are currently unavailable.</div>
       </article>)}</div>}
   </section>;
 }
