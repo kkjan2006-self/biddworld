@@ -26,7 +26,7 @@ export default function Account(){
  const [members,setMembers]=useState<Member[]>([]);const [activations,setActivations]=useState<Activation[]>([]);const [wallets,setWallets]=useState<WalletRow[]>([]);const [auctionBids,setAuctionBids]=useState<AuctionBid[]>([]);const [fixedBids,setFixedBids]=useState<FixedBidRow[]>([]);const [commissions,setCommissions]=useState<CommissionRow[]>([]);const [winningPayments,setWinningPayments]=useState<WinningPayment[]>([]);const [deliveries,setDeliveries]=useState<DeliveryRow[]>([]);
  const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [reportBusy,setReportBusy]=useState(false);const [reportMessage,setReportMessage]=useState('');const [historyLoading,setHistoryLoading]=useState('');const [historyHasMore,setHistoryHasMore]=useState({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
  const [activeSection,setActiveSection]=useState('member-overview');
- const loadRequest=useRef(0),loadMounted=useRef(true),withdrawSubmitBusy=useRef(false);
+ const loadRequest=useRef(0),loadMounted=useRef(true),withdrawSubmitBusy=useRef(false),historyPageInFlight=useRef(new Set<string>());
  const [withdrawals,setWithdrawals]=useState<WithdrawalRow[]>([]);const [withdrawEnabled,setWithdrawEnabled]=useState(false);const [withdrawAmount,setWithdrawAmount]=useState('');const [payoutMethod,setPayoutMethod]=useState('UPI');const [payoutName,setPayoutName]=useState('');const [payoutReference,setPayoutReference]=useState('');const [withdrawMessage,setWithdrawMessage]=useState('');const [withdrawBusy,setWithdrawBusy]=useState(false);
  const [newPassword,setNewPassword]=useState(''),[confirmNewPassword,setConfirmNewPassword]=useState(''),[securityMessage,setSecurityMessage]=useState(''),[securityBusy,setSecurityBusy]=useState(false);const [currentEmail,setCurrentEmail]=useState(''),[newEmail,setNewEmail]=useState(''),[emailChangeMessage,setEmailChangeMessage]=useState(''),[emailChangeBusy,setEmailChangeBusy]=useState(false);
  async function load(){
@@ -83,11 +83,11 @@ export default function Account(){
  }
  useEffect(()=>{loadMounted.current=true;void load();return()=>{loadMounted.current=false;loadRequest.current+=1;}},[]);
  async function loadHistoryPage<T>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
- if(!supabase||!profile?.main_member_id||historyLoading)return;
- const client=supabase;const memberId=profile.main_member_id;setHistoryLoading(key);
+ if(!supabase||!profile?.main_member_id||historyPageInFlight.current.has(key))return;
+ const client=supabase;const memberId=profile.main_member_id;historyPageInFlight.current.add(key);setHistoryLoading(key);
  try{const {data,error}=await fetchPage(client,memberId,offset,offset+pageSize-1);if(error)throw error;const batch=(data??[]) as T[];await append(batch,client);setHistoryHasMore(current=>({...current,[key]:batch.length===pageSize}));}
  catch(e){setError(e instanceof Error?e.message:'Could not load more account history.');}
- finally{setHistoryLoading('');}
+ finally{historyPageInFlight.current.delete(key);setHistoryLoading(current=>current===key?'':current);}
 }
 function loadMoreActivations(){return loadHistoryPage<Activation>('activations',activations.length,50,(client,id,from,to)=>client.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,payment_reference,bid_wallet_credit,submitted_at,verified_at,package:packages(name)').eq('member_id',id).order('submitted_at',{ascending:false}).order('id',{ascending:false}).range(from,to),rows=>setActivations(current=>[...current,...rows]));}
 function loadMoreAuctionBids(){return loadHistoryPage<AuctionBid>('auctionBids',auctionBids.length,100,(client,id,from,to)=>client.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),rows=>setAuctionBids(current=>[...current,...rows]));}
