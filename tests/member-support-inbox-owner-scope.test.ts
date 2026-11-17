@@ -10,8 +10,8 @@ describe('Member support and inbox owner scoping', () => {
     expect(source).toContain("if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser()");
     expect(source.match(/request=request\.eq\('user_id',user\.id\)/g)?.length).toBe(2);
     expect(source).toContain("Please sign in again to view your notifications.");
-    expect(source).toContain(" },[isAdmin]);");
-    expect(source).toContain(" },[busy,hasMore,items.length,isAdmin]);");
+    expect(source).toContain(" },[isAdmin,unreadOnly,categoryFilter]);");
+    expect(source).toContain(" },[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]);");
   });
 
   it('filters member support pages by the authenticated user in both initial and continuation reads', () => {
