@@ -95,3 +95,14 @@
 - Added `docs/PRODUCTION_PUBLIC_TABLE_SCHEMA_SNAPSHOT_2026-11-17.md` as a schema-only comparison reference for the canonical TEST bootstrap.
 - This metadata snapshot is deliberately not labelled as a complete schema dump or replayable baseline; indexes, all constraints, policies, grants, triggers, types, functions and storage configuration still require separate reconciliation.
 - Production remained read-only; TEST remains untouched and empty.
+
+
+## 2026-11-18 — Product catalogue and media workflow contract audit
+
+- Re-read the source migrations `20261116010000_public_active_product_catalogue.sql` and `20261116020000_admin_product_management_and_media.sql`, the existing `tests/product-media-migration.test.ts`, and the Admin product-management implementation.
+- Confirmed the source design includes public reads for published products only; Admin-only product list/draft-save/publish RPCs; audit-log entries; and a public `product-media` Storage bucket restricted to JPG/PNG/WebP images up to 5 MB, with upload/update/delete limited by the trusted `app_metadata.role=admin` claim.
+- Confirmed the Admin UI already implements draft creation/editing, staged image upload and cleanup, and explicit publish/unpublish actions. Existing static migration tests cover the key Storage and RPC authorization clauses.
+- This is not an end-to-end verified module: the latest Production audit found zero Storage buckets, and the current Production migration ledger does not establish that the product-media migration was applied. TEST still has no clean-install schema, so the UI-to-RPC-to-Storage path cannot be safely exercised there yet.
+- The migration's prerequisites include the existing `storage.buckets`/`storage.objects` infrastructure, `public.products`, `public.audit_logs`, and the trusted Admin JWT claim contract. The public catalogue policy also depends on the current `products.status='published'` schema.
+- Decision: do not apply the migration or create a bucket in Production or empty TEST as a shortcut. Keep product/media marked source-implemented but deployment-unverified until the curated baseline is replayed and a synthetic Admin/anonymous Storage integration test can run.
+- No application source, database, Storage bucket, member, wallet, auction, or product records were changed in this audit. No completion percentage increase is justified.
