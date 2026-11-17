@@ -31,6 +31,9 @@ describe('auction draft input validation',()=>{
     expect(validateAuctionDraftInput({...valid,endsAt:'2026-11-18T25:00'})).toContain('valid auction start');
     expect(validateAuctionDraftInput({...valid,startsAt:'2026-11-18'})).toContain('valid auction start');
   });
+  it('accepts valid seconds and fractional seconds in local date-time values',()=>{
+    expect(validateAuctionDraftInput({...valid,startsAt:'2026-11-18T10:00:05',endsAt:'2026-11-18T10:00:06.250'})).toBe('');
+  });
   it('rejects blank numeric values instead of treating them as zero',()=>{
     expect(validateAuctionDraftInput({...valid,startingPrice:''})).toContain('Starting price');
     expect(validateAuctionDraftInput({...valid,minimumIncrement:''})).toContain('Starting price');

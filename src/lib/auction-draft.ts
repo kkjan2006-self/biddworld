@@ -8,7 +8,7 @@ export type AuctionDraftInput = {
 };
 
 function parseLocalDateTime(value:string):number|null{
- const match=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\\.(\d{1,3}))?)?$/.exec(value);
+ const match=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(value);
  if(!match)return null;
  const [,yearText,monthText,dayText,hourText,minuteText,secondText='0',millisecondText='0']=match;
  const year=Number(yearText),month=Number(monthText),day=Number(dayText),hour=Number(hourText),minute=Number(minuteText),second=Number(secondText),millisecond=Number(millisecondText.padEnd(3,'0'));
