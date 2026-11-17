@@ -1381,3 +1381,14 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Confirmed source contracts for Bid-Wallet-first idempotent bidding with row locks and atomic ledger/bid/auction updates; pending-only package submission; locked Admin package approval; versioned inactive referral-plan drafts; and Income-Wallet-only withdrawal requests.
 - Recorded material pending work: automatic commission calculation/posting/reversal engine; consistent allowed Profile/Main ID status checks around package activation; complete Fixed Bid and winner settlement lifecycle; Production two-argument `place_bid` migration reconciliation; and disposable Supabase integration tests.
 - No live Supabase tests or Production changes. Details: `docs/FINANCIAL_WORKFLOW_INTEGRATION_AUDIT_2026-11-17.md`.
+
+
+## Member Operations and Fixed Bid Workflow Integration Audit — 2026-11-17
+
+- Audited Fixed Bid Admin/member surfaces, referral plan configuration, delivery tracking, in-app notifications and support tickets against their source migrations.
+- Confirmed Fixed Bid remains a read-only member catalogue plus Admin draft management; entry, server-side draw, cancellation/refunds and settlement are not implemented. Special Winner eligibility remains an owner decision.
+- Confirmed Admin referral-plan UI currently saves fixed rewards only. Backend accepts fixed/percentage draft rules, but percentage calculation basis/rounding is undefined and automatic commission posting/reversal is absent.
+- Confirmed Admin delivery tracking is restricted to paid winning-item payments, feature-gated, and audited; Member Account reads delivery rows for the member's own winning payments under owner-scoped RLS.
+- Confirmed notifications are in-app only; email/SMS/push are not configured. Support member/admin ticket flows, audit events and support notifications exist; attachments/escalation were not found.
+- Recorded detailed findings and safe next work in `docs/MEMBER_OPERATIONS_FIXED_BID_INTEGRATION_AUDIT_2026-11-17.md`.
+- Source-only audit; no migrations were applied, no feature switches were enabled, and Production records/schema/settings remain unchanged. No live Supabase transaction tests were run.
