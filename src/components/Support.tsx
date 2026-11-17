@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {MessageCircle,Send,RefreshCw,ShieldCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
+import {csvDocument} from '../lib/csv';
 
 type Ticket={id:string;user_id:string;subject:string;message:string;status:'open'|'in_progress'|'resolved'|'closed';admin_response:string|null;created_at:string;updated_at:string};
 const PAGE_SIZE=100;
