@@ -6,7 +6,7 @@ type Ticket={id:string;user_id:string;subject:string;message:string;status:'open
 const PAGE_SIZE=100;
 
 export default function Support({isAdmin=false}:{isAdmin?:boolean}){
- const requestSeq=useRef(0),loadMoreBusy=useRef(false);
+ const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>());
  const [tickets,setTickets]=useState<Ticket[]>([]);
  const [subject,setSubject]=useState('');
  const [message,setMessage]=useState('');
@@ -59,10 +59,10 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
 
  async function submit(e:React.FormEvent<HTMLFormElement>){
-  e.preventDefault();if(!supabase||busy)return;
+  e.preventDefault();if(!supabase||busy||submitBusy.current)return;
   if(subject.trim().length<4||subject.trim().length>120){setError('Subject must contain 4–120 characters.');return;}
   if(message.trim().length<10||message.trim().length>5000){setError('Describe your issue in 10–5,000 characters.');return;}
-  setBusy(true);setError('');setNotice('');
+  submitBusy.current=true;setBusy(true);setError('');setNotice('');
   try{
    const {data:{user},error:userError}=await supabase.auth.getUser();
    if(userError||!user)throw new Error('Please sign in again to submit a support request.');
@@ -71,7 +71,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    setSubject('');setMessage('');setNotice('Your support request has been submitted.');
    await load();
   }catch(e){setError(e instanceof Error?e.message:'Your support request could not be submitted. Please retry.');}
-  finally{setBusy(false);}
+  finally{submitBusy.current=false;setBusy(false);}
  }
  async function exportTickets(){
   if(!supabase||exportBusy)return;setExportBusy(true);setExportMessage('');
@@ -94,17 +94,17 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   finally{setExportBusy(false);}
  }
  async function saveTicket(id:string){
-  if(!supabase||saving)return;
+  if(!supabase||saveBusy.current.has(id))return;
   const nextStatus=status[id]??'open';
   const nextResponse=(response[id]??'').trim();
   if(nextResponse.length>5000){setError('Admin response must be 5,000 characters or fewer.');return;}
-  setSaving(id);setError('');setNotice('');
+  saveBusy.current.add(id);setSaving(id);setError('');setNotice('');
   try{
    const {error:updateError}=await supabase.from('support_tickets').update({status:nextStatus,admin_response:nextResponse||null}).eq('id',id);
    if(updateError)throw updateError;
    setNotice('Support ticket updated.');await load();
   }catch(e){setError(e instanceof Error?e.message:'Support ticket could not be updated. Please retry.');}
-  finally{setSaving('');}
+  finally{saveBusy.current.delete(id);setSaving(current=>current===id?'':current);}
  }
  const date=(value:string)=>new Date(value).toLocaleString('en-IN');
  const visibleTickets=tickets.filter(ticket=>(statusFilter==='all'||ticket.status===statusFilter)&&(!search.trim()||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
