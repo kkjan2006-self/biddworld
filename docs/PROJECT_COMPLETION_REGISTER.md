@@ -1,3 +1,12 @@
+## Frontend RPC deployment-mismatch handling — 2026-11-17
+
+- Added shared `src/lib/rpc-errors.ts` detection for PostgREST `PGRST202`, PostgreSQL `42883`, and equivalent missing/stale function-schema messages.
+- Signup sponsor lookup now distinguishes an unavailable/stale RPC from an invalid Sponsor ID and presents the existing unavailable state rather than incorrectly marking the ID invalid.
+- Auction bidding and Admin Duplicate ID creation now show a clear backend-migration-pending message when the deployed RPC signature is missing or stale. Other authorization, validation and network errors retain their existing handling.
+- Added regression tests for RPC error classification and Duplicate ID mismatch feedback.
+- Reconciliation result: the Sponsor lookup helper already accepts both Production's legacy table response and the source boolean response, and deliberately ignores returned display names. The two-argument Duplicate ID creation and idempotent two-argument `place_bid` contracts cannot safely fall back to the old Production signatures; keep those operations blocked until the ordered migration chain is tested and deployed.
+- No Production migrations, member data, wallet data, Auth accounts or settings were changed.
+
 ## Duplicate ID no-op feedback and refresh behavior — 2026-11-17
 
 - Admin now consumes the status RPC's `changed` result. When the selected Duplicate ID already has the requested status, the UI reports that no change was needed and does not trigger an unnecessary full refresh.
