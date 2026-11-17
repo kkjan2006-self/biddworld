@@ -156,18 +156,19 @@ export default function Admin(){
   void load();return()=>{active=false;};
  },[role,refresh,appliedDuplicateSearch]);
  useEffect(()=>{
+  const request=++memberSearchRequest.current;
   if(!supabase||role!=='admin')return;
   const client=supabase;
   let active=true;
+  const search=memberSearch.trim();
   const timer=window.setTimeout(async()=>{
-   const request=++memberSearchRequest.current;
    setMemberMoreBusy(true);setMemberMessage('');
    try{
-    const{data,error}=await client.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});
+    const{data,error}=await client.rpc('admin_list_members_sponsors_page',{p_search:search||null,p_limit:100,p_offset:0});
     if(error)throw error;
     if(!active||request!==memberSearchRequest.current)return;
     const batch=(data??[]) as SponsorMember[];
-    setMembers(batch);setAppliedMemberSearch(memberSearch.trim());setMemberHasMore(batch.length===100);
+    setMembers(batch);setAppliedMemberSearch(search);setMemberHasMore(batch.length===100);
    }catch(e){if(active&&request===memberSearchRequest.current)setMemberMessage(e instanceof Error?e.message:'Member search failed.');}
    finally{if(active&&request===memberSearchRequest.current)setMemberMoreBusy(false);}
   },250);
@@ -247,7 +248,7 @@ async function saveDefaultSponsor(){if(!supabase||savingSponsor)return;setSaving
  const loadMoreWalletTransactions=async()=>{if(!supabase||walletMoreBusy||!walletHasMore)return;setWalletMoreBusy(true);try{const {data,error}=await supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:walletTransactions.length});if(error)throw error;const batch=(data??[]) as WalletTransaction[];setWalletTransactions(current=>[...current,...batch]);setWalletHasMore(batch.length===100);}catch(e){setWalletMessage('Could not load more wallet transactions: '+(e instanceof Error?e.message:'Please retry.'));}finally{setWalletMoreBusy(false);}};
  const exportAllWalletTransactions=async()=>{if(!supabase||walletExportBusy)return;setWalletExportBusy(true);setWalletExportMessage('');try{let all:WalletTransaction[]=[];for(let offset=0;;offset+=100){const {data,error}=await supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:offset});if(error)throw error;const batch=(data??[]) as WalletTransaction[];all=all.concat(batch);if(batch.length<100)break;}if(!all.length){setWalletExportMessage('No wallet ledger records available.');return;}downloadReport('complete-wallet-ledger.csv',['Transaction ID','Member ID','Wallet','Type','Direction','Amount','Balance After','Reference Type','Reference ID','Description','Created At'],all.map(x=>[x.transaction_id,x.member_code,x.wallet_type,x.transaction_type,x.direction,x.amount,x.balance_after,x.reference_type,x.reference_id,x.description,x.created_at]));setWalletExportMessage('Exported '+all.length+' wallet ledger records.');}catch(e){setWalletExportMessage(e instanceof Error?e.message:'Wallet ledger export failed.');}finally{setWalletExportBusy(false);}};
  const searchMembers=async()=>{if(!supabase||memberSearchBusy||memberMoreBusy)return;const request=++memberSearchRequest.current;setMemberSearchBusy(true);setMemberMessage('');setSelectedMemberCode('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});if(error)throw error;if(request!==memberSearchRequest.current)return;const batch=(data??[]) as SponsorMember[];setMembers(batch);setAppliedMemberSearch(memberSearch.trim());setMemberHasMore(batch.length===100);}catch(e){if(request===memberSearchRequest.current)setMemberMessage(e instanceof Error?e.message:'Could not search member records.');}finally{if(request===memberSearchRequest.current)setMemberSearchBusy(false);}};
- const loadMoreMembers=async()=>{if(!supabase||memberMoreBusy||!memberHasMore)return;setMemberMoreBusy(true);setMemberMessage('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:appliedMemberSearch.trim()||null,p_limit:100,p_offset:members.length});if(error)throw error;const batch=(data??[]) as SponsorMember[];setMembers(current=>[...current,...batch]);setMemberHasMore(batch.length===100);}catch(e){setMemberMessage(e instanceof Error?e.message:'Could not load more member records.');}finally{setMemberMoreBusy(false);}};
+ const loadMoreMembers=async()=>{if(!supabase||memberMoreBusy||!memberHasMore)return;const request=memberSearchRequest.current,search=appliedMemberSearch.trim(),offset=members.length;setMemberMoreBusy(true);setMemberMessage('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:search||null,p_limit:100,p_offset:offset});if(error)throw error;if(request!==memberSearchRequest.current)return;const batch=(data??[]) as SponsorMember[];setMembers(current=>[...current,...batch]);setMemberHasMore(batch.length===100);}catch(e){if(request===memberSearchRequest.current)setMemberMessage(e instanceof Error?e.message:'Could not load more member records.');}finally{if(request===memberSearchRequest.current)setMemberMoreBusy(false);}};
  const loadMoreWithdrawals=async()=>{if(!supabase||withdrawalMoreBusy||!withdrawalHasMore)return;setWithdrawalMoreBusy(true);try{const {data,error}=await supabase.rpc('admin_list_withdrawal_requests',{p_limit:100,p_offset:withdrawalRequests.length});if(error)throw error;const batch=(data??[]) as WithdrawalRequest[];setWithdrawalRequests(current=>[...current,...batch]);setWithdrawalHasMore(batch.length===100);}catch(e){setWithdrawalMessage('Could not load more withdrawal requests: '+(e instanceof Error?e.message:'Please retry.'));}finally{setWithdrawalMoreBusy(false);}};
  const filteredMembers=members;
  const filteredActivations=useMemo(()=>{const q=activationSearch.trim().toLowerCase();return pendingActivations.filter(item=>{const day=item.submitted_at.slice(0,10);const haystack=[item.activation_number,item.member_code,item.member_name,item.package_name,item.payment_reference].filter(value=>value!==null&&value!==undefined).join(' ').toLowerCase();return(!q||haystack.includes(q))&&(!activationFrom||day>=activationFrom)&&(!activationTo||day<=activationTo);});},[pendingActivations,activationSearch,activationFrom,activationTo]);
