@@ -1347,3 +1347,12 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Exports are capped at 100,000 rows; larger reports return a filter-narrowing message. The file is generated only after all fetched pages pass the safety checks.
 - Added `tests/admin-paginated-report-export-safety.test.ts` and `docs/ADMIN_PAGINATED_REPORT_EXPORT_SAFETY_2026-11-17.md`.
 - Static source-contract tests only; no live RPC or Production data was queried or changed.
+
+
+## Main ID account status and authentication impact audit — 2026-11-17
+
+- Audited the frontend auth listener, member workspace profile read, baseline self-read RLS policies, active-Main-ID business RPC checks, and inactive-until-verified activation trigger.
+- The inspected browser auth flow does not gate an authenticated session or member workspace on `profiles.status`; selected backend workflows separately require an active Main ID.
+- The activation trigger synchronizes inactive Main ID and profile status to active after verified activation. No complete Main ID suspend/reactivate/close workflow was found.
+- Main ID lifecycle controls, session revocation, RLS changes and Duplicate ID cascade behavior remain intentionally unimplemented pending a defined state machine.
+- Details: `docs/MAIN_ID_AUTHENTICATION_STATUS_IMPACT_AUDIT_2026-11-17.md`. Static audit only; no live Auth/RLS tests, Production schema changes or data changes.
