@@ -6,7 +6,8 @@ describe('Fixed Bid catalogue pagination',()=>{
  it('uses bounded stable pages for published campaign states',()=>{
   expect(source).toContain('const PAGE_SIZE=50');
   expect(source).toContain(".in('status',['scheduled','live','ended'])");
-  expect(source).toContain(".order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+PAGE_SIZE-1)");
+  expect(source).toContain(".order('created_at',{ascending:false}).order('id',{ascending:false})");
+  expect(source).toContain('query.range(offset,offset+PAGE_SIZE-1)');
  });
  it('offers continuation while keeping the campaign surface read-only',()=>{
   expect(source).toContain('Load more campaigns');
@@ -15,28 +16,24 @@ describe('Fixed Bid catalogue pagination',()=>{
   expect(source).not.toMatch(/\.insert\(|\.update\(|\.upsert\(/);
  });
 });
-
-describe('Fixed Bid catalogue filtering',()=>{
- it('filters loaded campaigns by status and case-insensitive campaign or product text',()=>{
-  expect(source).toContain("const [search,setSearch]=useState(''),[statusFilter,setStatusFilter]=useState<'all'|'scheduled'|'live'|'ended'>('all')");
-  expect(source).toContain('const visibleRows=rows.filter(row=>(statusFilter===\'all\'||row.status===statusFilter)');
-  expect(source).toContain('row.title,row.description??\'\',row.product?.name??\'\',row.product?.category??\'\'');
-  expect(source).toContain('No loaded campaigns match these filters.');
+describe('Fixed Bid catalogue server-side filters',()=>{
+ it('filters by campaign title and selected published status before pagination',()=>{
+  expect(source).toContain("type CampaignStatus='all'|'scheduled'|'live'|'ended'");
+  expect(source).toContain("if(status!=='all')query=query.eq('status',status)");
+  expect(source).toContain("query.ilike('title'");
+  expect(source).toContain('load(true,search,statusFilter)');
+  expect(source).toContain('No campaigns match these filters.');
  });
 });
-
 describe('Fixed Bid catalogue request lifecycle',()=>{
- it('prevents overlapping page requests and ignores stale or unmounted responses',()=>{
-  expect(source).toContain("import {useEffect,useRef,useState} from 'react'");
-  expect(source).toContain('const mounted=useRef(true),requestId=useRef(0),requestInFlight=useRef(false)');
-  expect(source).toContain('if(requestInFlight.current)return');
-  expect(source).toContain('if(!mounted.current||request!==requestId.current)return');
-  expect(source).toContain('if(mounted.current&&request===requestId.current)setError');
+ it('invalidates stale filter requests and ignores unmounted responses',()=>{
+  expect(source).toContain('const timer=window.setTimeout(()=>void load(true,search,statusFilter)');
   expect(source).toContain('requestId.current+=1');
+  expect(source).toContain('if(!mounted.current||request!==requestId.current)return');
  });
- it('releases request locks and loading indicators after completion',()=>{
+ it('prevents overlapping continuation requests and releases their lock',()=>{
+  expect(source).toContain('requestInFlight.current||loadingMore||!hasMore');
   expect(source).toContain('requestInFlight.current=false');
   expect(source).toContain('setLoading(false);setLoadingMore(false)');
-  expect(source).toContain('return()=>{mounted.current=false;requestId.current+=1}');
  });
 });
