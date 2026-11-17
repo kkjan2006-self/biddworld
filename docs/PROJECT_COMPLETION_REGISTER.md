@@ -1,3 +1,11 @@
+## Member account identity and ID-list RPC feedback — 2026-11-17
+
+- Member Account now distinguishes missing/stale deployment of `member_get_my_identity`, `member_list_my_ids` and `member_list_my_withdrawals` from ordinary history-query failures.
+- Existing generic account-history errors remain for table/query failures and non-contract errors; no wallet, activation, bid or commission data is changed.
+- Regression coverage added to the member dashboard initial-load tests.
+- CI run `43997033647` passed on source commit `7d31323cd46a84df80767b7644ce2c6e9c17bbc8`: tests, TypeScript type-check and production build all passed.
+- Production Supabase remains unchanged; no RPC migration was applied.
+
 ## Member-facing RPC deployment guidance CI verification — 2026-11-17
 
 - GitHub Actions run `43996743591` passed on commit `e8ecb18ba6e3dcbdfae4b6742472e603bf1c5e56` (`completion-work`).
