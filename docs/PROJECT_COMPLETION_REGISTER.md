@@ -26,3 +26,13 @@
 - Category choices come from the database-supported category set, so categories are available even when none occur in the first 100 records.
 - Text search remains limited to loaded records and is labelled accordingly. Regression tests cover both paginated query paths.
 - Production Supabase was not modified; no migration was applied.
+
+
+## 2026-11-17 — TEST database bootstrap audit
+
+- Created and verified the isolated `BiddWorld-TEST` project (`yoaauthwejdgaevfvwpo`, `ap-south-1`, PostgreSQL 17.12, `ACTIVE_HEALTHY`).
+- TEST database is still empty: no migrations or public tables applied.
+- Audited the current branch migration inventory and found 47 SQL files (3 legacy/unversioned and 44 timestamped); the prior migration matrix's 43-file inventory is stale.
+- Found that `0001_biddworld.sql` does not match the current Production schema expected by later migrations (`user_id` versus `owner_user_id` and `user_id` versus `member_id`); `0002_place_bid_rpc.sql` is the old one-argument bid RPC, and `001_initial_schema.sql` is empty.
+- Decision: do not replay the legacy baseline or apply timestamped migrations to TEST until a canonical clean-install bootstrap is reconciled. Production remains read-only and unchanged.
+- Detailed findings and next steps: `docs/TEST_DATABASE_BOOTSTRAP_AUDIT_2026-11-17.md`.
