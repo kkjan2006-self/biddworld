@@ -40,6 +40,11 @@ describe('Duplicate ID status no-op protection',()=>{
   expect(migration.indexOf('if v_old_status=p_status then')).toBeLessThan(migration.indexOf('update public.member_ids set status=p_status'));
   expect(migration.indexOf('if v_old_status=p_status then')).toBeLessThan(migration.indexOf('insert into public.audit_logs'));
  });
+ it('shows an accurate no-change message and avoids unnecessary list refresh',()=>{
+  expect(admin).toContain('data?.changed===false');
+  expect(admin).toContain('if(data?.changed!==false)setRefresh(v=>v+1)');
+  expect(admin).toContain('No changes were needed.');
+ });
  it('preserves the closed Duplicate ID no-reactivation rule and Admin authorization',()=>{
   const migration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261117130000_admin_duplicate_status_noop_guard.sql'),'utf8');
   expect(migration).toContain("v_row.status='closed' and p_status<>'closed'");
