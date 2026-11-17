@@ -10,7 +10,7 @@ describe('Member support and inbox owner scoping', () => {
     expect(source).toContain("if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser()");
     expect(source.match(/request=request\.eq\('user_id',user\.id\)/g)?.length).toBe(2);
     expect(source).toContain("Please sign in again to view your notifications.");
-    expect(source).toContain(" },[isAdmin,statusFilter]);");
+    expect(source).toContain(" },[isAdmin]);");
     expect(source).toContain(" },[busy,hasMore,items.length,isAdmin]);");
   });
 
@@ -19,7 +19,7 @@ describe('Member support and inbox owner scoping', () => {
     expect(source).toContain("if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser()");
     expect(source.match(/request=request\.eq\('user_id',user\.id\)/g)?.length).toBe(2);
     expect(source).toContain("Please sign in again to view your support requests.");
-    expect(source).toContain(" },[isAdmin]);");
+    expect(source).toContain(" },[isAdmin,statusFilter]);");
     expect(source).toContain(" },[busy,hasMore,tickets.length,isAdmin,statusFilter]);");
   });
 
