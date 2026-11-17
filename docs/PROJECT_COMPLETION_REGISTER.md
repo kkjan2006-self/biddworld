@@ -1203,3 +1203,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Load More captures the active search generation, applied query and page offset; stale results, errors and loading cleanup cannot override a newer search.
 - Added `tests/admin-member-directory-pagination-order.test.ts` and `docs/ADMIN_MEMBER_DIRECTORY_PAGINATION_ORDER_2026-11-17.md`.
 - Static source-contract coverage only; no live Supabase RPC was exercised and no Production data was changed.
+
+
+## Admin paginated report export safety — 2026-11-17
+
+- Shared Admin CSV export pagination now detects an identical repeated server page and aborts with a clear error instead of looping indefinitely or producing duplicate rows.
+- Exports are capped at 100,000 rows; larger reports return a filter-narrowing message. The file is generated only after all fetched pages pass the safety checks.
+- Added `tests/admin-paginated-report-export-safety.test.ts` and `docs/ADMIN_PAGINATED_REPORT_EXPORT_SAFETY_2026-11-17.md`.
+- Static source-contract tests only; no live RPC or Production data was queried or changed.
