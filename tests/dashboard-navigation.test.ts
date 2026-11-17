@@ -7,6 +7,13 @@ const readSource = (path: string) => readFileSync(resolve(process.cwd(), path), 
 describe('dashboard navigation integrity', () => {
   const admin = readSource('src/components/Admin.tsx');
   const account = readSource('src/components/Account.tsx');
+  const app = readSource('src/App.tsx');
+
+
+  it('resets marketplace pagination when search, category or sort changes and clamps it when results shrink', () => {
+    expect(app).toContain('useEffect(()=>{setPage(1)},[query,category,sort]);');
+    expect(app).toContain('useEffect(()=>{setPage(current=>Math.min(current,pageCount))},[pageCount]);');
+  });
 
   it('keeps every Admin navigation link connected to exactly one section', () => {
     const ids = [...admin.matchAll(/id="([^"]+)"/g)].map((match) => match[1]);

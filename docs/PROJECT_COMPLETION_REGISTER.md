@@ -1,3 +1,10 @@
+## Marketplace pagination state correction — 2026-11-17
+
+- Marketplace page selection now resets to page 1 whenever search, category or sort changes, preventing valid filtered results from appearing blank after a user was on a later page.
+- The current page is also clamped when the available result count shrinks after a catalogue refresh.
+- Added regression coverage in `tests/dashboard-navigation.test.ts`.
+- Frontend-only correction; no Supabase data, schema, Auth, wallet or Production settings changed.
+
 ## Main ID Account Status Lifecycle audit — 2026-11-17
 
 - Audited Admin Member Details, Main ID directory UI, and the current lifecycle-related SQL migrations.
