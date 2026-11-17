@@ -24,7 +24,7 @@ describe('Member dashboard activation status guard',()=>{
   it('hides the withdrawal request form unless both member identity records are active',()=>{
     expect(account).toContain('{withdrawEnabled&&!accountActivationLocked?<form className="memberWithdrawalForm"');
     expect(account).toContain('Withdrawal requests are unavailable until both your member profile and Main ID are active.');
-    expect(account).toContain("client.rpc('member_create_withdrawal_request'");
+    expect(account).toContain("supabase.rpc('member_create_withdrawal_request'");
   });
 
 });
