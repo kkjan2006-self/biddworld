@@ -1411,3 +1411,10 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - New requests and approved/active transitions now require a real Main ID and owning Profile with matching `inactive` or `active` status; suspended, closed, missing, null and mismatched states are rejected while identity rows are locked.
 - Main ID suspend/reactivate/close lifecycle, global session enforcement and linked Duplicate ID cascade remain unimplemented and intentionally deferred.
 - The guard migration and contract test are source-only. No Production migration or data change was made; live PostgreSQL validation still requires a disposable TEST project.
+
+
+## Admin Duplicate ID Lifecycle Security Regression Coverage — 2026-11-17
+
+- Added `tests/admin-duplicate-id-lifecycle-security.test.ts` to protect the existing Duplicate ID lifecycle contract: trusted Admin authorization, locked active Main ID parent on creation, pending child creation, no independent Profile/Wallet creation, closed-ID no-reactivation, audited real transitions and idempotent no-op behavior.
+- Added a guard assertion that no Main ID-to-Duplicate ID cascade is inferred by these RPCs.
+- Test-only change; no lifecycle behavior, Production schema, member records, Auth sessions or settings were changed.
