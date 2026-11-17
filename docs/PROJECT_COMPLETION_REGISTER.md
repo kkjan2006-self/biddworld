@@ -1,3 +1,12 @@
+## Admin Member Profile Editing — 2026-11-17
+
+- Added an Admin-only edit form to the existing Main ID detail panel for profile name and phone.
+- Added source-only forward migration 20261117120000_admin_update_member_profile.sql; server-side Admin JWT authorization, Main ID resolution, profile-row lock, input validation and audit logging are enforced in the RPC.
+- Frontend calls the RPC and updates the current directory row without resetting applied search or pagination.
+- Added tests/admin-member-profile-editing.test.ts and docs/ADMIN_MEMBER_PROFILE_EDITING_2026-11-17.md.
+- Profile editing excludes Auth credentials, role, sponsor, wallet and account/ID status. Lifecycle cascade rules remain unresolved and are not invented.
+- Migration is not applied to Production. No Production data, schema, settings or Auth accounts were changed. CI is required on the final commit.
+
 ## Fresh continuation audit — 2026-11-17
 
 - Re-verified `completion-work` HEAD: `74a08fc7b42e0a707ad98ccae679195f54cbc8f4`.
