@@ -3,9 +3,9 @@
 ## Scope
 
 - Repository: `kkjan2006-self/biddworld`
-- Branch snapshot: `completion-work` at `5256cdc0c035cc965d0e283ea84a172a33ef93f7`
+- Branch snapshot: `completion-work` at `9616aad1da2689d98865cfcbede3b469e4c4f4d1` (rechecked 2026-11-17)
 - Supabase project inspected read-only: `BiddWorld-Production` (`hbqatszyzqobgtauyuzy`)
-- Source migration files: 44 total, consisting of 41 timestamped migrations and 3 legacy/unversioned SQL files.
+- Source migration files: 49 total, consisting of 46 timestamped migrations and 3 legacy/unversioned SQL files (recounted from the current branch tree).
 - Production migration ledger: 30 applied entries, latest `20261115163218_admin_audit_log_pagination`.
 
 ## Reconciliation result
@@ -65,3 +65,17 @@ Further read-only inspection of the live function definitions found:
 - `public.get_my_placement_tree()` exists with no arguments and its JSON keys (`root_member_code`, `tree`) and tree fields match the inspected current PlacementTree component. This is a limited contract match; runtime integration has not been performed.
 
 These are source/live drift observations, not a statement that the branch migrations are ready to apply. Keep Production read-only until exact SQL history and a clean TEST replay are available.
+
+
+## Latest verification checkpoint — 2026-11-17
+
+- Re-read the exact Production migration ledger: 30 entries, latest `20261115163218_admin_audit_log_pagination`.
+- Re-read the isolated `BiddWorld-TEST` migration ledger: zero entries; no migration has been applied there.
+- Recounted the current `completion-work` migration directory: 49 SQL files (46 timestamped plus 3 legacy/unversioned). The prior 44-file count in this document was stale.
+- The four exact timestamp/name matches and nine recognizable-name/different-timestamp pairs remain unchanged. The larger current source inventory does not establish that additional files were applied in Production.
+- CI run [44045900591](https://github.com/kkjan2006-self/biddworld/actions/runs/44045900591) passed dependency installation, security reporting, tests, TypeScript and production build for commit `9616aad1da2689d98865cfcbede3b469e4c4f4d1`.
+- No SQL was executed, no migrations were applied, and no Production or TEST data was changed in this checkpoint.
+
+### Next bulk engineering gate
+
+The migration replay cannot safely proceed from filenames. The missing evidence is the actual SQL body for the 30 Production ledger versions (including manually applied SQL), plus the exact current definitions for every dependent function, trigger, policy, constraint, index and grant. Reconstruct that evidence first; then produce one curated clean-install baseline and replay it on TEST. Do not use `0001_biddworld.sql` as the baseline, do not mark migrations as applied, and do not make a guessed compatibility shim for the live one-argument bid RPC.
