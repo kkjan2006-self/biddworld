@@ -1364,3 +1364,12 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - All six source definitions use `SECURITY DEFINER`, empty `search_path`, non-null `auth.uid()`, trusted `app_metadata.role = 'admin'` checks, and revoke execution from `PUBLIC` / `anon` before granting authenticated execution.
 - Added `tests/admin-member-rpc-authorization-contract.test.ts` to protect these authorization, execution-context and ACL contracts from regression.
 - Details: `docs/ADMIN_MEMBER_RPC_AUTHORIZATION_CONTRACT_AUDIT_2026-11-17.md`. Static source-contract verification only; no live PostgreSQL privilege test and no Production changes.
+
+
+## Signup-to-package-activation status synchronization audit — 2026-11-17
+
+- Traced the final source definitions for inactive signup, pending activation submission, Admin approval, financial and feature interlocks, activation trigger, and member dashboard lock.
+- Confirmed pending submission does not activate a member or write wallet ledger rows; the private request RPC requires both the package feature switch and owner approval flag. Admin approval is protected by database financial/feature triggers as well as the UI lock.
+- Identified a status-pair edge case: the activation trigger independently promotes only inactive Main IDs and inactive Profiles, without asserting both rows end in the same status. A legacy/future suspended Main ID paired with an inactive Profile could therefore remain suspended while its Profile becomes active. The request RPC also does not distinguish inactive first-time IDs from suspended/closed IDs.
+- No lifecycle behavior was changed because suspended/closed activation policy remains unspecified. Details: `docs/SIGNUP_PACKAGE_ACTIVATION_STATUS_SYNC_AUDIT_2026-11-17.md`.
+- Static source review only; no live Supabase integration, no Production settings/schema/data changes.
