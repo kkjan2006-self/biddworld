@@ -1373,3 +1373,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Identified a status-pair edge case: the activation trigger independently promotes only inactive Main IDs and inactive Profiles, without asserting both rows end in the same status. A legacy/future suspended Main ID paired with an inactive Profile could therefore remain suspended while its Profile becomes active. The request RPC also does not distinguish inactive first-time IDs from suspended/closed IDs.
 - No lifecycle behavior was changed because suspended/closed activation policy remains unspecified. Details: `docs/SIGNUP_PACKAGE_ACTIVATION_STATUS_SYNC_AUDIT_2026-11-17.md`.
 - Static source review only; no live Supabase integration, no Production settings/schema/data changes.
+
+
+## Financial workflow integration audit — 2026-11-17
+
+- Completed a bulk source review across Wallet, Auction Bidding, Package Activation, Referral Plan configuration, Withdrawal requests, financial triggers and Production RPC compatibility.
+- Confirmed source contracts for Bid-Wallet-first idempotent bidding with row locks and atomic ledger/bid/auction updates; pending-only package submission; locked Admin package approval; versioned inactive referral-plan drafts; and Income-Wallet-only withdrawal requests.
+- Recorded material pending work: automatic commission calculation/posting/reversal engine; consistent allowed Profile/Main ID status checks around package activation; complete Fixed Bid and winner settlement lifecycle; Production two-argument `place_bid` migration reconciliation; and disposable Supabase integration tests.
+- No live Supabase tests or Production changes. Details: `docs/FINANCIAL_WORKFLOW_INTEGRATION_AUDIT_2026-11-17.md`.
