@@ -123,3 +123,13 @@
 - Split the checks so the RPC rejects non-array payloads before calling array functions. Added a regression assertion for this ordering.
 - Current source contract: 1–20 levels, sequential level numbering from 1, Admin-only execution, inactive plan version creation, and no commission or wallet posting in this draft RPC.
 - This is source-level hardening only. CI has not yet reported a result for the latest commits. No Supabase migrations were applied and no database records were changed.
+
+
+## 2026-11-18 — Referral depth test-source repair and commission-engine boundary
+
+- Re-opened the committed referral depth contract test and found escaped newline text and over-escaped regular-expression patterns in the test source. Replaced these with normal TypeScript lines and literal contract assertions.
+- Rechecked the Admin editor's exact twenty-level guard and the draft RPC's sequential-level, Admin-only, inactive-version behavior against the current branch source.
+- Inspected the available source migrations and the Production schema-only snapshot for referral and wallet tables. The snapshot identifies the commission row fields and wallet ledger idempotency key, but it does not provide a complete verified schema, all constraints/indexes/triggers/grants, or a replayable migration baseline.
+- No automatic commission calculation, eligibility traversal, idempotent wallet posting, or reversal engine is present in the inspected source. The existing feature-gate trigger only gates credited commission inserts and requires an approved active package activation; it is not a commission engine.
+- Decision: do not invent commission SQL against an incomplete/unreconciled schema. Next implementation work must be preceded by a trustworthy schema/constraint/trigger contract and clean-install TEST baseline. Production remains read-only; TEST remains untouched.
+- No tests were executed in a runtime during this repair. The repaired test source is committed, but it is not reported as passing until CI or a local test run confirms it.
