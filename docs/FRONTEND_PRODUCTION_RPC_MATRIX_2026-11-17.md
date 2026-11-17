@@ -3,8 +3,8 @@
 ## Scope and method
 
 - Source branch: `completion-work`
-- Source HEAD inspected: `74a08fc7b42e0a707ad98ccae679195f54cbc8f4`
-- Frontend inventory: `docs/FRONTEND_RPC_INVENTORY.json` (44 literal RPC call sites)
+- Initial audit baseline: `74a08fc7b42e0a707ad98ccae679195f54cbc8f4`; subsequent profile-editor source change: `9b967677c83ea7c7aadae04e64b9eaca9e07f748`
+- Frontend inventory: `docs/FRONTEND_RPC_INVENTORY.json` (45 literal RPC call sites)
 - Production project: `BiddWorld-Production` / `hbqatszyzqobgtauyuzy`
 - Production inspection: read-only PostgreSQL catalogue query of `pg_proc`, identity arguments, result types and ACLs.
 - No Production schema, migration ledger, settings, Storage objects, member records or financial records were changed.
@@ -13,9 +13,9 @@
 
 | Result | Count | Meaning |
 |---|---:|---|
-| Frontend RPC names inventoried | 44 | Source call sites |
+| Frontend RPC names inventoried | 45 | Source call sites |
 | Names found in Production | 36 | Presence only; not all contracts have been proven compatible |
-| Missing from Production | 8 | UI calls cannot succeed against current Production |
+| Missing from Production | 9 | UI calls cannot succeed against current Production |
 | Known signature / return-shape mismatches | 3 | Name exists, but the UI contract differs |
 | Production Storage buckets | 0 | Product media upload is not available in current Production |
 
@@ -31,6 +31,7 @@
 | `admin_list_duplicate_ids_page` | `src/components/Admin.tsx` | Add bounded Admin-only Duplicate ID directory RPC |
 | `admin_set_product_active` | `src/components/Admin.tsx` | Add Admin-only publish/hide RPC matching live product status schema |
 | `get_my_mlm_dashboard_page` | `src/components/Referrals.tsx` | Add owner-scoped bounded genealogy/dashboard RPC |
+| `admin_update_member_profile` | `src/components/Admin.tsx` | New source-only RPC from the Admin Member Profile Editing batch; test outside Production before rollout |
 
 ## Known present-name contract mismatches
 
@@ -42,7 +43,7 @@
 
 ## Production RPC catalogue observations
 
-- The 44-name source inventory was compared with the current public-schema function catalogue. The eight missing names above were absent.
+- The 45-name source inventory was compared with the current public-schema function catalogue. The eight missing names above were absent.
 - Other source names are present by name, but name presence is not proof of matching parameter names, argument types, defaults, result shape, authorization checks, or side effects.
 - Targeted catalogue inspection confirms the Production `admin_list_members_sponsors_page` function is absent; the branch migration source exists but is not recorded as applied in Production.
 - The Production `admin_list_duplicate_ids_page` function is absent while the branch UI uses it.
