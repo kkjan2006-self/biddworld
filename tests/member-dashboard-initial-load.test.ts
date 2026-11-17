@@ -20,3 +20,10 @@ describe('Member dashboard initial loading',()=>{
   expect(account).toContain(".eq('credited_main_member_id',p.main_member_id)");
  });
 });
+
+ it('distinguishes missing member identity, ID-list and withdrawal RPC deployments',()=>{
+  expect(account).toContain("rpcContractUnavailableMessage(identityError,'Member identity details')");
+  expect(account).toContain("const memberRpcError=[m.error,wr.error].find(error=>error&&rpcContractUnavailableMessage(error,'Member account details'))");
+  expect(account).toContain("rpcContractUnavailableMessage(memberRpcError,'Member account details')");
+  expect(account).toContain("else if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)");
+ });
