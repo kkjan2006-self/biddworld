@@ -54,9 +54,9 @@
 
 - Production `profiles` fields include `display_name`, `phone`, `status`, `main_member_id`, `created_at`, and `updated_at`.
 - Production Main/Duplicate ID status constraint permits `pending`, `active`, `suspended`, and `closed`; the profile status constraint permits the same values.
-- Existing Admin member directory supports server-side search, bounded pagination, CSV export, sponsor correction and a read-only details panel.
-- The details panel explicitly states that profile edits and account lifecycle actions are not editable yet.
-- There is no Production RPC in the audited catalogue for Admin member-profile editing or Main ID/profile lifecycle transitions.
+- Existing Admin member directory supports server-side search, bounded pagination, CSV export, sponsor correction, Main ID detail view and profile name/mobile editing through a new source-only RPC.
+- `admin_update_member_profile` remains absent from Production until a separately tested migration rollout.
+- Main ID/profile/linked Duplicate ID lifecycle transitions remain unimplemented because the cascade and login/session behavior are not specified.
 - Do not invent whether suspension/closure of a Main ID must also update the profile and its linked Duplicate IDs. That cascade and login/session behavior require an owner-defined rule before implementation.
 
 ## Storage and security observations
