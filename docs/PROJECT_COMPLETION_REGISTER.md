@@ -1,3 +1,11 @@
+## Main ID Account Status Lifecycle audit — 2026-11-17
+
+- Audited Admin Member Details, Main ID directory UI, and the current lifecycle-related SQL migrations.
+- Confirmed Main ID status is displayed read-only; profile editing is implemented separately; Main ID Suspend/Reactivate/Close actions and lifecycle RPC are not present in the inspected source.
+- Duplicate ID lifecycle is implemented independently; no cascade behavior was inferred or added.
+- Recorded missing work and safe implementation boundaries in `docs/MAIN_ID_ACCOUNT_STATUS_LIFECYCLE_AUDIT_2026-11-17.md`.
+- Source/migration audit only; Production Supabase and member records remain unchanged.
+
 ## Duplicate ID lifecycle RPC deployment feedback — 2026-11-17
 
 - Duplicate ID creation and status transitions now use the shared missing/stale RPC classifier and show action-specific deployment guidance.
