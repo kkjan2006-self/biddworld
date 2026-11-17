@@ -34,6 +34,8 @@ describe('Fixed Bid catalogue request lifecycle',()=>{
  it('prevents overlapping continuation requests and releases their lock',()=>{
   expect(source).toContain('requestInFlight.current||loadingMore||!hasMore');
   expect(source).toContain('requestInFlight.current=false');
+  expect(source).toContain('if(!reset&&request===requestId.current)requestInFlight.current=false');
+  expect(source).toContain('if(reset){requestInFlight.current=false;setLoading(true)');
   expect(source).toContain('setLoading(false);setLoadingMore(false)');
  });
 });
