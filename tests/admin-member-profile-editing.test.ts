@@ -9,6 +9,11 @@ describe('Admin member profile editing contract',()=>{
   expect(admin).toContain("setMemberProfileName(m.display_name||'')");
   expect(admin).toContain("setMemberProfilePhone(m.phone||'')");
  });
+ it('prevents no-op saves and supports resetting unsaved profile edits',()=>{
+  expect(admin).toContain('const memberProfileDirty=Boolean(selectedMemberForProfile)');
+  expect(admin).toContain('disabled={memberProfileBusy||!memberProfileDirty} onClick={()=>void saveMemberProfile()}');
+  expect(admin).toContain('Reset changes');
+ });
  it('keeps editing separate from account status and ID lifecycle',()=>{
   expect(admin).toContain('Account status and ID lifecycle remain separate pending workflows.');
   expect(migration).toContain('Account status and ID lifecycle are intentionally excluded.');
