@@ -16,7 +16,7 @@ function collectFiles(directory:string):string[]{
 
 describe('English-only project source policy',()=>{
  it('keeps application source and automated tests free of Telugu characters',()=>{
-  const violations=roots.flatMap(root=>collectFiles(root)).filter(path=>/[\\u0C00-\\u0C7F]/u.test(readFileSync(path,'utf8')));
+  const violations=roots.flatMap(root=>collectFiles(root)).filter(path=>/[\u0C00-\u0C7F]/u.test(readFileSync(path,'utf8')));
   expect(violations.map(path=>relative(process.cwd(),path))).toEqual([]);
  });
 });
