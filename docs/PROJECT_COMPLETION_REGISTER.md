@@ -1,3 +1,11 @@
+## Duplicate ID lifecycle RPC deployment feedback — 2026-11-17
+
+- Duplicate ID creation and status transitions now use the shared missing/stale RPC classifier and show action-specific deployment guidance.
+- Ordinary errors continue to show their underlying message; duplicate status no-op behavior remains unchanged.
+- Regression tests updated for both Duplicate ID lifecycle guidance and the existing two-argument placement-attribution RPC contract.
+- CI run `43997847013` passed on commit `461382876f09e2b78e89f7bf453f3dfd1f667d9c`: all tests, TypeScript type-check, and production build passed.
+- No Main ID lifecycle or cascade behavior was added; Production Supabase remains unchanged.
+
 ## Admin Member Management RPC deployment feedback — 2026-11-17
 
 - Admin member profile editing, sponsor changes, and paginated Main ID directory search now distinguish missing/stale RPC deployments from ordinary errors and show an actionable administrator-facing message.
