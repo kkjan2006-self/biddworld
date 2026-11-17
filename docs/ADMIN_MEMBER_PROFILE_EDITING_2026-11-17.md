@@ -22,3 +22,11 @@
 ## Verification
 - Added tests/admin-member-profile-editing.test.ts static source/migration contract coverage.
 - CI must pass on the latest commit. No live Admin RPC execution or Production database mutation was performed.
+
+
+## CI and schema verification — 2026-11-17
+
+- GitHub Actions run `43994891990` passed on the profile-editing source baseline.
+- A read-only Production `information_schema.columns` check confirmed `profiles.id/display_name/phone/updated_at`, `member_ids.owner_user_id/member_code/id_type`, and `audit_logs.actor_user_id/action/entity_type/entity_id/details` match the migration's referenced columns.
+- The Admin editor now provides Reset changes and blocks no-op Save operations. These are frontend-only safeguards and do not alter database behavior.
+- The migration has not been applied to Production; live RPC execution still requires a disposable test project.
