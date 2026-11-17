@@ -1,3 +1,10 @@
+## Admin member profile editing verification and UX hardening — 2026-11-17
+
+- Latest CI for the profile-editor implementation passed on commit `586a749db0de67e9129d61a1a5e4acc9a9845c1d` (GitHub Actions run `43994891990`).
+- Read-only Production schema inspection confirmed the profile fields, Main ID ownership fields and `audit_logs` columns used by the source-only profile-edit migration.
+- Added a Reset changes action and disabled no-op saves in the Admin profile editor; regression tests cover both behaviors.
+- The profile-edit migration remains unapplied. Production schema and data were not changed. A disposable Supabase test project is still required for live migration/RPC execution before rollout.
+
 ## Admin Member Profile Editing CI correction — 2026-11-17
 
 - First CI run for the profile-editor batch exposed two expected source-contract updates: the Admin View details handler now initializes the edit form, and the frontend RPC inventory must include `admin_update_member_profile`.
@@ -65,7 +72,7 @@ This register is an implementation inventory, not a claim of launch readiness. I
 | Fixed Bid | Campaign read-only listing restricted to scheduled/live/ended statuses; deterministic 50-row pagination with Load More; admin campaign draft creation/editing | Owner-defined entry price/charge, entry submission, caps, tie/winner algorithm, cancellation/refunds, settlement and member history with entry-status summary and campaign status/date details |
 | Winning items | Member/admin read-only payment registers; delivery tracking save RPC/UI | Winner selection, Income Wallet payment/settlement, payment failure/refund handling, courier update lifecycle, notifications and member support |
 | Withdrawals | Member request submission RPC and history; Admin read-only request queue | Owner-defined min/max/fees, approve/reject/review workflow, payout provider/integration, payout reconciliation, failure/refund handling and audit coverage |
-| Admin members/sponsors | Member directory with Admin-checked 100-row RPC pagination and Load More, client-side search across loaded Main IDs, CSV export, read-only detail panel (status, sponsor, registration date, placement and linked Duplicate IDs), sponsor changes/default sponsor, structure report | Server-side search wiring, full-history filtered export, editable member profile/status actions, safe account lifecycle |
+| Admin members/sponsors | Member directory with Admin-checked 100-row RPC pagination and Load More, server-side search, CSV export, detail panel (status, sponsor, registration date, placement and linked Duplicate IDs), Admin profile name/mobile editing via an audited source-only RPC, sponsor changes/default sponsor, structure report | Verify profile-edit RPC on a disposable Supabase project; account status actions and safe Main ID/profile/linked Duplicate ID lifecycle remain pending owner-defined behavior |
 | Admin packages/payments | Package draft editor; pending activation review UI/RPC | Receipt inspection, complete activation history, reject reasons, refunds, safe publication/retirement and financial reconciliation |
 | Admin reports | Complete paginated CSV exports for wallet ledger, withdrawals, winning payments, delivery tracking and audit logs; audit export applies active search/date filters; other reports use full-list RPC results where available | Verify server-side limits for members/packages/activation/team/commission reports; add date-range filters and printable/PDF reporting |
 | Support | Member support ticket submission/history and Admin queue with status/response updates, owner/Admin RLS, audit logging and 100-row pagination | Email/SMS dispatch, attachment uploads, SLA/assignment workflow and additional abuse/rate controls |
