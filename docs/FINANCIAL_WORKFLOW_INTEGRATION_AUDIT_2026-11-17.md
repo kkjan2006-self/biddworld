@@ -31,8 +31,8 @@ Bulk source review of wallet balance/ledger handling, auction bidding, package a
 ## Material gaps and risks found
 
 1. **No commission calculation/posting engine found.** The branch contains referral plan draft configuration and referral dashboard/reporting, but no complete automatic calculation, eligibility snapshot, posting, reversal/refund, or plan-version selection engine. The completion register also lists these as pending.
-2. **Main ID lifecycle status is not constrained consistently by package activation.** The final submission RPC looks up the caller's Main ID without restricting its status. The Admin approval RPC verifies only that the target is a Main ID, not that its status is `inactive` or `active`. A suspended or closed Main ID can therefore reach the pending/approval path if the feature interlocks are deliberately opened.
-3. **Activation trigger can produce mismatched status pairs.** It promotes a Main ID only from `inactive`, and independently promotes the owning Profile only from `inactive`. It does not assert that both records were in an allowed matching state before approval or that both end in the same state.
+2. **Package activation identity consistency is now guarded in branch source.** Forward migration `20261117140000_guard_package_activation_member_status.sql` validates new requests and transitions to approved/active against a real Main ID and owning Profile. Both records must have matching `inactive` or `active` status; suspended, closed, null, missing-profile and mismatched pairs are rejected while both rows are locked. This is source-only and has not been applied to Production.
+3. **Main ID account lifecycle remains unimplemented.** The new package-activation guard does not add Main ID Suspend/Reactivate/Close actions, global session revocation, or a cascade to linked Duplicate IDs. Those behaviors remain deferred until the owner defines the state machine and linked-ID policy.
 4. **Fixed Bid and winner settlement are not end-to-end complete.** The financial interlock protects Fixed Bid inserts and winner-payment settlement, but the inspected Admin auction migration is draft management. This audit did not find a complete verified fixed-bid debit/winner selection/settlement lifecycle.
 5. **Frontend Production contract mismatch remains.** The current Production RPC inventory documents the deployed one-argument `place_bid(uuid)` while the branch frontend expects `place_bid(uuid,text)`. The frontend correctly refuses an unsafe fallback that would discard idempotency. The branch migration remains unapplied to Production.
 6. **No live transactional verification is available.** There is no separate disposable Supabase test project configured in the known project state. Static tests cannot prove actual PostgreSQL locking, trigger ordering, RLS, or rollback behavior.
@@ -49,3 +49,8 @@ Bulk source review of wallet balance/ledger handling, auction bidding, package a
 ## Data and deployment boundary
 
 All findings refer to branch source and existing project documentation. No migration was applied. No Production setting, schema, account, package activation, wallet balance, ledger row, commission, bid, withdrawal, or winner-payment row was changed. Do not describe the source interlocks as active in Production; they are committed source code only.
+
+
+## Follow-up correction — package activation identity guard (2026-11-17)
+
+The earlier status-consistency gaps above have been addressed in branch source by `20261117140000_guard_package_activation_member_status.sql`. The migration is paired with `tests/package-activation-member-status-consistency.test.ts`; both the test commit and latest completion-register CI have passed at the time of this update. The migration remains unapplied to Production and still requires disposable TEST Supabase runtime verification.
