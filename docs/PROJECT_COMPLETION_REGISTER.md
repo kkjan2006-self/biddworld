@@ -137,7 +137,7 @@
 
 ## 2026-11-18 — CI repair and migration reconciliation recheck
 
-- Confirmed the latest CI run [44179957992](https://github.com/kkjan2006-self/biddworld/actions/runs/44179957992) completed successfully on commit `c67b6f68cb466efc58210110471d46a86726e8f8`.
+- Confirmed the latest CI run [44180769866](https://github.com/kkjan2006-self/biddworld/actions/runs/44180769866) completed successfully on commit `f53028d99826125930f49b140725c226a1f60726`; this includes the latest migration-evidence documentation commit.
 - Verification completed: 90 test files and 342 tests passed; TypeScript check and Vite production build passed.
 - Repaired 11 stale source-contract test files to assert the current implementation: member/admin request lifecycle guards, retryable wallet pagination, notification ownership/read-state paths, package activation lock copy, and all three support-ticket status-filtered query paths (initial load, continuation, and complete CSV export).
 - Fixed a real TypeScript build error by importing the existing `csvDocument` helper into `src/components/Support.tsx`; no support workflow was removed.
