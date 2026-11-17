@@ -29,6 +29,9 @@ begin
   if jsonb_typeof(p_rules) is distinct from 'array' or jsonb_array_length(p_rules) < 1 then
     raise exception 'Provide at least one referral level rule' using errcode='22023';
   end if;
+  if jsonb_array_length(p_rules) > 20 then
+    raise exception 'Referral plans cannot exceed 20 levels' using errcode='22023';
+  end if;
 
   select * into v_package
   from public.packages
@@ -57,8 +60,11 @@ begin
     v_type := v_rule->>'reward_type';
     v_value := (v_rule->>'reward_value')::numeric;
 
-    if v_level is null or v_level < 1 then
-      raise exception 'Each referral level must be a positive integer' using errcode='22023';
+    if v_level is null or v_level < 1 or v_level > 20 then
+      raise exception 'Each referral level must be between 1 and 20' using errcode='22023';
+    end if;
+    if v_level <> v_rule_count + 1 then
+      raise exception 'Referral levels must be sequential starting at level 1' using errcode='22023';
     end if;
     if v_type is distinct from 'fixed' and v_type is distinct from 'percentage' then
       raise exception 'Reward type must be fixed or percentage' using errcode='22023';
