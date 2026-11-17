@@ -11,7 +11,7 @@ describe('Member account action network recovery',()=>{
   const handler=account.slice(start,end);
   expect(handler).toContain("try{const details={method:payoutMethod");
   expect(handler).toContain("catch{setWithdrawMessage('The withdrawal request could not be completed");
-  expect(handler).toContain('finally{setWithdrawBusy(false);}');
+  expect(handler).toContain('finally{withdrawSubmitBusy.current=false;setWithdrawBusy(false);}');
   expect(handler).toContain("setWithdrawMessage('Withdrawal request submitted for Admin review.')");
  });
 
