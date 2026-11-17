@@ -1392,3 +1392,14 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Confirmed notifications are in-app only; email/SMS/push are not configured. Support member/admin ticket flows, audit events and support notifications exist; attachments/escalation were not found.
 - Recorded detailed findings and safe next work in `docs/MEMBER_OPERATIONS_FIXED_BID_INTEGRATION_AUDIT_2026-11-17.md`.
 - Source-only audit; no migrations were applied, no feature switches were enabled, and Production records/schema/settings remain unchanged. No live Supabase transaction tests were run.
+
+
+## Package Activation Identity Status Guard — 2026-11-17
+
+- Added forward-only source migration `20261117140000_guard_package_activation_member_status.sql`.
+- New package activation requests and transitions into approved/active now require a real Main ID with its owning profile, and both identity records must have matching `inactive` or `active` status.
+- Suspended, closed, missing-profile, null-status and mismatched Main ID/profile combinations are rejected at the database trigger boundary. This prevents the prior after-trigger from independently promoting only one side of an inconsistent identity pair.
+- Trigger locks both identity rows while validating. Trigger function is SECURITY DEFINER with an empty search_path and is not directly executable by client roles.
+- Added `tests/package-activation-member-status-consistency.test.ts` for the migration contract.
+- This does not implement Main ID suspend/reactivate/close lifecycle or session revocation.
+- Migration is committed to `completion-work` only; it has NOT been applied to Production. No Production data or settings were changed. Disposable TEST Supabase runtime validation is still required before any deployment.
