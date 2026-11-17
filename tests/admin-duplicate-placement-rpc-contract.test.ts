@@ -20,3 +20,11 @@ describe('Duplicate ID Admin RPC contract', () => {
     expect(migration).toContain('grant execute on function public.admin_create_duplicate_member_id(text,text) to authenticated');
   });
 });
+
+
+describe('Duplicate ID RPC deployment mismatch feedback',()=>{
+ it('explains that duplicate creation needs the backend RPC update',()=>{
+  expect(admin).toContain('isRpcContractUnavailable(e)?');
+  expect(admin).toContain('database RPC update has not been installed');
+ });
+});
