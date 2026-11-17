@@ -29,3 +29,22 @@ describe('Admin Duplicate ID pagination and search',()=>{
   expect(admin).toContain('Load More Duplicate IDs');
  });
 });
+
+
+describe('Duplicate ID status no-op protection',()=>{
+ it('returns without updating or auditing when the requested status already matches',()=>{
+  const migration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261117130000_admin_duplicate_status_noop_guard.sql'),'utf8');
+  expect(migration).toContain('if v_old_status=p_status then');
+  expect(migration).toContain("'changed',false");
+  expect(migration).toContain("'changed',true");
+  expect(migration.indexOf('if v_old_status=p_status then')).toBeLessThan(migration.indexOf('update public.member_ids set status=p_status'));
+  expect(migration.indexOf('if v_old_status=p_status then')).toBeLessThan(migration.indexOf('insert into public.audit_logs'));
+ });
+ it('preserves the closed Duplicate ID no-reactivation rule and Admin authorization',()=>{
+  const migration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261117130000_admin_duplicate_status_noop_guard.sql'),'utf8');
+  expect(migration).toContain("v_row.status='closed' and p_status<>'closed'");
+  expect(migration).toContain("coalesce(auth.jwt()->'app_metadata'->>'role','') <> 'admin'");
+  expect(migration).toContain("where id=p_duplicate_id and id_type='duplicate'");
+  expect(migration).toContain('for update');
+ });
+});
