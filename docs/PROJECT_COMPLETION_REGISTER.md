@@ -1,3 +1,9 @@
+## Duplicate ID no-op feedback and refresh behavior — 2026-11-17
+
+- Admin now consumes the status RPC's `changed` result. When the selected Duplicate ID already has the requested status, the UI reports that no change was needed and does not trigger an unnecessary full refresh.
+- Real status transitions retain the success message and refresh the directory. Added regression assertions for both paths.
+- This is frontend behavior layered on the source-only no-op migration. Production remains untouched.
+
 ## Duplicate ID status no-op safety — 2026-11-17
 
 - Added source-only forward migration `20261117130000_admin_duplicate_status_noop_guard.sql` for `admin_set_duplicate_id_status`.
