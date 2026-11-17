@@ -24,7 +24,11 @@ export default function FixedBid(){
    if(error)throw error;
    if(!mounted.current||request!==requestId.current)return;
    const batch=(data??[]) as unknown as Campaign[];
-   setRows(current=>reset?batch:[...current,...batch]);
+   setRows(current=>{
+    if(reset)return batch;
+    const known=new Set(current.map(row=>row.id));
+    return [...current,...batch.filter(row=>!known.has(row.id))];
+   });
    setHasMore(batch.length===PAGE_SIZE);
   } catch {
    if(mounted.current&&request===requestId.current)setError(reset?'Fixed Bid campaigns are not available yet.':'More campaigns could not be loaded. Please retry.');
