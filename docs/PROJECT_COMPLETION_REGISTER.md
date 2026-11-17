@@ -115,3 +115,11 @@
 - Added `tests/admin-referral-plan-depth-contract.test.ts` covering the depth bound, sequential numbering, Admin authorization, inactive version creation, and the absence of commission/wallet posting in this draft-only RPC.
 - Scope is source-level validation hardening only. No TEST or Production migration was applied; no package, referral plan, commission, wallet, or member rows were written.
 - This does not complete the referral engine: commission calculation, eligibility resolution, idempotent posting/reversal, and end-to-end TEST coverage remain outstanding. Do not mark referral module complete or raise the overall completion percentage based on this change alone.
+
+
+## 2026-11-18 — Referral draft RPC input hardening
+
+- Follow-up review found the JSON payload type check and `jsonb_array_length` call were combined in one boolean expression. PostgreSQL does not guarantee boolean operand evaluation order, so a non-array JSON object could still reach the array function and raise an unintended error.
+- Split the checks so the RPC rejects non-array payloads before calling array functions. Added a regression assertion for this ordering.
+- Current source contract: 1–20 levels, sequential level numbering from 1, Admin-only execution, inactive plan version creation, and no commission or wallet posting in this draft RPC.
+- This is source-level hardening only. CI has not yet reported a result for the latest commits. No Supabase migrations were applied and no database records were changed.
