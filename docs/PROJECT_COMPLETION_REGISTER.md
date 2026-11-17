@@ -1195,3 +1195,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - Preserved the active-ID checks, cross-owner placement restriction, Pending status, Under ID attribution, audit log, empty search_path and authenticated-only RPC grant.
 - Added `tests/admin-duplicate-placement-serialization.test.ts` and implementation note `docs/ADMIN_DUPLICATE_ID_PLACEMENT_SERIALIZATION_2026-11-17.md`.
 - Static contract test only; no live concurrent PostgreSQL test has been run. Migration remains source-only and has not been applied to Production. No Production data or settings were changed.
+
+
+## Admin Member Directory pagination request ordering — 2026-11-17
+
+- Debounced member search now invalidates outstanding pagination requests immediately when the search effect changes.
+- Load More captures the active search generation, applied query and page offset; stale results, errors and loading cleanup cannot override a newer search.
+- Added `tests/admin-member-directory-pagination-order.test.ts` and `docs/ADMIN_MEMBER_DIRECTORY_PAGINATION_ORDER_2026-11-17.md`.
+- Static source-contract coverage only; no live Supabase RPC was exercised and no Production data was changed.
