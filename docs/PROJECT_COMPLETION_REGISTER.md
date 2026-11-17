@@ -1,3 +1,11 @@
+## Member-facing RPC deployment guidance — 2026-11-17
+
+- Added a shared user-facing message formatter on top of the existing RPC-contract mismatch classifier.
+- The member team dashboard now distinguishes a missing/stale `get_my_mlm_dashboard_page` deployment from ordinary authorization, validation, and network errors on initial load and pagination.
+- Member profile editing now explains when `member_update_my_profile` is unavailable because its database RPC migration has not been installed.
+- Added regression coverage for the actionable deployment guidance and for not misclassifying ordinary permission errors.
+- This is frontend resilience only. It does not install the missing Production RPCs or alter member records, wallet data, Auth, Storage, or Production schema.
+
 ## Frontend RPC mismatch feedback CI verification — 2026-11-17
 
 - GitHub Actions run `43996275259` passed on commit `89791ba8b4cfbad1f9a1ec81349ebedea467a044` (`completion-work`).
