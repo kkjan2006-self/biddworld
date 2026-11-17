@@ -20,6 +20,6 @@ describe('Admin member directory pagination request ordering',()=>{
  it('ignores stale page results, errors and loading cleanup after a newer search begins',()=>{
   expect(admin).toContain('if(request!==memberSearchRequest.current)return;const batch=(data??[]) as SponsorMember[];setMembers(current=>[...current,...batch]);');
   expect(admin).toContain("if(request===memberSearchRequest.current)setMemberMessage(rpcContractUnavailableMessage(e,'Admin member directory')??(e instanceof Error?e.message:'Could not load more member records.'));");
-  expect(admin).toContain('if(request===memberSearchRequest.current)setMemberMoreBusy(false);');
+  expect(admin).toContain('if(request===memberSearchRequest.current){memberPageInFlight.current=false;setMemberMoreBusy(false);}');
  });
 });
