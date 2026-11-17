@@ -34,3 +34,10 @@ describe('Admin member profile editing contract',()=>{
   expect(migration).toContain('grant execute on function public.admin_update_member_profile(text,text,text) to authenticated;');
  });
 });
+
+ it('explains missing Admin member profile and sponsor RPC deployments without masking ordinary errors',()=>{
+  expect(admin).toContain("rpcContractUnavailableMessage(e,'Admin member profile editing')");
+  expect(admin).toContain("rpcContractUnavailableMessage(e,'Admin sponsor changes')");
+  expect(admin).toContain("rpcContractUnavailableMessage(e,'Admin member directory')");
+  expect(admin).toContain("import {isRpcContractUnavailable,rpcContractUnavailableMessage} from '../lib/rpc-errors'");
+ });
