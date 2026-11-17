@@ -1,3 +1,12 @@
+## Admin Member Profile Editing CI correction — 2026-11-17
+
+- First CI run for the profile-editor batch exposed two expected source-contract updates: the Admin View details handler now initializes the edit form, and the frontend RPC inventory must include `admin_update_member_profile`.
+- Updated `tests/admin-member-detail-search-selection.test.ts` to assert the expanded View details handler.
+- Updated `docs/FRONTEND_RPC_INVENTORY.json` to include the new RPC call site and source snapshot.
+- Updated `docs/FRONTEND_PRODUCTION_RPC_MATRIX_2026-11-17.md`: source inventory is now 45 names and the new profile RPC is explicitly recorded as missing from Production until a test-environment rollout.
+- The initial CI failure was in tests only; TypeScript/build were skipped by workflow dependency. A fresh latest-HEAD CI run is required.
+- No Production database or data was changed.
+
 ## Admin Member Profile Editing — 2026-11-17
 
 - Added an Admin-only edit form to the existing Main ID detail panel for profile name and phone.
