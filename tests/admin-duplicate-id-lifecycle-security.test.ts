@@ -54,4 +54,32 @@ describe('Admin Duplicate ID lifecycle security contract',()=>{
     expect(lifecycle).not.toContain('admin_set_main_member_status');
     expect(noop).not.toContain('admin_set_main_member_status');
   });
+
+  it('revokes public and anonymous execution while granting authenticated callers the Admin-checked RPCs',()=>{
+    for(const signature of [
+      'public.admin_list_duplicate_ids()',
+      'public.admin_create_duplicate_member_id(text)',
+      'public.admin_set_duplicate_id_status(uuid,text)'
+    ]){
+      expect(lifecycle).toContain(`revoke all on function ${signature} from public,anon;`);
+      expect(lifecycle).toContain(`grant execute on function ${signature} to authenticated;`);
+    }
+  });
+
+  it('lists only Duplicate IDs linked to a real Main ID and does not expose an unlinked row as a member',()=>{
+    const start=lifecycle.indexOf('function public.admin_list_duplicate_ids');
+    const body=lifecycle.slice(start,lifecycle.indexOf('$function$;',start)+11);
+    expect(body).toContain('join public.member_ids m on m.id=d.main_member_id and m.id_type=\'main\'');
+    expect(body).toContain("where d.id_type='duplicate'");
+    expect(body).toContain("'main_member_id',m.id");
+    expect(body).toContain("'main_member_code',m.member_code");
+  });
+
+  it('requires the platform Duplicate ID feature switch before creating a child ID',()=>{
+    const start=lifecycle.indexOf('function public.admin_create_duplicate_member_id');
+    const body=lifecycle.slice(start,lifecycle.indexOf('$function$;',start)+11);
+    expect(body).toContain("setting_key='duplicate_ids_enabled'");
+    expect(body).toContain("if not coalesce(v_enabled,false) then raise exception 'Duplicate IDs are disabled in Platform Settings'");
+  });
+
 });
