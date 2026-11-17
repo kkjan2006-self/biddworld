@@ -1,6 +1,6 @@
 {
   "generated_from": "completion-work source inspection at verified CI commit",
-  "snapshot_commit": "461382876f09e2b78e89f7bf453f3dfd1f667d9c",
+  "snapshot_commit": "63f48ffd6b0f7139743cd41afc70bb48ccf69829",
   "note": "This inventory records frontend call sites only. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
