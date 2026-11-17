@@ -106,3 +106,12 @@
 - The migration's prerequisites include the existing `storage.buckets`/`storage.objects` infrastructure, `public.products`, `public.audit_logs`, and the trusted Admin JWT claim contract. The public catalogue policy also depends on the current `products.status='published'` schema.
 - Decision: do not apply the migration or create a bucket in Production or empty TEST as a shortcut. Keep product/media marked source-implemented but deployment-unverified until the curated baseline is replayed and a synthetic Admin/anonymous Storage integration test can run.
 - No application source, database, Storage bucket, member, wallet, auction, or product records were changed in this audit. No completion percentage increase is justified.
+
+
+## 2026-11-18 — Configurable referral plan depth hardening
+
+- The Admin editor already supports adding/removing levels dynamically, but the SQL RPC accepted arbitrarily high level numbers and did not enforce sequential levels. This allowed malformed direct RPC requests to create a plan shape the UI could not safely copy back.
+- Hardened `admin_save_referral_plan_draft` to accept 1–20 levels only, reject levels outside 1–20, and require contiguous sequential levels beginning at 1.
+- Added `tests/admin-referral-plan-depth-contract.test.ts` covering the depth bound, sequential numbering, Admin authorization, inactive version creation, and the absence of commission/wallet posting in this draft-only RPC.
+- Scope is source-level validation hardening only. No TEST or Production migration was applied; no package, referral plan, commission, wallet, or member rows were written.
+- This does not complete the referral engine: commission calculation, eligibility resolution, idempotent posting/reversal, and end-to-end TEST coverage remain outstanding. Do not mark referral module complete or raise the overall completion percentage based on this change alone.
