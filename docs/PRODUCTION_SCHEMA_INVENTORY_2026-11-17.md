@@ -19,7 +19,7 @@ The current Production public schema contains 21 ordinary tables:
 - FORCE ROW LEVEL SECURITY is not enabled on these tables.
 - The catalogue reports 20 table policies; all are SELECT policies assigned to the `authenticated` role. This is not, by itself, a complete authorization review.
 - Ten feature-gate triggers are present on bids, delivery tracking, fixed-bid campaigns, member IDs, package activations, referral commissions, referrals, wallet transactions, winning payments and withdrawals.
-- The public function catalogue contains 43 functions/overloads. The separate RPC security review records 43/43 SECURITY DEFINER functions with an explicit empty search_path configuration; Admin authorization and grants still require function-by-function review.
+- The public function catalogue contains 43 functions/overloads; all 43 are SECURITY DEFINER. A fresh catalogue check shows 42 use an empty `search_path`; `public.place_bid(uuid)` explicitly sets `pg_catalog, public, private`. The private helper `private.place_bid(uuid)` explicitly sets `pg_catalog, public`. These restricted paths are not empty paths and require function-body/ACL review.
 - Authenticated table grants are read-oriented; privileged mutations are predominantly exposed through RPCs. Do not infer safety from grants alone.
 
 ## Important current column contracts observed
@@ -36,7 +36,7 @@ This abbreviated list is not a substitute for full DDL, constraints, index defin
 
 ## Migration ledger reconciliation
 
-- Current repository tree: 47 SQL files (3 legacy/unversioned files plus 44 timestamped files).
+- Current 2026-11-18 repository tree: 49 SQL files (3 legacy/unversioned files plus 46 timestamped files).
 - Production migration ledger: 30 applied entries; latest recorded version is `20261115163218_admin_audit_log_pagination`.
 - TEST migration ledger: empty.
 - The Production ledger is not a one-to-one match for the current branch file names/timestamps. Existing `docs/SUPABASE_MIGRATION_HISTORY_RECONCILIATION_2026-11-17.md` details the mismatch.
@@ -72,3 +72,18 @@ Next engineering batch:
 - `docs/FRONTEND_PRODUCTION_RPC_MATRIX_2026-11-17.md`
 - `docs/PRODUCTION_RPC_SECURITY_CONTRACT_MATRIX_2026-11-17.md`
 - Supabase migration workflow: https://supabase.com/docs/guides/deployment/database-migrations
+
+
+## 2026-11-18 recheck — object-level and frontend contract findings
+
+- The Production public-table list is exactly the 21 tables shown above. It does **not** include `support_tickets` or `member_notifications`; the current source branch has separate migrations to create those tables. `delivery_tracking` is present. The `notification_templates` table is present, but its historical creation migration is one of the unrecovered Production ledger entries.
+- A fresh `storage.buckets` SELECT returned zero rows. The source migration `20261116020000_admin_product_management_and_media.sql` creates the `product-media` bucket and its policies; those changes are not present in Production.
+- All 20 Production RLS policies are SELECT policies for `authenticated`; there are no table write policies in this catalogue result. Authenticated table grants are SELECT-only; privileged writes are exposed through SECURITY DEFINER RPCs. This is a metadata observation, not a complete security approval.
+- Ten public-table triggers all call `private.enforce_feature_gate()`. The private schema contains four helper functions: `enforce_feature_gate()`, `handle_new_auth_user()`, `place_bid(uuid)`, and `submit_package_activation(uuid,text)`.
+- Exact migration comparison: 4/30 exact timestamp-and-name matches; 9/30 same-name/different-timestamp matches; 17/30 Production ledger entries have no corresponding source file. Exact-path GitHub history checks for those 17 files returned no commits. Sixteen of the 46 timestamped source files do not map by name to a Production ledger entry and require object-level classification before replay.
+- The nine missing frontend RPCs listed in the current RPC matrix do have definitions in current source migrations, but are absent from Production. Their source files are: `20261115203000_member_identity_summary.sql`, `20261115230000_duplicate_under_id_placement_attribution.sql`, `20261115190000_member_profile_self_service.sql`, `20261116090000_admin_members_sponsors_pagination.sql`, `20261116110000_admin_duplicate_id_pagination.sql`, `20261116100000_member_genealogy_pagination.sql`, `20261116120000_public_product_catalogue_search.sql`, `20261116020000_admin_product_management_and_media.sql`, and `20261117120000_admin_update_member_profile.sql`.
+- Two live RPC contracts are confirmed mismatched: Production exposes `place_bid(uuid)`, while current source migration `20261116190000_bid_request_idempotency.sql` defines `place_bid(uuid,text)`; Production exposes `admin_create_duplicate_member_id(text)`, while current source migration `20261117110000_serialize_admin_duplicate_id_placement.sql` defines `admin_create_duplicate_member_id(text,text)`.
+- Two additional disclosure contracts differ: Production `lookup_sponsor(text)` returns a table with `member_code` and `display_name`, while source migration `20261116160000_minimize_public_sponsor_lookup.sql` returns only a boolean. Production `member_list_my_withdrawals()` exposes `payout_details`, while source migration `20261116170000_minimize_member_withdrawal_payout_data.sql` reduces the returned payout JSON to the method label.
+- The three legacy files are not a valid current baseline: `0001_biddworld.sql` uses legacy columns and enums (for example `member_ids.user_id` rather than `owner_user_id`, and legacy `profiles.role/email` fields); `0002_place_bid_rpc.sql` is the one-argument bid RPC; `001_initial_schema.sql` is empty. None should be replayed as the current schema baseline.
+
+**Baseline gate:** build a separate reviewed clean-install chain from the complete current schema evidence and the source-only deltas. Do not treat a migration name as proof that its object is present, and do not apply any migration to Production.
