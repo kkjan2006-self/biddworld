@@ -103,3 +103,9 @@
 - `admin_create_duplicate_member_id` and `admin_set_duplicate_id_status` now surface action-specific guidance when their deployed RPC contracts are missing or stale.
 - Two-argument placement attribution remains required; no legacy one-argument fallback was introduced.
 - CI run `43997847013` passed on commit `461382876f09e2b78e89f7bf453f3dfd1f667d9c`.
+
+## Main ID lifecycle audit — 2026-11-17
+
+- Main ID status is displayed read-only in Admin Member Details; no Main ID suspend/reactivate/close RPC or UI actions were found in the inspected source/migrations.
+- Duplicate ID lifecycle remains a separate implementation. Main ID-to-Duplicate ID cascade behavior is unspecified and was not added.
+- Audit report: `docs/MAIN_ID_ACCOUNT_STATUS_LIFECYCLE_AUDIT_2026-11-17.md`.
