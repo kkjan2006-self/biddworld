@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const sql = readFileSync(
+const adminSource = readFileSync(\n  resolve(process.cwd(), 'src/components/Admin.tsx'),\n  'utf8',\n);\n\nconst sql = readFileSync(
   resolve(process.cwd(), 'supabase/migrations/20261116030000_admin_configurable_referral_plan_depth.sql'),
   'utf8',
 );
@@ -34,7 +34,7 @@ describe('Admin configurable referral plan depth contract', () => {
     expect(sql).toMatch(/grant execute on function public\\.admin_save_referral_plan_draft\\(uuid, jsonb\\) to authenticated/i);
   });
 
-  it('does not implement commission posting or wallet credits', () => {
+  it('prevents the Admin editor from adding more than twenty levels', () => {\n    expect(adminSource).toMatch(/disabled=\\{levelValues\\.length>=20\\}/);\n    expect(adminSource).toMatch(/old\\.length>=20\\?old:\\[\\.\\.\\.old,'200'\\]/);\n    expect(adminSource).toContain('of 20 levels configured');\n  });\n\n  it('does not implement commission posting or wallet credits', () => {
     expect(sql).not.toMatch(/insert into public\\.referral_commissions/i);
     expect(sql).not.toMatch(/insert into public\\.wallet_transactions/i);
   });
