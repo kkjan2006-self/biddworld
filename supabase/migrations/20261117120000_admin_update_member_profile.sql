@@ -28,14 +28,17 @@ begin
  if v_display_name='' or length(v_display_name)>120 or (v_phone is not null and length(v_phone)>32) then
   raise exception 'Invalid member profile values' using errcode='22023';
  end if;
- select m.owner_user_id,p.display_name,p.phone
- into v_owner_user_id,v_old_name,v_old_phone
+ select m.owner_user_id,p.display_name,p.phone,p.updated_at
+ into v_owner_user_id,v_old_name,v_old_phone,v_updated_at
  from public.member_ids m
  join public.profiles p on p.id=m.owner_user_id
  where upper(m.member_code)=v_member_code and m.id_type='main'
  for update of p;
  if not found then
   raise exception 'Member Main ID or profile not found' using errcode='P0002';
+ end if;
+ if v_old_name is not distinct from v_display_name and v_old_phone is not distinct from v_phone then
+  return jsonb_build_object('member_code',v_member_code,'display_name',v_display_name,'phone',v_phone,'updated_at',v_updated_at,'changed',false);
  end if;
  update public.profiles
  set display_name=v_display_name,phone=v_phone,updated_at=now()
@@ -46,7 +49,7 @@ begin
   jsonb_build_object('member_code',v_member_code,
    'display_name_changed',v_old_name is distinct from v_display_name,
    'phone_changed',v_old_phone is distinct from v_phone));
- return jsonb_build_object('member_code',v_member_code,'display_name',v_display_name,'phone',v_phone,'updated_at',v_updated_at);
+ return jsonb_build_object('member_code',v_member_code,'display_name',v_display_name,'phone',v_phone,'updated_at',v_updated_at,'changed',true);
 end;
 $function$;
 revoke all on function public.admin_update_member_profile(text,text,text) from public,anon;
