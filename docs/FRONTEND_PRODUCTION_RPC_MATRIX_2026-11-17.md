@@ -91,3 +91,9 @@
 5. Keep all database changes source-only until a separate test database exists and the migration chain is validated.
 
 **Verification boundary:** this report is a read-only catalogue and source-call comparison. It does not certify every Production function body, test live RPC execution, validate every return shape, or apply any migration.
+
+## Admin Member Management RPC diagnostic handling — 2026-11-17
+
+- `admin_update_member_profile`, `admin_set_member_sponsor`, and `admin_list_members_sponsors_page` now show explicit missing/stale RPC deployment guidance in the Admin UI.
+- This is client-side error handling only; it does not change Production RPC availability or authorize lifecycle actions.
+- CI run `43997409594` passed on commit `64bd2e825eece0fc7f7c00c20bab31bd307a158f`.
