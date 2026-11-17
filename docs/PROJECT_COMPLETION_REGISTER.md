@@ -10,3 +10,10 @@
 - Verification: 80 test files / 307 tests passed in CI; TypeScript initially caught a select-value typing issue, corrected in the follow-up commit; final CI result pending.
 - Production Supabase was not modified and no migration was applied.
 \n\n## 2026-11-17 — Referral plan draft version editor\n\n- Added a safe way to load an existing inactive package's fixed-reward referral plan into the editor as a starting point for a new version. Existing versions are never overwritten.\n- Active-package plans, unsupported reward types and non-sequential level definitions are refused rather than silently altered.\n- The editor now validates fixed rewards against the database RPC range (greater than zero and at most ₹100,000) before submission.\n- Saving still creates an inactive version only; commission calculation, posting and activation are unchanged.\n- Regression tests added. CI first caught a literal newline escape in the inserted helper; corrected in follow-up commit and rechecked. Production Supabase untouched; no migration applied.\n
+
+## 2026-11-17 — Support queue status filtering
+
+- Support ticket status selection is now applied in the Supabase query before 100-row pagination for both member and Admin views.
+- Changing status reloads the matching result set from offset zero, so older open/in-progress/resolved/closed tickets are not hidden behind the first 100 mixed-status records.
+- Text search remains explicitly limited to loaded records; member ownership continues to be enforced by the user filter and database RLS.
+- Regression test verifies both paginated queries apply the selected status. Production Supabase was not modified.

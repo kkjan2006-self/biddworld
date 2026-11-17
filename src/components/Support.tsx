@@ -26,7 +26,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   setBusy(true);setError('');
   try{
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
-   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}
+   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
    const {data,error:loadError}=await request.range(0,PAGE_SIZE-1);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
@@ -36,14 +36,14 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    setResponse(Object.fromEntries(rows.map(row=>[row.id,row.admin_response??''])));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
- },[isAdmin]);
+ },[isAdmin,statusFilter]);
  const loadMore=useCallback(async()=>{
   if(!supabase||loadMoreBusy.current||busy||!hasMore)return;
   loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
   try{
    const from=tickets.length;
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
-   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}
+   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
    const {data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
@@ -53,7 +53,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
- },[busy,hasMore,tickets.length,isAdmin]);
+ },[busy,hasMore,tickets.length,isAdmin,statusFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
 
  async function submit(e:React.FormEvent<HTMLFormElement>){
@@ -97,7 +97,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   </form>}
   <div className="memberReportHeading"><h4>{isAdmin?'Recent member requests':'My support requests'} ({tickets.length}{hasMore?' loaded':''})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
   <div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:12}}><label>Search loaded requests<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Subject or message"/></label><label>Filter by status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as typeof statusFilter)}><option value="all">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select></label></div>
-  <div className="memberModuleHint">Showing {visibleTickets.length} matching requests from {tickets.length} loaded records. Search and status filters do not change records on the server.</div>
+  <div className="memberModuleHint">Showing {visibleTickets.length} matching requests from {tickets.length} loaded records. Status is filtered on the server before pagination; text search applies to loaded records.</div>
   {busy&&tickets.length===0?<div className="empty">Loading support requests…</div>:tickets.length===0?<div className="empty">No support requests found.</div>:visibleTickets.length===0?<div className="empty">No loaded support requests match these filters.</div>:<div className="activationList">{visibleTickets.map(ticket=><article key={ticket.id} style={{display:'block'}}>
    <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}><b>{ticket.subject}</b><span className="protected">{ticket.status.replace('_',' ').toUpperCase()}</span></div>
    {isAdmin&&<small>Ticket {ticket.id.slice(0,8).toUpperCase()} · Member {ticket.user_id.slice(0,8)} </small>}
