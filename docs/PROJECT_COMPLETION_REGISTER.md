@@ -1,3 +1,10 @@
+## Frontend RPC mismatch feedback CI verification — 2026-11-17
+
+- GitHub Actions run `43996275259` passed on commit `89791ba8b4cfbad1f9a1ec81349ebedea467a044` (`completion-work`).
+- Dependency installation, dependency security report, test suite, TypeScript type-check and production build all completed successfully.
+- This validates the source-level RPC mismatch classification and UI feedback regression tests; it does not install or execute the pending Production RPC migrations.
+- Production Supabase schema, member records, Auth accounts, Storage, settings and financial records remain unchanged.
+
 ## Frontend RPC deployment-mismatch handling — 2026-11-17
 
 - Added shared `src/lib/rpc-errors.ts` detection for PostgREST `PGRST202`, PostgreSQL `42883`, and equivalent missing/stale function-schema messages.
