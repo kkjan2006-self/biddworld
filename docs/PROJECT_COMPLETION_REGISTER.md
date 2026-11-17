@@ -1,3 +1,12 @@
+## Duplicate ID status no-op safety — 2026-11-17
+
+- Added source-only forward migration `20261117130000_admin_duplicate_status_noop_guard.sql` for `admin_set_duplicate_id_status`.
+- The RPC now returns `changed: false` without updating the member ID or creating an audit row when the requested status already matches. Real status transitions retain the existing row lock, Admin authorization, audit event and closed-ID no-reactivation rule.
+- Added regression tests for no-op behavior and preservation of lifecycle protections.
+- Migration is not applied to Production. Main ID/profile/linked Duplicate ID cascade rules remain intentionally unimplemented until specified.
+- CI for the preceding commit `e6aeca626172fdbdb7317fc51e56aa69da00f121` passed (run `43995699435`). CI for this new batch is triggered by the latest commits and must complete before claiming validation.
+- No Production data, schema, Auth accounts or settings were changed.
+
 ## Admin profile RPC no-op protection and latest CI verification — 2026-11-17
 
 - Latest CI run `43995371854` passed on `ea9f67949d6f9153df0885975390a2483df9d668`; tests, TypeScript type-check and production build all completed successfully.
