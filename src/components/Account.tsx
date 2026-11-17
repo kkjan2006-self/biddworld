@@ -47,7 +47,7 @@ export default function Account(){
    if(!p)throw new Error('Your member profile is not available yet.');
    const {data:identity,error:identityError}=await client.rpc('member_get_my_identity');
    if(!isCurrent())return;
-   if(identityError)setError('Some member identity details are temporarily unavailable.');
+   if(identityError)setError(rpcContractUnavailableMessage(identityError,'Member identity details')??'Some member identity details are temporarily unavailable.');
    setProfile({...p,...(identity??{})});setProfileName(p.display_name??'');setProfilePhone(p.phone??'');
    const {data:withdrawSetting,error:withdrawSettingError}=await client.from('app_settings').select('setting_value').eq('setting_key','withdrawals_enabled').maybeSingle();
    if(!isCurrent())return;
@@ -68,7 +68,9 @@ export default function Account(){
     const paymentIds=(wp.data??[]).map((row:any)=>row.id as string);
     const deliveryResult=paymentIds.length?await client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}):{data:[],error:null};
     if(!isCurrent())return;
-    if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)setError('Some account history is unavailable because one or more database requests failed. You can retry loading your account.');
+    const memberRpcError=[m.error,wr.error].find(error=>error&&rpcContractUnavailableMessage(error,'Member account details'));
+    if(memberRpcError)setError(rpcContractUnavailableMessage(memberRpcError,'Member account details')!);
+    else if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)setError('Some account history is unavailable because one or more database requests failed. You can retry loading your account.');
     setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);setWithdrawals((wr.data??[]) as WithdrawalRow[]);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
    }else{
     setMembers([]);setActivations([]);setWallets([]);setWithdrawals([]);setAuctionBids([]);setFixedBids([]);setCommissions([]);setWinningPayments([]);setDeliveries([]);setHistoryHasMore({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
