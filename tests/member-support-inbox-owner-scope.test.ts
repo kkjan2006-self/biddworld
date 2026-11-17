@@ -8,7 +8,7 @@ describe('Member support and inbox owner scoping', () => {
   it('filters member notification pages by the authenticated user in both initial and continuation reads', () => {
     const source = read('src/components/Notifications.tsx');
     expect(source).toContain("if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser()");
-    expect(source.match(/request=request\.eq\('user_id',user\.id\)/g)?.length).toBe(2);
+    expect(source.match(/request=request\.eq\('user_id',user\.id\)/g)?.length).toBe(3);
     expect(source).toContain("Please sign in again to view your notifications.");
     expect(source).toContain(" },[isAdmin,unreadOnly,categoryFilter]);");
     expect(source).toContain(" },[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]);");

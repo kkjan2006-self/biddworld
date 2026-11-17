@@ -11,8 +11,8 @@ describe('member wallet history request lifecycle',()=>{
  });
  it('prevents duplicate page requests and releases the lock after completion',()=>{
   expect(wallet).toContain('const loadMoreBusy=useRef(false)');
-  expect(wallet).toContain('if(loadMoreBusy.current||loading||!hasMore)return');
-  expect(wallet).toContain('loadMoreBusy.current=true;setPage(current=>current+1)');
+  expect(wallet).toContain('if(loadMoreBusy.current||loading||(retryPage===null&&!hasMore))return');
+  expect(wallet).toContain('loadMoreBusy.current=true;if(retryPage!==null){setRetryRequest(current=>current+1);return;}setPage(current=>current+1);');
   expect(wallet).toContain('loadMoreBusy.current=false;setLoading(false);setLoadingMore(false)');
  });
  it('keeps wallet statements read-only and scoped to the signed-in Main ID',()=>{

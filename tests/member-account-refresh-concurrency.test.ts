@@ -6,7 +6,7 @@ const source=readFileSync(resolve(process.cwd(),'src/components/Account.tsx'),'u
 
 describe('Member account refresh concurrency and lifecycle',()=>{
  it('assigns each refresh a generation and accepts only the current mounted request',()=>{
-  expect(source).toContain('const loadRequest=useRef(0),loadMounted=useRef(true);');
+  expect(source).toContain('const loadRequest=useRef(0),loadMounted=useRef(true),withdrawSubmitBusy=useRef(false),historyPageInFlight=useRef(new Set<string>());');
   expect(source).toContain('const request=++loadRequest.current;');
   expect(source).toContain('const isCurrent=()=>loadMounted.current&&request===loadRequest.current;');
   expect(source.match(/if\(!isCurrent\(\)\)return;/g)?.length).toBeGreaterThanOrEqual(5);

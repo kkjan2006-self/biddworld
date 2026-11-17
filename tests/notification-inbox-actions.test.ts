@@ -15,7 +15,8 @@ describe('member notification inbox actions',()=>{
   expect(source).toContain('[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]');
  });
  it('marks all currently unread member notifications read through the owner-scoped RLS policy',()=>{
-  expect(source).toContain(".update({read_at:readAt}).is('read_at',null)");
+  expect(source).toContain(".update({read_at:readAt}).eq('id',id).is('read_at',null)");
+  expect(source).toContain(".update({read_at:readAt}).eq('user_id',user.id).is('read_at',null)");
   expect(source).toContain('async function markAllRead()');
   expect(source).toContain('setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}))');
  });

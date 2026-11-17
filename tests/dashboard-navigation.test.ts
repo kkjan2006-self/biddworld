@@ -39,7 +39,7 @@ describe('dashboard navigation integrity', () => {
 
   it('exposes the paginated member wallet history control when more rows exist', () => {
     const walletHistory = readSource('src/components/WalletHistory.tsx');
-    expect(walletHistory).toMatch(/hasMore\s*&&\s*<button/i);
+    expect(walletHistory).toMatch(/!loading\s*&&\s*\(hasMore\s*\|\|\s*retryPage\s*!==\s*null\)\s*&&\s*<button/i);
     expect(walletHistory).toMatch(/Load 100 more transactions/);
     expect(walletHistory).toContain('setPage(current=>current+1)');
     expect(walletHistory).toMatch(/order\('created_at',\s*\{ascending:false\}\)\.order\('id',\s*\{ascending:false\}\)/);

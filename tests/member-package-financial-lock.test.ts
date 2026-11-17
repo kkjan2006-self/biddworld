@@ -5,9 +5,9 @@ import { describe, expect, it } from 'vitest';
 const source = readFileSync(resolve(process.cwd(), 'src/components/Packages.tsx'), 'utf8');
 
 describe('member package financial lock', () => {
-  it('fails closed until explicit owner financial and legal approval', () => {
+  it('fails closed while package activation is explicitly locked', () => {
     expect(source).toMatch(/const PACKAGE_ACTIVATION_LOCKED = true/);
-    expect(source).toContain('owner approves the financial and legal model');
+    expect(source).toContain('Package activation is temporarily locked.');
   });
 
   it('does not expose a payment reference form or activation RPC while locked', () => {
@@ -18,7 +18,7 @@ describe('member package financial lock', () => {
 
   it('clearly labels displayed wallet credits as proposed and not issued', () => {
     expect(source).toContain('Proposed Bid Wallet credit (not issued)');
-    expect(source).toContain('Not accepting payments or activation requests');
+    expect(source).toContain('Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.');
   });
 
   it('keeps free registration available while paid activation is unavailable', () => {

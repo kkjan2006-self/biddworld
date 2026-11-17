@@ -21,7 +21,8 @@ describe('Packages catalogue request lifecycle', () => {
 
   it('keeps package activation locked and informational only', () => {
     expect(source).toContain('const PACKAGE_ACTIVATION_LOCKED = true');
-    expect(source).toContain('Not accepting payments or activation requests');
+    expect(source).toContain('Package activation is temporarily locked.');
+    expect(source).toContain('Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.');
     expect(source).toContain('Proposed Bid Wallet credit (not issued)');
   });
 });

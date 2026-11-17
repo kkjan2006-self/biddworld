@@ -5,7 +5,7 @@ const source=readFileSync(resolve(process.cwd(),'src/components/Support.tsx'),'u
 describe('support queue filters',()=>{
  it('applies status filtering before bounded pagination and searches loaded text case-insensitively',()=>{
   expect(source).toContain("const visibleTickets=tickets.filter(ticket=>(statusFilter==='all'||ticket.status===statusFilter)");
-  expect(source.match(/request=request\.eq\('status',statusFilter\)/g)).toHaveLength(2);
+  expect(source.match(/request=request\.eq\('status',statusFilter\)/g)).toHaveLength(3);
   expect(source).toContain('ticket.subject,ticket.message,ticket.admin_response??');
   expect(source).toContain('toLowerCase().includes(search.trim().toLowerCase())');
  });

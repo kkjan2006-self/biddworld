@@ -8,13 +8,13 @@ describe('Admin paginated report request cleanup', () => {
   it('releases the audit-log pagination lock after success or rejection', () => {
     expect(admin).toContain("try{const {data,error}=await supabase.rpc('admin_list_audit_logs_page'");
     expect(admin).toContain("catch(e){setError('Could not load more audit log entries: '");
-    expect(admin).toContain('finally{setAuditMoreBusy(false);}');
+    expect(admin).toContain('finally{auditPageInFlight.current=false;setAuditMoreBusy(false);}');
   });
 
   it('releases the wallet-ledger pagination lock after success or rejection', () => {
     expect(admin).toContain("try{const {data,error}=await supabase.rpc('admin_list_wallet_transactions'");
     expect(admin).toContain("catch(e){setWalletMessage('Could not load more wallet transactions: '");
-    expect(admin).toContain('finally{setWalletMoreBusy(false);}');
+    expect(admin).toContain('finally{walletPageInFlight.current=false;setWalletMoreBusy(false);}');
   });
 
   it('releases the withdrawal pagination lock after success or rejection', () => {

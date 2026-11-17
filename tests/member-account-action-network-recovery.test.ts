@@ -6,7 +6,7 @@ const account=readFileSync(resolve(process.cwd(),'src/components/Account.tsx'),'
 
 describe('Member account action network recovery',()=>{
  it('always clears withdrawal submission state and reports rejected requests',()=>{
-  const start=account.indexOf("onSubmit={async e=>{e.preventDefault();if(!supabase||withdrawBusy)");
+  const start=account.indexOf("onSubmit={async e=>{e.preventDefault();if(!supabase||withdrawBusy||withdrawSubmitBusy.current)return;");
   const end=account.indexOf('<label>Amount (INR)',start);
   const handler=account.slice(start,end);
   expect(handler).toContain("try{const details={method:payoutMethod");
