@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { Users, RefreshCw, Network, UserCheck, Wallet, Gift, Search, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { money } from '../lib/format';
+import { rpcContractUnavailableMessage } from '../lib/rpc-errors';
 
 type TreeMember={member_code:string;display_name:string;status:string;created_at:string;depth:number;sponsor_code:string|null};
 type Dashboard={main_member_code:string;direct_referrals:number;total_downline:number;active_members:number;active_activations:number;commission_total:number;bid_wallet:number;income_wallet:number;tree:TreeMember[];tree_total:number;has_more:boolean};
@@ -22,7 +23,7 @@ export default function Referrals(){
     if(!active||seq!==request.current)return;
     if(loadError)throw loadError;
     setData(result as Dashboard);
-   }catch(e){if(active&&seq===request.current)setError(e instanceof Error?e.message:'Your team dashboard could not be loaded. Please retry.');}
+   }catch(e){if(active&&seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'Your team dashboard could not be loaded. Please retry.'));}
    finally{if(active&&seq===request.current)setLoading(false);}
   },query.trim()||depth!=='all'?250:0);
   return()=>{active=false;window.clearTimeout(timer);};
@@ -36,7 +37,7 @@ export default function Referrals(){
    if(seq!==request.current)return;
    if(loadError)throw loadError;
    setData(current=>current?({...next,tree:[...current.tree,...(next as Dashboard).tree]} as Dashboard):next as Dashboard);
-  }catch(e){if(seq===request.current)setError(e instanceof Error?e.message:'More team members could not be loaded. Please retry.');}
+  }catch(e){if(seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'More team members could not be loaded. Please retry.'));}
   finally{if(seq===request.current){loadMoreBusy.current=false;setLoadingMore(false);}}
  }
  const cards=data?[['My Main ID',data.main_member_code,Users],['Direct Referrals',data.direct_referrals,UserCheck],['Total Team',data.total_downline,Network],['Active Members',data.active_members,UserCheck],['Package Activations',data.active_activations,Gift],['Referral Income',money(Number(data.commission_total)),Wallet],['Bid Wallet',money(Number(data.bid_wallet)),Wallet],['Income Wallet',money(Number(data.income_wallet)),Wallet]] as const:[];
