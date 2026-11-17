@@ -1,3 +1,10 @@
+## Member-facing RPC deployment guidance CI verification — 2026-11-17
+
+- GitHub Actions run `43996743591` passed on commit `e8ecb18ba6e3dcbdfae4b6742472e603bf1c5e56` (`completion-work`).
+- Dependency installation, dependency security report, tests, TypeScript type-check and production build all completed successfully.
+- The source-only UX improvements are verified; unavailable database functions remain unavailable until a separately tested migration rollout.
+- Production Supabase was not modified.
+
 ## Member-facing RPC deployment guidance — 2026-11-17
 
 - Added a shared user-facing message formatter on top of the existing RPC-contract mismatch classifier.
