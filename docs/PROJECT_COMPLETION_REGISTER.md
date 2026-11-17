@@ -1356,3 +1356,11 @@ This checkpoint updates evidence only. It does not increase the implementation c
 - The activation trigger synchronizes inactive Main ID and profile status to active after verified activation. No complete Main ID suspend/reactivate/close workflow was found.
 - Main ID lifecycle controls, session revocation, RLS changes and Duplicate ID cascade behavior remain intentionally unimplemented pending a defined state machine.
 - Details: `docs/MAIN_ID_AUTHENTICATION_STATUS_IMPACT_AUDIT_2026-11-17.md`. Static audit only; no live Auth/RLS tests, Production schema changes or data changes.
+
+
+## Admin member-management RPC authorization contracts — 2026-11-17
+
+- Audited six privileged Main ID / Duplicate ID Admin RPCs covering structure reporting, both paginated directories, member profile editing, Duplicate ID status changes and sponsor graph changes.
+- All six source definitions use `SECURITY DEFINER`, empty `search_path`, non-null `auth.uid()`, trusted `app_metadata.role = 'admin'` checks, and revoke execution from `PUBLIC` / `anon` before granting authenticated execution.
+- Added `tests/admin-member-rpc-authorization-contract.test.ts` to protect these authorization, execution-context and ACL contracts from regression.
+- Details: `docs/ADMIN_MEMBER_RPC_AUTHORIZATION_CONTRACT_AUDIT_2026-11-17.md`. Static source-contract verification only; no live PostgreSQL privilege test and no Production changes.
