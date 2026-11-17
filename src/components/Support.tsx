@@ -19,6 +19,8 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const [hasMore,setHasMore]=useState(false);
  const [search,setSearch]=useState('');
  const [statusFilter,setStatusFilter]=useState<'all'|Ticket['status']>('all');
+ const [exportBusy,setExportBusy]=useState(false);
+ const [exportMessage,setExportMessage]=useState('');
 
  const load=useCallback(async()=>{
   const seq=++requestSeq.current;loadMoreBusy.current=false;
@@ -71,6 +73,26 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   }catch(e){setError(e instanceof Error?e.message:'Your support request could not be submitted. Please retry.');}
   finally{setBusy(false);}
  }
+ async function exportTickets(){
+  if(!supabase||exportBusy)return;setExportBusy(true);setExportMessage('');
+  try{
+   let userId:string|undefined;
+   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to export your support requests.');userId=user.id;}
+   const all:Ticket[]=[];
+   for(let offset=0;;offset+=500){
+    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
+    if(userId)request=request.eq('user_id',userId);if(statusFilter!=='all')request=request.eq('status',statusFilter);
+    const{data,error:loadError}=await request.range(offset,offset+499);if(loadError)throw loadError;
+    const batch=(data??[]) as Ticket[];all.push(...batch);if(batch.length<500)break;
+   }
+   const q=search.trim().toLowerCase();const matched=all.filter(ticket=>!q||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(q)));
+   if(!matched.length){setExportMessage('No matching support requests are available to export.');return;}
+   const rows=[['Ticket ID','Member User ID','Subject','Message','Status','Admin Response','Created At','Updated At'],...matched.map(ticket=>[ticket.id,ticket.user_id,ticket.subject,ticket.message,ticket.status,ticket.admin_response??'',ticket.created_at,ticket.updated_at])];
+   const url=URL.createObjectURL(new Blob([csvDocument(rows)],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=isAdmin?'biddworld-support-queue.csv':'biddworld-my-support-requests.csv';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+   setExportMessage('Exported '+matched.length+' support requests matching the current filters.');
+  }catch(e){setExportMessage(e instanceof Error?e.message:'Support requests could not be exported. Please retry.');}
+  finally{setExportBusy(false);}
+ }
  async function saveTicket(id:string){
   if(!supabase||saving)return;
   const nextStatus=status[id]??'open';
@@ -95,7 +117,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    <label>Message<textarea required minLength={10} maxLength={5000} rows={5} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Include the details needed to help resolve your issue."/></label>
    <button className="primary" type="submit" disabled={busy||!supabase}><Send size={16}/> {busy?'Submitting…':'Submit support request'}</button>
   </form>}
-  <div className="memberReportHeading"><h4>{isAdmin?'Recent member requests':'My support requests'} ({tickets.length}{hasMore?' loaded':''})</h4><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div>
+  <div className="memberReportHeading"><h4>{isAdmin?'Recent member requests':'My support requests'} ({tickets.length}{hasMore?' loaded':''})</h4><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button className="outline small" type="button" onClick={()=>void exportTickets()} disabled={exportBusy}><RefreshCw size={14}/>{exportBusy?'Preparing…':'Export Full CSV'}</button><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div></div>{exportMessage&&<p className="memberModuleState" role="status">{exportMessage}</p>}
   <div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:12}}><label>Search loaded requests<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Subject or message"/></label><label>Filter by status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as typeof statusFilter)}><option value="all">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select></label></div>
   <div className="memberModuleHint">Showing {visibleTickets.length} matching requests from {tickets.length} loaded records. Status is filtered on the server before pagination; text search applies to loaded records.</div>
   {busy&&tickets.length===0?<div className="empty">Loading support requests…</div>:tickets.length===0?<div className="empty">No support requests found.</div>:visibleTickets.length===0?<div className="empty">No loaded support requests match these filters.</div>:<div className="activationList">{visibleTickets.map(ticket=><article key={ticket.id} style={{display:'block'}}>
