@@ -14,7 +14,7 @@ describe('Admin member profile editing contract',()=>{
   expect(admin).toContain('disabled={memberProfileBusy||!memberProfileDirty} onClick={()=>void saveMemberProfile()}');
   expect(admin).toContain('Reset changes');
  });
- it('keeps editing separate from account status and ID lifecycle',()=>{
+ it('makes the server RPC idempotent for unchanged values and avoids unnecessary audit events',()=>{\n  expect(migration).toContain('v_old_name is not distinct from v_display_name and v_old_phone is not distinct from v_phone');\n  expect(migration).toContain("'changed',false");\n  expect(migration).toContain("'changed',true");\n  expect(migration.indexOf('if v_old_name is not distinct from')).toBeLessThan(migration.indexOf('insert into public.audit_logs'));\n });\n it('keeps editing separate from account status and ID lifecycle',()=>{
   expect(admin).toContain('Account status and ID lifecycle remain separate pending workflows.');
   expect(migration).toContain('Account status and ID lifecycle are intentionally excluded.');
  });
