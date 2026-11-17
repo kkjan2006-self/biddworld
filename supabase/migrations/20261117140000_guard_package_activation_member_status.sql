@@ -29,7 +29,9 @@ begin
         using errcode = '55000';
     end if;
 
-    if v_member_status not in ('inactive', 'active')
+    if v_member_status is null
+       or v_profile_status is null
+       or v_member_status not in ('inactive', 'active')
        or v_profile_status not in ('inactive', 'active')
        or v_member_status is distinct from v_profile_status then
       raise exception 'Package activation is unavailable because the Main ID and member profile are not in a matching eligible status'
