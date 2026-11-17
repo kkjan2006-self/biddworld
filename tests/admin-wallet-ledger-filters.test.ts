@@ -12,8 +12,8 @@ describe('Admin wallet ledger loaded-record filters',()=>{
   expect(admin).toContain('walletLedgerFrom>walletLedgerTo');
  });
  it('keeps the full paginated CSV export independent of loaded-row filters',()=>{
-  expect(admin).toContain('for(let offset=0;;offset+=100)');
-  expect(admin).toContain('all.map(x=>[x.transaction_id,x.member_code');
+  expect(admin).toContain("exportPagedReport<WalletTransaction>('wallet ledger','complete-wallet-ledger.csv'");
+  expect(admin).toContain('items=>items.map(x=>[x.transaction_id,x.member_code');
   expect(admin).toContain('Filters do not limit the complete CSV export.');
  });
 });
