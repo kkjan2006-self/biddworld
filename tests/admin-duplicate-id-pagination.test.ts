@@ -44,6 +44,8 @@ describe('Duplicate ID status no-op protection',()=>{
   expect(admin).toContain('data?.changed===false');
   expect(admin).toContain('if(data?.changed!==false)setRefresh(v=>v+1)');
   expect(admin).toContain('No changes were needed.');
+  expect(admin).toContain("rpcContractUnavailableMessage(e,'Duplicate ID status changes')");
+  expect(admin).toContain("rpcContractUnavailableMessage(e,'Duplicate ID creation')");
  });
  it('preserves the closed Duplicate ID no-reactivation rule and Admin authorization',()=>{
   const migration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261117130000_admin_duplicate_status_noop_guard.sql'),'utf8');
