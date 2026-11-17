@@ -1,3 +1,10 @@
+## Admin member detail search consistency — 2026-11-17
+
+- Both Admin member-directory search controls now clear the selected member-detail panel immediately when the query changes, avoiding stale detail display across different result sets.
+- Explicit View details selection remains available for the currently displayed member records.
+- Added `tests/admin-member-detail-search-selection.test.ts` and `docs/ADMIN_MEMBER_DETAIL_SEARCH_SELECTION_2026-11-17.md`.
+- Static source-contract test only. No live Supabase RPC, Production data, member status, account lifecycle, or database schema was changed.
+
 # BiddWorld project completion register
 
 Last source inspection: 2026-11-16  
