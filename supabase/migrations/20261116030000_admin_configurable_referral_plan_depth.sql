@@ -26,7 +26,10 @@ begin
     raise exception 'Administrator access required' using errcode='42501';
   end if;
 
-  if jsonb_typeof(p_rules) is distinct from 'array' or jsonb_array_length(p_rules) < 1 then
+  if jsonb_typeof(p_rules) is distinct from 'array' then
+    raise exception 'Referral rules must be a JSON array' using errcode='22023';
+  end if;
+  if jsonb_array_length(p_rules) < 1 then
     raise exception 'Provide at least one referral level rule' using errcode='22023';
   end if;
   if jsonb_array_length(p_rules) > 20 then
