@@ -18,7 +18,7 @@
 
 ## Repository migration inventory
 
-The current `completion-work` tree contains 47 SQL migration files:
+The 2026-11-18 `completion-work` tree contains 49 SQL migration files:
 - 3 legacy/unversioned files: `0001_biddworld.sql`, `0002_place_bid_rpc.sql`, and `001_initial_schema.sql`
 - 44 timestamped migrations
 
@@ -56,3 +56,36 @@ This is a deliberate safety stop, not a completed database setup.
 Supabase's current Database Migrations guide recommends keeping schema changes in migration files, testing them locally, and deploying them through the migration workflow rather than making ad hoc remote schema edits. The repository's bootstrap must follow this discipline.
 
 Reference: https://supabase.com/docs/guides/deployment/database-migrations
+
+
+## 2026-11-18 — Current branch and Production ledger reconciliation
+
+The current branch inventory supersedes the older count above: **49 SQL files total, 3 legacy/unversioned and 46 timestamped**. The Production migration ledger still contains 30 applied entries.
+
+Exact comparison of the 30 Production ledger entries against the 46 timestamped repository files found:
+
+- 4 exact version-and-name matches.
+- 9 matching migration names with different timestamps.
+- 17 Production ledger entries with no matching source migration file.
+
+For all 17 missing filenames, the GitHub commit-history query for the exact `supabase/migrations/<filename>` path returned no history. Those migration definitions are not recoverable from this repository's visible commit history. Do not recreate them from names or mark them as applied.
+
+A fresh read-only Production catalogue query returned 21 public base tables, 110 constraints, 60 indexes, 20 policies, 10 non-internal triggers, 43 public functions, no public views, no public enum types, and RLS enabled on all 21 public tables. A separate Storage catalogue query returned zero buckets. These are metadata counts only; no table rows were read.
+
+The selected frontend/backend contract recheck confirms these nine frontend RPC names remain absent from Production:
+
+- `public_list_active_products_page`
+- `member_get_my_identity`
+- `member_list_my_ids`
+- `member_update_my_profile`
+- `admin_list_members_sponsors_page`
+- `admin_list_duplicate_ids_page`
+- `get_my_mlm_dashboard_page`
+- `admin_set_product_active`
+- `admin_update_member_profile`
+
+Production still exposes `place_bid(p_auction_id uuid)` rather than the source-required two-argument idempotent contract, and `admin_create_duplicate_member_id(p_main_member_code text)` rather than the source-required Main ID + placement contract. The referral-plan draft RPC exists with `(p_package_id uuid, p_rules jsonb)`; that does not implement commission calculation or posting.
+
+TEST remains `ACTIVE_HEALTHY`, PostgreSQL 17.12, with zero applied migrations and zero public tables. Production was queried with SELECT-only catalogue statements. No migrations, DDL, DML, RPC calls, Storage changes, or data writes were performed in either project.
+
+**Decision remains unchanged:** do not replay the 49-file directory, do not fabricate the 17 missing historical migrations, and do not apply a partial baseline. A separately reviewed final-state clean-install baseline must be built from complete schema evidence and tested only in TEST.
