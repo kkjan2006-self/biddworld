@@ -5,7 +5,7 @@ import {supabase} from '../lib/supabase';
 type Notice={id:string;user_id:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
- const requestSeq=useRef(0),loadMoreBusy=useRef(false);
+ const requestSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false);
  const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
  const load=useCallback(async()=>{
   const seq=++requestSeq.current;loadMoreBusy.current=false;
@@ -32,15 +32,23 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   finally{setBusy(false);}
  }
  async function markRead(id:string){
-  if(!supabase)return;const readAt=new Date().toISOString();
-  try{const {error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).eq('id',id).is('read_at',null);if(updateError)throw updateError;setItems(rows=>rows.map(row=>row.id===id?{...row,read_at:readAt}:row));}
-  catch(e){setError(e instanceof Error?e.message:'Notification could not be marked as read. Please retry.');}
+  if(!supabase||markReadBusy.current.has(id))return;markReadBusy.current.add(id);const readAt=new Date().toISOString();
+  try{
+   let request=supabase.from('member_notifications').update({read_at:readAt}).eq('id',id).is('read_at',null);
+   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to update your notifications.');request=request.eq('user_id',user.id);}
+   const{error:updateError}=await request;if(updateError)throw updateError;
+   setItems(rows=>rows.map(row=>row.id===id?{...row,read_at:readAt}:row));
+  }catch(e){setError(e instanceof Error?e.message:'Notification could not be marked as read. Please retry.');}
+  finally{markReadBusy.current.delete(id);}
  }
  async function markAllRead(){
-  if(!supabase||markingAll||unread===0)return;setMarkingAll(true);setError('');setNotice('');const readAt=new Date().toISOString();
-  try{const {error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).is('read_at',null);if(updateError)throw updateError;setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}));setNotice('All unread notifications have been marked as read.');}
-  catch(e){setError(e instanceof Error?e.message:'Unread notifications could not be updated. Please retry.');}
-  finally{setMarkingAll(false);}
+  if(!supabase||markAllBusy.current||markingAll||unread===0)return;markAllBusy.current=true;setMarkingAll(true);setError('');setNotice('');const readAt=new Date().toISOString();
+  try{
+   const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to update your notifications.');
+   const{error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).eq('user_id',user.id).is('read_at',null);if(updateError)throw updateError;
+   setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}));setNotice('All unread notifications have been marked as read.');
+  }catch(e){setError(e instanceof Error?e.message:'Unread notifications could not be updated. Please retry.');}
+  finally{markAllBusy.current=false;setMarkingAll(false);}
  }
  const unread=items.filter(item=>!item.read_at).length;
  const visibleItems=items.filter(item=>(!unreadOnly||isAdmin||!item.read_at)&&(categoryFilter==='all'||item.category===categoryFilter)&&(!search.trim()||[item.title,item.message,item.category].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
