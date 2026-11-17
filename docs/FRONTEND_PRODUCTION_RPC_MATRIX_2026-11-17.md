@@ -109,3 +109,11 @@
 - Main ID status is displayed read-only in Admin Member Details; no Main ID suspend/reactivate/close RPC or UI actions were found in the inspected source/migrations.
 - Duplicate ID lifecycle remains a separate implementation. Main ID-to-Duplicate ID cascade behavior is unspecified and was not added.
 - Audit report: `docs/MAIN_ID_ACCOUNT_STATUS_LIFECYCLE_AUDIT_2026-11-17.md`.
+
+
+## Financial workflow integration review — 2026-11-17
+
+- Bulk source review confirms two-argument idempotent bidding, Bid-Wallet-first debit order, row locks, same-transaction ledger/bid/auction updates, pending-only package submission, locked Admin package approval, versioned referral-plan drafts, and Income-Wallet-only withdrawal requests.
+- Material gaps: no automatic referral commission posting/reversal engine found; package submission and approval do not restrict Main ID status to an allowed lifecycle state; activation trigger can leave Profile/Main ID statuses inconsistent; Fixed Bid and winner settlement are not complete end-to-end workflows.
+- Production still has the older one-argument `place_bid(uuid)` contract; branch UI correctly refuses to fall back and lose idempotency. Source migration remains unapplied.
+- No live database verification; no Production changes. See `docs/FINANCIAL_WORKFLOW_INTEGRATION_AUDIT_2026-11-17.md`.
