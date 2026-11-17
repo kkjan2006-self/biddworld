@@ -1,3 +1,11 @@
+## Admin Member Management RPC deployment feedback — 2026-11-17
+
+- Admin member profile editing, sponsor changes, and paginated Main ID directory search now distinguish missing/stale RPC deployments from ordinary errors and show an actionable administrator-facing message.
+- Existing error behavior remains for unrelated permission, validation, and network failures.
+- Updated regression assertions for the member directory pagination request lifecycle after the error copy change.
+- CI run `43997409594` passed on commit `64bd2e825eece0fc7f7c00c20bab31bd307a158f`: all tests, TypeScript type-check, and production build passed.
+- This batch changes frontend diagnostics only. No account status, Main/Duplicate ID lifecycle, sponsor records, commissions, wallet records, or Production database objects were changed.
+
 ## Member account identity and ID-list RPC feedback — 2026-11-17
 
 - Member Account now distinguishes missing/stale deployment of `member_get_my_identity`, `member_list_my_ids` and `member_list_my_withdrawals` from ordinary history-query failures.
