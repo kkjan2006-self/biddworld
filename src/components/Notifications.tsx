@@ -11,16 +11,16 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   const seq=++requestSeq.current;loadMoreBusy.current=false;
   if(!supabase){setError('Notifications are unavailable until Supabase is configured.');setItems([]);setHasMore(false);return;}
   setBusy(true);setError('');
-  try{let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);}const {data,error:loadError}=await request.range(0,PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
+  try{let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);if(unreadOnly)request=request.is('read_at',null);}if(categoryFilter!=='all')request=request.eq('category',categoryFilter);const {data,error:loadError}=await request.range(0,PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
   catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
- },[isAdmin]);
+ },[isAdmin,unreadOnly,categoryFilter]);
  const loadMore=useCallback(async()=>{
   if(!supabase||loadMoreBusy.current||busy||!hasMore)return;loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
-  try{const from=items.length;let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);}const {data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);}
+  try{const from=items.length;let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);if(unreadOnly)request=request.is('read_at',null);}if(categoryFilter!=='all')request=request.eq('category',categoryFilter);const {data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);}
   catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
- },[busy,hasMore,items.length,isAdmin]);
+ },[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
  async function send(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();if(!supabase||busy)return;const target=userId.trim();
@@ -44,7 +44,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  }
  const unread=items.filter(item=>!item.read_at).length;
  const visibleItems=items.filter(item=>(!unreadOnly||isAdmin||!item.read_at)&&(categoryFilter==='all'||item.category===categoryFilter)&&(!search.trim()||[item.title,item.message,item.category].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
- const categories=[...new Set(items.map(item=>item.category).filter(Boolean))].sort();
+ const categories=['general','account','support','security'];
  return <section className="accountSection" style={{display:'block',maxWidth:980,margin:'0 auto'}}>
   <h3><Bell size={20}/> {isAdmin?'Member Notifications':'Notifications'}</h3>
   <p className="memberModuleHint">{isAdmin?'Send an in-app notification to one member using their Auth user UUID.':'Your recent BiddWorld account and support notifications.'}</p>

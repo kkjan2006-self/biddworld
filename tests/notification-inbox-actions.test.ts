@@ -8,7 +8,7 @@ describe('member notification inbox actions',()=>{
   expect(source).toContain('items.filter(item=>!item.read_at)');
   expect(source).toContain('No unread notifications among the loaded records.');
  });
- it('marks all currently unread member notifications read through the owner-scoped RLS policy',()=>{
+ it('applies unread and category filters in both database queries before pagination',()=>{\n  expect(source).toContain("if(unreadOnly)request=request.is('read_at',null)");\n  expect(source.match(/if\\(categoryFilter!=='all'\\)request=request.eq\\('category',categoryFilter\\)/g)).toHaveLength(2);\n  expect(source).toContain('[isAdmin,unreadOnly,categoryFilter]');\n  expect(source).toContain('[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]');\n });\n it('marks all currently unread member notifications read through the owner-scoped RLS policy',()=>{
   expect(source).toContain(".update({read_at:readAt}).is('read_at',null)");
   expect(source).toContain('async function markAllRead()');
   expect(source).toContain('setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}))');

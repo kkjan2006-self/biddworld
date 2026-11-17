@@ -17,3 +17,12 @@
 - Changing status reloads the matching result set from offset zero, so older open/in-progress/resolved/closed tickets are not hidden behind the first 100 mixed-status records.
 - Text search remains explicitly limited to loaded records; member ownership continues to be enforced by the user filter and database RLS.
 - Regression test verifies both paginated queries apply the selected status. Production Supabase was not modified.
+
+
+## 2026-11-17 — Notifications inbox server-side filters
+
+- Unread-only (member) and category filters are now applied in the Supabase query before pagination, for both the first page and Load more.
+- Filter changes restart loading from the first page through the existing request invalidation flow; member ownership remains scoped to the signed-in user and RLS.
+- Category choices come from the database-supported category set, so categories are available even when none occur in the first 100 records.
+- Text search remains limited to loaded records and is labelled accordingly. Regression tests cover both paginated query paths.
+- Production Supabase was not modified; no migration was applied.
