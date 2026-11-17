@@ -20,4 +20,11 @@ describe('Member dashboard activation status guard',()=>{
     expect(account).not.toContain('setProfile(current=>current?{...current,status:');
     expect(account).not.toContain("from('member_ids').update");
   });
+
+  it('hides the withdrawal request form unless both member identity records are active',()=>{
+    expect(account).toContain('{withdrawEnabled&&!accountActivationLocked?<form className="memberWithdrawalForm"');
+    expect(account).toContain('Withdrawal requests are unavailable until both your member profile and Main ID are active.');
+    expect(account).toContain("client.rpc('member_create_withdrawal_request'");
+  });
+
 });
