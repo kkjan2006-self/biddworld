@@ -13,7 +13,7 @@ describe('Admin Duplicate ID lifecycle security contract',()=>{
       const body=lifecycle.slice(start,lifecycle.indexOf('$function$;',start)+11);
       expect(body).toContain('security definer');
       expect(body).toContain("set search_path = ''");
-      expect(body).toContain("auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','') <> 'admin'");
+      expect(body).toMatch(/if (?:v_uid is null|auth\.uid\(\) is null) or coalesce\(auth\.jwt\(\)->'app_metadata'->>'role',''\) <> 'admin'/);
     }
   });
 
