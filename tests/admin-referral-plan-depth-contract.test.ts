@@ -8,6 +8,11 @@ const sql = readFileSync(
 );
 
 describe('Admin configurable referral plan depth contract', () => {
+  it('validates JSON array type before using array functions', () => {
+    expect(sql).toMatch(/jsonb_typeof\\(p_rules\\) is distinct from 'array'[\\s\\S]*?Referral rules must be a JSON array/i);
+    expect(sql).toMatch(/if jsonb_array_length\\(p_rules\\) < 1 then/i);
+  });
+
   it('allows one to twenty configurable levels and rejects larger plans', () => {
     expect(sql).toMatch(/jsonb_array_length\(p_rules\) < 1/i);
     expect(sql).toMatch(/jsonb_array_length\(p_rules\) > 20[\s\S]*?cannot exceed 20 levels/i);
