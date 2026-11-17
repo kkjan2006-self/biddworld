@@ -1,3 +1,10 @@
+## Admin profile RPC no-op protection and latest CI verification — 2026-11-17
+
+- Latest CI run `43995371854` passed on `ea9f67949d6f9153df0885975390a2483df9d668`; tests, TypeScript type-check and production build all completed successfully.
+- Hardened `admin_update_member_profile` so the server compares locked values and returns `changed: false` for unchanged submissions without updating `updated_at` or creating an audit row. Real changes continue to generate one field-flag-only audit event.
+- Added a regression test for server-side no-op handling. Migration remains source-only and has not been applied to Production.
+- No Production schema, settings, Auth accounts, member records or financial records were changed.
+
 ## Admin member profile editing verification and UX hardening — 2026-11-17
 
 - Latest CI for the profile-editor implementation passed on commit `586a749db0de67e9129d61a1a5e4acc9a9845c1d` (GitHub Actions run `43994891990`).
