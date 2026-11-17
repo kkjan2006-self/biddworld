@@ -14,3 +14,18 @@ describe('RPC deployment mismatch detection', () => {
     expect(isRpcContractUnavailable(null)).toBe(false);
   });
 });
+
+
+import { rpcContractUnavailableMessage } from '../src/lib/rpc-errors';
+
+describe('RPC deployment guidance', () => {
+  it('returns actionable guidance for a missing member dashboard RPC', () => {
+    expect(rpcContractUnavailableMessage({ code: 'PGRST202' }, 'Your team dashboard')).toContain('database RPC update has not been installed');
+  });
+  it('returns actionable guidance for a missing profile RPC', () => {
+    expect(rpcContractUnavailableMessage({ code: '42883' }, 'Profile updates')).toContain('Please contact the administrator');
+  });
+  it('preserves ordinary server errors instead of mislabeling them as deployment problems', () => {
+    expect(rpcContractUnavailableMessage({ code: '42501', message: 'permission denied' }, 'Profile updates')).toBeNull();
+  });
+});
