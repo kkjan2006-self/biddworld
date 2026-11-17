@@ -13,7 +13,7 @@ export default function FixedBid(){
   if(!reset&&(requestInFlight.current||loadingMore||!hasMore))return;
   if(!reset)requestInFlight.current=true;
   const request=++requestId.current;
-  if(reset){setLoading(true);setError('');setRows([]);setHasMore(false);}else{setLoadingMore(true);setError('');}
+  if(reset){requestInFlight.current=false;setLoading(true);setError('');setRows([]);setHasMore(false);}else{setLoadingMore(true);setError('');}
   try {
    if(!supabase){if(mounted.current&&request===requestId.current){setRows([]);setHasMore(false);}return;}
    let query=supabase.from('fixed_bid_campaigns').select('id,title,description,status,created_at,product:products(name,description,category,image_path)').in('status',['scheduled','live','ended']).order('created_at',{ascending:false}).order('id',{ascending:false});
@@ -29,7 +29,7 @@ export default function FixedBid(){
   } catch {
    if(mounted.current&&request===requestId.current)setError(reset?'Fixed Bid campaigns are not available yet.':'More campaigns could not be loaded. Please retry.');
   } finally {
-   if(!reset)requestInFlight.current=false;
+   if(!reset&&request===requestId.current)requestInFlight.current=false;
    if(mounted.current&&request===requestId.current){setLoading(false);setLoadingMore(false);}
   }
  }
