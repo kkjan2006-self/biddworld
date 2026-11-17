@@ -25,7 +25,7 @@ describe('Duplicate ID Admin RPC contract', () => {
 
 describe('Duplicate ID RPC deployment mismatch feedback',()=>{
  it('explains that duplicate creation needs the backend RPC update',()=>{
-  expect(admin).toContain('isRpcContractUnavailable(e)?');
-  expect(admin).toContain('database RPC update has not been installed');
+  expect(admin).toContain("rpcContractUnavailableMessage(e,'Duplicate ID creation')");
+  expect(admin).toContain('Duplicate ID creation');
  });
 });
