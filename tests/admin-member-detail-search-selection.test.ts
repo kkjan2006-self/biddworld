@@ -12,7 +12,7 @@ describe('Admin member detail selection follows directory search',()=>{
   expect(admin).toContain('value={memberSearch} onChange={e=>{setSelectedMemberCode("");setMemberSearch(e.target.value);}} placeholder="Search name, member ID, phone or sponsor ID"');
  });
  it('retains explicit member selection only through the View details action',()=>{
-  expect(admin).toContain('onClick={()=>setSelectedMemberCode(m.member_code)}>View details</button>');
+  expect(admin).toContain('onClick={()=>{setSelectedMemberCode(m.member_code);setMemberProfileName(m.display_name||'');setMemberProfilePhone(m.phone||'');setMemberProfileMessage('');}}>View details</button>');
   expect(admin).toContain('selectedMemberCode&&(()=>{');
  });
 });
