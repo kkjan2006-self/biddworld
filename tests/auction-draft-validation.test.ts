@@ -26,7 +26,16 @@ describe('auction draft input validation',()=>{
     expect(validateAuctionDraftInput({...valid,endsAt:valid.startsAt})).toContain('after its start');
     expect(validateAuctionDraftInput({...valid,endsAt:'2026-11-18T09:00'})).toContain('after its start');
   });
-  it('rejects impossible calendar dates and out-of-range times',()=>{\n    expect(validateAuctionDraftInput({...valid,startsAt:'2026-02-30T10:00'})).toContain('valid auction start');\n    expect(validateAuctionDraftInput({...valid,endsAt:'2026-11-18T25:00'})).toContain('valid auction start');\n    expect(validateAuctionDraftInput({...valid,startsAt:'2026-11-18'})).toContain('valid auction start');\n  });\n  it('rejects blank numeric values instead of treating them as zero',()=>{\n    expect(validateAuctionDraftInput({...valid,startingPrice:''})).toContain('Starting price');\n    expect(validateAuctionDraftInput({...valid,minimumIncrement:''})).toContain('Starting price');\n  });\n  it('allows an optional start or end date when only one is supplied',()=>{
+  it('rejects impossible calendar dates and out-of-range times',()=>{
+    expect(validateAuctionDraftInput({...valid,startsAt:'2026-02-30T10:00'})).toContain('valid auction start');
+    expect(validateAuctionDraftInput({...valid,endsAt:'2026-11-18T25:00'})).toContain('valid auction start');
+    expect(validateAuctionDraftInput({...valid,startsAt:'2026-11-18'})).toContain('valid auction start');
+  });
+  it('rejects blank numeric values instead of treating them as zero',()=>{
+    expect(validateAuctionDraftInput({...valid,startingPrice:''})).toContain('Starting price');
+    expect(validateAuctionDraftInput({...valid,minimumIncrement:''})).toContain('Starting price');
+  });
+  it('allows an optional start or end date when only one is supplied',()=>{
     expect(validateAuctionDraftInput({...valid,startsAt:'',endsAt:''})).toBe('');
     expect(validateAuctionDraftInput({...valid,startsAt:'2026-11-18T10:00',endsAt:''})).toBe('');
   });
