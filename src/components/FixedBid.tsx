@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {Gavel,Package,RefreshCw} from 'lucide-react';
 import {supabase} from '../lib/supabase';
+import {escapeLikePattern} from '../lib/like-pattern';
 type Campaign={id:string;title:string;description:string|null;status:string;created_at:string;product: {name:string;description:string|null;category:string|null;image_path:string|null}|null};
 const PAGE_SIZE=50;
 type CampaignStatus='all'|'scheduled'|'live'|'ended';
@@ -17,7 +18,7 @@ export default function FixedBid(){
    if(!supabase){if(mounted.current&&request===requestId.current){setRows([]);setHasMore(false);}return;}
    let query=supabase.from('fixed_bid_campaigns').select('id,title,description,status,created_at,product:products(name,description,category,image_path)').in('status',['scheduled','live','ended']).order('created_at',{ascending:false}).order('id',{ascending:false});
    if(status!=='all')query=query.eq('status',status);
-   if(searchTerm.trim())query=query.ilike('title',`%${searchTerm.trim().replace(/[\\%_]/g,'\\\\$&')}%`);
+   if(searchTerm.trim())query=query.ilike('title',`%${escapeLikePattern(searchTerm.trim())}%`);
    const offset=reset?0:rows.length;
    const {data,error}=await query.range(offset,offset+PAGE_SIZE-1);
    if(error)throw error;
