@@ -133,3 +133,18 @@
 - No automatic commission calculation, eligibility traversal, idempotent wallet posting, or reversal engine is present in the inspected source. The existing feature-gate trigger only gates credited commission inserts and requires an approved active package activation; it is not a commission engine.
 - Decision: do not invent commission SQL against an incomplete/unreconciled schema. Next implementation work must be preceded by a trustworthy schema/constraint/trigger contract and clean-install TEST baseline. Production remains read-only; TEST remains untouched.
 - No tests were executed in a runtime during this repair. The repaired test source is committed, but it is not reported as passing until CI or a local test run confirms it.
+
+
+## 2026-11-18 — CI repair and migration reconciliation recheck
+
+- Confirmed the latest CI run [44179957992](https://github.com/kkjan2006-self/biddworld/actions/runs/44179957992) completed successfully on commit `c67b6f68cb466efc58210110471d46a86726e8f8`.
+- Verification completed: 90 test files and 342 tests passed; TypeScript check and Vite production build passed.
+- Repaired 11 stale source-contract test files to assert the current implementation: member/admin request lifecycle guards, retryable wallet pagination, notification ownership/read-state paths, package activation lock copy, and all three support-ticket status-filtered query paths (initial load, continuation, and complete CSV export).
+- Fixed a real TypeScript build error by importing the existing `csvDocument` helper into `src/components/Support.tsx`; no support workflow was removed.
+- CI dependency audit still reports 12 high-severity npm dependency findings. This is an outstanding dependency-security work item, not a test/build failure.
+- Four Vercel status checks remain blocked by the account's build-rate limit. No deployment was treated as verified.
+- Reconciled the current migration inventory against the live Production migration ledger: repository has 49 SQL files (3 legacy/unversioned and 46 timestamped); Production has 30 ledger entries; only 4 exact timestamp/name matches and 9 same-name/different-timestamp matches. The other 17 Production ledger entries have no matching source file, and GitHub path history confirms those exact files are not recoverable from repository history.
+- Read-only Production catalogue check: 21 public tables, RLS enabled on all 21, 110 constraints, 60 indexes, 20 policies, 10 non-internal triggers, 43 public functions, and no Storage buckets. The selected live RPC check confirms nine frontend RPC names remain absent; `place_bid(uuid)` and `admin_create_duplicate_member_id(text)` still have incompatible one-argument contracts.
+- TEST remains ACTIVE_HEALTHY with zero migrations and zero public tables. Production received SELECT-only catalogue queries; no DDL, DML, RPC execution, Storage changes, or data writes were performed.
+- No clean-install baseline has been applied or declared verified. The 17 missing historical migration definitions must not be invented. Next safe database task is to assemble a reviewed final-state baseline from complete, verified schema/function/policy/trigger/grant evidence, then replay it only in TEST.
+- No completion-percentage increase is justified by CI repair or audit work. Referral calculation, eligibility, posting, reversal, and end-to-end verification remain incomplete.
