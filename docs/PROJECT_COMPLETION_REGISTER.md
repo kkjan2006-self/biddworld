@@ -1,3 +1,10 @@
+## Admin wallet ledger export safety — 2026-11-17
+
+- Wallet ledger CSV export now uses the shared bounded pagination helper, including repeated-page detection and the 100,000-row export cap. Download creation occurs only after all pages pass validation.
+- Existing read-only RPC and CSV field set are preserved; export progress/error feedback is shared with Admin report exports.
+- Added `tests/admin-wallet-ledger-export-safety.test.ts` and `docs/ADMIN_WALLET_LEDGER_EXPORT_SAFETY_2026-11-17.md`.
+- Static source-contract coverage only; no live wallet RPC or Production data was accessed or changed.
+
 ## Admin member detail search consistency — 2026-11-17
 
 - Both Admin member-directory search controls now clear the selected member-detail panel immediately when the query changes, avoiding stale detail display across different result sets.
