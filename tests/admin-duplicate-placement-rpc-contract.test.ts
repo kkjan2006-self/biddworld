@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
+const admin = read('src/components/Admin.tsx');
 
 describe('Duplicate ID Admin RPC contract', () => {
   it('keeps the Admin placement arguments aligned with the migration signature', () => {
