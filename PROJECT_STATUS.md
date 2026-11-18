@@ -8,8 +8,8 @@
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
 - Protected branch: `main` (do not modify)
-- Latest verified repository commit at this checkpoint: `f7274c13053ad593c3fa303560d0e4f06f51c42a`
-- Latest commit message: `docs: clarify complete clean-install migration inventory`
+- Latest verified repository commit at this checkpoint: `966d052e2ae64a9f926b2cb5b78a5bebfd5b6bd5`
+- Latest commit message: `docs: complete baseline ACL and CI reconciliation`
 - Last updated: 2026-11-18
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
@@ -70,7 +70,7 @@ The following source/UI/documentation work is present in the current branch and 
 - Manual testing: NOT STARTED (deliberately deferred).
 - Full isolated TEST migration replay: NOT STARTED; TEST remains empty.
 - End-to-end/browser/Android checks: NOT STARTED.
-- Automatic CI: latest run #989 failed one stale static assertion (105/106 files; 443/444 tests); build/type-check steps were skipped. Manual/full final testing remains NOT STARTED.
+- Automatic CI: latest completed run #996 failed one stale static assertion (105/106 files; 443/444 tests); build/type-check steps were skipped. Manual/full final testing remains NOT STARTED.
 - Do not claim modules fully complete merely because UI, SQL source or static tests exist.
 
 ## H. NEXT DEVELOPMENT BATCH
