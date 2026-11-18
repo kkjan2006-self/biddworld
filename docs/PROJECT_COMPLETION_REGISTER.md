@@ -219,3 +219,9 @@
 - Refund idempotency now guards both the wallet balance update and ledger insert, preventing a duplicate credit if a refund key already exists.
 - Existing auction cancellation refund keys were checked against the bid RPC ledger key convention (`:bid` / `:income`) and match the source implementation.
 - These are source-code corrections only. No migrations were applied, no TEST or Production data was changed, and no test/build was run. SQL execution and full schema compatibility remain pending until the clean TEST baseline is prepared.
+
+
+### 2026-11-18 — Fixed Bid refund-ledger reconciliation hardening
+- Rechecked the source schema snapshot: `fixed_bids.status` explicitly permits `voided`, and `winning_item_payments.fixed_bid_campaign_id` exists with its foreign key to `fixed_bid_campaigns`.
+- Hardened Fixed Bid campaign cancellation and optional non-winner refunds: each entry's original debit ledger rows must now sum exactly to the recorded entry amount before the entry can be voided. Missing or partial debit history raises an exception and rolls back the complete operation, preventing silent under-refunds.
+- No tests/build run (per development-first workflow). No Supabase migrations applied; Production and TEST databases remain untouched.
