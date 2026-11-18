@@ -422,3 +422,11 @@
 - Confirmed Admin product image upload/public URL flow, member receipt upload/server association flow, and Admin 300-second signed receipt preview flow are present in frontend source.
 - Recorded that runtime behavior remains unverified and both buckets must be included in the isolated TEST clean-install baseline before validation.
 - No Production/TEST changes, no build or tests.
+
+
+### 2026-11-18 — Clean-install baseline incompatibility confirmed
+- Compared `0001_biddworld.sql` with the first timestamped migration and subsequent signup/sponsor/package schema contracts.
+- Confirmed the legacy baseline uses `member_ids.user_id`, `wallet_accounts.user_id`, and legacy package activation/referral columns, while the timestamped chain expects `owner_user_id`, `member_id`, `main_member_id`, `source_member_id`, and newer activation columns. No conversion migration appears before the first timestamped migration.
+- Confirmed `001_initial_schema.sql` is empty and `0002_place_bid_rpc.sql` is a legacy implementation using the old wallet schema.
+- Read-only isolated TEST catalogue check: no public tables, public functions, migration-history table or Storage buckets; no migrations applied.
+- Documented that the current folder is not yet a validated clean-install sequence and recorded remediation paths. No schema was changed; no Production/TEST writes, no builds or tests.
