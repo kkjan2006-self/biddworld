@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Gift, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Gift, RefreshCw, ShieldCheck, Upload } from 'lucide-react';
 import { configured, supabase } from '../lib/supabase';
 import { money } from '../lib/format';
 
@@ -19,6 +19,11 @@ export default function Packages() {
   const [items, setItems] = useState<PackageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedPackage,setSelectedPackage]=useState('');
+  const [paymentReference,setPaymentReference]=useState('');
+  const [receiptFile,setReceiptFile]=useState<File|null>(null);
+  const [activationBusy,setActivationBusy]=useState(false);
+  const [activationMessage,setActivationMessage]=useState('');
   const mountedRef = useRef(false);
   const requestIdRef = useRef(0);
 
@@ -54,6 +59,32 @@ export default function Packages() {
     }
   }
 
+  async function submitActivation(){
+    if(!supabase||activationBusy)return;
+    const reference=paymentReference.trim();
+    if(!selectedPackage){setActivationMessage('Select a package.');return;}
+    if(reference.length<6||reference.length>80||!/^[A-Za-z0-9./_-]+$/.test(reference)){setActivationMessage('Enter a valid payment reference (6 to 80 letters or numbers).');return;}
+    if(receiptFile&&(!['image/jpeg','image/png','application/pdf'].includes(receiptFile.type)||receiptFile.size>5*1024*1024)){setActivationMessage('Receipt must be JPG, PNG or PDF and no larger than 5 MB.');return;}
+    setActivationBusy(true);setActivationMessage('');
+    try{
+      const{data:authData,error:authError}=await supabase.auth.getUser();
+      if(authError)throw authError;
+      if(!authData.user){setActivationMessage('Please sign in before submitting a package activation request.');return;}
+      let receiptPath:string|null=null;
+      if(receiptFile){
+        const safeName=receiptFile.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').slice(-90)||'payment-receipt';
+        receiptPath=authData.user.id+'/'+crypto.randomUUID()+'-'+safeName;
+        const{error:uploadError}=await supabase.storage.from('package-receipts').upload(receiptPath,receiptFile,{contentType:receiptFile.type,upsert:false});
+        if(uploadError)throw uploadError;
+      }
+      const{error}=await supabase.rpc('submit_package_activation_with_receipt',{p_package_id:selectedPackage,p_payment_reference:reference,p_receipt_path:receiptPath});
+      if(error)throw error;
+      setActivationMessage('Package activation request submitted for Admin verification.');
+      setPaymentReference('');setReceiptFile(null);setSelectedPackage('');
+    }catch(e){setActivationMessage(e instanceof Error?e.message:'Package activation request could not be completed. Check your connection and retry.');}
+    finally{setActivationBusy(false);}
+  }
+
   useEffect(() => {
     mountedRef.current = true;
     void load();
@@ -69,6 +100,7 @@ export default function Packages() {
     </div>
     {!configured && <div className="notice"><b>Database not connected:</b> Configure the intended Preview or separate Test environment to view package information. Do not connect Production for testing.</div>}
     {PACKAGE_ACTIVATION_LOCKED && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.</div>}
+    {!PACKAGE_ACTIVATION_LOCKED&&<section className="packageActivationForm"><h3>Request Package Activation</h3><p>Select an available package and submit your payment reference. A receipt is optional.</p><label>Package<select value={selectedPackage} onChange={e=>setSelectedPackage(e.target.value)}><option value="">Select package</option>{items.map(item=><option key={item.id} value={item.id}>{item.name} · {money(Number(item.price),item.currency||'INR')}</option>)}</select></label><label>Payment Reference / UTR<input value={paymentReference} onChange={e=>setPaymentReference(e.target.value)} maxLength={80} placeholder="Enter payment reference"/></label><label>Payment Receipt (JPG, PNG or PDF · max 5 MB)<input type="file" accept="image/jpeg,image/png,application/pdf" onChange={e=>setReceiptFile(e.target.files?.[0]??null)}/></label><button type="button" className="primary" disabled={activationBusy||!selectedPackage} onClick={()=>void submitActivation()}>{activationBusy?'Submitting…':'Submit Activation Request'}</button>{activationMessage&&<div className="notice" role="status">{activationMessage}</div>}</section>}
     {loading ? <p className="packageState">Loading package information…</p> : error ? <div className="notice">{error} <button className="outline small" onClick={() => void load()}><RefreshCw size={14}/> Retry</button></div> :
       items.length === 0 ? <div className="empty packageEmpty">No packages are currently published. Free registration remains available.</div> :
       <div className="packageGrid">{items.map(item => <article className="packageCard" key={item.id}>
