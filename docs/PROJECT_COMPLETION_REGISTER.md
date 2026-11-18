@@ -914,3 +914,11 @@
 - Added `supabase/migrations/20261118470000_revoke_member_notification_column_insert.sql` as forward candidate #69. It revokes table-level and exact column-level INSERT from authenticated, while preserving owner-scoped UPDATE(read_at) for the member inbox.
 - Added `docs/MEMBER_NOTIFICATION_COLUMN_PRIVILEGE_FOLLOWUP_2026-11-18.md`; updated the ordered manifest and clean-install README to 69 forward + 16 excluded timestamped + 3 legacy SQL files (88 total).
 - Source-only. No tests/build/CI, SQL execution, migration replay or database access/writes. Production remains read-only; TEST remains untouched. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Complete forward migration column write-ACL scan
+
+- Scanned explicit GRANT/REVOKE statements in all 69 ordered forward migration candidates.
+- The only independent column-scoped write grants found were support-ticket INSERT/UPDATE (corrected in #68) and member-notification INSERT (corrected in #69). The notification UPDATE(read_at) grant is intentionally preserved for the member read-state UI.
+- No other explicit column-scoped INSERT/UPDATE grants were found in the forward migration set. This is not yet a complete ACL parity proof: baseline grants, default privileges, effective role privileges, policies and PostgreSQL replay still require review.
+- Updated `docs/FORWARD_MIGRATION_DEPENDENCY_CI_SECURITY_REVIEW_2026-11-18.md` and `PROJECT_STATUS.md`. Static source review only; no tests/build/CI or database access/writes. Production remains read-only; TEST remains untouched. Overall estimate remains 55%.
