@@ -11,11 +11,13 @@ describe('BiddWorld installable PWA foundation', () => {
     start_url: string; scope: string; display: string; icons: Array<{ src: string; sizes: string; type: string; purpose?: string }>;
   };
   const worker = read('public/sw.js');
+  const vite = read('vite.config.ts');
 
   it('declares a standalone app with relative scope for Pages and root hosting', () => {
     expect(manifest.start_url).toBe('./');
     expect(manifest.scope).toBe('./');
     expect(manifest.display).toBe('standalone');
+    expect(vite).toContain("base: process.env.GITHUB_PAGES === 'true' ? '/biddworld/' : '/',");
     expect(manifest.icons).toEqual([
       { src: './icons/biddworld-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: './icons/biddworld-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },

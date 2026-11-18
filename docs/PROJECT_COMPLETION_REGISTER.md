@@ -651,3 +651,9 @@
 - Added both PNGs to the service-worker shell cache and strengthened PWA tests to verify actual PNG signatures and dimensions.
 - Bumped the service-worker cache to v3 in a follow-up commit so previous shell assets are retired on activation. CI for that cache-version change is pending.
 - Android installation and offline behavior still require real-device verification during final QA; source tests/build do not prove device installation.
+
+### 2026-11-18 — PWA cache lifecycle and Pages build verification
+- CI run #939 passed: 102/102 test files and 423/423 tests; TypeScript and Vite production build passed.
+- Bumped the service-worker shell cache to v3 so the prior v2 cache is removed on activation after the PNG icon update.
+- Added an explicit PWA test for the GitHub Pages `/biddworld/` base-path contract and a second CI build using `GITHUB_PAGES=true`. This validates the Pages subpath build without deploying or configuring hosting.
+- CI for the Pages subpath build is pending; real Android installation/offline verification remains part of final QA.

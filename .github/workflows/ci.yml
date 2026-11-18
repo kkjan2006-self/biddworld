@@ -42,3 +42,5 @@ jobs:
         run: npm test
       - name: Type-check and build
         run: npm run build
+      - name: Verify GitHub Pages subpath build
+        run: GITHUB_PAGES=true npm run build -- --outDir dist-pages
