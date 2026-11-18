@@ -109,7 +109,10 @@ create or replace function public.admin_set_fixed_bid_campaign_status(p_campaign
 returns jsonb
 language plpgsql security definer set search_path=''
 as $function$
-declare v_campaign public.fixed_bid_campaigns%rowtype; v_start timestamptz; v_end timestamptz; v_enabled boolean:=false;
+declare
+ v_campaign public.fixed_bid_campaigns%rowtype; v_start timestamptz; v_end timestamptz;
+ v_enabled boolean:=false; v_entry record; v_debit record; v_wallet public.wallet_accounts%rowtype;
+ v_new_balance numeric(14,2); v_refunded integer:=0; v_refund_key text;
 begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -142,11 +145,41 @@ begin
   raise exception 'The campaign cannot be ended before its configured close time' using errcode='55000';
  end if;
  if v_campaign.status in ('ended','cancelled') then raise exception 'A closed campaign cannot be reopened or changed' using errcode='55000'; end if;
+ if p_status='cancelled' then
+  if exists(select 1 from public.winning_item_payments
+    where fixed_bid_campaign_id=p_campaign_id and status='paid') then
+   raise exception 'A campaign with a paid winner item cannot be cancelled' using errcode='55000';
+  end if;
+  for v_entry in
+   select id,member_id from public.fixed_bids
+   where campaign_id=p_campaign_id and status in ('submitted','accepted')
+   order by id for update
+  loop
+   for v_debit in
+    select wallet_account_id,amount from public.wallet_transactions
+    where reference_type='fixed_bid_entry' and reference_id=v_entry.id and direction='debit'
+    order by wallet_account_id
+   loop
+    select * into v_wallet from public.wallet_accounts where id=v_debit.wallet_account_id for update;
+    if not found then raise exception 'Original entry wallet is unavailable; cancellation was rolled back' using errcode='55000'; end if;
+    v_new_balance:=v_wallet.balance+v_debit.amount;
+    update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
+    v_refund_key:='fixed-bid:'||v_entry.id::text||':refund:'||v_wallet.id::text;
+    if not exists(select 1 from public.wallet_transactions where idempotency_key=v_refund_key) then
+     insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
+     values(v_wallet.id,v_entry.member_id,'fixed_bid_refund','credit',v_debit.amount,v_new_balance,
+      'fixed_bid_entry',v_entry.id,v_refund_key,'Refund for cancelled Fixed Bid campaign entry');
+    end if;
+   end loop;
+   update public.fixed_bids set status='voided' where id=v_entry.id;
+   v_refunded:=v_refunded+1;
+  end loop;
+ end if;
  update public.fixed_bid_campaigns set status=p_status,updated_at=now() where id=p_campaign_id;
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
  values(auth.uid(),'fixed_bid.status_changed','fixed_bid_campaigns',p_campaign_id,
-  jsonb_build_object('from',v_campaign.status,'to',p_status));
- return jsonb_build_object('campaign_id',p_campaign_id,'status',p_status);
+  jsonb_build_object('from',v_campaign.status,'to',p_status,'refunded_entries',v_refunded));
+ return jsonb_build_object('campaign_id',p_campaign_id,'status',p_status,'refunded_entries',v_refunded);
 end;
 $function$;
 
