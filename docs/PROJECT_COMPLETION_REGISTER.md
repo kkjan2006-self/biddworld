@@ -950,3 +950,11 @@
 - Updated `src/components/Notifications.tsx` so Admin history uses the new RPC for initial and load-more pages and shows Main ID/name; Member inbox and owner-only read-state updates remain unchanged.
 - Added `tests/admin-notification-history-page.test.ts` and extended `tests/notification-inbox-actions.test.ts` with source-contract assertions. Tests were not executed.
 - Forward manifest and clean-install README updated to 72 forward + 16 excluded timestamped + 3 legacy = 91 SQL files (88 timestamped). Source-only work; no tests/build/CI, migration replay or database writes. Production remains read-only and TEST remains untouched.
+
+
+### 2026-11-18 — Admin package receipt signed-link refresh
+
+- Found that the Admin receipt viewer replaced its View button with a five-minute signed Storage URL link. After expiry, the link remained visible and there was no in-place refresh control.
+- Updated `src/components/Admin.tsx` to store the signed URL with its expiry timestamp, hide the link after expiry, and always keep a View/Refresh button so Admins can request a new short-lived URL without reloading the pending activation queue.
+- Extended `tests/admin-pending-activation-receipt-path.test.ts` with source-contract assertions. The test was not executed.
+- Commits: `d938fc397a19cac7737079236ed3f69d41d33380` (UI) and `ea38258d36a239249a81afb533ddc14ab0e9722c` (test). No migration changes; the manifest remains 72 forward + 16 excluded timestamped migrations, plus 3 legacy SQL files. No tests/build/CI, SQL replay or database writes. Production remains read-only and TEST untouched. Overall estimate remains 55%.
