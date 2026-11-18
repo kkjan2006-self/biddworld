@@ -922,3 +922,13 @@
 - The only independent column-scoped write grants found were support-ticket INSERT/UPDATE (corrected in #68) and member-notification INSERT (corrected in #69). The notification UPDATE(read_at) grant is intentionally preserved for the member read-state UI.
 - No other explicit column-scoped INSERT/UPDATE grants were found in the forward migration set. This is not yet a complete ACL parity proof: baseline grants, default privileges, effective role privileges, policies and PostgreSQL replay still require review.
 - Updated `docs/FORWARD_MIGRATION_DEPENDENCY_CI_SECURITY_REVIEW_2026-11-18.md` and `PROJECT_STATUS.md`. Static source review only; no tests/build/CI or database access/writes. Production remains read-only; TEST remains untouched. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Fixed Bid published rules projection and clean-install manifest correction
+
+- Compared the Member Fixed Bid catalogue's consumed configuration fields with the final public RPC definition. The UI displays `max_entries_total` and `refund_non_winners`, but migration `20261118290000_public_fixed_bid_catalogue_page.sql` did not include those keys in its restricted JSON projection.
+- Reviewed follow-up migration `20261119000000_fixed_bid_public_rules_projection.sql`: it replaces the same bounded paginated RPC contract and adds both missing published rule fields while retaining the allowlisted projection, published-product filter, status/date rules, bounded title search/page size/offset, stable ordering, empty search_path and explicit anon/authenticated EXECUTE grants. No direct table read grant is added.
+- Found the migration was absent from `supabase/clean-install/forward-migrations.txt`; the manifest test would detect the unaccounted timestamped SQL file. Added it as forward candidate #70 and corrected the clean-install README/static reconciliation counts to 70 forward + 16 excluded + 3 legacy = 89 SQL files (86 timestamped).
+- Added a source-contract assertion to `tests/fixed-bid-catalogue-pagination.test.ts` for all eight public rule keys and the RPC access/bounds contract. This test source was not executed.
+- Latest source branch HEAD before this checkpoint: `ec70002007d2b52719af7709f68dcff700f9eabc` (`fix: align placement tree UI with duplicate ID hierarchy`). That commit also updates the Placement Tree to identify Main versus Duplicate IDs and show the owning Main ID for duplicates.
+- Source-only development. No tests, builds, CI, SQL replay, Production writes or TEST writes. Overall estimate remains 55%.
