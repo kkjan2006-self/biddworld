@@ -738,3 +738,9 @@
 - Added forward migration `20261118340000_secure_fixed_bid_random_draw.sql`; existing recorded draw rows remain immutable. New migration is appended to the ordered clean-install forward manifest (57 candidates now) and the README count was updated.
 - Added a source-contract assertion to the existing Fixed Bid integrity test for the SHA-256 ranking and absence of the old hash scoring. Tests intentionally not run, per the request to execute the full test suite only after development completion.
 - No Production or TEST database changes; no real member, wallet or campaign activity. The source migration remains pending final TEST replay and integration verification.
+
+
+### 2026-11-18 — Member profile and withdrawal input validation repair
+- Source inspection of the member Account portal found several regular-expression literals with doubled backslashes. As written, the mobile-number pattern expected a backslash rather than an optional plus sign, and the withdrawal amount / bank-account patterns did not match ordinary digits. Corrected the literals to use the intended digit and plus-sign classes.
+- Added a regression contract to `tests/member-withdrawal-payout-privacy.test.ts` covering the mobile, amount and bank-account patterns. Tests were not run; all testing remains deferred to the final phase as requested.
+- No database changes or financial actions were performed. The fix affects client-side input validation only; server-side payout validation remains authoritative.
