@@ -108,3 +108,8 @@ These migrations are source-only. They have not been applied to TEST or Producti
 ## 2026-11-18 — Final source migration count after bulk development
 
 Current branch tree inventory: **60 SQL files total: 3 legacy/unversioned and 57 timestamped**. Eleven new timestamped migrations dated 2026-11-18 are present, covering Fixed Bid, referral commissions, withdrawals, auctions, wallet adjustments, Main ID lifecycle, receipt uploads, Primary Admin roles, support tickets and notification idempotency. All remain source-only. TEST is still empty; Production remains read-only.
+
+
+## 2026-11-18 — Updated migration inventory
+
+The latest branch contains **61 SQL files: 3 legacy/unversioned and 58 timestamped**. Twelve new timestamped source migrations dated 2026-11-18 are present. The latest addition is `20261118190000_package_activation_history_reporting.sql`. All new migrations remain unapplied; TEST remains empty and Production remains read-only.
