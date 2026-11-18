@@ -11,7 +11,7 @@
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration); forward manifest inclusion: `2417bf925a08178f846ab62f70f864a9c52041b1`
 - Source commit message: `feat: add secure Admin notification recipient lookup`
-- Latest verified status checkpoint commit: `7e91a2e7ec97b75513db599913b6a827f6550483` (`docs: clarify canonical clean-install candidate path`)
+- Latest verified status checkpoint commit: `5b308934613b33df9f581c8c9c451b56f9774498` (`docs: reconcile final Storage policy state`)
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
@@ -82,10 +82,12 @@ The following source/UI/documentation work is present in the current branch and 
 
 - Canonical clean-install path reconciliation: documented the distinction between the legacy `0001_biddworld.sql` schema and the separate schema-only candidate baseline. Static checks confirmed the candidate includes key canonical columns consumed by the first forward migrations. Updated `supabase/clean-install/README.md`, `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`, and added `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. No database replay, tests or DB writes. Latest documentation commit: `7e91a2e7ec97b75513db599913b6a827f6550483`.
 
+- 2026-11-18 — Reviewed the package receipt Storage chain from initial upload through private bucket/Admin-only read tightening and the Admin pending-activation receipt-path RPC. Confirmed intended final source policy: member-folder INSERT only, Admin SELECT only; product-media remains a separate public-read/Admin-write bucket. Added `docs/STORAGE_POLICY_FINAL_STATE_RECONCILIATION_2026-11-18.md`. Effective policies still need TEST replay verification; no tests/build or database changes. Commit: `5b308934613b33df9f581c8c9c451b56f9774498`.
+
 ## H. NEXT DEVELOPMENT BATCH
 
 Start with the existing clean-install candidate and evidence, not a new audit from zero:
-1. Continue from the two focused RPC reconciliation docs; inspect remaining Admin RPC call sites, result mappings and direct table-select/RLS dependencies.
+1. Continue from the focused RPC and Storage reconciliation docs; inspect remaining Admin RPC call sites, result mappings and direct table-select/RLS dependencies.
 2. Continue the 62-forward-migration semantic review, especially final function bodies, trigger references, grants and Storage policy state.
 3. Fix only evidenced source defects in bulk; do not infer missing business rules or change Production/TEST.
 4. Keep full tests and database replay deferred to the consolidated final testing phase.
@@ -97,7 +99,7 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 ## I. CHANGE HISTORY
 
 - 2026-11-18 — Created this official recovery status file on `completion-work` after verifying the branch and reading the completion register. No application source or database was changed.
-- 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (78 timestamped + 3 legacy), exact 62-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
+- 2026-11-18 — Clean-install static reconciliation: verified 81 SQL files (78 timestamped + 3 legacy), exact 62-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
 - 2026-11-18 — Compared selected Admin/Member/package/Fixed Bid frontend RPC calls with baseline and forward migration signatures. No named-argument mismatch was found in the inspected subset; confirmed wallet transaction overload first argument is required, avoiding the suspected PostgREST ambiguity. Added `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
 - 2026-11-18 — Reconciled Member Account, Package activation and Fixed Bid catalogue/entry RPC arguments and consumed result fields against their final source definitions, including final strict withdrawal payout validation. No mismatch was found in this subset; no speculative source edit was made. Added `docs/MEMBER_PACKAGE_FIXED_BID_RPC_CONTRACT_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
 - 2026-11-18 — Admin workspace count review found that six dashboard totals were sourced from direct table HEAD-count queries and therefore could be filtered by member-facing RLS policies. Replaced those queries with existing Admin-authorized overview/list RPC results; renamed the tile from “Registered Profiles” to “Main Member IDs”. Commit: `dd34feece77d383979a2a60b2210def738e48064`. CI #1004 failed during tests; no manual tests or database writes.
