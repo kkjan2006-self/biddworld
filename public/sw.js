@@ -6,6 +6,8 @@ const SHELL_URLS = [
   APP_ROOT.href,
   new URL('manifest.webmanifest', APP_ROOT).href,
   new URL('biddworld-icon.svg', APP_ROOT).href,
+  new URL('icons/biddworld-192.png', APP_ROOT).href,
+  new URL('icons/biddworld-512.png', APP_ROOT).href,
 ];
 
 self.addEventListener('install', (event) => {
