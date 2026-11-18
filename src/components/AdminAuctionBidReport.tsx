@@ -27,23 +27,25 @@ export default function AdminAuctionBidReport(){
  const [applied,setApplied]=useState<Filters>({search:'',status:'all',from:'',to:''});
  const [rows,setRows]=useState<AuctionBidReportRow[]>([]),[hasMore,setHasMore]=useState(false);
  const [loading,setLoading]=useState(false),[loadingMore,setLoadingMore]=useState(false),[exporting,setExporting]=useState(false),[error,setError]=useState('');
- const request=useRef(0),pageLock=useRef(false);
+ const request=useRef(0),pageLock=useRef(false),cursorRef=useRef<{created_at:string;id:string}|null>(null);
  async function loadPage(reset:boolean,filters:Filters){
   if(!supabase){setError('Admin database connection is unavailable.');return;}
   if(!reset&&pageLock.current)return;
-  if(reset)pageLock.current=false;else pageLock.current=true;
-  const requestId=++request.current,offset=reset?0:rows.length;
+  if(reset){pageLock.current=false;cursorRef.current=null;}else pageLock.current=true;
+  const requestId=++request.current,cursor=reset?null:cursorRef.current;
   if(reset){setLoading(true);setLoadingMore(false);}else setLoadingMore(true);
   setError('');
   try{
-   const{data,error:rpcError}=await supabase.rpc('admin_list_auction_bids_page',{
+   const{data,error:rpcError}=await supabase.rpc('admin_list_auction_bids_cursor_page',{
     p_search:filters.search||null,p_status:filters.status==='all'?null:filters.status,
     p_from:boundary(filters.from,false),p_to:boundary(filters.to,true),
-    p_limit:PAGE_SIZE,p_offset:offset
+    p_limit:PAGE_SIZE+1,p_after_created_at:cursor?.created_at??null,p_after_id:cursor?.id??null
    });
    if(rpcError)throw rpcError;
    if(requestId!==request.current)return;
-   const batch=(data??[]) as AuctionBidReportRow[];
+   const fetched=(data??[]) as AuctionBidReportRow[];
+   const batch=fetched.slice(0,PAGE_SIZE);
+   cursorRef.current=batch.length?{created_at:batch[batch.length-1].created_at,id:batch[batch.length-1].bid_id}:cursor;
    let added=batch.length;
    setRows(current=>{
     if(reset){added=batch.length;return batch;}
@@ -52,10 +54,10 @@ export default function AdminAuctionBidReport(){
     added=fresh.length;
     return [...current,...fresh];
    });
-   if(batch.length===PAGE_SIZE&&added===0){
+   if(fetched.length>PAGE_SIZE&&added===0){
     setHasMore(false);
     setError('The auction bid report returned a repeated page. Refresh the report before loading more.');
-   }else setHasMore(batch.length===PAGE_SIZE);
+   }else setHasMore(fetched.length>PAGE_SIZE);
   }catch(e){
    if(requestId===request.current)setError(e instanceof Error?e.message:'Auction bid report could not be loaded. Please retry.');
   }finally{
@@ -72,13 +74,14 @@ export default function AdminAuctionBidReport(){
   try{
    const all:AuctionBidReportRow[]=[];
    const seenIds=new Set<string>(),seenPages=new Set<string>();
-   for(let offset=0,pages=0;;offset+=PAGE_SIZE){
+   let cursor:{created_at:string;id:string}|null=null;
+   for(let pages=0;;){
     pages+=1;
     if(pages>10000)throw new Error('The report exceeds the safe export limit.');
-    const{data,error:rpcError}=await supabase.rpc('admin_list_auction_bids_page',{
+    const{data,error:rpcError}=await supabase.rpc('admin_list_auction_bids_cursor_page',{
      p_search:applied.search||null,p_status:applied.status==='all'?null:applied.status,
      p_from:boundary(applied.from,false),p_to:boundary(applied.to,true),
-     p_limit:PAGE_SIZE,p_offset:offset
+     p_limit:PAGE_SIZE,p_after_created_at:cursor?.created_at??null,p_after_id:cursor?.id??null
     });
     if(rpcError)throw rpcError;
     const batch=(data??[]) as AuctionBidReportRow[];
@@ -92,6 +95,7 @@ export default function AdminAuctionBidReport(){
      seenIds.add(row.bid_id);all.push(row);
     }
     if(batch.length<PAGE_SIZE)break;
+    cursor={created_at:batch[batch.length-1].created_at,id:batch[batch.length-1].bid_id};
    }
    const csv=csvDocument([
     ['Bid ID','Auction ID','Auction','Member Main ID','Member Name','Bid Amount','Currency','Bid Wallet Debit','Income Wallet Debit','Status','Created At'],
