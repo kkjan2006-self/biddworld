@@ -153,3 +153,8 @@ Added source migration `20261118430000_serialize_auction_bid_member_eligibility.
 - The public `place_bid(uuid,text)` signature, authenticated EXECUTE grant, wallet debit logic and idempotency metadata are retained from the final source definition.
 
 The migration is now the 65th forward candidate. Current source inventory: 81 timestamped SQL files (65 forward + 16 excluded) and 3 legacy/unversioned files = 84 total. This is a source-level concurrency correction only; no tests/builds, migration replay or database writes were performed. Production and TEST remain untouched.
+
+
+## 2026-11-18 follow-up — support-ticket column ACL and inventory
+
+A later source-level grant review found that the original support-ticket migration issued column-level INSERT and UPDATE grants. The table-level REVOKE in forward candidate #67 does not revoke those separate column ACL entries. Added forward candidate #68 (`20261118460000_revoke_support_ticket_column_writes.sql`) to revoke table-level and exact column-level INSERT/UPDATE from authenticated. The current source inventory is now 84 timestamped migrations (68 forward + 16 excluded) plus 3 legacy files = 87 SQL files. No SQL replay, tests/builds or database writes were performed. See `docs/SUPPORT_TICKET_COLUMN_PRIVILEGE_FOLLOWUP_2026-11-18.md`.
