@@ -1922,7 +1922,7 @@ grant execute on function public.member_list_my_withdrawals() to authenticated;
 grant execute on function public.member_list_my_withdrawals() to service_role;
 grant execute on function public.place_bid(uuid) to authenticated;
 grant execute on function public.place_bid(uuid) to service_role;
-grant execute on function private.private.place_bid(uuid) to service_role;
+grant execute on function private.place_bid(uuid) to service_role;
 grant execute on function public.submit_package_activation(uuid,text) to authenticated;
 grant execute on function public.submit_package_activation(uuid,text) to service_role;
 commit;
