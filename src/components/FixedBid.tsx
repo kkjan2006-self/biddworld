@@ -82,7 +82,7 @@ export default function FixedBid(){
    <div className="fixedBidBody"><span className="status">{r.status.toUpperCase()}</span><h3>{r.title}</h3>{r.product?.name&&<b>{r.product.name}</b>}<p>{r.description||r.product?.description||'Campaign details will be published by the administrator.'}</p>
     {Number(config.entry_amount)>0&&<p><b>Entry amount:</b> {money(Number(config.entry_amount),'INR')}</p>}
     {Number(config.winner_payment_amount)>0&&<p><b>Winner payment:</b> {money(Number(config.winner_payment_amount),'INR')}</p>}
-    {config.max_entries_per_member&&<small>Entries per member: {config.max_entries_per_member}</small>}
+    {config.max_entries_per_member&&<small>Entries per member: {config.max_entries_per_member}</small>}{config.max_entries_total&&<small>Campaign entry limit: {config.max_entries_total}</small>}{typeof config.refund_non_winners==='boolean'&&<small>Non-winner entry refunds: {config.refund_non_winners?'Included after winner settlement':'Not included'}</small>}
     {config.winner_count&&<small>Winner count: {config.winner_count}</small>}
     {config.starts_at&&<small>Starts: {new Date(config.starts_at).toLocaleString('en-IN')}</small>}
     {config.ends_at&&<small>Closes: {new Date(config.ends_at).toLocaleString('en-IN')}</small>}
