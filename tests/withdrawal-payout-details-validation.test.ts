@@ -17,7 +17,7 @@ describe('Withdrawal payout details are validated server-side',()=>{
   expect(sql).toMatch(/length\(v_holder\)\s*<\s*2\s+or\s+length\(v_holder\)\s*>\s*100/);
   expect(sql).toContain("^[A-Za-z0-9._-]{2,256}@[A-Za-z0-9.-]{2,64}$");
   expect(sql).toContain("^[0-9]{6,18}$");
-  expect(sql).toMatch(/jsonb_typeof\(p_payout_details->'method'\)\s*<>\s*'string'/);
+  expect(sql).toContain("coalesce(jsonb_typeof(p_payout_details->'method'), 'null') <> 'string'");
  });
  it('rejects unknown fields and keeps payout credentials out of audit logs',()=>{
   expect(sql).toMatch(/supplied\.key\s+not in\s*\('method',\s*'account_holder_name',\s*'upi_id',\s*'account_number'\)/);

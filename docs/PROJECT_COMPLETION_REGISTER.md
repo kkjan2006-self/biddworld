@@ -552,3 +552,8 @@
 - The first repair run (#916) confirmed the seven original failures were reduced to two stale test files; the remaining assertions were overly whitespace-sensitive and one phone-pattern assertion retained an obsolete escaping form.
 - Updated those checks to validate the actual phone-length contract and payout validation semantics independent of SQL formatting.
 - The repaired payout migration remains source-only. Awaiting the next integrated CI run; no database changes and no completion percentage increase.
+
+### 2026-11-18 — CI payout validation assertion follow-up
+- CI run #918 passed 95/96 test files (the only remaining failure was an over-specific assertion that omitted the deliberate JSON null-type guard's `coalesce(..., 'null')` wrapper).
+- Updated the assertion to verify the complete fail-closed type check. The payout validation migration itself now has one complete function definition and both format patterns include their end anchors.
+- Awaiting CI run #919 for the final test/type-check/build result. No database migration was executed.
