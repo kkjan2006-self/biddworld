@@ -5,7 +5,7 @@ import {supabase} from '../lib/supabase';
 type Notice={id:string;user_id:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
- const requestSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false),sendKey=useRef<{key:string;fingerprint:string}|null>(null);
+ const requestSeq=useRef(0),recipientLookupSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false),sendKey=useRef<{key:string;fingerprint:string}|null>(null);
  const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[recipientSearch,setRecipientSearch]=useState(''),[recipientOptions,setRecipientOptions]=useState<{user_id:string;member_code:string;display_name:string;phone:string}[]>([]),[recipientLookupBusy,setRecipientLookupBusy]=useState(false),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
  const load=useCallback(async()=>{
   const seq=++requestSeq.current;loadMoreBusy.current=false;
@@ -23,10 +23,10 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  },[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
  async function lookupRecipients(){
-  if(!supabase||!isAdmin||recipientLookupBusy)return;const term=recipientSearch.trim();if(term.length<2){setError('Enter at least 2 characters to search members.');return;}setRecipientLookupBusy(true);setError('');setRecipientOptions([]);setUserId('');
-  try{const{data,error:lookupError}=await supabase.rpc('admin_lookup_notification_recipients',{p_search:term});if(lookupError)throw lookupError;const rows=(data??[]) as {user_id:string;member_code:string;display_name:string;phone:string}[];setRecipientOptions(rows);if(rows.length===0)setNotice('No matching Main ID members were found.');}
-  catch(e){setError(e instanceof Error?e.message:'Member lookup failed. Please retry.');}
-  finally{setRecipientLookupBusy(false);}
+  if(!supabase||!isAdmin||recipientLookupBusy)return;const term=recipientSearch.trim();if(term.length<2){setError('Enter at least 2 characters to search members.');return;}const seq=++recipientLookupSeq.current;setRecipientLookupBusy(true);setError('');setNotice('');setRecipientOptions([]);setUserId('');
+  try{const{data,error:lookupError}=await supabase.rpc('admin_lookup_notification_recipients',{p_search:term});if(seq!==recipientLookupSeq.current)return;if(lookupError)throw lookupError;const rows=(data??[]) as {user_id:string;member_code:string;display_name:string;phone:string}[];setRecipientOptions(rows);if(rows.length===0)setNotice('No matching Main ID members were found.');}
+  catch(e){if(seq===recipientLookupSeq.current)setError(e instanceof Error?e.message:'Member lookup failed. Please retry.');}
+  finally{if(seq===recipientLookupSeq.current)setRecipientLookupBusy(false);}
  }
  async function send(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();if(!supabase||busy)return;const target=userId.trim();
@@ -64,7 +64,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   <p className="memberModuleHint">{isAdmin?'Send an in-app notification to one member by searching their Main ID, name or mobile number.':'Your recent BiddWorld account and support notifications.'}</p>
   {error&&<div className="notice" role="alert">{error}</div>}{notice&&<div className="notice" role="status">{notice}</div>}
   {isAdmin&&<form className="memberWithdrawalForm" onSubmit={send}>
-   <label>Find Member by Main ID, name or mobile<input value={recipientSearch} onChange={e=>{setRecipientSearch(e.target.value);setRecipientOptions([]);setUserId("");}} placeholder="Enter Member ID, name or mobile number"/></label>
+   <label>Find Member by Main ID, name or mobile<input value={recipientSearch} onChange={e=>{recipientLookupSeq.current+=1;setRecipientLookupBusy(false);setRecipientSearch(e.target.value);setRecipientOptions([]);setUserId("");}} placeholder="Enter Member ID, name or mobile number"/></label>
    <button className="outline small" type="button" disabled={recipientLookupBusy||recipientSearch.trim().length<2} onClick={()=>void lookupRecipients()}>{recipientLookupBusy?"Searching…":"Search members"}</button>
    {recipientOptions.length>0&&<label>Select recipient<select required value={userId} onChange={e=>setUserId(e.target.value)}><option value="">Choose a member</option>{recipientOptions.map(member=><option key={member.user_id} value={member.user_id}>{member.member_code} · {member.display_name||"Name not provided"} · {member.phone||"No mobile"}</option>)}</select></label>}
    <label>Title<input required minLength={3} maxLength={120} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Notification title"/></label>
