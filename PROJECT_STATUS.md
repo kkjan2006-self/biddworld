@@ -7,11 +7,11 @@
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
-- Latest verified source batch: Admin Notifications now supports searching Main ID/name/mobile and selecting a member instead of requiring the operator to know an Auth UUID. Added an Admin-only, bounded, SECURITY DEFINER lookup RPC with explicit EXECUTE grants; migration has not been applied.
+- Latest verified source batch: reconciled Auction bid creation with its frontend call and cancellation/refund ledger; fixed an eligibility gap by requiring the owning profile and Main ID to both be active. Added forward migration `20261118410000_require_active_profile_for_auction_bids.sql`; not applied to any database.
 - Protected branch: `main` (do not modify)
-- Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration); forward manifest inclusion: `2417bf925a08178f846ab62f70f864a9c52041b1`
+- Latest verified application/source work commit: `2193219305f042268f8fdc8f7ad99b611e4ce81d` (active-profile eligibility guard for auction bid RPC).
 - Source commit message: `feat: add secure Admin notification recipient lookup`
-- Latest verified source/documentation work commit: `6f5de9f6a53580bcb006fcc4bf8303b133a2d424` (`docs: reconcile auction lifecycle and winner finalization`)
+- Latest verified source/documentation batch commits: `1b0eaf994f4225c26867ce98dd98294a78f1d793` (forward manifest), `53f1140fcf149bde6eed9b822309f7707f56a78c` (clean-install README), `fa92c99ef2fc11dded7cac043757c6e3e752c950` (auction reconciliation), `0199a22977b03efeb332c57d7b5ea2c1c2c32986` (completion register).
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
@@ -41,9 +41,9 @@ The following source/UI/documentation work is present in the current branch and 
 
 ## D. PENDING — Major Development Work
 
-1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 62 forward migration dependencies; replay only in isolated TEST during final testing.
+1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 63 forward migration dependencies; replay only in isolated TEST during final testing.
 2. **RPC reconciliation:** selected Admin signatures plus Member/Package/Fixed Bid argument and consumed result contracts are source-reconciled; remaining work is all other Admin/member RPC call sites, direct table-select/RLS contracts, authorization, overloads and migration coverage. See both focused reconciliation docs and the existing Production/RPC audits. Key audit: `docs/PRODUCTION_FRONTEND_RPC_LIVE_DIFF_2026-11-18.md`, `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`, and `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
-3. **Migration compatibility:** the current source directory has 81 SQL files (78 timestamped + 3 legacy); the 62 forward and 16 excluded manifests account for all 78 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. The legacy `0001_biddworld.sql` mismatch is not a blocker for the candidate-baseline path: static comparison shows the separate candidate has the canonical columns used by the first forward migrations. See `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
+3. **Migration compatibility:** the current source directory has 82 SQL files (79 timestamped + 3 legacy); the 63 forward and 16 excluded manifests account for all 79 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. The legacy `0001_biddworld.sql` mismatch is not a blocker for the candidate-baseline path: static comparison shows the separate candidate has the canonical columns used by the first forward migrations. See `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
 4. **Dependency security/reproducibility:** inspect package-lock status and current npm advisories; pin reproducible dependencies and remediate without blind forced major upgrades.
 5. **Remaining source features/integration:** receipt upload and product-media Storage integration; complete historical report/filter/export coverage; Admin role and member lifecycle edges; notification read-state and delivery/provider boundary; verify PWA/offline behavior; complete remaining UI/RPC contract gaps.
 6. **Security and operational readiness:** per-function SECURITY DEFINER semantic review, grants/RLS/Storage verification, rate limiting/abuse controls, Auth configuration review, backup/monitoring/support readiness.
@@ -78,31 +78,28 @@ The following source/UI/documentation work is present in the current branch and 
 - Automatic CI: latest completed run #1005 failed during the test step; type-check/build and Pages build were skipped. Manual/full final testing remains NOT STARTED.
 - Do not claim modules fully complete merely because UI, SQL source or static tests exist.
 
-- 2026-11-18 — Clarified the clean-install starting point: do not use legacy `0001_biddworld.sql`; the separate schema-only Production baseline candidate contains the key canonical fields required by the first forward migrations. Updated the clean-install README and static reconciliation. No replay or database changes; full 62-migration dependency review remains open.
+- 2026-11-18 — Clarified the clean-install starting point: do not use legacy `0001_biddworld.sql`; the separate schema-only Production baseline candidate contains the key canonical fields required by the first forward migrations. Updated the clean-install README and static reconciliation. No replay or database changes; full 63-migration dependency review remains open.
 
 - Canonical clean-install path reconciliation: documented the distinction between the legacy `0001_biddworld.sql` schema and the separate schema-only candidate baseline. Static checks confirmed the candidate includes key canonical columns consumed by the first forward migrations. Updated `supabase/clean-install/README.md`, `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`, and added `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. No database replay, tests or DB writes. Latest documentation commit: `7e91a2e7ec97b75513db599913b6a827f6550483`.
 
 - 2026-11-18 — Reviewed the package receipt Storage chain from initial upload through private bucket/Admin-only read tightening and the Admin pending-activation receipt-path RPC. Confirmed intended final source policy: member-folder INSERT only, Admin SELECT only; product-media remains a separate public-read/Admin-write bucket. Added `docs/STORAGE_POLICY_FINAL_STATE_RECONCILIATION_2026-11-18.md`. Effective policies still need TEST replay verification; no tests/build or database changes. Commit: `5b308934613b33df9f581c8c9c451b56f9774498`.
 
-- Status checkpoint: package-receipt Storage policy sequence and product-media policy separation are documented; current inventory corrected to 81 SQL files (78 timestamped + 3 legacy), 62 forward + 16 excluded timestamped migrations. Full replay and policy verification remain pending.
+- Status checkpoint: package-receipt Storage policy sequence and product-media policy separation are documented; current inventory corrected to 82 SQL files (79 timestamped + 3 legacy), 63 forward + 16 excluded timestamped migrations. Full replay and policy verification remain pending.
 
 - 2026-11-18 — Fixed Bid secure random-draw migration review found two source defects in `20261118340000_secure_fixed_bid_random_draw.sql`: refund variables were referenced without declarations (PL/pgSQL compilation failure), and refund selection excluded every entry from a winning member rather than excluding only the actual winning entry IDs. Declared the refund idempotency key and existing-ledger row variables; changed the losing-entry predicate to exclude only `v_winner_entries`, so additional entries from a winner are handled as non-winning entries when configured refunds are enabled. Source commit: `81c245c1688fcff306ca7b556f1f0e268eca68e3`. Not executed or tested; no DB changes.
 
 ## H. NEXT DEVELOPMENT BATCH
 
-Start with the existing clean-install candidate and evidence, not a new audit from zero:
-1. Continue from the Fixed Bid draw correction; inspect remaining final RPC definitions and frontend call/result mappings, especially settlement/refund and winner-payment paths.
-2. Continue the 62-forward-migration semantic review, especially final function bodies, trigger references, grants and Storage policy state.
-3. Fix only evidenced source defects in bulk; do not infer missing business rules or change Production/TEST.
-4. Keep full tests and database replay deferred to the consolidated final testing phase.
-
-- Admin notification recipient usability: replaced manual Auth UUID entry with an Admin-only search by Main ID, member name or mobile, returning up to 25 Main ID matches and requiring an explicit selection. Added migration `20261118400000_admin_notification_recipient_lookup.sql`; no database was modified and no tests/build were run. Source commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c`.
-
-- 2026-11-18 — Added Admin notification recipient lookup migration to the ordered forward manifest; current inventory is 78 timestamped migrations (62 forward, 16 excluded) plus 3 legacy files. Manifest test remains deferred to consolidated final testing. Commit: `2417bf925a08178f846ab62f70f864a9c52041b1`.
-
-- 2026-11-18 — Source-reconciled the Auction lifecycle/finalization RPC and corrected Fixed Bid draw flow. Confirmed Admin-only lifecycle gates, schedule/platform enable checks, ledger-validated atomic cancellation refunds, deterministic highest-bid winner selection, idempotent finalization, pending winner-payment creation, SHA-256 Fixed Bid ranking and one-winner-per-eligible-Main rule. Also confirmed the prior Fixed Bid refund fix now targets losing entry IDs rather than excluding all entries of a winning member. Added `docs/AUCTION_LIFECYCLE_FINALIZATION_SOURCE_RECONCILIATION_2026-11-18.md`. Frontend call-site and bid-creation RPC contract remain open. Source review only; tests/build and DB replay not run. Commit: `6f5de9f6a53580bcb006fcc4bf8303b133a2d424`.
+1. Continue repository-wide auction and winner-payment reconciliation: inspect Admin status/finalize UI call sites, Member winner-payment RPC source definition, result contracts, Income-Wallet-only debit ledger and idempotent retry/replay behavior. Verify Fixed Bid winner-payment uses the same safe contract.
+2. Continue the 63-forward-migration semantic dependency review, including final function bodies, trigger references, grants, baseline function ACL parity and Storage policy state.
+3. Continue remaining frontend RPC/direct-table RLS coverage and member/Admin lifecycle edge cases. Fix only evidenced defects in source migrations; do not run tests/builds or database replay before the 100% development gate.
+4. Reconcile dependency lockfile/security advisories and remaining notification provider boundary, PWA/offline source integration and operational readiness.
+5. Keep Production hbqatszyzqobgtauyuzy read-only and TEST yoaauthwejdgaevfvwpo unchanged. Consolidated tests/replay remain deferred.
 
 ## I. CHANGE HISTORY
+
+- 2026-11-18 — Auction bid creation source reconciliation: verified `src/App.tsx` calls `place_bid` with the exact two named arguments exposed by the final idempotent RPC; verified wallet debit suffixes, transaction type and reference metadata match the auction cancellation refund consumer. Found and fixed the missing active-profile eligibility check with migration `20261118410000_require_active_profile_for_auction_bids.sql`. Updated the forward manifest to 63 and clean-install README. No tests/build, TEST replay or DB writes. Production and TEST remain untouched.
+
 
 - 2026-11-18 — Created this official recovery status file on `completion-work` after verifying the branch and reading the completion register. No application source or database was changed.
 - 2026-11-18 — Clean-install static reconciliation: verified 81 SQL files (78 timestamped + 3 legacy), exact 62-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
