@@ -123,3 +123,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Guide commit: `65194b9452a10de7f6d7a0527ef8c2b5ebd70dc3`.
 - This documentation-only batch did not change application source, SQL, Supabase, member or financial data. No tests, builds, CI workflows or database replay were initiated.
 - Existing planning estimate remains 55%; this documentation addition does not change development completion.
+
+## K. Per-step overall completion reporting
+
+- Owner instruction: at the end of every development step/batch, show one clear Telugu line with the **overall BiddWorld project completion percentage** (not merely the current task's progress).
+- Keep the percentage evidence-based and consistent with this status file; do not increase it for documentation-only changes.
+- Added this mandatory reporting rule to Section 9 and the compact prompt in `docs/AI_CONTINUATION_GUIDE.md`.
+- Guide update commit: `da8d4040ab40c47bdd8dfb428d37c55263f67d32`.
+- Documentation-only update; no application/SQL/Supabase changes and no tests, builds, CI workflows or database replay initiated. Overall estimate remains 55%.
