@@ -515,3 +515,10 @@
 - The forward migration now drops only the exact zero-argument RPC signature before recreating the seven-column contract consumed by the Account portal, then reapplies authenticated-only execution grants.
 - This prevents a deterministic clean-install / forward-replay migration failure. Source-only correction; no Production or TEST database was changed. Tests/builds remain deferred to the final consolidated testing phase.
 - No overall completion percentage increase is claimed for this migration compatibility correction.
+
+### 2026-11-18 — Registration and Account status messaging alignment
+- Aligned signup confirmation text with the existing auth-user trigger, which creates the member profile, Main ID and initial wallet rows at registration. The UI no longer incorrectly claims every new account remains inactive pending Admin verification.
+- Email-confirmation-required users are instructed to confirm their email before signing in; users receiving an immediate session are told their free member account and Main ID have been created.
+- Replaced the Account portal's unrelated review wording with a direct support/admin instruction for genuinely inactive accounts.
+- Added a focused static contract test. Source-only change; no registrations, database writes, builds or tests were run. Production and TEST remain unchanged.
+- No overall completion percentage increase is claimed for this UI consistency correction.
