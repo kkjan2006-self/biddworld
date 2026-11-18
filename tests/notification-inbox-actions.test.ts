@@ -20,6 +20,12 @@ describe('member notification inbox actions',()=>{
   expect(source).toContain('async function markAllRead()');
   expect(source).toContain('setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}))');
  });
+ it('loads Admin history through the Admin-only recipient projection and shows member identity rather than Auth UUIDs',()=>{
+  expect(source).toContain('admin_list_member_notifications_page');
+  expect(source).toContain('recipient_member_code');
+  expect(source).toContain('recipient_name');
+  expect(source).not.toContain('{item.user_id}');
+ });
  it('keeps the bulk-read action out of Admin authoring mode',()=>{
   expect(source).toContain("!isAdmin&&<><button className=\"outline small\" type=\"button\" onClick={()=>setUnreadOnly");
  });
