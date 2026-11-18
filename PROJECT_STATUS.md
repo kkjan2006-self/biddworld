@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest verified HEAD after the receipt-link refresh batch: `ea38258d36a239249a81afb533ddc14ab0e9722c` (2026-11-18).
+- Current development branch: `completion-work` — latest verified HEAD after the receipt-link refresh documentation checkpoint: `1c344feb495a9ab237f65febd316d5396e3cfb60` (2026-11-18).
 - Latest verified source batch: Fixed Bid public catalogue projection includes `max_entries_total` and `refund_non_winners` (forward #70); Placement Tree verifies Main-ID root ownership (forward #71); Admin notification history displays recipient Main ID/name through a bounded Admin-only RPC (forward #72); Admin pending activation receipt links now track their five-minute expiry and can be refreshed without reloading the queue. Latest receipt-link source commit: `d938fc397a19cac7737079236ed3f69d41d33380`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `d938fc397a19cac7737079236ed3f69d41d33380` (Admin receipt viewer can refresh expired five-minute signed links).
