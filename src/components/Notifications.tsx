@@ -2,7 +2,7 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import {Bell,Send,RefreshCw,CheckCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 
-type Notice={id:string;user_id:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
+type Notice={id:string;user_id:string;recipient_member_code?:string;recipient_name?:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  const requestSeq=useRef(0),recipientLookupSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false),sendKey=useRef<{key:string;fingerprint:string}|null>(null);
@@ -11,14 +11,53 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   const seq=++requestSeq.current;loadMoreBusy.current=false;
   if(!supabase){setError('Notifications are unavailable until Supabase is configured.');setItems([]);setHasMore(false);return;}
   setBusy(true);setError('');
-  try{let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);if(unreadOnly)request=request.is('read_at',null);}if(categoryFilter!=='all')request=request.eq('category',categoryFilter);const {data,error:loadError}=await request.range(0,PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];setItems(rows);setHasMore(rows.length===PAGE_SIZE);}
-  catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
+  try{
+   let rows:Notice[]=[];
+   if(isAdmin){
+    const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_page',{p_limit:PAGE_SIZE,p_offset:0,p_category:categoryFilter});
+    if(loadError)throw loadError;
+    rows=(data??[]) as Notice[];
+   }else{
+    const{data:{user},error:userError}=await supabase.auth.getUser();
+    if(userError||!user)throw new Error('Please sign in again to view your notifications.');
+    let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false});
+    if(unreadOnly)request=request.is('read_at',null);
+    if(categoryFilter!=='all')request=request.eq('category',categoryFilter);
+    const{data,error:loadError}=await request.range(0,PAGE_SIZE-1);
+    if(loadError)throw loadError;
+    rows=(data??[]) as Notice[];
+   }
+   if(seq!==requestSeq.current)return;
+   setItems(rows);setHasMore(rows.length===PAGE_SIZE);
+  }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
  },[isAdmin,unreadOnly,categoryFilter]);
  const loadMore=useCallback(async()=>{
-  if(!supabase||loadMoreBusy.current||busy||!hasMore)return;loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
-  try{const from=items.length;let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').order('created_at',{ascending:false}).order('id',{ascending:false});if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your notifications.');request=request.eq('user_id',user.id);if(unreadOnly)request=request.is('read_at',null);}if(categoryFilter!=='all')request=request.eq('category',categoryFilter);const {data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);if(loadError)throw loadError;if(seq!==requestSeq.current)return;const rows=(data??[]) as Notice[];const known=new Set(items.map(item=>item.id));const pageIds=new Set<string>();const fresh:Notice[]=[];let duplicateFound=false;for(const item of rows){if(known.has(item.id)||pageIds.has(item.id)){duplicateFound=true;continue;}pageIds.add(item.id);fresh.push(item);}setItems(current=>[...current,...fresh.filter(item=>!current.some(existing=>existing.id===item.id))]);if(duplicateFound){setHasMore(false);setError('The notification inbox returned duplicate notification IDs. Refresh the inbox before loading more.');}else setHasMore(rows.length===PAGE_SIZE);}
-  catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
+  if(!supabase||loadMoreBusy.current||busy||!hasMore)return;
+  loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
+  try{
+   const from=items.length;let rows:Notice[]=[];
+   if(isAdmin){
+    const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_page',{p_limit:PAGE_SIZE,p_offset:from,p_category:categoryFilter});
+    if(loadError)throw loadError;
+    rows=(data??[]) as Notice[];
+   }else{
+    const{data:{user},error:userError}=await supabase.auth.getUser();
+    if(userError||!user)throw new Error('Please sign in again to view your notifications.');
+    let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false});
+    if(unreadOnly)request=request.is('read_at',null);
+    if(categoryFilter!=='all')request=request.eq('category',categoryFilter);
+    const{data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);
+    if(loadError)throw loadError;
+    rows=(data??[]) as Notice[];
+   }
+   if(seq!==requestSeq.current)return;
+   const known=new Set(items.map(item=>item.id));const pageIds=new Set<string>();const fresh:Notice[]=[];let duplicateFound=false;
+   for(const item of rows){if(known.has(item.id)||pageIds.has(item.id)){duplicateFound=true;continue;}pageIds.add(item.id);fresh.push(item);}
+   setItems(current=>[...current,...fresh.filter(item=>!current.some(existing=>existing.id===item.id))]);
+   if(duplicateFound){setHasMore(false);setError('The notification inbox returned duplicate notification IDs. Refresh the inbox before loading more.');}
+   else setHasMore(rows.length===PAGE_SIZE);
+  }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
@@ -77,7 +116,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   {busy&&items.length===0?<div className="empty">Loading notifications…</div>:items.length===0?<div className="empty">No notifications yet.</div>:visibleItems.length===0?<div className="empty">No unread notifications among the loaded records.</div>:<div className="activationList">{visibleItems.map(item=><article key={item.id} style={{display:'block',opacity:item.read_at ? 0.65 : 1}}>
    <div style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap'}}><b>{item.title}</b><small>{item.category.toUpperCase()} · {new Date(item.created_at).toLocaleString('en-IN')}</small></div>
    <p style={{whiteSpace:'pre-wrap'}}>{item.message}</p>
-   {isAdmin&&<small>Recipient: {item.user_id}</small>}
+   {isAdmin&&<small>Recipient: {item.recipient_member_code||'No Main ID'} · {item.recipient_name||'Member'}</small>}
    {!isAdmin&&!item.read_at&&<button className="outline small" type="button" onClick={()=>void markRead(item.id)}><CheckCheck size={14}/> Mark as read</button>}
    {item.read_at&&<small>Read {new Date(item.read_at).toLocaleString('en-IN')}</small>}
   </article>)}</div>}
