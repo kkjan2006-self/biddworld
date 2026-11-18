@@ -853,3 +853,12 @@
 - No evidenced authorization or trigger-order source defect found; no speculative SQL patch made. service_role and audit_logs identity-sequence ACL parity remain unresolved pending exact evidence.
 - Added docs/CLEAN_INSTALL_BASELINE_SECURITY_DEFINER_TRIGGER_REVIEW_2026-11-18.md and linked it from the clean-install README.
 - Source-only review. No tests/build/CI, database replay, Production or TEST changes. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Forward migration dependency, CI sequencing and dependency security review
+
+- Source-reviewed high-impact portions of the ordered 65-forward-migration chain: Auth/signup, member graph, package/referral, financial guards, Fixed Bid/auction settlement, withdrawals, wallet, receipt Storage, notification and report/catalogue dependencies. No evidenced ordering defect found in inspected groups; full SQL compile/replay remains pending.
+- Confirmed package-lock v3 contains 228 package entries and exact key versions Vite 6.4.6, Vitest 4.1.12, @vitest/mocker 4.1.12 and @supabase/supabase-js 2.57.4. Current Vite and Vitest mocker advisories list the locked versions as patched floors; no speculative upgrade made.
+- Updated CI workflow: push-triggered verification no longer runs on completion-work, while main pushes and PRs to main retain verification. Changed install step to npm ci for lockfile-based reproducibility. Workflow was not executed.
+- Reviewed PWA production-only service worker registration, BASE_URL scope, relative manifest URLs/icons, and service-worker cache rules that exclude cross-origin Supabase/API traffic. Actual Android install/offline verification remains pending.
+- Added docs/FORWARD_MIGRATION_DEPENDENCY_CI_SECURITY_REVIEW_2026-11-18.md. No tests/build/CI, npm install/audit, migration replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
