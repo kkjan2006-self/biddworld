@@ -276,3 +276,11 @@
 - Added `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md` with the confirmed source map and recovery requirements. These calls may exist in unrecovered Production migration history; they are not asserted to be absent from Production. No replacement SQL was invented because exact live signatures and result contracts must be recovered first.
 - Reconfirmed that `0001_biddworld.sql` is a simplified fresh-project baseline and is not proof of the current Production schema. The existing read-only recovery script remains the correct path for catalog evidence.
 - No tests/build, migration replay, or Supabase database writes were performed. Production and TEST remain untouched.
+
+
+### 2026-11-18 — Read-only Production RPC recovery and source alignment
+- Queried Production's PostgreSQL function catalogue read-only for the Admin RPCs previously not found in the reviewed migration files and for `get_my_placement_tree()`. Captured exact signatures, return types, function bodies, SECURITY DEFINER status, fixed search_path and ACL metadata.
+- Recovered the existing Production Admin functions into source migration `20261118230000_recover_admin_read_rpc_sources.sql`: package list, referral-plan list, paginated withdrawal report, both wallet-account overloads, both wallet-transaction overloads, winning-payment report, and default-sponsor setting. The migration preserves the recovered result contracts and explicitly revokes PUBLIC/anon execution while granting authenticated/service_role.
+- Corrected `20261118220000_member_placement_tree_rpc.sql` to match the actual Production `get_my_placement_tree()` body and response: Main-ID descendants only, maximum depth 20, cycle protection, and the original JSONB keys/order. This replaces the earlier unverified proposal; no Production function was changed.
+- Updated `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md` with the recovery evidence and a TEST requirement to verify PostgREST overload resolution for the wallet transaction functions.
+- Latest verified branch source inventory: **66 SQL files (3 legacy/unversioned + 63 timestamped)**. All changes remain source-only. Production was queried read-only; no writes, migration replay, tests or builds were run. TEST remains untouched.
