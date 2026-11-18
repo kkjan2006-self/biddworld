@@ -668,3 +668,8 @@
 - Added the `admin_list_fixed_bid_entries_page` SECURITY DEFINER RPC with trusted Admin-role authorization and a restricted result projection that omits idempotency keys.
 - Added the new migration to the forward manifest and source RPC coverage. The inventory allow-list is being updated for the new UI surface; CI is pending.
 - No TEST or Production database writes were performed.
+
+### 2026-11-18 — Complete auction/Fixed Bid export assertion update
+- CI run #946 confirmed the new paginated Admin auction and Fixed Bid export source contracts, but the existing filter test still expected the previous “current loaded rows” export button labels.
+- Updated the assertions to the new complete-history CSV labels. The filters, RPCs and migration are unchanged.
+- CI for the refreshed assertions is pending.
