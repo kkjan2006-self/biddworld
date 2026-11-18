@@ -12,12 +12,10 @@ type PackageItem = {
   bid_wallet_credit: number;
 };
 
-// Keep package activation disabled until the owner enables the reviewed package workflow.
-const PACKAGE_ACTIVATION_LOCKED = true;
-
 export default function Packages() {
   const [items, setItems] = useState<PackageItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activationEnabled,setActivationEnabled]=useState(false);
   const [error, setError] = useState('');
   const [selectedPackage,setSelectedPackage]=useState('');
   const [paymentReference,setPaymentReference]=useState('');
@@ -50,6 +48,10 @@ export default function Packages() {
         setItems([]);
         setError('Packages could not be loaded. Please try again later.');
       } else setItems((data ?? []) as PackageItem[]);
+      const{data:activationSetting,error:activationSettingError}=await supabase.from('app_settings').select('setting_value').eq('setting_key','package_activations_enabled').maybeSingle();
+      if(!isCurrent())return;
+      setActivationEnabled(!activationSettingError&&activationSetting?.setting_value===true);
+      if(activationSettingError)setError('Package activation availability could not be verified. Activation requests remain unavailable.');
     } catch {
       if (!isCurrent()) return;
       setItems([]);
@@ -99,8 +101,8 @@ export default function Packages() {
       <div><h3>Membership packages</h3><p>Free member registration is available. Paid package activation is not currently open.</p></div>
     </div>
     {!configured && <div className="notice"><b>Database not connected:</b> Configure the intended Preview or separate Test environment to view package information. Do not connect Production for testing.</div>}
-    {PACKAGE_ACTIVATION_LOCKED && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.</div>}
-    {!PACKAGE_ACTIVATION_LOCKED&&<section className="packageActivationForm"><h3>Request Package Activation</h3><p>Select an available package and submit your payment reference. A receipt is optional.</p><label>Package<select value={selectedPackage} onChange={e=>setSelectedPackage(e.target.value)}><option value="">Select package</option>{items.map(item=><option key={item.id} value={item.id}>{item.name} · {money(Number(item.price),item.currency||'INR')}</option>)}</select></label><label>Payment Reference / UTR<input value={paymentReference} onChange={e=>setPaymentReference(e.target.value)} maxLength={80} placeholder="Enter payment reference"/></label><label>Payment Receipt (JPG, PNG or PDF · max 5 MB)<input type="file" accept="image/jpeg,image/png,application/pdf" onChange={e=>setReceiptFile(e.target.files?.[0]??null)}/></label><button type="button" className="primary" disabled={activationBusy||!selectedPackage} onClick={()=>void submitActivation()}>{activationBusy?'Submitting…':'Submit Activation Request'}</button>{activationMessage&&<div className="notice" role="status">{activationMessage}</div>}</section>}
+    {!activationEnabled && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.</div>}
+    {activationEnabled&&<section className="packageActivationForm"><h3>Request Package Activation</h3><p>Select an available package and submit your payment reference. A receipt is optional.</p><label>Package<select value={selectedPackage} onChange={e=>setSelectedPackage(e.target.value)}><option value="">Select package</option>{items.map(item=><option key={item.id} value={item.id}>{item.name} · {money(Number(item.price),item.currency||'INR')}</option>)}</select></label><label>Payment Reference / UTR<input value={paymentReference} onChange={e=>setPaymentReference(e.target.value)} maxLength={80} placeholder="Enter payment reference"/></label><label>Payment Receipt (JPG, PNG or PDF · max 5 MB)<input type="file" accept="image/jpeg,image/png,application/pdf" onChange={e=>setReceiptFile(e.target.files?.[0]??null)}/></label><button type="button" className="primary" disabled={activationBusy||!selectedPackage} onClick={()=>void submitActivation()}>{activationBusy?'Submitting…':'Submit Activation Request'}</button>{activationMessage&&<div className="notice" role="status">{activationMessage}</div>}</section>}
     {loading ? <p className="packageState">Loading package information…</p> : error ? <div className="notice">{error} <button className="outline small" onClick={() => void load()}><RefreshCw size={14}/> Retry</button></div> :
       items.length === 0 ? <div className="empty packageEmpty">No packages are currently published. Free registration remains available.</div> :
       <div className="packageGrid">{items.map(item => <article className="packageCard" key={item.id}>
