@@ -698,3 +698,7 @@
 - CI run #950 caught that the install-button component and test were added, but the final App source commit did not include the header render.
 - Wired the component import and render into the public header. The browser event handler component and PWA manifest/service worker are unchanged.
 - CI rerun is pending.
+
+### 2026-11-18 — PWA import correction
+- CI run #951 passed all tests but TypeScript failed on a duplicate `PWAInstallButton` import in `src/App.tsx`.
+- Removed the duplicate import; the header render and install prompt component remain intact. CI rerun is pending.
