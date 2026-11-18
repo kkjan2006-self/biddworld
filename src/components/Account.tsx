@@ -22,8 +22,17 @@ function appendUniqueRows<T extends {id:string}>(current:T[],incoming:T[]):T[]{
  return [...current,...incoming.filter(row=>!known.has(row.id))];
 }
 async function fetchAllPages<T>(fetchPage:(from:number,to:number)=>PromiseLike<any>):Promise<T[]>{
- const all:T[]=[];
- for(let from=0;;from+=REPORT_PAGE_SIZE){const {data,error}=await fetchPage(from,from+REPORT_PAGE_SIZE-1);if(error)throw new Error(error.message);const batch=(data??[]) as T[];all.push(...batch);if(batch.length<REPORT_PAGE_SIZE)return all;}
+ const all:T[]=[];const seenPages=new Set<string>();
+ for(let from=0;from<REPORT_PAGE_SIZE*10000;from+=REPORT_PAGE_SIZE){
+  const {data,error}=await fetchPage(from,from+REPORT_PAGE_SIZE-1);
+  if(error)throw new Error(error.message);
+  const batch=(data??[]) as T[];
+  if(batch.length<REPORT_PAGE_SIZE){all.push(...batch);return all;}
+  const fingerprint=JSON.stringify(batch);
+  if(seenPages.has(fingerprint))throw new Error('The report service repeated a page. Export stopped to avoid an incomplete or duplicated report. Please retry.');
+  seenPages.add(fingerprint);all.push(...batch);
+ }
+ throw new Error('The report contains more pages than can be safely exported in one request. Narrow the report scope and retry.');
 }
 export default function Account(){
  const [profile,setProfile]=useState<{display_name:string|null;phone:string|null;status:string;main_member_id:string|null;created_at?:string|null;main_member_code?:string|null;sponsor_member_code?:string|null;sponsor_display_name?:string|null}|null>(null);const [profileName,setProfileName]=useState('');const [profilePhone,setProfilePhone]=useState('');const [profileSaving,setProfileSaving]=useState(false);const [profileMessage,setProfileMessage]=useState('');
