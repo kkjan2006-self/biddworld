@@ -113,7 +113,7 @@ create or replace function public.admin_list_wallet_accounts(
 )
 returns table(
  wallet_account_id uuid, member_id uuid, member_code text,
- wallet_type text, balance numeric, currency text, updated_at timestamptz
+ wallet_type text, balance numeric, currency character, updated_at timestamptz
 )
 language plpgsql
 security definer
