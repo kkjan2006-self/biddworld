@@ -2,7 +2,7 @@
 
 ## Scope
 
-Source-only comparison of the candidate baseline with the read-only Production public RPC security inventory. No database was queried in this batch. No tests, builds, migration replay or database writes were performed.
+Source-only comparison of the candidate baseline with read-only Production PostgreSQL catalogue evidence. No application rows, member records, wallet balances, payment records, credentials or secrets were queried. No tests, builds, migration replay or database writes were performed.
 
 ## Function inventory
 
@@ -13,21 +13,26 @@ The candidate revokes function privileges from PUBLIC, anon, authenticated and s
 ## Public function ACL parity
 
 - The baseline contains 43 unique authenticated EXECUTE grants for 43 public signatures, matching the Production inventory's 43/43 authenticated-executable public functions.
-- The baseline grants anon EXECUTE on exactly one public function, public.lookup_sponsor(text), matching the Production inventory's 1/43 anon-executable exception. No other public function receives anon EXECUTE in the candidate ACL block.
-- The baseline also grants service_role EXECUTE on all 43 public functions and on private.place_bid(uuid), 44 signatures total. The Production public RPC inventory does not record a service_role privilege result, so exact live service-role ACL parity remains unverified. Do not claim this role's grants have been live-reconciled.
+- The baseline grants anon EXECUTE on exactly one public function, public.lookup_sponsor(text), matching the Production inventory's 1/43 anon-executable exception.
+- A fresh read-only Production catalogue query for this batch confirmed service_role EXECUTE on **43/43 public functions**. This matches the candidate's 43 explicit public service_role grants. The candidate additionally grants service_role EXECUTE on private.place_bid(uuid), as required by its private implementation boundary.
 - Both overload pairs are granted by explicit signatures: admin_list_wallet_accounts() and admin_list_wallet_accounts(integer,integer); admin_list_wallet_transactions(integer,integer) and admin_list_wallet_transactions(uuid,integer,integer).
 - There is no blanket function EXECUTE grant after the revocation block. Private trigger functions remain without grants to app-facing roles; only private.place_bid(uuid) is explicitly granted to service_role.
 
-## Sequence privilege observation
+## audit_logs identity-sequence privileges — resolved with least privilege
 
-The candidate revokes all sequence privileges from app-facing roles, then grants USAGE on public.audit_logs_id_seq to anon, authenticated and service_role. The baseline defines audit_logs.id as bigint GENERATED ALWAYS AS IDENTITY. The Production RLS/function-grant audit documents direct table grants but does not provide the corresponding sequence ACL snapshot or explain why anon and authenticated require sequence USAGE.
+A fresh read-only Production catalogue inspection found the live audit_logs_id_seq ACL grants SELECT, UPDATE and USAGE to anon, authenticated, postgres and service_role. The audit_logs table itself grants application table privileges only to service_role (plus postgres ownership); anon and authenticated have no direct table privileges.
 
-This is an ACL question requiring authoritative live catalogue evidence and a PostgreSQL identity-sequence privilege review. Do not remove or retain these grants based only on assumption. Reconcile the exact Production sequence ACL and identity insert behavior before approving the executable baseline.
+The clean-install candidate previously granted sequence USAGE to anon, authenticated and service_role. That was not exact ACL parity and exposed sequence operations to roles that cannot insert into audit_logs. The candidate is now narrowed after its sequence-wide REVOKE:
+- anon: no sequence privileges;
+- authenticated: no sequence privileges;
+- service_role: USAGE only, sufficient for nextval during its permitted audit_logs inserts;
+- postgres retains ownership privileges.
 
-## Decision / outstanding checks
+SELECT and UPDATE on the sequence are not needed by the service_role audit insert path; anon/authenticated do not have audit_logs table INSERT privileges and do not need sequence access. This is an intentional least-privilege improvement in the candidate baseline, not a claim of byte-for-byte Production ACL parity. Production remains unchanged.
 
-1. Public function count and authenticated/anon ACL counts align with the 2026-11-18 Production RPC inventory.
-2. The candidate's service_role EXECUTE grants are explicit, not accidental PUBLIC grants, but live parity has not yet been proven.
-3. audit_logs_id_seq USAGE grants to anon and authenticated remain an unexplained least-privilege item pending exact source evidence.
-4. Count parity does not certify function-body equivalence, exact SECURITY DEFINER authorization predicates, search_path parity, trigger execution privileges or successful clean replay. Continue per-function and migration dependency review.
-5. Do not make speculative ACL changes. No Production or TEST changes were made.
+## Decision / remaining checks
+
+1. Public function EXECUTE parity is now confirmed for authenticated (43/43), anon (1/43, lookup_sponsor only) and service_role (43/43).
+2. The candidate deliberately narrows audit_logs_id_seq privileges to service_role USAGE only. No Production ACL was changed.
+3. Function-body equivalence, exact SECURITY DEFINER authorization semantics, trigger behavior, and successful clean replay remain open. Continue complete baseline function-body and forward-migration semantic review.
+4. Do not execute the candidate against Production. TEST replay remains deferred until the development-complete gate and explicit authorization.
