@@ -992,3 +992,11 @@
 - Replaced offset pagination in Support CSV export with the same composite cursor. Existing repeated-page and duplicate-ticket guards and the 5,000,000-row safety cap remain in place.
 - Added `tests/support-ticket-keyset-pagination.test.ts` as a source-contract test. It was not executed.
 - No tests, build, QA, deployment or database operations were performed.
+
+
+### 2026-11-18 — Member wallet statement keyset pagination
+
+- Replaced offset-based 100-row wallet history pagination with a stable descending `(created_at, id)` keyset cursor scoped to the authenticated member's Main ID. The cursor resets when the authenticated member scope changes and when the first page is refreshed.
+- Replaced full wallet CSV export offset pagination with the same composite cursor while retaining duplicate transaction ID detection and the export safety cap. Existing wallet, direction, transaction type, search and date filters continue to apply to exported rows.
+- Added `tests/wallet-history-keyset-pagination.test.ts` as a source-contract coverage; it was not executed.
+- No tests, build, QA, deployment or database operations were performed.
