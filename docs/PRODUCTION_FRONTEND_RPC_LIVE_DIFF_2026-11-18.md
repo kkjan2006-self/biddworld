@@ -4,7 +4,7 @@
 
 - Repository: `kkjan2006-self/biddworld`
 - Branch: `completion-work`
-- Frontend inventory snapshot: `936d05864e93b1d452a89bac9c224852510e4eb6`
+- Frontend inventory snapshot: `6c272b5b9a462e7943dc97be6e0f34a030bbed77`
 - Production Supabase: `hbqatszyzqobgtauyuzy` — PostgreSQL 17.11, ACTIVE_HEALTHY
 - TEST Supabase: `yoaauthwejdgaevfvwpo` — PostgreSQL 17.12, ACTIVE_HEALTHY
 - All database inspection in this audit used read-only catalogue queries. No application rows, member records, or transaction records were queried.
@@ -39,10 +39,10 @@ These are catalogue observations, not a replayable baseline or a certification o
 
 ## Frontend RPC contract comparison
 
-The refreshed source inventory contains 67 unique literal RPC names across the ten React surfaces. Comparing those names with the live Production public function catalogue found:
+The refreshed source inventory contains 68 unique literal RPC names across the ten React surfaces. Comparing those names with the live Production public function catalogue found:
 
 - 35 names present in Production.
-- 32 names absent from Production.
+- 33 names absent from Production.
 - Two important live signature differences are detailed below.
 - A matching function name does not establish matching argument names, return shape, authorization behavior, or semantics.
 
@@ -80,12 +80,19 @@ member_pay_winning_item_payment
 member_submit_support_ticket
 member_update_my_profile
 public_list_active_products_page
+public_list_active_auctions_page
 submit_package_activation_with_receipt
 ```
 
-The current branch has source migrations for these new contracts, but they have not been applied to Production. They must be included in the curated clean-install plan and verified against TEST before the frontend can be treated as integrated with the live database.
+The current branch has source migrations for these new contracts, but they have not been applied to Production. The 33 missing source contracts are enumerated by `tests/frontend-missing-rpc-source-coverage.test.ts`; the public auction catalogue was added in `20261118280000_public_auction_catalogue_page.sql`. They must be included in the curated clean-install plan and verified against TEST before the frontend can be treated as integrated with the live database.
 
 ## Confirmed signature and behavior drift
+
+### Public auction catalogue
+
+- The public website previously queried `public.auctions` directly, but Production has no anonymous table SELECT grants.
+- The source branch now uses `public_list_active_auctions_page(integer,integer)`, a restricted SECURITY DEFINER RPC that returns only published-product live/scheduled listing fields.
+- Source migration `20261118280000_public_auction_catalogue_page.sql` is not deployed to Production; until the curated migration package is deployed, the new frontend RPC is not available against the live database.
 
 ### Auction bidding
 
@@ -121,18 +128,18 @@ The current branch has source migrations for these new contracts, but they have 
 
 ## Clean-install baseline decision
 
-1. Do not apply the 64 timestamped migration files wholesale to an empty database.
+1. Do not apply the 67 timestamped migration files wholesale to an empty database.
 2. Do not use the incompatible legacy `0001_biddworld.sql` baseline or the old one-argument `0002_place_bid_rpc.sql`.
 3. Preserve the current Production schema evidence as a read-only reference only.
 4. Reconstruct a clean-install baseline from exact table columns, identity/default metadata, constraints, indexes, RLS policies, grants, private/public function definitions, triggers, extensions and required Supabase-managed dependencies.
 5. Map every source migration to the live object definitions it changes. Same-name migrations with different timestamps must be body-compared; filename similarity is not proof of equivalence.
-6. Include the current source-only migrations in a separately reviewed forward chain after their prerequisites are reconciled.
+6. Include the 51 ordered forward candidates and 16 explicitly excluded historical files in the reviewed migration partition; include current source-only migrations after their prerequisites are reconciled.
 7. Replay only the curated baseline and forward chain in TEST, then compare resulting catalogue definitions and run synthetic-data integration tests.
 8. Keep Production read-only throughout this process.
 
 ## Verification boundary
 
-- GitHub Actions run #898 passed on source commit `936d05864e93b1d452a89bac9c224852510e4eb6`: 90/90 test files, 343/343 tests, TypeScript check and Vite production build.
+- GitHub Actions run #926 passed on source commit `6c272b5b9a462e7943dc97be6e0f34a030bbed77`: 100/100 test files, 413/413 tests, TypeScript check and Vite production build.
 - That CI run does not test live Supabase RPCs or migration replay.
 - No Production or TEST SQL writes, migrations, Storage changes, or application data changes were performed for this audit.
 - No project completion percentage increase is claimed from this metadata comparison.

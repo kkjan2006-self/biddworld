@@ -50,7 +50,7 @@ The TEST project reports zero applied migrations.
 
 ## Repository comparison
 
-The current `completion-work` migration directory contains 69 SQL files: 66 timestamped and three legacy/unversioned files. The clean-install partition currently assigns 50 timestamped files to the ordered forward manifest and 16 timestamped files to the explicit excluded-historical list; every timestamped file is accounted for exactly once.
+The current `completion-work` migration directory contains 70 SQL files: 67 timestamped and three legacy/unversioned files. The clean-install partition currently assigns 51 timestamped files to the ordered forward manifest and 16 timestamped files to the explicit excluded-historical list; every timestamped file is accounted for exactly once.
 
 Two Production ledger entries still have no same-named executable source file under `supabase/migrations`:
 
