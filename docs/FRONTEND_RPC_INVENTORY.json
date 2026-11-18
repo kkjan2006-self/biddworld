@@ -76,6 +76,10 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_list_fixed_bid_entries_page",
+      "ui": "src/components/AdminFixedBidEntryReport.tsx"
+    },
+    {
       "name": "admin_list_members_sponsors_page",
       "ui": "src/components/Admin.tsx"
     },
