@@ -51,8 +51,10 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
-   let added=0;setTickets(current=>{const known=new Set(current.map(ticket=>ticket.id));const fresh=rows.filter(ticket=>{if(known.has(ticket.id))return false;known.add(ticket.id);return true;});added=fresh.length;return [...current,...fresh];});
-   if(rows.length===PAGE_SIZE&&added===0){setHasMore(false);setError('The support queue returned a repeated page. Refresh the list before loading more.');}else setHasMore(rows.length===PAGE_SIZE);
+   const known=new Set(tickets.map(ticket=>ticket.id));const pageIds=new Set<string>();const fresh:Ticket[]=[];let duplicateFound=false;
+   for(const ticket of rows){if(known.has(ticket.id)||pageIds.has(ticket.id)){duplicateFound=true;continue;}pageIds.add(ticket.id);fresh.push(ticket);}
+   setTickets(current=>[...current,...fresh.filter(ticket=>!current.some(existing=>existing.id===ticket.id))]);
+   if(duplicateFound){setHasMore(false);setError('The support queue returned duplicate ticket IDs. Refresh the list before loading more.');}else setHasMore(rows.length===PAGE_SIZE);
    setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
    setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
