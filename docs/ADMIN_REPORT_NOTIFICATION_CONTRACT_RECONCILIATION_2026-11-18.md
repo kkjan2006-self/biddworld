@@ -43,3 +43,8 @@ Frontend: `src/components/AdminFixedBidEntryReport.tsx`
 - No named-argument or consumed result-field mismatch was found in these inspected report and notification paths.
 - This is source reconciliation only. It does not prove deployment, clean migration replay, or runtime authorization.
 - No tests/build, browser checks, migration replay, or database writes were performed.
+
+
+## Admin notification history recipient projection — forward candidate #72
+
+The existing recipient picker already uses `admin_lookup_notification_recipients(text)` and sends through the idempotent `admin_send_member_notification(uuid,text,text,text,text)` RPC. The Admin history previously selected `member_notifications` directly and rendered the raw Auth `user_id`, which was not useful as a member-facing identifier. Added `admin_list_member_notifications_page(integer,integer,text)` in `20261119020000_admin_notification_history_recipient_labels.sql`; it is Admin-claim protected, uses an empty `search_path`, validates category and bounded pagination, joins the recipient profile and Main ID, and returns `recipient_member_code` and `recipient_name`. The Admin UI now uses this RPC for both initial and subsequent history pages and displays those labels. The Member inbox remains on its existing owner-scoped RLS query; read-state updates and in-app-only delivery are unchanged. Added source-contract assertions in `tests/admin-notification-history-page.test.ts` and extended `tests/notification-inbox-actions.test.ts`; neither test was run. This supersedes the earlier note that Admin recipient search was still a UUID-only field: the search picker is implemented, and the new work closes the separate history-label gap.
