@@ -44,10 +44,12 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   if(!supabase||loadMoreBusy.current||busy||!hasMore)return;
   loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
   try{
-   const from=tickets.length;
+   const cursor=tickets[tickets.length-1];
+   if(!cursor){setHasMore(false);return;}
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
    if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
-   const {data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);
+   request=request.or(`updated_at.lt.${cursor.updated_at},and(updated_at.eq.${cursor.updated_at},id.lt.${cursor.id})`);
+   const {data,error:loadError}=await request.limit(PAGE_SIZE);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
@@ -86,11 +88,12 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    let userId:string|undefined;
    if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to export your support requests.');userId=user.id;}
    const all:Ticket[]=[];const seenPages=new Set<string>(),seenIds=new Set<string>();
-   for(let offset=0,pages=0;pages<10000;offset+=500){
-    pages+=1;
+   let cursor:Pick<Ticket,'updated_at'|'id'>|null=null;
+   for(let pages=0;pages<10000;pages++){
     let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
     if(userId)request=request.eq('user_id',userId);if(statusFilter!=='all')request=request.eq('status',statusFilter);
-    const{data,error:loadError}=await request.range(offset,offset+499);if(loadError)throw loadError;
+    if(cursor)request=request.or(`updated_at.lt.${cursor.updated_at},and(updated_at.eq.${cursor.updated_at},id.lt.${cursor.id})`);
+    const{data,error:loadError}=await request.limit(500);if(loadError)throw loadError;
     const batch=(data??[]) as Ticket[];
     if(batch.length===500){
      const fingerprint=JSON.stringify(batch.map(ticket=>ticket.id));
@@ -102,7 +105,8 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
      seenIds.add(ticket.id);all.push(ticket);
     }
     if(batch.length<500)break;
-    if(pages===10000)throw new Error('The support export reached the 5,000,000-row safety limit. Narrow the status filter and retry.');
+    const last=batch[batch.length-1];cursor={updated_at:last.updated_at,id:last.id};
+    if(pages===9999)throw new Error('The support export reached the 5,000,000-row safety limit. Narrow the status filter and retry.');
    }
    const q=search.trim().toLowerCase();const matched=all.filter(ticket=>!q||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(q)));
    if(!matched.length){setExportMessage('No matching support requests are available to export.');return;}
