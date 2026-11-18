@@ -79,8 +79,8 @@ begin
  if p_channel<>'email' then v_subject:=null; end if;
 
  if p_id is null then
-  insert into public.notification_templates(name,channel,subject,body,is_active)
-  values(v_name,p_channel,v_subject,v_body,false)
+  insert into public.notification_templates(name,channel,subject,body,is_active,created_by)
+  values(v_name,p_channel,v_subject,v_body,false,auth.uid())
   returning id into v_id;
  else
   update public.notification_templates

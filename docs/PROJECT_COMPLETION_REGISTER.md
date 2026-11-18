@@ -455,3 +455,10 @@
 - Current comparison: 35 frontend RPC names exist in Production; 32 are absent. Confirmed live drift includes one-argument bidding and Duplicate ID functions, five-level live referral draft validation versus the source 1–20-level editor, a stale feature-setting implementation, and no configured Storage buckets.
 - Revalidated 21/21 public tables have RLS, 110 constraints, 60 indexes, 20 SELECT-only policies, 10 non-internal application triggers, and 43 SECURITY DEFINER public functions with explicit settings. TEST remains empty.
 - This is an evidence/reconciliation checkpoint, not a completed clean-install baseline. Production and TEST remain unmodified; no completion percentage increase is claimed.
+
+
+### 2026-11-18 — Notification template creator attribution fix
+- Source review found the Admin template table requires `created_by`, but the template-create RPC omitted that column, causing new template inserts to fail on a clean database.
+- Updated `admin_save_notification_template` to record the authenticated Admin as `created_by` on insert; updates continue to preserve the original creator.
+- This is a source migration correction only. Per the agreed development-first workflow, tests/builds are deferred to the final consolidated testing phase. No Supabase database was modified.
+- No overall completion percentage increase is claimed for this isolated correction.
