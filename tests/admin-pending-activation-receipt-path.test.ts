@@ -16,5 +16,8 @@ describe('Admin pending activation receipt integration',()=>{
   expect(admin).toContain("supabase.rpc('admin_list_pending_activations')");
   expect(admin).toContain("storage.from('package-receipts').createSignedUrl(item.receipt_path,300)");
   expect(admin).toContain('item.receipt_path&&');
+  expect(admin).toContain('expiresAt:Date.now()+300000');
+  expect(admin).toContain('Refresh receipt link');
+  expect(admin).toContain('Date.now()<activationReceiptUrls[item.id].expiresAt');
  });
 });
