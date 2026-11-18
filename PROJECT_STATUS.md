@@ -6,10 +6,10 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest verified HEAD `dea33ef8fac35d52b26e935334f353bad596258c` (2026-11-18).
+- Current development branch: `completion-work` — latest verified HEAD `f5f2ccf0888118e64fcf32a885566ba608502a80` (2026-11-18).
 - Latest verified source batch: Support-ticket direct INSERT/UPDATE and notification direct INSERT grants were revoked in forward candidate #67; member/Admin direct-read/RLS contracts for Account, Wallet, Packages, Notifications, Support and selected Admin/report components have now been source-reviewed. See `docs/FRONTEND_MEMBER_ADMIN_DIRECT_READ_RLS_REVIEW_2026-11-18.md`.
 - Protected branch: `main` (do not modify)
-- Latest verified application/source work commits: `dea33ef8fac35d52b26e935334f353bad596258c` (Admin directory, audit log, wallet ledger and withdrawal queue pagination deduplication/repeated-page guards).
+- Latest verified application/source work commit: `f5f2ccf0888118e64fcf32a885566ba608502a80` (Member Portal navigation now exposes the existing Placement Tree and Commission History as separate sections).
 - Latest source commit message: `refine: keep wallet auth-scope reset side effects explicit`.
 - Latest verified source/documentation batch commits: `1bee5aa29697701bc714163bc84256b46dc4b70d` (source fix), `e0692f028bda716bf3b3b909a9bf1e1e44ffe244` (forward manifest), `ab9d485766c86d8b5e9a03a4bd9e40ee4a7e2d1d` (clean-install README), `864c2ae315e512e8b3921279375cdd6dfd290de0` (status), `98abc466b7a7e812ed965b7bff54c019d352474b` (completion register), `285fa062988ee44c39706d6cd174c3bfbbf55148` (concurrency audit).
 - Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`; verify branch HEAD on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
@@ -192,3 +192,6 @@ At every development batch/chat end, update this file with the actual verified b
 
 
 - 2026-11-18 — Admin Portal pagination hardening: member directory Load More now deduplicates by Main ID; audit log, wallet ledger and withdrawal queue stop when a full returned page contains no new unique records and show a refresh instruction. This prevents duplicate rows and repeated-page pagination loops across Admin data lists. Commit: `dea33ef8fac35d52b26e935334f353bad596258c`. Source-only update; no tests/build/CI or database operations. Production remains read-only; TEST untouched. Overall estimate remains 55%.
+
+
+- 2026-11-18 — Member Portal feature integration correction: the existing account view had the Placement Tree and Commission History rendered under the same `member-network` active-section condition as My Network, while the navigation exposed only My Network. Added dedicated navigation entries and independent active-section visibility for Placement Tree and Commission History. This makes both already-implemented member features directly reachable without showing all three views together. Commit: `f5f2ccf0888118e64fcf32a885566ba608502a80`. Source-only; no tests/build/CI or database operations. Production remains read-only; TEST untouched. Overall estimate remains 55% pending broader feature inventory and final test phase.
