@@ -69,6 +69,7 @@ export default function Packages() {
     setActivationBusy(true);setActivationMessage('');
     let uploadedReceiptPath:string|null=null;
     let activationSubmitted=false;
+    let activationRpcRejected=false;
     try{
       const{data:authData,error:authError}=await supabase.auth.getUser();
       if(authError)throw authError;
@@ -82,13 +83,13 @@ export default function Packages() {
         uploadedReceiptPath=receiptPath;
       }
       const{error}=await supabase.rpc('submit_package_activation_with_receipt',{p_package_id:selectedPackage,p_payment_reference:reference,p_receipt_path:receiptPath});
-      if(error)throw error;
+      if(error){activationRpcRejected=typeof (error as {code?:unknown}).code==='string';throw error;}
       activationSubmitted=true;
       setActivationMessage('Package activation request submitted for Admin verification.');
       setPaymentReference('');setReceiptFile(null);setSelectedPackage('');
     }catch(e){
       const message=e instanceof Error?e.message:'Package activation request could not be completed. Check your connection and retry.';
-      if(uploadedReceiptPath&&!activationSubmitted){
+      if(uploadedReceiptPath&&!activationSubmitted&&activationRpcRejected){
         try{
           const{error:cleanupError}=await supabase.storage.from('package-receipts').remove([uploadedReceiptPath]);
           setActivationMessage(cleanupError?message+' The uploaded receipt could not be removed automatically; please contact support.':message);
