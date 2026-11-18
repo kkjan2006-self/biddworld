@@ -168,3 +168,8 @@ A second comparison removed SQL comments and whitespace before comparing the 4 f
 - `20261114161950_secure_bid_rpc_and_signup_provisioning.sql`: **normalized SQL differs materially**. The Production ledger version moves the already-existing `public.place_bid(uuid)` into `private` with `ALTER FUNCTION ... SET SCHEMA`, while the current source file defines/recreates the private implementation. The historical migration therefore assumes an earlier public function exists in the baseline. The legacy `0002_place_bid_rpc.sql` does define a public function, but it uses incompatible legacy table columns and statuses and cannot be treated as the matching Production prerequisite.
 
 This confirms that the exact Production ledger archive is the reliable historical record, while a fresh-install baseline must first recreate the correct pre-ledger Production object contracts. Do not replace the current source file automatically and do not replay the old `0002` file as a shortcut.
+
+
+## 2026-11-18 — Full public schema structural snapshot
+
+The Production public schema was inspected read-only and the exact column/default definitions, constraints, indexes, RLS policy expressions, and API-role table grants were captured in `docs/PRODUCTION_PUBLIC_SCHEMA_STRUCTURAL_SNAPSHOT_2026-11-18.md`. Counts: 21/21 public tables RLS-enabled; 175 columns; 110 constraints; 60 indexes; 20 SELECT policies across 20 tables; authenticated SELECT grants on 17 tables; no anon table grants; no public views. `audit_logs_id_seq` has USAGE grants to anon/authenticated/postgres/service_role and is flagged for explicit review in the eventual baseline. This snapshot is schema evidence only, not executable DDL.
