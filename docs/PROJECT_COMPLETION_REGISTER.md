@@ -565,3 +565,8 @@
 - Updated the member request RPC to require an active profile and Main ID, and Admin approval to lock/check the linked profile and Main ID together before reserving Income Wallet funds.
 - Added regression assertions for both server-side checks. Source-only; no TEST or Production database writes or migration replay.
 - The next CI run is pending. No completion percentage increase is claimed.
+
+### 2026-11-18 — Withdrawal profile authorization CI follow-up
+- CI run #920 stopped during test-file parsing because the payout validation contract test file contained SQL source instead of TypeScript test content.
+- Restored the test file and retained the SQL migration in its intended path. The profile-status authorization checks in the member request and Admin approval RPCs remain in the source migration files.
+- A fresh CI run is required before considering this follow-up verified. No database changes or migrations were applied.
