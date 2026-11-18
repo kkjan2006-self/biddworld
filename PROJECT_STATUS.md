@@ -9,7 +9,7 @@
 - Current development branch: `completion-work` (verified present)
 - Latest verified source batch: Admin Notifications now supports searching Main ID/name/mobile and selecting a member instead of requiring the operator to know an Auth UUID. Added an Admin-only, bounded, SECURITY DEFINER lookup RPC with explicit EXECUTE grants; migration has not been applied.
 - Protected branch: `main` (do not modify)
-- Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration)
+- Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration); forward manifest inclusion: `2417bf925a08178f846ab62f70f864a9c52041b1`
 - Source commit message: `feat: add secure Admin notification recipient lookup`
 - Latest verified status checkpoint commit: `928290306303a935fd94427cea764d037965d4fe` (`docs: checkpoint Admin notification recipient lookup`)
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
@@ -41,9 +41,9 @@ The following source/UI/documentation work is present in the current branch and 
 
 ## D. PENDING — Major Development Work
 
-1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 61 forward migration dependencies; replay only in isolated TEST during final testing.
+1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 62 forward migration dependencies; replay only in isolated TEST during final testing.
 2. **RPC reconciliation:** selected Admin signatures plus Member/Package/Fixed Bid argument and consumed result contracts are source-reconciled; remaining work is all other Admin/member RPC call sites, direct table-select/RLS contracts, authorization, overloads and migration coverage. See both focused reconciliation docs and the existing Production/RPC audits. Key audit: `docs/PRODUCTION_FRONTEND_RPC_LIVE_DIFF_2026-11-18.md`, `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`, and `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
-3. **Migration compatibility:** the current source directory has 80 SQL files (77 timestamped + 3 legacy); the 61 forward and 16 excluded manifests account for all 77 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
+3. **Migration compatibility:** the current source directory has 80 SQL files (78 timestamped + 3 legacy); the 62 forward and 16 excluded manifests account for all 78 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
 4. **Dependency security/reproducibility:** inspect package-lock status and current npm advisories; pin reproducible dependencies and remediate without blind forced major upgrades.
 5. **Remaining source features/integration:** receipt upload and product-media Storage integration; complete historical report/filter/export coverage; Admin role and member lifecycle edges; notification read-state and delivery/provider boundary; verify PWA/offline behavior; complete remaining UI/RPC contract gaps.
 6. **Security and operational readiness:** per-function SECURITY DEFINER semantic review, grants/RLS/Storage verification, rate limiting/abuse controls, Auth configuration review, backup/monitoring/support readiness.
@@ -82,16 +82,18 @@ The following source/UI/documentation work is present in the current branch and 
 
 Start with the existing clean-install candidate and evidence, not a new audit from zero:
 1. Continue from the two focused RPC reconciliation docs; inspect remaining Admin RPC call sites, result mappings and direct table-select/RLS dependencies.
-2. Continue the 61-forward-migration semantic review, especially final function bodies, trigger references, grants and Storage policy state.
+2. Continue the 62-forward-migration semantic review, especially final function bodies, trigger references, grants and Storage policy state.
 3. Fix only evidenced source defects in bulk; do not infer missing business rules or change Production/TEST.
 4. Keep full tests and database replay deferred to the consolidated final testing phase.
 
 - Admin notification recipient usability: replaced manual Auth UUID entry with an Admin-only search by Main ID, member name or mobile, returning up to 25 Main ID matches and requiring an explicit selection. Added migration `20261118400000_admin_notification_recipient_lookup.sql`; no database was modified and no tests/build were run. Source commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c`.
 
+- 2026-11-18 — Added Admin notification recipient lookup migration to the ordered forward manifest; current inventory is 78 timestamped migrations (62 forward, 16 excluded) plus 3 legacy files. Manifest test remains deferred to consolidated final testing. Commit: `2417bf925a08178f846ab62f70f864a9c52041b1`.
+
 ## I. CHANGE HISTORY
 
 - 2026-11-18 — Created this official recovery status file on `completion-work` after verifying the branch and reading the completion register. No application source or database was changed.
-- 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (77 timestamped + 3 legacy), exact 61-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
+- 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (78 timestamped + 3 legacy), exact 62-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
 - 2026-11-18 — Compared selected Admin/Member/package/Fixed Bid frontend RPC calls with baseline and forward migration signatures. No named-argument mismatch was found in the inspected subset; confirmed wallet transaction overload first argument is required, avoiding the suspected PostgREST ambiguity. Added `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
 - 2026-11-18 — Reconciled Member Account, Package activation and Fixed Bid catalogue/entry RPC arguments and consumed result fields against their final source definitions, including final strict withdrawal payout validation. No mismatch was found in this subset; no speculative source edit was made. Added `docs/MEMBER_PACKAGE_FIXED_BID_RPC_CONTRACT_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
 - 2026-11-18 — Admin workspace count review found that six dashboard totals were sourced from direct table HEAD-count queries and therefore could be filtered by member-facing RLS policies. Replaced those queries with existing Admin-authorized overview/list RPC results; renamed the tile from “Registered Profiles” to “Main Member IDs”. Commit: `dd34feece77d383979a2a60b2210def738e48064`. CI #1004 failed during tests; no manual tests or database writes.
