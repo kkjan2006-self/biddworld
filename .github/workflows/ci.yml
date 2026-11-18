@@ -1,8 +1,9 @@
 name: BiddWorld CI
 
 on:
+  # Keep the owner's development-first gate: do not run verification on each source-only completion-work commit.
   push:
-    branches: [main, completion-work]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -17,7 +18,7 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Report dependency security findings
         run: |
           npm audit --json > npm-audit.json || true
