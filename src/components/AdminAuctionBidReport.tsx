@@ -46,14 +46,8 @@ export default function AdminAuctionBidReport(){
    const fetched=(data??[]) as AuctionBidReportRow[];
    const batch=fetched.slice(0,PAGE_SIZE);
    cursorRef.current=batch.length?{created_at:batch[batch.length-1].created_at,id:batch[batch.length-1].bid_id}:cursor;
-   let added=batch.length;
-   setRows(current=>{
-    if(reset){added=batch.length;return batch;}
-    const known=new Set(current.map(row=>row.bid_id));
-    const fresh=batch.filter(row=>!known.has(row.bid_id));
-    added=fresh.length;
-    return [...current,...fresh];
-   });
+   const added=reset?batch.length:batch.filter(row=>!rows.some(existing=>existing.bid_id===row.bid_id)).length;
+   setRows(current=>reset?batch:appendUnique(current,batch));
    if(fetched.length>PAGE_SIZE&&added===0){
     setHasMore(false);
     setError('The auction bid report returned a repeated page. Refresh the report before loading more.');
