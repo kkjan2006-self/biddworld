@@ -20,7 +20,8 @@ as $function$
 declare
  v_uid uuid:=auth.uid(); v_auction public.auctions%rowtype;
  v_enabled boolean:=false; v_bid record; v_tx record; v_wallet public.wallet_accounts%rowtype;
- v_new_balance numeric(14,2); v_refunded integer:=0; v_key text;
+ v_existing public.wallet_transactions%rowtype;
+ v_new_balance numeric(14,2); v_refunded integer:=0; v_key text; v_debit_total numeric(14,2);
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -59,21 +60,49 @@ begin
   end if;
   for v_bid in select * from public.bids where auction_id=p_auction_id and status='accepted' order by id for update
   loop
-   for v_tx in select wallet_account_id,amount,idempotency_key
+   v_debit_total:=0;
+   for v_tx in select wallet_account_id,member_id,transaction_type,direction,amount,reference_type,reference_id,idempotency_key
     from public.wallet_transactions
     where idempotency_key in (v_bid.idempotency_key||':bid',v_bid.idempotency_key||':income')
       and direction='debit'
     order by wallet_account_id
    loop
     select * into v_wallet from public.wallet_accounts where id=v_tx.wallet_account_id for update;
-    if not found then raise exception 'Original bid wallet is unavailable; cancellation was rolled back' using errcode='55000'; end if;
-    v_new_balance:=v_wallet.balance+v_tx.amount;
-    update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
+    if not found or v_wallet.member_id is distinct from v_bid.member_id
+      or (v_tx.idempotency_key=v_bid.idempotency_key||':bid' and v_wallet.wallet_type is distinct from 'bid')
+      or (v_tx.idempotency_key=v_bid.idempotency_key||':income' and v_wallet.wallet_type is distinct from 'income')
+      or v_tx.member_id is distinct from v_bid.member_id
+      or v_tx.transaction_type is distinct from 'auction_bid'
+      or v_tx.direction is distinct from 'debit'
+      or v_tx.reference_type is distinct from 'auction'
+      or v_tx.reference_id is distinct from p_auction_id
+      or v_tx.amount is null or v_tx.amount<=0 then
+     raise exception 'Original auction debit ledger does not match the bid owner and wallet; cancellation was rolled back' using errcode='23514';
+    end if;
+    v_debit_total:=v_debit_total+v_tx.amount;
     v_key:='auction-bid:'||v_bid.id::text||':refund:'||v_wallet.id::text;
-    insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
-    values(v_wallet.id,v_bid.member_id,'auction_bid_refund','credit',v_tx.amount,v_new_balance,
-     'auction',p_auction_id,v_key,'Refund for cancelled auction bid');
+    select * into v_existing from public.wallet_transactions where idempotency_key=v_key;
+    if found then
+     if v_existing.wallet_account_id is distinct from v_wallet.id
+       or v_existing.member_id is distinct from v_bid.member_id
+       or v_existing.transaction_type is distinct from 'auction_bid_refund'
+       or v_existing.direction is distinct from 'credit'
+       or v_existing.amount is distinct from v_tx.amount
+       or v_existing.reference_type is distinct from 'auction'
+       or v_existing.reference_id is distinct from p_auction_id then
+      raise exception 'Auction refund idempotency key conflicts with a different ledger transaction' using errcode='23505';
+     end if;
+    else
+     v_new_balance:=v_wallet.balance+v_tx.amount;
+     update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
+     insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
+     values(v_wallet.id,v_bid.member_id,'auction_bid_refund','credit',v_tx.amount,v_new_balance,
+      'auction',p_auction_id,v_key,'Refund for cancelled auction bid');
+    end if;
    end loop;
+   if v_debit_total<>v_bid.bid_amount then
+    raise exception 'Auction debit ledger does not reconcile to the recorded bid amount; cancellation was rolled back' using errcode='23514';
+   end if;
    update public.bids set status='voided' where id=v_bid.id;
    v_refunded:=v_refunded+1;
   end loop;

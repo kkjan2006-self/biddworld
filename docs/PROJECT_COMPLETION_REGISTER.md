@@ -502,3 +502,10 @@
 - Preserved the existing active Main ID ownership check, Income Wallet balance lock, minimum-withdrawal setting, withdrawals feature gate and authenticated-only RPC grant.
 - Added a focused static contract test. As requested, tests and builds remain deferred until the consolidated final testing phase.
 - Source-only change. No Supabase migration or payout was executed; Production and TEST remain unchanged. No overall completion percentage increase is claimed for this isolated security hardening.
+
+### 2026-11-18 — Auction and Fixed Bid cancellation refund ledger integrity
+- Hardened Fixed Bid cancellation to verify every original debit belongs to the entry's Main ID and one of that member's wallets, uses the expected transaction/reference contract, and reconciles to the recorded entry amount.
+- Existing Fixed Bid refund idempotency keys are now accepted only when the ledger row matches the exact wallet, Main ID, transaction type, direction, amount and entry reference.
+- Hardened Auction cancellation with equivalent source-debit ownership/type/reference checks, bid-amount reconciliation, and exact validation of any existing refund key before treating it as a replay.
+- Added a focused source-contract test for both cancellation workflows. Tests/builds remain deferred to the final consolidated phase as requested.
+- Source-only changes to the not-yet-replayed migration chain. No database migrations or wallet transactions were executed; Production and TEST remain unchanged. No overall completion percentage increase is claimed for this isolated integrity work.

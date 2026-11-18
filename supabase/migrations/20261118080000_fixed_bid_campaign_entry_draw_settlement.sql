@@ -112,6 +112,7 @@ as $function$
 declare
  v_campaign public.fixed_bid_campaigns%rowtype; v_start timestamptz; v_end timestamptz;
  v_enabled boolean:=false; v_entry record; v_debit record; v_wallet public.wallet_accounts%rowtype;
+ v_existing public.wallet_transactions%rowtype;
  v_new_balance numeric(14,2); v_refunded integer:=0; v_refund_key text; v_debit_total numeric(14,2);
 begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
@@ -157,15 +158,36 @@ begin
   loop
    v_debit_total:=0;
    for v_debit in
-    select wallet_account_id,amount from public.wallet_transactions
+    select wallet_account_id,member_id,transaction_type,direction,amount,reference_type,reference_id
+    from public.wallet_transactions
     where reference_type='fixed_bid_entry' and reference_id=v_entry.id and direction='debit'
     order by wallet_account_id
    loop
     select * into v_wallet from public.wallet_accounts where id=v_debit.wallet_account_id for update;
-    if not found then raise exception 'Original entry wallet is unavailable; cancellation was rolled back' using errcode='55000'; end if;
+    if not found or v_wallet.member_id is distinct from v_entry.member_id
+      or v_wallet.wallet_type not in ('bid','income')
+      or v_debit.member_id is distinct from v_entry.member_id
+      or v_debit.transaction_type is distinct from 'fixed_bid_entry'
+      or v_debit.direction is distinct from 'debit'
+      or v_debit.reference_type is distinct from 'fixed_bid_entry'
+      or v_debit.reference_id is distinct from v_entry.id
+      or v_debit.amount is null or v_debit.amount<=0 then
+     raise exception 'Original Fixed Bid debit ledger does not match the entry owner and wallet; cancellation was rolled back' using errcode='23514';
+    end if;
     v_debit_total:=v_debit_total+v_debit.amount;
     v_refund_key:='fixed-bid:'||v_entry.id::text||':refund:'||v_wallet.id::text;
-    if not exists(select 1 from public.wallet_transactions where idempotency_key=v_refund_key) then
+    select * into v_existing from public.wallet_transactions where idempotency_key=v_refund_key;
+    if found then
+     if v_existing.wallet_account_id is distinct from v_wallet.id
+       or v_existing.member_id is distinct from v_entry.member_id
+       or v_existing.transaction_type is distinct from 'fixed_bid_refund'
+       or v_existing.direction is distinct from 'credit'
+       or v_existing.amount is distinct from v_debit.amount
+       or v_existing.reference_type is distinct from 'fixed_bid_entry'
+       or v_existing.reference_id is distinct from v_entry.id then
+      raise exception 'Fixed Bid refund idempotency key conflicts with a different ledger transaction' using errcode='23505';
+     end if;
+    else
      v_new_balance:=v_wallet.balance+v_debit.amount;
      update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
      insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
