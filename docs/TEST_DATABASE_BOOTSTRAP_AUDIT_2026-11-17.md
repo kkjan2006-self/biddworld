@@ -89,3 +89,17 @@ Production still exposes `place_bid(p_auction_id uuid)` rather than the source-r
 TEST remains `ACTIVE_HEALTHY`, PostgreSQL 17.12, with zero applied migrations and zero public tables. Production was queried with SELECT-only catalogue statements. No migrations, DDL, DML, RPC calls, Storage changes, or data writes were performed in either project.
 
 **Decision remains unchanged:** do not replay the 49-file directory, do not fabricate the 17 missing historical migrations, and do not apply a partial baseline. A separately reviewed final-state clean-install baseline must be built from complete schema evidence and tested only in TEST.
+
+
+## 2026-11-18 — Source-only feature migrations added after baseline audit
+
+The current repository now contains **55 SQL files: 3 legacy/unversioned and 52 timestamped**. Six additional timestamped migrations were added after the earlier 49-file inventory:
+
+- `20261118080000_fixed_bid_campaign_entry_draw_settlement.sql`
+- `20261118090000_package_publication_and_referral_commission_engine.sql`
+- `20261118100000_admin_withdrawal_review_workflow.sql`
+- `20261118110000_auction_lifecycle_winner_settlement.sql`
+- `20261118120000_admin_wallet_adjustments.sql`
+- `20261118130000_withdrawal_minimum_and_server_validation.sql`
+
+These migrations are source-only. They have not been applied to TEST or Production. Their prerequisites include the verified current schema objects described in the earlier inventory; they must be incorporated into the separately reviewed clean-install baseline and replayed only after that baseline is prepared. Production remains read-only; TEST remains empty.
