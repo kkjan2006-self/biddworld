@@ -758,3 +758,10 @@
 - Added `20261118360000_admin_pending_activation_receipt_path.sql` to return the receipt object path while retaining Admin-only authorization and authenticated-only EXECUTE grants. Results now use stable newest-first ordering.
 - Added a regression source-contract test and included the migration in the clean-install forward manifest (59 candidates). Updated clean-install documentation.
 - Tests not run, as requested; no Production or TEST database writes. The migration and private Storage access still require final isolated TEST replay and integration verification.
+
+
+### 2026-11-18 — Package receipt read-policy tightening
+- Review of the original receipt migration found a legacy `package_receipts_select_own_or_admin` Storage policy that still allowed a member to read their own receipt, even after the later migration introduced an Admin-only SELECT policy. The older policy was not removed by the later migration, so both policies would be OR-combined by PostgreSQL RLS.
+- Added `20261118370000_restrict_package_receipt_reads_to_admin.sql` to drop the permissive legacy SELECT policy and duplicate legacy INSERT policy, then retain one owner-folder-only member upload rule and one Admin-role-only read rule.
+- Added a regression source-contract test and included the migration in the clean-install forward manifest (60 candidates). Updated clean-install documentation.
+- Tests not run per the requested final-only testing phase. No Production or TEST database writes; policy behavior still requires isolated TEST replay and Storage API verification at final testing.
