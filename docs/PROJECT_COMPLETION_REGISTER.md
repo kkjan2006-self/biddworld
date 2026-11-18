@@ -751,3 +751,10 @@
 - Added `20261118350000_private_package_receipt_storage.sql`: private 5 MB bucket, JPEG/PNG/PDF allowlist, authenticated member upload restricted to their own `auth.uid()` folder, and SELECT access restricted to the Admin `app_metadata.role` claim. No public access, member read, update or delete policy is added.
 - Added a source-contract test and included the migration in the clean-install forward manifest (58 candidates). Updated clean-install documentation.
 - Tests not run per the requested final-only testing phase. No Production or TEST database writes; the migration still requires isolated TEST replay and Storage API verification at final testing.
+
+
+### 2026-11-18 — Admin pending activation receipt-path integration
+- Source review found that the Admin pending-activation RPC omitted `receipt_path`, even though the Admin UI's receipt viewer requires it to create a private signed URL. The receipt preview was therefore unreachable from the pending queue for uploaded receipts.
+- Added `20261118360000_admin_pending_activation_receipt_path.sql` to return the receipt object path while retaining Admin-only authorization and authenticated-only EXECUTE grants. Results now use stable newest-first ordering.
+- Added a regression source-contract test and included the migration in the clean-install forward manifest (59 candidates). Updated clean-install documentation.
+- Tests not run, as requested; no Production or TEST database writes. The migration and private Storage access still require final isolated TEST replay and integration verification.
