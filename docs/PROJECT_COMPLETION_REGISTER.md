@@ -479,3 +479,11 @@
 - This prevents an unrelated wallet transaction with a colliding idempotency key from being mistaken for a posted commission or completed reversal.
 - Source migration only. No database migration, financial transaction, build or test was run; final consolidated testing remains deferred as requested.
 - Overall completion percentage is not increased for this isolated integrity hardening.
+
+
+### 2026-11-18 — Withdrawal reservation/release ledger reconciliation
+- Hardened Admin rejection of an approved withdrawal: the original Income Wallet reservation debit must exist and match the exact wallet, Main ID, amount and withdrawal reference before funds can be released.
+- Existing release idempotency keys are now validated against the exact expected credit transaction instead of being treated as success based on key presence alone.
+- Admin payout confirmation now also requires a matching reservation ledger entry, preventing an approved status without a corresponding reserved amount from being marked paid.
+- Source migration only. No database migration, payout, build or test was run; all tests remain deferred to the final consolidated phase.
+- Overall completion percentage is not increased for this isolated integrity hardening.

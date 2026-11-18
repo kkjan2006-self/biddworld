@@ -9,6 +9,7 @@ as $function$
 declare
  v_uid uuid:=auth.uid(); v_request public.withdrawal_requests%rowtype;
  v_member public.member_ids%rowtype; v_wallet public.wallet_accounts%rowtype;
+ v_reserve_tx public.wallet_transactions%rowtype; v_release_tx public.wallet_transactions%rowtype;
  v_key text; v_new_balance numeric(14,2); v_enabled boolean:=false;
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
@@ -50,8 +51,31 @@ begin
    select * into v_wallet from public.wallet_accounts
    where member_id=v_request.member_id and wallet_type='income' for update;
    if not found then raise exception 'Income Wallet is unavailable for reservation release' using errcode='55000'; end if;
+   select * into v_reserve_tx from public.wallet_transactions
+   where idempotency_key='withdrawal:'||v_request.id::text||':reserve';
+   if not found
+     or v_reserve_tx.wallet_account_id is distinct from v_wallet.id
+     or v_reserve_tx.member_id is distinct from v_request.member_id
+     or v_reserve_tx.transaction_type is distinct from 'withdrawal_reserve'
+     or v_reserve_tx.direction is distinct from 'debit'
+     or v_reserve_tx.amount is distinct from v_request.amount
+     or v_reserve_tx.reference_type is distinct from 'withdrawal_request'
+     or v_reserve_tx.reference_id is distinct from v_request.id then
+    raise exception 'Approved withdrawal reservation ledger entry is missing or inconsistent; rejection was not applied' using errcode='23514';
+   end if;
    v_key:='withdrawal:'||v_request.id::text||':release';
-   if not exists(select 1 from public.wallet_transactions where idempotency_key=v_key) then
+   select * into v_release_tx from public.wallet_transactions where idempotency_key=v_key;
+   if found then
+    if v_release_tx.wallet_account_id is distinct from v_wallet.id
+      or v_release_tx.member_id is distinct from v_request.member_id
+      or v_release_tx.transaction_type is distinct from 'withdrawal_release'
+      or v_release_tx.direction is distinct from 'credit'
+      or v_release_tx.amount is distinct from v_request.amount
+      or v_release_tx.reference_type is distinct from 'withdrawal_request'
+      or v_release_tx.reference_id is distinct from v_request.id then
+     raise exception 'Withdrawal release idempotency key conflicts with a different ledger transaction' using errcode='23505';
+    end if;
+   else
     v_new_balance:=v_wallet.balance+v_request.amount;
     update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
     insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
@@ -63,6 +87,21 @@ begin
   where id=v_request.id;
  else
   if v_request.status<>'approved' then raise exception 'Only an approved withdrawal can be marked paid' using errcode='55000'; end if;
+  select * into v_wallet from public.wallet_accounts
+  where member_id=v_request.member_id and wallet_type='income' for update;
+  if not found then raise exception 'Income Wallet is unavailable for payout confirmation' using errcode='55000'; end if;
+  select * into v_reserve_tx from public.wallet_transactions
+  where idempotency_key='withdrawal:'||v_request.id::text||':reserve';
+  if not found
+    or v_reserve_tx.wallet_account_id is distinct from v_wallet.id
+    or v_reserve_tx.member_id is distinct from v_request.member_id
+    or v_reserve_tx.transaction_type is distinct from 'withdrawal_reserve'
+    or v_reserve_tx.direction is distinct from 'debit'
+    or v_reserve_tx.amount is distinct from v_request.amount
+    or v_reserve_tx.reference_type is distinct from 'withdrawal_request'
+    or v_reserve_tx.reference_id is distinct from v_request.id then
+   raise exception 'Approved withdrawal reservation ledger entry is missing or inconsistent; payout was not confirmed' using errcode='23514';
+  end if;
   update public.withdrawal_requests set status='paid',reviewed_at=now(),reviewed_by=v_uid
   where id=v_request.id;
  end if;

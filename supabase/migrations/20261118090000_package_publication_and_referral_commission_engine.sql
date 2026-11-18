@@ -142,7 +142,7 @@ declare
  v_uid uuid:=auth.uid(); v_activation public.package_activations%rowtype;
  v_commission public.referral_commissions%rowtype; v_member public.member_ids%rowtype;
  v_wallet public.wallet_accounts%rowtype; v_key text; v_new_balance numeric(14,2);
- v_enabled boolean:=false; v_posted integer:=0; v_existing public.wallet_transactions%rowtype;
+ v_enabled boolean:=false; v_posted integer:=0; v_existing uuid;
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -163,23 +163,14 @@ begin
   where id=v_commission.credited_main_member_id and id_type='main' and status='active' for share;
   if not found then continue; end if;
   v_key:='referral-commission:'||v_commission.id::text||':credit';
-  select * into v_wallet from public.wallet_accounts
-  where member_id=v_commission.credited_main_member_id and wallet_type='income' for update;
-  if not found then raise exception 'Income Wallet is unavailable for Main ID %',v_member.member_code using errcode='55000'; end if;
-  select * into v_existing from public.wallet_transactions where idempotency_key=v_key;
-  if found then
-   if v_existing.wallet_account_id is distinct from v_wallet.id
-     or v_existing.member_id is distinct from v_commission.credited_main_member_id
-     or v_existing.transaction_type is distinct from 'referral_commission'
-     or v_existing.direction is distinct from 'credit'
-     or v_existing.amount is distinct from v_commission.amount
-     or v_existing.reference_type is distinct from 'referral_commission'
-     or v_existing.reference_id is distinct from v_commission.id then
-    raise exception 'Referral commission idempotency key conflicts with a different ledger transaction' using errcode='23505';
-   end if;
+  select id into v_existing from public.wallet_transactions where idempotency_key=v_key;
+  if v_existing is not null then
    update public.referral_commissions set status='credited' where id=v_commission.id and status='pending';
    v_posted:=v_posted+1;continue;
   end if;
+  select * into v_wallet from public.wallet_accounts
+  where member_id=v_commission.credited_main_member_id and wallet_type='income' for update;
+  if not found then raise exception 'Income Wallet is unavailable for Main ID %',v_member.member_code using errcode='55000'; end if;
   v_new_balance:=v_wallet.balance+v_commission.amount;
   update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
   insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
@@ -201,8 +192,7 @@ as $function$
 declare
  v_uid uuid:=auth.uid(); v_commission public.referral_commissions%rowtype;
  v_wallet public.wallet_accounts%rowtype; v_credit_key text; v_reverse_key text;
- v_new_balance numeric(14,2); v_credit public.wallet_transactions%rowtype;
- v_existing public.wallet_transactions%rowtype;
+ v_new_balance numeric(14,2); v_existing uuid;
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -218,32 +208,11 @@ begin
  else
   v_credit_key:='referral-commission:'||p_commission_id::text||':credit';
   v_reverse_key:='referral-commission:'||p_commission_id::text||':reverse';
-  select * into v_wallet from public.wallet_accounts
-  where member_id=v_commission.credited_main_member_id and wallet_type='income' for update;
-  if not found then raise exception 'Income Wallet is unavailable' using errcode='55000'; end if;
-  select * into v_credit from public.wallet_transactions where idempotency_key=v_credit_key;
-  if not found
-    or v_credit.wallet_account_id is distinct from v_wallet.id
-    or v_credit.member_id is distinct from v_commission.credited_main_member_id
-    or v_credit.transaction_type is distinct from 'referral_commission'
-    or v_credit.direction is distinct from 'credit'
-    or v_credit.amount is distinct from v_commission.amount
-    or v_credit.reference_type is distinct from 'referral_commission'
-    or v_credit.reference_id is distinct from p_commission_id then
-   raise exception 'The original referral credit ledger entry is missing or inconsistent; reversal was not applied' using errcode='23514';
-  end if;
-  select * into v_existing from public.wallet_transactions where idempotency_key=v_reverse_key;
-  if found then
-   if v_existing.wallet_account_id is distinct from v_wallet.id
-     or v_existing.member_id is distinct from v_commission.credited_main_member_id
-     or v_existing.transaction_type is distinct from 'referral_commission_reversal'
-     or v_existing.direction is distinct from 'debit'
-     or v_existing.amount is distinct from v_commission.amount
-     or v_existing.reference_type is distinct from 'referral_commission'
-     or v_existing.reference_id is distinct from p_commission_id then
-    raise exception 'Referral reversal idempotency key conflicts with a different ledger transaction' using errcode='23505';
-   end if;
-  else
+  select id into v_existing from public.wallet_transactions where idempotency_key=v_reverse_key;
+  if v_existing is null then
+   select * into v_wallet from public.wallet_accounts
+   where member_id=v_commission.credited_main_member_id and wallet_type='income' for update;
+   if not found then raise exception 'Income Wallet is unavailable' using errcode='55000'; end if;
    if v_wallet.balance<v_commission.amount then
     raise exception 'The Income Wallet balance is insufficient for this full reversal; no changes were made' using errcode='23514';
    end if;
