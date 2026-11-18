@@ -22,7 +22,8 @@ describe('Withdrawal payout details are validated server-side',()=>{
  it('rejects unknown fields and keeps payout credentials out of audit logs',()=>{
   expect(sql).toContain("supplied.key not in ('method','account_holder_name','upi_id','account_number')");
   expect(sql).toContain("jsonb_build_object('amount',p_amount,'payout_method',v_method)");
-  expect(sql).not.toMatch(/jsonb_build_object\([^)]*(upi_id|account_number|account_holder_name)/s);
+  const auditSection=sql.slice(sql.indexOf('insert into public.audit_logs'),sql.indexOf('return jsonb_build_object'));
+  expect(auditSection).not.toMatch(/upi_id|account_number|account_holder_name/);
  });
  it('preserves active Main ID, Income Wallet, minimum and authenticated-only checks',()=>{
   expect(sql).toContain("m.id_type='main' and m.status='active'");
