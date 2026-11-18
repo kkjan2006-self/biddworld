@@ -4,6 +4,14 @@
   "note": "This inventory records all 67 unique literal frontend RPC call sites across the listed React surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
+      "name": "admin_activate_referral_plan",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_adjust_member_wallet",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
       "name": "admin_create_duplicate_member_id",
       "ui": "src/components/Admin.tsx"
     },
