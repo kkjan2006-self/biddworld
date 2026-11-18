@@ -191,3 +191,11 @@
 - Added complete CSV exports for Duplicate IDs, referral commissions and package activation history; added package configuration export.
 - Current branch tree inventory: **61 SQL files (3 legacy/unversioned + 58 timestamped)**. All 12 new `20261118` migrations remain source-only.
 - No manual testing/build/E2E/mobile validation or migration replay was run, as requested. No Production or TEST database writes were performed.
+
+
+## 2026-11-18 — PWA and SEO source polish
+
+- Removed the unrelated Bolt.new social preview image from `index.html` and added BiddWorld-specific title, description, Open Graph and Twitter metadata.
+- Bumped the service-worker shell cache from v1 to v2 so the next deployment invalidates the prior cached shell.
+- Confirmed the current branch contains the PWA manifest, service worker and BiddWorld SVG icon. No PWA install/offline browser testing was run in this development-first phase.
+- No migrations or database writes were performed for this UI/PWA change.
