@@ -414,3 +414,11 @@
 - Confirmed the wallet-wide overload accepts `p_limit,p_offset`, while the wallet-specific overload also had a defaulted `p_wallet_account_id = NULL`. Both therefore match the same named PostgREST argument set and can produce an ambiguous RPC resolution.
 - Updated `20261118230000_recover_admin_read_rpc_sources.sql` so the wallet-specific overload requires `p_wallet_account_id`; its remaining pagination parameters keep defaults. Existing wallet-wide Admin call now has one unambiguous match, while wallet-specific callers can still supply the account ID.
 - Source-only correction. Production and TEST databases were not changed; no build or tests were run. Validate overload resolution on the isolated TEST project after clean-install baseline is prepared.
+
+
+### 2026-11-18 — Storage and media integration audit
+- Read-only Production Storage catalogue check found 0 buckets, 0 Storage object policies, 0 objects; `storage.objects` RLS is enabled.
+- Confirmed source definitions for public Admin-managed `product-media` and private member-owned `package-receipts` buckets, including upload limits, MIME allowlists and role/owner policies.
+- Confirmed Admin product image upload/public URL flow, member receipt upload/server association flow, and Admin 300-second signed receipt preview flow are present in frontend source.
+- Recorded that runtime behavior remains unverified and both buckets must be included in the isolated TEST clean-install baseline before validation.
+- No Production/TEST changes, no build or tests.
