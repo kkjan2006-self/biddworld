@@ -662,3 +662,9 @@
 - CI run #942 validated the new Admin auction bid report source coverage, but the explicit frontend RPC inventory surface allow-list did not yet include the new `AdminAuctionBidReport.tsx` component.
 - Added the component to the known UI surface list and refreshed the inventory snapshot commit. The SQL RPC, Admin integration and pagination/CSV implementation are unchanged.
 - A fresh CI run is pending.
+
+### 2026-11-18 — Fixed Bid entry reporting source integration
+- Added an Admin-only, paginated Fixed Bid entry report with campaign/member search, status/date filters, continuation and complete CSV export.
+- Added the `admin_list_fixed_bid_entries_page` SECURITY DEFINER RPC with trusted Admin-role authorization and a restricted result projection that omits idempotency keys.
+- Added the new migration to the forward manifest and source RPC coverage. The inventory allow-list is being updated for the new UI surface; CI is pending.
+- No TEST or Production database writes were performed.

@@ -1,6 +1,6 @@
 {
   "generated_from": "completion-work frontend source inspection at commit b572f56dfb0337934405b894447263c2eae1f12c",
-  "snapshot_commit": "6a45709ce7526b84ce651b2adae13152e1ff67bc",
+  "snapshot_commit": "a81ad21f9eb2781226f4e4abd3277a1c311b2e72",
   "note": "This inventory records all 67 unique literal frontend RPC call sites across the listed React surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
