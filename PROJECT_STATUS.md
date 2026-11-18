@@ -8,8 +8,9 @@
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
 - Protected branch: `main` (do not modify)
-- Latest verified branch HEAD: `cfca840519a09b585e96e398036d45f210a705d6`
-- Latest commit message: `docs: reconcile admin report and notification contracts`
+- Latest verified application/documentation work commit (before this status-only checkpoint): `cfca840519a09b585e96e398036d45f210a705d6`
+- Work commit message: `docs: reconcile admin report and notification contracts`
+- This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
