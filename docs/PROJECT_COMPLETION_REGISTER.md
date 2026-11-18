@@ -797,3 +797,10 @@
 - Confirmed 38 table grant statements align with authenticated SELECT on 17 public tables and service_role access to all 21 public tables. These are source-level ACL observations, not runtime verification.
 - Latest completed CI at this checkpoint is run #996 on `f7274c13053ad593c3fa303560d0e4f06f51c42a`; it repeats the single stale assertion failure in `tests/admin-package-activation-report-filters.test.ts` (105/106 files, 443/444 tests). Build/type-check and Pages build were skipped. The failure remains deferred to the consolidated final test/repair phase.
 - No Production or TEST writes, no migration replay, no manual test execution, and no wallet or member activity.
+
+
+### 2026-11-18 — Auction bid active-profile eligibility alignment
+- Reconciled the public auction bid call in `src/App.tsx` with the final `public.place_bid(uuid,text)` wrapper and cancellation refund ledger contract. Named RPC arguments, request-key reuse, `:bid`/`:income` suffixes, `auction_bid` transaction type and `auction` reference metadata align.
+- Found that auction bid eligibility required an active Main ID but did not also require its owning `profiles` row to be active, unlike the Fixed Bid entry workflow. Added `20261118410000_require_active_profile_for_auction_bids.sql` to require active profile status and the canonical `profiles.main_member_id` ownership link while preserving the existing debit/idempotency implementation and RPC grants.
+- Added the migration to the ordered forward manifest and updated the clean-install README count to 63. Current SQL inventory: 82 files (79 timestamped + 3 legacy), partitioned as 63 forward + 16 excluded timestamped.
+- Source inspection only. Tests/build, TEST replay and browser checks remain deferred; Production `hbqatszyzqobgtauyuzy` and TEST `yoaauthwejdgaevfvwpo` were not modified.
