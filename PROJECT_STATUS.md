@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest source checkpoint: `502a86784731b9f3b5f40c88c51f2fba3ec6df0e` (Support/notification idempotency retry hardening) (2026-11-18).
+- Current development branch: `completion-work` — latest source checkpoint: `d5fe11c14695290189a0fbc5a78b3b4c3836be1a` (Support/notification idempotency retry hardening and PWA cache documentation alignment) (2026-11-18).
 - Latest verified source batch: Fixed Bid public catalogue projection includes `max_entries_total` and `refund_non_winners` (forward #70); Placement Tree verifies Main-ID root ownership (forward #71); Admin notification history displays recipient Main ID/name through a bounded Admin-only RPC (forward #72); Admin pending activation receipt links now track their five-minute expiry and can be refreshed without reloading the queue; Support-ticket Admin updates now write one audit record through the row trigger rather than duplicating it in the RPC; Member Support retries retain a key only for unchanged payloads, and Admin notification fingerprints use an unambiguous JSON tuple. Latest source commits: receipt viewer `d938fc397a19cac7737079236ed3f69d41d33380`; support audit dedup migration `2648cc6e6260d83494e6299290f0c211f757137a`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `2648cc6e6260d83494e6299290f0c211f757137a` (single Audit Log writer for Admin support-ticket updates, preserving the existing `support.ticket_updated` action and `response_updated` detail contract).
@@ -40,7 +40,7 @@ The following source/UI/documentation work is present in the current branch and 
 - Reconcile every frontend RPC call and SQL signature/result contract; selected Admin signatures, Member/Package/Fixed Bid contracts, and auction/fixed-bid report contracts have been source-checked (see the focused reconciliation documents). A source-level Admin dashboard count defect was corrected: counts now derive from Admin-authorized RPC responses rather than direct table HEAD counts subject to member RLS. Auction bid, Fixed Bid entry, catalogue export and notification delivery paths were also source-reconciled with their SQL signatures, result fields, grants and RLS policies; see `docs/ADMIN_REPORT_NOTIFICATION_CONTRACT_RECONCILIATION_2026-11-18.md`.
 - Review SQL dependency ordering, object prerequisites, grants, RLS, policies, triggers, Storage and function security.
 - Resolve the known stale Admin package-activation report test assertion during the consolidated final test/repair phase; the latest CI run is not green.
-- Continue source-only development only where contracts are sufficiently evidenced; do not invent missing schema or business rules. Recent Support/notification retry-key edge cases have been corrected with source-contract tests (not run).
+- Continue source-only development only where contracts are sufficiently evidenced; do not invent missing schema or business rules. Recent Support/notification retry-key edge cases have been corrected with source-contract tests (not run). PWA service-worker cache is v4; documentation is aligned, while the PWA source test still has a stale v3 literal assertion deferred to final test/repair.
 
 ## D. PENDING — Major Development Work
 
