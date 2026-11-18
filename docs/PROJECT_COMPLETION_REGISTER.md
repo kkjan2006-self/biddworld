@@ -678,3 +678,13 @@
 - Added a 1–20 level filter to the Admin commission register, alongside the existing status filter.
 - Complete CSV export now passes the selected status and level filters to the paginated Admin RPC, while the on-screen list retains its load-more behavior.
 - Added source-contract coverage for the level/status filter and complete export. CI is pending.
+
+## 2026-11-18 — Complete Admin bid and catalogue report coverage
+
+- Added Admin-only paginated Auction Bid History and Fixed Bid Entries reports, each with server-side search, status/date filters, load-more pagination and complete CSV export. Internal idempotency keys are excluded from both RPC projections.
+- Replaced the current-loaded-row-only Auction and Fixed Bid campaign CSV exports with complete server-paginated exports using new Admin-only RPCs. Existing management-list RPCs remain unchanged.
+- Added level 1–20 filtering to the referral commission register; complete CSV export now applies the selected status and level filters.
+- Frontend RPC inventory: 74 unique calls; 35 names exist in the read-only Production catalogue and 39 remain source-only. The source coverage test maps all 39 source-only contracts to forward migrations and UI call sites.
+- Migration partition: 75 SQL files total (72 timestamped + 3 legacy); 56 ordered forward candidates and 16 excluded historical files account for all 72 timestamped files exactly once.
+- GitHub Actions run #948 passed: 102/102 test files, 431/431 tests, TypeScript, normal production build and GitHub Pages subpath build. Production dependency audit: 0 vulnerabilities; full development/build dependency audit still reports 12 high, 0 critical.
+- No Production or TEST writes were performed. The new reporting RPCs remain source-only pending the clean-install replay and integration phase.

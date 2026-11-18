@@ -9,13 +9,13 @@
 
 ## Current repository inventory
 
-At branch `completion-work`, the repository contains **72 SQL files in `supabase/migrations`**:
-- 69 timestamped migration files.
+At branch `completion-work`, the repository contains **75 SQL files in `supabase/migrations`**:
+- 72 timestamped migration files.
 - 3 legacy/unversioned files: `0001_biddworld.sql`, `0002_place_bid_rpc.sql`, and `001_initial_schema.sql`.
 - The exact 30 historical Production migration bodies are archived separately under `supabase/audit/production-ledger/`.
 - One read-only SQL catalogue audit script is outside the migration directory: `supabase/audit/production_migration_recovery.sql`.
 - The clean-install candidate baseline is kept separately under `supabase/clean-install/`.
-- The 66 timestamped source migrations are partitioned into 53 ordered forward candidates and 16 excluded historical files.
+- The 72 timestamped source migrations are partitioned into 56 ordered forward candidates and 16 excluded historical files.
 
 The empty `001_initial_schema.sql` and incompatible `0001_biddworld.sql` remain disqualified as a clean-install baseline.
 
