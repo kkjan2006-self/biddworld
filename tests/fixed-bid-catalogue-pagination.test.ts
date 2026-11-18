@@ -9,10 +9,12 @@ describe('Fixed Bid catalogue pagination',()=>{
   expect(source).toContain(".order('created_at',{ascending:false}).order('id',{ascending:false})");
   expect(source).toContain('query.range(offset,offset+PAGE_SIZE-1)');
  });
- it('offers continuation while keeping the campaign surface read-only',()=>{
+ it('offers continuation and sends participation through the idempotent server workflow',()=>{
   expect(source).toContain('Load more campaigns');
-  expect(source).toContain('no entries or payments are processed here');
-  expect(source).not.toMatch(/\.rpc\(/);
+  expect(source).toContain("supabase.rpc('member_join_fixed_bid_campaign',{p_campaign_id:campaign.id,p_idempotency_key:key})");
+  expect(source).toContain('const canJoin=r.status===\'live\'');
+  expect(source).toContain('entryKeys.current.get(campaign.id)');
+  expect(source).toContain('result.replayed?');
   expect(source).not.toMatch(/\.insert\(|\.update\(|\.upsert\(/);
  });
 });

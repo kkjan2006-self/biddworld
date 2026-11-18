@@ -12,7 +12,8 @@ describe('Admin member detail selection follows directory search',()=>{
   expect(admin).toContain('value={memberSearch} onChange={e=>{setSelectedMemberCode("");setMemberSearch(e.target.value);}} placeholder="Search name, member ID, phone or sponsor ID"');
  });
  it('retains explicit member selection only through the View details action',()=>{
-  expect(admin).toContain(`onClick={()=>{setSelectedMemberCode(m.member_code);setMemberProfileName(m.display_name||'');setMemberProfilePhone(m.phone||'');setMemberProfileMessage('');}}>View details</button>`);
+  expect(admin).toContain("setSelectedMemberCode(m.member_code);setMemberProfileName(m.display_name||'');setMemberProfilePhone(m.phone||'');setMemberProfileMessage('');setMemberStatusValue(structure.ids.find(x=>x.member_code===m.member_code&&x.id_type==='main')?.status||'active');");
+  expect(admin).toContain("setMemberStatusReason('');setMemberStatusMessage('');}}>View details</button>");
   expect(admin).toContain('selectedMemberCode&&(()=>{');
  });
 });

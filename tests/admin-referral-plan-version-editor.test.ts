@@ -12,12 +12,11 @@ describe('Admin referral plan version editor',()=>{
  });
  it('refuses active packages, unsupported reward types and non-sequential levels',()=>{
   expect(source).toContain('if(plan.package_active)');
-  expect(source).toContain("rule.reward_type!=='fixed'");
+  expect(source).toContain("!['fixed','percentage'].includes(rule.reward_type)");
   expect(source).toContain('sorted.some((rule,index)=>rule.level!==index+1)');
  });
  it('matches the database reward bounds before saving the inactive plan',()=>{
-  expect(source).toContain('rule.reward_value<=0||rule.reward_value>100000');
-  expect(source).toContain('max="100000"');
-  expect(source).toContain('Number(v)>100000');
+  expect(source).toContain("levelValues.some((v,i)=>!Number.isFinite(Number(v))||Number(v)<=0||Number(v)>(levelTypes[i]==='percentage'?100:100000))");
+  expect(source).toContain("max={levelTypes[i]==='percentage'?100:100000}");
  });
 });

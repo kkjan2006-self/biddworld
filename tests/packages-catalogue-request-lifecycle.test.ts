@@ -19,10 +19,13 @@ describe('Packages catalogue request lifecycle', () => {
     expect(source).toContain("setError('A network error prevented packages from loading. Please retry.')");
   });
 
-  it('keeps package activation locked and informational only', () => {
-    expect(source).toContain('const PACKAGE_ACTIVATION_LOCKED = true');
+  it('fails closed unless the database explicitly enables package activation', () => {
+    expect(source).toContain('const [activationEnabled,setActivationEnabled]=useState(false)');
+    expect(source).toContain(".eq('setting_key','package_activations_enabled')");
+    expect(source).toContain("setActivationEnabled(!activationSettingError&&activationSetting?.setting_value===true)");
+    expect(source).toContain('{!activationEnabled &&');
     expect(source).toContain('Package activation is temporarily locked.');
     expect(source).toContain('Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.');
-    expect(source).toContain('Proposed Bid Wallet credit (not issued)');
+    expect(source).toContain('{activationEnabled&&<section className="packageActivationForm">');
   });
 });

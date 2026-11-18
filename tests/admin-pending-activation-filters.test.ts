@@ -11,9 +11,9 @@ describe('Admin pending package activation review filters',()=>{
   expect(admin).toContain('(!activationFrom||day>=activationFrom)&&(!activationTo||day<=activationTo)');
   expect(admin).toContain('activationFrom>activationTo');
  });
- it('keeps financial approval locked while filters only change the displayed request list',()=>{
+ it('keeps review controls separate from filters and exports the filtered pending set',()=>{
   expect(admin).toContain('disabled={FINANCIAL_APPROVAL_LOCKED||reviewingActivation!==\'\'}');
   expect(admin).toContain('Filters do not change payment status or approval controls.');
-  expect(admin).toContain('Export Filtered Activations CSV ({filteredActivations.length})');
+  expect(admin).toContain('Export Filtered Pending Activations CSV ({filteredActivations.length})');
  });
 });

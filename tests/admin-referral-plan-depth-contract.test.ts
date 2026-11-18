@@ -2,14 +2,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const adminSource = readFileSync(
-  resolve(process.cwd(), 'src/components/Admin.tsx'),
-  'utf8',
-);
-const sql = readFileSync(
-  resolve(process.cwd(), 'supabase/migrations/20261116030000_admin_configurable_referral_plan_depth.sql'),
-  'utf8',
-);
+const adminSource = readFileSync(resolve(process.cwd(), 'src/components/Admin.tsx'), 'utf8');
+const sql = readFileSync(resolve(process.cwd(), 'supabase/migrations/20261116030000_admin_configurable_referral_plan_depth.sql'), 'utf8');
 
 describe('Admin configurable referral plan depth contract', () => {
   it('rejects non-array JSON before calling array functions', () => {
@@ -41,11 +35,11 @@ describe('Admin configurable referral plan depth contract', () => {
 
   it('prevents the Admin editor from adding more than twenty levels', () => {
     expect(adminSource).toContain('disabled={levelValues.length>=20}');
-    expect(adminSource).toContain("old.length>=20?old:[...old,'200']");
+    expect(adminSource).toContain("if(levelValues.length>=20)return;setLevelValues(old=>[...old,'200']);");
     expect(adminSource).toContain('of 20 levels configured');
   });
 
-  it('does not implement commission posting or wallet credits', () => {
+  it('does not implement commission posting or wallet credits in the draft RPC', () => {
     expect(sql).not.toContain('insert into public.referral_commissions');
     expect(sql).not.toContain('insert into public.wallet_transactions');
   });

@@ -1,10 +1,18 @@
 {
-  "generated_from": "completion-work source inspection at verified CI commit",
-  "snapshot_commit": "63f48ffd6b0f7139743cd41afc70bb48ccf69829",
-  "note": "This inventory records frontend call sites only. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
+  "generated_from": "completion-work frontend source inspection at commit b572f56dfb0337934405b894447263c2eae1f12c",
+  "snapshot_commit": "b572f56dfb0337934405b894447263c2eae1f12c",
+  "note": "This inventory records all 67 unique literal frontend RPC call sites across the listed React surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
       "name": "admin_create_duplicate_member_id",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_draw_fixed_bid_winners",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_finalize_auction",
       "ui": "src/components/Admin.tsx"
     },
     {
@@ -13,6 +21,10 @@
     },
     {
       "name": "admin_get_member_structure",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_get_minimum_withdrawal_amount",
       "ui": "src/components/Admin.tsx"
     },
     {
@@ -60,11 +72,19 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_list_package_activations_page",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
       "name": "admin_list_packages",
       "ui": "src/components/Admin.tsx"
     },
     {
       "name": "admin_list_pending_activations",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_referral_commissions_page",
       "ui": "src/components/Admin.tsx"
     },
     {
@@ -88,7 +108,23 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_post_referral_commissions",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_publish_package",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_reverse_referral_commission",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
       "name": "admin_review_package_activation",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_review_withdrawal_request",
       "ui": "src/components/Admin.tsx"
     },
     {
@@ -100,7 +136,7 @@
       "ui": "src/components/Admin.tsx"
     },
     {
-      "name": "admin_save_fixed_bid_campaign_draft",
+      "name": "admin_save_fixed_bid_campaign",
       "ui": "src/components/Admin.tsx"
     },
     {
@@ -120,6 +156,14 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_send_member_notification",
+      "ui": "src/components/Notifications.tsx"
+    },
+    {
+      "name": "admin_set_auction_status",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
       "name": "admin_set_default_sponsor",
       "ui": "src/components/Admin.tsx"
     },
@@ -132,7 +176,19 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_set_fixed_bid_campaign_status",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_set_main_member_status",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
       "name": "admin_set_member_sponsor",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_set_minimum_withdrawal_amount",
       "ui": "src/components/Admin.tsx"
     },
     {
@@ -140,8 +196,16 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_set_user_admin_role",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
       "name": "admin_update_member_profile",
       "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_update_support_ticket",
+      "ui": "src/components/Support.tsx"
     },
     {
       "name": "get_my_mlm_dashboard_page",
@@ -164,12 +228,24 @@
       "ui": "src/components/Account.tsx"
     },
     {
+      "name": "member_join_fixed_bid_campaign",
+      "ui": "src/components/FixedBid.tsx"
+    },
+    {
       "name": "member_list_my_ids",
       "ui": "src/components/Account.tsx"
     },
     {
       "name": "member_list_my_withdrawals",
       "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_pay_winning_item_payment",
+      "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_submit_support_ticket",
+      "ui": "src/components/Support.tsx"
     },
     {
       "name": "member_update_my_profile",
@@ -182,6 +258,10 @@
     {
       "name": "public_list_active_products_page",
       "ui": "src/App.tsx"
+    },
+    {
+      "name": "submit_package_activation_with_receipt",
+      "ui": "src/components/Packages.tsx"
     }
   ]
 }
