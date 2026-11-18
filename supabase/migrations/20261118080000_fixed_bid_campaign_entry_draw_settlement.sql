@@ -94,7 +94,7 @@ begin
   set product_id=p_product_id,title=trim(p_title),
       description=nullif(trim(coalesce(p_description,'')),''),configuration=v_config,updated_at=now()
   where id=p_campaign_id and status='draft'
-    and not exists(select 1 from public.fixed_bids where campaign_id=p_campaign_id);
+    and not exists(select 1 from public.fixed_bids where campaign_id=p_campaign_id)
   returning id into v_id;
   if v_id is null then raise exception 'Only an unused draft campaign can be edited' using errcode='55000'; end if;
  end if;
