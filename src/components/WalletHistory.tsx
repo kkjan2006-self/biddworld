@@ -29,10 +29,16 @@ export default function WalletHistory(){
  useEffect(()=>{
   if(!supabase){setLoading(false);return;}
   let active=true;let authEventObserved=false;
+  const applyUserScope=(nextUserId:string|null)=>{
+   setUserId(current=>{
+    if(current!==nextUserId){setPage(0);setRetryPage(null);setRows([]);setHasMore(false);setError('');}
+    return nextUserId;
+   });
+  };
   const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{
-   authEventObserved=true;if(active)setUserId(session?.user?.id??null);
+   authEventObserved=true;if(active)applyUserScope(session?.user?.id??null);
   });
-  void supabase.auth.getUser().then(({data:{user},error})=>{if(active&&!authEventObserved){if(error)throw error;setUserId(user?.id??null);}}).catch(()=>{if(active&&!authEventObserved)setError('Your sign-in session could not be verified. Please sign in again.');});
+  void supabase.auth.getUser().then(({data:{user},error})=>{if(active&&!authEventObserved){if(error)throw error;applyUserScope(user?.id??null);}}).catch(()=>{if(active&&!authEventObserved)setError('Your sign-in session could not be verified. Please sign in again.');});
   return()=>{active=false;subscription.unsubscribe();};
  },[]);
 
