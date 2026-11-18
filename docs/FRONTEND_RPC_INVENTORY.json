@@ -60,6 +60,10 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_list_auctions_page",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
       "name": "admin_list_audit_logs_page",
       "ui": "src/components/Admin.tsx"
     },
@@ -73,6 +77,10 @@
     },
     {
       "name": "admin_list_fixed_bid_campaigns",
+      "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_fixed_bid_campaigns_page",
       "ui": "src/components/Admin.tsx"
     },
     {
