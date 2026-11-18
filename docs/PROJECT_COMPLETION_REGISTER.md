@@ -872,3 +872,12 @@
 - Package activation already locks the Main-ID row `FOR UPDATE`; auction winner selection already takes the member-graph mutation lock. Those paths were not changed.
 - Updated clean-install forward manifest and README to 66 forward + 16 excluded timestamped migrations, plus 3 legacy SQL files (85 total). Added `docs/MEMBER_LIFECYCLE_FINANCIAL_ACTION_CONCURRENCY_REVIEW_2026-11-18.md`.
 - Source-only. No tests/build/CI, SQL execution, migration replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Frontend support and notification direct-write/RLS reconciliation
+
+- Confirmed Support UI reads tickets directly under owner-or-Admin RLS, but member submission and Admin status/response changes use audited idempotent RPCs. Unused direct table INSERT/UPDATE grants could bypass RPC idempotency and audit behavior.
+- Confirmed Notifications UI reads directly, marks read via owner-scoped UPDATE(read_at), and Admin sends only through the audited idempotent RPC. Direct authenticated INSERT was unnecessary.
+- Added `supabase/migrations/20261118450000_restrict_direct_support_notification_writes.sql` (forward candidate #67): revoke authenticated direct INSERT/UPDATE on support_tickets and direct INSERT on member_notifications; preserve SELECT and owner-only read-state UPDATE.
+- Added `docs/FRONTEND_SUPPORT_NOTIFICATION_DIRECT_WRITE_RLS_REVIEW_2026-11-18.md`; updated manifest/clean-install README to 67 forward + 16 excluded timestamped + 3 legacy SQL files (86 total).
+- Source-only. No tests/build/CI, SQL execution, migration replay or database writes. Production and TEST untouched. Overall estimate remains 55%.
