@@ -932,3 +932,12 @@
 - Added a source-contract assertion to `tests/fixed-bid-catalogue-pagination.test.ts` for all eight public rule keys and the RPC access/bounds contract. This test source was not executed.
 - Latest source branch HEAD before this checkpoint: `ec70002007d2b52719af7709f68dcff700f9eabc` (`fix: align placement tree UI with duplicate ID hierarchy`). That commit also updates the Placement Tree to identify Main versus Duplicate IDs and show the owning Main ID for duplicates.
 - Source-only development. No tests, builds, CI, SQL replay, Production writes or TEST writes. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Member Placement Tree root ownership enforcement
+
+- Source review found `get_my_placement_tree()` trusted `profiles.main_member_id` after checking only `auth.uid()`. Because it is SECURITY DEFINER, the root pointer itself must be verified against `member_ids.owner_user_id` and `id_type='main'` before traversing member/profile rows.
+- Added forward candidate #71, `20261119010000_enforce_member_placement_tree_root_ownership.sql`. It requires the authenticated profile's Main-ID pointer to resolve to a Main ID owned by that same user; otherwise it fails closed with 42501. It preserves Main/Duplicate descendant traversal, the 20-level/cycle guards, output fields and authenticated/service_role EXECUTE grants.
+- Updated `tests/member-placement-tree-duplicate-ids.test.ts` with source-contract assertions for root ownership and retained RPC grants. The test was not run.
+- Updated the forward manifest and clean-install inventory to 71 forward + 16 excluded timestamped + 3 legacy = 90 SQL files (87 timestamped).
+- Source-only development. No tests/build/CI, migration replay or database writes. Production remains read-only and TEST remains untouched.
