@@ -570,3 +570,13 @@
 - CI run #920 stopped during test-file parsing because the payout validation contract test file contained SQL source instead of TypeScript test content.
 - Restored the test file and retained the SQL migration in its intended path. The profile-status authorization checks in the member request and Admin approval RPCs remain in the source migration files.
 - A fresh CI run is required before considering this follow-up verified. No database changes or migrations were applied.
+
+## 2026-11-18 — Fixed Bid and Referral engine hardening
+
+- Added source-level integrity checks to Fixed Bid entry replay: the existing entry must still be open and its Bid/Income Wallet debit ledger must reconcile to the recorded entry amount and owner.
+- Fixed Bid participation and winner-payment RPCs now require the caller's active member profile and owned active Main ID. Draw eligibility now excludes inactive profiles/IDs.
+- Fixed Bid draws now return the recorded draw result on retry, validate source debit ownership/type/wallet/reference before refunds, and verify existing refund ledger rows before treating them as completed.
+- Unified the Fixed Bid-specific winner-payment ledger transaction type with the shared winning-payment contract.
+- Referral commission reversal replay now verifies the original credit and reversal ledger rows; pending-only reversals remain replayable without a wallet debit.
+- Added focused static contract tests for the Fixed Bid and referral calculation/posting/reversal source paths. Runtime database verification remains deferred until the TEST clean-install baseline is reviewed and development is complete.
+- No TEST or Production writes or migration replay. CI for this batch is pending.

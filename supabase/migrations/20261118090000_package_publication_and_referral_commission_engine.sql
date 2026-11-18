@@ -212,7 +212,41 @@ begin
  end if;
  select * into v_commission from public.referral_commissions where id=p_commission_id for update;
  if not found then raise exception 'Referral commission not found' using errcode='P0002'; end if;
- if v_commission.status='reversed' then return jsonb_build_object('success',true,'status','reversed','replayed',true); end if;
+ if v_commission.status='reversed' then
+  v_credit_key:='referral-commission:'||p_commission_id::text||':credit';
+  v_reverse_key:='referral-commission:'||p_commission_id::text||':reverse';
+  select * into v_credit from public.wallet_transactions where idempotency_key=v_credit_key;
+  if not found then
+   if exists(select 1 from public.wallet_transactions where idempotency_key=v_reverse_key) then
+    raise exception 'A referral reversal exists without its original credit; ledger reconciliation is required' using errcode='23514';
+   end if;
+   return jsonb_build_object('success',true,'status','reversed','replayed',true);
+  end if;
+  select * into v_wallet from public.wallet_accounts
+  where member_id=v_commission.credited_main_member_id and wallet_type='income' for update;
+  if not found
+    or v_credit.wallet_account_id is distinct from v_wallet.id
+    or v_credit.member_id is distinct from v_commission.credited_main_member_id
+    or v_credit.transaction_type is distinct from 'referral_commission'
+    or v_credit.direction is distinct from 'credit'
+    or v_credit.amount is distinct from v_commission.amount
+    or v_credit.reference_type is distinct from 'referral_commission'
+    or v_credit.reference_id is distinct from p_commission_id then
+   raise exception 'The original referral credit is missing or inconsistent; reversal replay was not accepted' using errcode='23514';
+  end if;
+  select * into v_existing from public.wallet_transactions where idempotency_key=v_reverse_key;
+  if not found
+    or v_existing.wallet_account_id is distinct from v_wallet.id
+    or v_existing.member_id is distinct from v_commission.credited_main_member_id
+    or v_existing.transaction_type is distinct from 'referral_commission_reversal'
+    or v_existing.direction is distinct from 'debit'
+    or v_existing.amount is distinct from v_commission.amount
+    or v_existing.reference_type is distinct from 'referral_commission'
+    or v_existing.reference_id is distinct from p_commission_id then
+   raise exception 'The referral reversal ledger entry is missing or inconsistent; replay was not accepted' using errcode='23514';
+  end if;
+  return jsonb_build_object('success',true,'status','reversed','replayed',true);
+ end if;
  if v_commission.status='pending' then
   update public.referral_commissions set status='reversed' where id=p_commission_id;
  else

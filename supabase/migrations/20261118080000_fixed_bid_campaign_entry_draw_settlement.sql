@@ -220,25 +220,64 @@ declare
  v_entry_id uuid; v_amount numeric(14,2); v_bid_debit numeric(14,2); v_income_debit numeric(14,2);
  v_max_member integer; v_max_total integer; v_key text:=btrim(coalesce(p_idempotency_key,''));
  v_enabled boolean:=false;
+ v_existing_entry public.fixed_bids%rowtype;
+ v_existing_debit record; v_existing_wallet public.wallet_accounts%rowtype;
+ v_existing_debit_total numeric(14,2):=0;
+ v_existing_bid_debit numeric(14,2):=0; v_existing_income_debit numeric(14,2):=0;
 begin
  if v_uid is null then raise exception 'Authentication required' using errcode='42501'; end if;
  if length(v_key)<16 or length(v_key)>100 or v_key !~ '^[A-Za-z0-9:_-]+$' then
   raise exception 'A valid entry request key is required' using errcode='22023';
  end if;
  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(v_key,0));
- select id into v_member_id from public.member_ids
- where owner_user_id=v_uid and id_type='main' and status='active'
- order by created_at limit 1;
+ select m.id into v_member_id
+ from public.member_ids m
+ join public.profiles p on p.id=m.owner_user_id and p.main_member_id=m.id
+ where m.owner_user_id=v_uid and m.id_type='main' and m.status='active' and p.status='active'
+ order by m.created_at,m.id limit 1;
  if v_member_id is null then raise exception 'An active Main ID is required' using errcode='42501'; end if;
  select * into v_campaign from public.fixed_bid_campaigns where id=p_campaign_id for update;
  if not found then raise exception 'Campaign not found' using errcode='P0002'; end if;
- select id into v_entry_id from public.fixed_bids
- where idempotency_key=v_key;
- if v_entry_id is not null then
-  if not exists(select 1 from public.fixed_bids where id=v_entry_id and member_id=v_member_id and campaign_id=p_campaign_id) then
-   raise exception 'This request key was already used for a different entry' using errcode='23505';
+ select * into v_existing_entry from public.fixed_bids
+ where idempotency_key=v_key for update;
+ if found then
+  if v_existing_entry.member_id is distinct from v_member_id
+    or v_existing_entry.campaign_id is distinct from p_campaign_id
+    or v_existing_entry.status not in ('submitted','accepted') then
+   raise exception 'This request key was already used for a different or closed entry' using errcode='23505';
   end if;
-  return jsonb_build_object('success',true,'entry_id',v_entry_id,'replayed',true);
+  for v_existing_debit in
+   select wallet_account_id,member_id,transaction_type,direction,amount,reference_type,reference_id,idempotency_key
+   from public.wallet_transactions
+   where idempotency_key in (v_key||':bid',v_key||':income')
+   order by idempotency_key
+  loop
+   select * into v_existing_wallet from public.wallet_accounts where id=v_existing_debit.wallet_account_id;
+   if not found
+     or v_existing_debit.member_id is distinct from v_member_id
+     or v_existing_debit.transaction_type is distinct from 'fixed_bid_entry'
+     or v_existing_debit.direction is distinct from 'debit'
+     or v_existing_debit.amount is null or v_existing_debit.amount<=0
+     or v_existing_debit.reference_type is distinct from 'fixed_bid_entry'
+     or v_existing_debit.reference_id is distinct from v_existing_entry.id
+     or v_existing_wallet.member_id is distinct from v_member_id
+     or (v_existing_debit.idempotency_key=v_key||':bid' and v_existing_wallet.wallet_type is distinct from 'bid')
+     or (v_existing_debit.idempotency_key=v_key||':income' and v_existing_wallet.wallet_type is distinct from 'income') then
+    raise exception 'Existing Fixed Bid entry ledger is missing or inconsistent; retry was not accepted' using errcode='23514';
+   end if;
+   v_existing_debit_total:=v_existing_debit_total+v_existing_debit.amount;
+   if v_existing_debit.idempotency_key=v_key||':bid' then
+    v_existing_bid_debit:=v_existing_debit.amount;
+   else
+    v_existing_income_debit:=v_existing_debit.amount;
+   end if;
+  end loop;
+  if v_existing_debit_total<>v_existing_entry.bid_amount then
+   raise exception 'Existing Fixed Bid entry ledger does not reconcile to the recorded amount' using errcode='23514';
+  end if;
+  return jsonb_build_object('success',true,'entry_id',v_existing_entry.id,
+   'entry_amount',v_existing_entry.bid_amount,'bid_wallet_debit',v_existing_bid_debit,
+   'income_wallet_debit',v_existing_income_debit,'replayed',true);
  end if;
  select coalesce((setting_value#>>'{}')::boolean,false) into v_enabled
  from public.app_settings where setting_key='fixed_bid_enabled';
@@ -289,6 +328,7 @@ as $function$
 declare
  v_uid uuid:=auth.uid(); v_campaign public.fixed_bid_campaigns%rowtype;
  v_seed uuid:=gen_random_uuid(); v_seed_key bigint; v_winner_count integer;
+ v_draw public.fixed_bid_draws%rowtype;
  v_winner_entries uuid[]:='{}'; v_winner_members uuid[]:='{}';
  v_entry record; v_payment_amount numeric(14,2); v_refund boolean:=false;
  v_refund_count integer:=0; v_debit record; v_wallet public.wallet_accounts%rowtype; v_new_balance numeric(14,2); v_debit_total numeric(14,2);
@@ -299,8 +339,11 @@ begin
  select * into v_campaign from public.fixed_bid_campaigns where id=p_campaign_id for update;
  if not found then raise exception 'Campaign not found' using errcode='P0002'; end if;
  if v_campaign.status<>'ended' then raise exception 'Only an ended campaign can be drawn' using errcode='55000'; end if;
- if exists(select 1 from public.fixed_bid_draws where campaign_id=p_campaign_id) then
-  raise exception 'This campaign has already been drawn' using errcode='23505';
+ select * into v_draw from public.fixed_bid_draws where campaign_id=p_campaign_id;
+ if found then
+  return jsonb_build_object('success',true,'campaign_id',p_campaign_id,'draw_id',v_draw.id,
+   'winner_count',v_draw.winner_count,'winner_entry_ids',v_draw.winner_entry_ids,
+   'winner_member_ids',v_draw.winner_member_ids,'replayed',true);
  end if;
  v_winner_count:=coalesce(nullif(v_campaign.configuration->>'winner_count','')::integer,0);
  v_payment_amount:=nullif(v_campaign.configuration->>'winner_payment_amount','')::numeric;
@@ -314,6 +357,8 @@ begin
    select distinct on (fb.member_id) fb.id,fb.member_id,
     pg_catalog.hashtextextended(fb.id::text,v_seed_key) as draw_score
    from public.fixed_bids fb
+   join public.member_ids m on m.id=fb.member_id and m.id_type='main' and m.status='active'
+   join public.profiles p on p.id=m.owner_user_id and p.main_member_id=m.id and p.status='active'
    where fb.campaign_id=p_campaign_id and fb.status in ('submitted','accepted')
    order by fb.member_id,pg_catalog.hashtextextended(fb.id::text,v_seed_key)
   ), ranked as (
@@ -332,25 +377,53 @@ begin
  values(p_campaign_id,v_seed,v_winner_entries,v_winner_members,array_length(v_winner_members,1),v_uid);
  if v_refund then
   for v_entry in
-   select id,member_id,bid_amount from public.fixed_bids
+   select id,member_id,bid_amount,idempotency_key from public.fixed_bids
    where campaign_id=p_campaign_id and status in ('submitted','accepted')
     and not (member_id=any(v_winner_members))
    order by id
   loop
    v_debit_total:=0;
    for v_debit in
-    select wallet_account_id,amount from public.wallet_transactions
+    select wallet_account_id,member_id,transaction_type,direction,amount,reference_type,reference_id,idempotency_key
+    from public.wallet_transactions
     where reference_type='fixed_bid_entry' and reference_id=v_entry.id and direction='debit'
     order by created_at,wallet_account_id
    loop
     select * into v_wallet from public.wallet_accounts where id=v_debit.wallet_account_id for update;
-    if not found then raise exception 'Original entry wallet is unavailable; draw was rolled back' using errcode='55000'; end if;
+    if not found
+      or v_wallet.member_id is distinct from v_entry.member_id
+      or v_wallet.wallet_type not in ('bid','income')
+      or v_debit.member_id is distinct from v_entry.member_id
+      or v_debit.transaction_type is distinct from 'fixed_bid_entry'
+      or v_debit.direction is distinct from 'debit'
+      or v_debit.reference_type is distinct from 'fixed_bid_entry'
+      or v_debit.reference_id is distinct from v_entry.id
+      or v_debit.idempotency_key not in (v_entry.idempotency_key||':bid',v_entry.idempotency_key||':income')
+      or (v_debit.idempotency_key=v_entry.idempotency_key||':bid' and v_wallet.wallet_type is distinct from 'bid')
+      or (v_debit.idempotency_key=v_entry.idempotency_key||':income' and v_wallet.wallet_type is distinct from 'income')
+      or v_debit.amount is null or v_debit.amount<=0 then
+     raise exception 'Original entry wallet debit is inconsistent; draw was rolled back' using errcode='23514';
+    end if;
     v_debit_total:=v_debit_total+v_debit.amount;
-    v_new_balance:=v_wallet.balance+v_debit.amount;
-    update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
-    insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
-    values(v_wallet.id,v_entry.member_id,'fixed_bid_refund','credit',v_debit.amount,v_new_balance,'fixed_bid_entry',v_entry.id,
-     'fixed-bid:'||v_entry.id::text||':refund:'||v_wallet.id::text,'Refund for non-winning Fixed Bid entry');
+    v_refund_key:='fixed-bid:'||v_entry.id::text||':refund:'||v_wallet.id::text;
+    select * into v_existing from public.wallet_transactions where idempotency_key=v_refund_key;
+    if found then
+     if v_existing.wallet_account_id is distinct from v_wallet.id
+       or v_existing.member_id is distinct from v_entry.member_id
+       or v_existing.transaction_type is distinct from 'fixed_bid_refund'
+       or v_existing.direction is distinct from 'credit'
+       or v_existing.amount is distinct from v_debit.amount
+       or v_existing.reference_type is distinct from 'fixed_bid_entry'
+       or v_existing.reference_id is distinct from v_entry.id then
+      raise exception 'Fixed Bid refund idempotency key conflicts with a different ledger transaction' using errcode='23505';
+     end if;
+    else
+     v_new_balance:=v_wallet.balance+v_debit.amount;
+     update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
+     insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
+     values(v_wallet.id,v_entry.member_id,'fixed_bid_refund','credit',v_debit.amount,v_new_balance,'fixed_bid_entry',v_entry.id,
+      v_refund_key,'Refund for non-winning Fixed Bid entry');
+    end if;
    end loop;
    if v_debit_total<>v_entry.bid_amount then
     raise exception 'Entry debit ledger does not reconcile to its recorded amount; draw was rolled back' using errcode='55000';
@@ -383,15 +456,18 @@ begin
  if v_uid is null then raise exception 'Authentication required' using errcode='42501'; end if;
  if length(v_key)<16 or length(v_key)>100 or v_key !~ '^[A-Za-z0-9:_-]+$' then raise exception 'A valid payment request key is required' using errcode='22023'; end if;
  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(v_key,0));
- select main_member_id into v_main from public.profiles where id=v_uid;
- if v_main is null then raise exception 'Main Member ID is unavailable' using errcode='42501'; end if;
+ select p.main_member_id into v_main
+ from public.profiles p
+ join public.member_ids m on m.id=p.main_member_id and m.owner_user_id=p.id
+ where p.id=v_uid and p.status='active' and m.id_type='main' and m.status='active';
+ if v_main is null then raise exception 'An active member profile and Main ID are required' using errcode='42501'; end if;
  select * into v_payment from public.winning_item_payments
  where id=p_payment_id and fixed_bid_campaign_id is not null and winner_member_id=v_main for update;
  if not found then raise exception 'Fixed Bid winner payment not found' using errcode='P0002'; end if;
  select * into v_tx from public.wallet_transactions where idempotency_key=v_key;
  if found then
   if v_tx.member_id is distinct from v_main
-    or v_tx.transaction_type is distinct from 'fixed_bid_winner_payment'
+    or v_tx.transaction_type is distinct from 'winning_item_payment'
     or v_tx.direction is distinct from 'debit'
     or v_tx.amount is distinct from v_payment.amount
     or v_tx.reference_type is distinct from 'winning_item_payment'
@@ -413,7 +489,7 @@ begin
  v_new_balance:=v_wallet.balance-v_payment.amount;
  update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
  insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
- values(v_wallet.id,v_main,'fixed_bid_winner_payment','debit',v_payment.amount,v_new_balance,'winning_item_payment',p_payment_id,v_key,'Fixed Bid winning payment from Income Wallet');
+ values(v_wallet.id,v_main,'winning_item_payment','debit',v_payment.amount,v_new_balance,'winning_item_payment',p_payment_id,v_key,'Fixed Bid winning payment from Income Wallet');
  update public.winning_item_payments set status='paid',paid_at=now() where id=p_payment_id;
  return jsonb_build_object('success',true,'payment_id',p_payment_id,'status','paid','income_wallet_balance',v_new_balance,'replayed',false);
 end;
@@ -448,8 +524,11 @@ begin
   raise exception 'A valid payment request key is required' using errcode='22023';
  end if;
  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(v_key,0));
- select main_member_id into v_main from public.profiles where id=v_uid;
- if v_main is null then raise exception 'Main Member ID is unavailable' using errcode='42501'; end if;
+ select p.main_member_id into v_main
+ from public.profiles p
+ join public.member_ids m on m.id=p.main_member_id and m.owner_user_id=p.id
+ where p.id=v_uid and p.status='active' and m.id_type='main' and m.status='active';
+ if v_main is null then raise exception 'An active member profile and Main ID are required' using errcode='42501'; end if;
  select * into v_payment from public.winning_item_payments
  where id=p_payment_id and winner_member_id=v_main for update;
  if not found then raise exception 'Winning payment not found' using errcode='P0002'; end if;
