@@ -40,7 +40,8 @@ begin
   get diagnostics v_duplicate_count=row_count;
  elsif p_status='closed' then
   update public.member_ids set status='closed',main_status_managed=true
-  where main_member_id=v_main.id and id_type='duplicate' and status in ('active','pending','suspended') and not main_status_managed;
+  where main_member_id=v_main.id and id_type='duplicate'
+    and (status in ('active','pending') or (status='suspended' and main_status_managed));
   get diagnostics v_duplicate_count=row_count;
  elsif p_status='active' then
   update public.member_ids set status='active',main_status_managed=false
