@@ -617,3 +617,8 @@
 - CI run #931 stopped before TypeScript/build because the updated Fixed Bid pagination test had an incorrectly escaped single-quoted assertion.
 - Corrected the assertion to use a double-quoted TypeScript string. The source UI and migration are unchanged.
 - The public package catalogue RPC batch has also been committed; its CI result is pending.
+
+### 2026-11-18 — Fixed Bid pagination regex correction
+- CI run #932 confirmed 418/418 individual tests passed, but the Fixed Bid pagination suite failed while constructing an over-escaped regular expression.
+- Replaced the regex with direct source-string assertions for client-side insert/update/upsert calls. The Fixed Bid UI and database migration remain unchanged.
+- A fresh CI run is pending.

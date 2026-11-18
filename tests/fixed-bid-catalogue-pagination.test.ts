@@ -15,7 +15,9 @@ describe('Fixed Bid catalogue pagination',()=>{
   expect(source).toContain("const canJoin=r.status==='live'");
   expect(source).toContain('entryKeys.current.get(campaign.id)');
   expect(source).toContain('result.replayed?');
-  expect(source).not.toMatch(/\\.insert\\(|\\.update\\(|\\.upsert\\(/);
+  expect(source).not.toContain('.insert(');
+  expect(source).not.toContain('.update(');
+  expect(source).not.toContain('.upsert(');
  });
 });
 describe('Fixed Bid catalogue server-side filters',()=>{
