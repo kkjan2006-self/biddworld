@@ -301,3 +301,12 @@
 - Recorded the exact distinction in `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`. Do not infer that a source-defined RPC is live, and do not deploy anything to Production during this development phase.
 - Admin component direct table access is limited to Supabase Storage buckets `product-media` and `package-receipts`; reviewed the corresponding Storage policies and upload/signed-URL usage. Product media is public-read with Admin-only mutations; package receipts are private and readable by the owner or Admin.
 - No tests/build, migration replay, or Supabase writes were performed. Production and TEST remain untouched.
+
+
+### 2026-11-18 — Member Portal RPC and direct-table Production RLS audit
+- Audited direct Supabase RPC/table access across Account, Packages, Support, Notifications, Fixed Bid, Referrals, Placement Tree, Wallet History and App components.
+- Compared 16 selected Member/Public RPC names with Production `pg_proc` using a read-only query. Confirmed Production currently exposes `get_my_placement_tree()`, `lookup_sponsor(text)`, `member_create_withdrawal_request(numeric,jsonb)`, `member_list_my_withdrawals()` and legacy `place_bid(uuid)`; several newer Member RPCs used by the branch are not yet installed in Production.
+- Recorded the compatibility gap: frontend uses the idempotency-aware `place_bid` call, while Production currently has only the legacy one-argument signature. A source migration provides the newer contract; no Production change was made.
+- Queried RLS status and policy names for the Member-facing direct-query tables. Thirteen existing tables in scope have RLS enabled and one named policy each. `support_tickets` and `member_notifications` were not found in the current Production table inventory, matching their newer source-only implementation status.
+- Added `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md` with the exact RPC/table findings and follow-up steps. Policy predicates and column-level contracts remain to be inspected; catalogue presence alone is not runtime authorization proof.
+- No tests/build, migration replay, or database writes were performed. Production and TEST remain untouched.
