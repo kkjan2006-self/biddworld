@@ -75,7 +75,7 @@ export default function Packages() {
       let receiptPath:string|null=null;
       if(receiptFile){
         const safeName=receiptFile.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').slice(-90)||'payment-receipt';
-        receiptPath=authData.user.id+'/'+crypto.randomUUID()+'-'+safeName;
+        const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);const fileId=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');receiptPath=authData.user.id+'/'+fileId+'-'+safeName;
         const{error:uploadError}=await supabase.storage.from('package-receipts').upload(receiptPath,receiptFile,{contentType:receiptFile.type,upsert:false});
         if(uploadError)throw uploadError;
       }
