@@ -69,3 +69,10 @@ No tests/builds/CI, npm install/audit, database replay or database writes were p
 ## 2026-11-18 follow-up — forward candidate #68
 
 A deeper grant review found that the original support-ticket migration granted INSERT(user_id, subject, message) and UPDATE(status, admin_response) at column scope. Forward candidate #67 revoked only table-level INSERT/UPDATE, which does not clear those independent column grants. Added candidate #68 to revoke both privilege scopes. The ordered forward manifest now contains 68 candidates; this follow-up is source-only and does not establish PostgreSQL replay success. No tests, builds, CI, npm audit, migration replay or database writes were run. Production remains read-only; TEST remains untouched.
+
+
+## 2026-11-18 follow-up — notification column ACL
+
+A targeted explicit-GRANT/REVOKE scan of the first 14 ordered forward migrations found that the original notification migration granted INSERT(user_id, title, message, category) at column scope. Candidate #67 revoked only table-level INSERT. The Admin-only INSERT RLS policy limited the surviving path to Admins, but a direct Admin insert could bypass the audited/idempotent notification RPC. Added candidate #69 to revoke both table-level and exact column-level INSERT. The owner-scoped UPDATE(read_at) column grant is intentionally preserved because the member inbox uses it to mark notifications as read.
+
+The earlier support-ticket column-level grants were separately corrected in candidate #68. This targeted scan has not yet covered every one of the 69 forward migrations; the broader ACL parity review remains open. No tests, builds, CI, npm audit, SQL execution, migration replay or database access/writes were performed. Production remains read-only; TEST remains untouched. Overall estimate remains 55%.
