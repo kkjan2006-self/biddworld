@@ -702,3 +702,16 @@
 ### 2026-11-18 — PWA import correction
 - CI run #951 passed all tests but TypeScript failed on a duplicate `PWAInstallButton` import in `src/App.tsx`.
 - Removed the duplicate import; the header render and install prompt component remain intact. CI rerun is pending.
+
+
+## 2026-11-18 — Latest branch CI and read-only database revalidation
+
+- Confirmed the exact `completion-work` branch HEAD: `398398927d97154cf94417234449c7c60a73b069` (`fix: remove duplicate PWA install component import`). This is the branch HEAD; repository-wide commit search results are not used as a substitute for branch metadata.
+- Inspected GitHub Actions run [#951](https://github.com/kkjan2006-self/biddworld/actions/runs/44248768197): all 102 test files / 432 tests passed; TypeScript then failed because `src/App.tsx` imported `PWAInstallButton` twice. Removed the duplicate import in the next commit.
+- Verified GitHub Actions run [#952](https://github.com/kkjan2006-self/biddworld/actions/runs/44248923875) on the current HEAD: 102/102 test files and 432/432 tests passed; TypeScript project build, Vite production build and GitHub Pages subpath build all passed.
+- Rechecked the package activation and support-filter contracts on the current branch. The package activation UI fails closed unless the database setting is explicitly true; the support queue applies status filters in initial load, load-more and full CSV export paths. The current support test expects all three paths. The older reported two-assertion CI failure is not present on this HEAD.
+- Read-only Production catalogue revalidation: 21 public tables / 175 columns; RLS enabled on all 21; 110 constraints; 60 indexes; 20 public policies; 47 public/private application functions; 10 public-table triggers plus the Auth-user trigger (11 application triggers total). Storage currently has 0 buckets.
+- Read-only TEST revalidation: project is `ACTIVE_HEALTHY`, PostgreSQL 17.12; 0 public tables, 0 migrations, 0 application functions, 0 public policies, 0 public indexes, 0 public-table triggers and 0 Storage buckets. No migrations or data were written.
+- The clean-install baseline remains a candidate only: 56 ordered forward migrations and 16 explicitly excluded historical timestamped migrations are listed; three legacy/unversioned SQL files still require explicit treatment. The candidate must be reviewed and replayed only on TEST after development completion. It is not approved for Production.
+- Production Storage is not configured yet, although source migrations define the intended media/receipt buckets. This remains a TEST replay and final integration-verification item.
+- This entry records verification and blockers only. No feature completion percentage increase is claimed; no Production or TEST writes were performed.
