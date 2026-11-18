@@ -140,3 +140,16 @@ The incompatible legacy `0001_biddworld.sql` is not part of the clean-install fo
 ## 9. Storage policy final-state reconciliation
 
 See `docs/STORAGE_POLICY_FINAL_STATE_RECONCILIATION_2026-11-18.md` for the ordered receipt Storage policy chain: initial owner-or-Admin SELECT is replaced by Admin-only SELECT, while Member INSERT remains restricted to the signed-in user's folder. The product-media bucket remains a separate public-read/Admin-write bucket. These are source-level findings; effective Storage policy composition remains pending TEST replay.
+
+
+## 10. Auction bid eligibility versus concurrent Main-ID lifecycle changes
+
+Source review found a read-then-act race in the final `private.place_bid(uuid,text)` implementation: it selected an active Main ID/Profile before the wallet and auction operations, while the Admin `admin_set_main_member_status(text,text,text)` lifecycle RPC could suspend or close that same Main ID concurrently. The bid path had no shared per-Main-ID serialization point or post-lock activity recheck.
+
+Added source migration `20261118430000_serialize_auction_bid_member_eligibility.sql`:
+- The Admin Main-ID lifecycle RPC now acquires a per-Main-ID advisory transaction lock after locking the Main ID row and before changing Main/Profile/Duplicate status.
+- The private bid implementation acquires the same lock after selecting the candidate Main ID, then rechecks both Main ID and Profile ownership/type/status before it can proceed to idempotency handling, auction locking or wallet debits.
+- If the member became inactive while the bid was waiting, the operation fails with the existing active-Main-ID authorization error and no bid debit is made.
+- The public `place_bid(uuid,text)` signature, authenticated EXECUTE grant, wallet debit logic and idempotency metadata are retained from the final source definition.
+
+The migration is now the 65th forward candidate. Current source inventory: 81 timestamped SQL files (65 forward + 16 excluded) and 3 legacy/unversioned files = 84 total. This is a source-level concurrency correction only; no tests/builds, migration replay or database writes were performed. Production and TEST remain untouched.
