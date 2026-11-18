@@ -462,3 +462,12 @@
 - Updated `admin_save_notification_template` to record the authenticated Admin as `created_by` on insert; updates continue to preserve the original creator.
 - This is a source migration correction only. Per the agreed development-first workflow, tests/builds are deferred to the final consolidated testing phase. No Supabase database was modified.
 - No overall completion percentage increase is claimed for this isolated correction.
+
+
+### 2026-11-18 — Production schema baseline candidate assembled
+- Captured the current Production schema through read-only catalogue queries and added a separate candidate baseline under `supabase/clean-install/`; it is not in the Supabase CLI migration directory.
+- Candidate inventory: 21 public tables, 110 constraints, 28 non-constraint indexes, 20 RLS policies, 47 public/private function definitions, 11 application triggers, and captured table/sequence/function grants.
+- Added an ordered manifest of 48 source-only forward migration candidates after the Production snapshot. Historical migrations already represented by the snapshot are excluded; the duplicate audit-log pagination source is also excluded.
+- Added explicit function/sequence ACL revocation before replaying observed grants, preventing PostgreSQL's default PUBLIC function EXECUTE privilege from weakening the captured access model.
+- This is a schema-only candidate, not a verified canonical migration chain. No migration was executed and no Production or TEST writes occurred. Final replay, comparison and all tests remain deferred until the consolidated testing phase.
+- Overall completion percentage remains unchanged; baseline replay and end-to-end integration are not yet verified.

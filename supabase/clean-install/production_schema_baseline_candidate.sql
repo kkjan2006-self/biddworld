@@ -1806,6 +1806,9 @@ CREATE TRIGGER enforce_winning_payment_feature BEFORE INSERT OR UPDATE OF status
 CREATE TRIGGER enforce_withdrawal_feature BEFORE INSERT ON withdrawal_requests FOR EACH ROW EXECUTE FUNCTION private.enforce_feature_gate();
 
 -- 8. Schema usage grants and table/sequence/function ACLs.
+revoke all on all functions in schema public from public, anon, authenticated, service_role;
+revoke all on all functions in schema private from public, anon, authenticated, service_role;
+revoke all on all sequences in schema public from public, anon, authenticated, service_role;
 
 grant usage on schema public to anon, authenticated, service_role;
 revoke all on all tables in schema public from public, anon, authenticated, service_role;
