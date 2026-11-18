@@ -51,7 +51,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
-   let added=0;setTickets(current=>{const known=new Set(current.map(ticket=>ticket.id));const fresh=rows.filter(ticket=>!known.has(ticket.id));added=fresh.length;return [...current,...fresh];});
+   let added=0;setTickets(current=>{const known=new Set(current.map(ticket=>ticket.id));const fresh=rows.filter(ticket=>{if(known.has(ticket.id))return false;known.add(ticket.id);return true;});added=fresh.length;return [...current,...fresh];});
    if(rows.length===PAGE_SIZE&&added===0){setHasMore(false);setError('The support queue returned a repeated page. Refresh the list before loading more.');}else setHasMore(rows.length===PAGE_SIZE);
    setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
    setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));

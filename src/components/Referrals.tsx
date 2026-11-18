@@ -59,7 +59,7 @@ export default function Referrals(){
    const {data:next,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
    if(seq!==request.current)return;
    if(loadError)throw loadError;
-   setData(current=>{if(!current)return next as Dashboard;const page=next as Dashboard;const known=new Set(current.tree.map(member=>member.member_code));const fresh=page.tree.filter(member=>!known.has(member.member_code));return {...page,tree:[...current.tree,...fresh],has_more:page.has_more&&fresh.length>0};});
+   setData(current=>{if(!current)return next as Dashboard;const page=next as Dashboard;const known=new Set(current.tree.map(member=>member.member_code));const fresh=page.tree.filter(member=>{if(known.has(member.member_code))return false;known.add(member.member_code);return true;});if(page.tree.length>0&&fresh.length===0)setError('The team list returned a repeated page. Refresh the dashboard before loading more.');return {...page,tree:[...current.tree,...fresh],has_more:page.has_more&&fresh.length>0};});
   }catch(e){if(seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'More team members could not be loaded. Please retry.'));}
   finally{if(seq===request.current){loadMoreBusy.current=false;setLoadingMore(false);}}
  }
