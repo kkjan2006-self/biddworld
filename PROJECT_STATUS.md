@@ -86,10 +86,12 @@ The following source/UI/documentation work is present in the current branch and 
 
 - Status checkpoint: package-receipt Storage policy sequence and product-media policy separation are documented; current inventory corrected to 81 SQL files (78 timestamped + 3 legacy), 62 forward + 16 excluded timestamped migrations. Full replay and policy verification remain pending.
 
+- 2026-11-18 — Fixed Bid secure random-draw migration review found two source defects in `20261118340000_secure_fixed_bid_random_draw.sql`: refund variables were referenced without declarations (PL/pgSQL compilation failure), and refund selection excluded every entry from a winning member rather than excluding only the actual winning entry IDs. Declared the refund idempotency key and existing-ledger row variables; changed the losing-entry predicate to exclude only `v_winner_entries`, so additional entries from a winner are handled as non-winning entries when configured refunds are enabled. Source commit: `81c245c1688fcff306ca7b556f1f0e268eca68e3`. Not executed or tested; no DB changes.
+
 ## H. NEXT DEVELOPMENT BATCH
 
 Start with the existing clean-install candidate and evidence, not a new audit from zero:
-1. Continue from the focused RPC and Storage reconciliation docs; inspect remaining Admin RPC call sites, result mappings and direct table-select/RLS dependencies.
+1. Continue from the Fixed Bid draw correction; inspect remaining final RPC definitions and frontend call/result mappings, especially settlement/refund and winner-payment paths.
 2. Continue the 62-forward-migration semantic review, especially final function bodies, trigger references, grants and Storage policy state.
 3. Fix only evidenced source defects in bulk; do not infer missing business rules or change Production/TEST.
 4. Keep full tests and database replay deferred to the consolidated final testing phase.
