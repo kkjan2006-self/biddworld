@@ -26,7 +26,12 @@ begin
  end if;
  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(v_uid::text||':'||v_key,0));
  select * into v_ticket from public.support_tickets where user_id=v_uid and idempotency_key=v_key;
- if found then return jsonb_build_object('success',true,'ticket_id',v_ticket.id,'status',v_ticket.status,'replayed',true); end if;
+ if found then
+  if v_ticket.subject is distinct from trim(p_subject) or v_ticket.message is distinct from trim(p_message) then
+   raise exception 'This support request key was already used for different content' using errcode='23505';
+  end if;
+  return jsonb_build_object('success',true,'ticket_id',v_ticket.id,'status',v_ticket.status,'replayed',true);
+ end if;
  insert into public.support_tickets(user_id,subject,message,status,idempotency_key)
  values(v_uid,trim(p_subject),trim(p_message),'open',v_key)
  returning * into v_ticket;
