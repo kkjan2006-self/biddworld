@@ -284,3 +284,12 @@
 - Corrected `20261118220000_member_placement_tree_rpc.sql` to match the actual Production `get_my_placement_tree()` body and response: Main-ID descendants only, maximum depth 20, cycle protection, and the original JSONB keys/order. This replaces the earlier unverified proposal; no Production function was changed.
 - Updated `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md` with the recovery evidence and a TEST requirement to verify PostgREST overload resolution for the wallet transaction functions.
 - Latest verified inventory: **65 files under `supabase/migrations` (3 legacy/unversioned + 62 timestamped)**, plus 1 separate SQL audit script under `supabase/audit` (66 `.sql` files repository-wide). All changes remain source-only. Production was queried read-only; no writes, migration replay, tests or builds were run. TEST remains untouched.
+
+
+### 2026-11-18 — Production RPC catalogue recovery and contract alignment
+- Used a read-only Production PostgreSQL catalogue query to retrieve `pg_get_functiondef`, signatures and return types for the previously unreconciled Admin RPCs. No Production DDL/DML was executed.
+- Added source migration `20261118230000_recover_admin_read_rpc_sources.sql` for the recovered package, referral-plan, withdrawal, wallet-account, wallet-transaction, winning-payment and default-sponsor RPCs. Preserved both wallet-account overloads and both wallet-transaction overloads. Corrected the paginated wallet-account `currency` return type to `text`, matching the live catalogue.
+- Confirmed the Admin frontend calls these RPCs using the named pagination arguments and updated the Admin RPC reconciliation document with the recovered source map.
+- Recovered the live `get_my_placement_tree()` definition and aligned `20261118220000_member_placement_tree_rpc.sql` to its existing JSONB response and Main-ID traversal contract.
+- Recorded a remaining TEST contract check: PostgREST overload resolution for the two `admin_list_wallet_transactions` signatures with default arguments must be verified before relying on the frontend named-argument call.
+- No tests/build, migration replay, or Supabase writes were performed. Production and TEST databases remain untouched.
