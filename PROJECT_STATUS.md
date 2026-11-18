@@ -12,7 +12,7 @@
 - Latest verified application/source work commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8` (serialize Auction Bid eligibility with Main-ID lifecycle).
 - Source commit message: `fix: serialize auction bid eligibility with member lifecycle`.
 - Latest verified source/documentation batch commits: `025ec6050f5846347d682025e2cd443feaabf5f7` (clean-install inventory correction), `74337c27b1646887f13340d4495147189f223e4e` (auction refund/delivery tracking review), `1d0103c623d207cfa1c2a24a19e7b78d0928b68e` (completion register).
-- This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
+- Verified `completion-work` HEAD at this checkpoint: `6ec0f59882b44feedb40524f3dbaac0d52003630` (latest documentation commit). Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
 - Overall project completion estimate: **55%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
