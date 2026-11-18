@@ -32,3 +32,7 @@ Ordered forward candidates are listed in `forward-migrations.txt` (**61 files at
 6. Never apply this candidate to Production.
 
 This candidate reconstructs schema, not Production data. Historical SQL evidence remains archived under `supabase/audit/production-ledger/`.
+
+## Current static reconciliation checkpoint
+
+See [`docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md) for the verified 80-file inventory, baseline object counts, migration sequencing observations, Storage policy final-state dependency, and the current CI result. All findings are source-level only; no TEST or Production replay has occurred.
