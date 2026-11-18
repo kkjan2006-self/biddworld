@@ -354,7 +354,8 @@ language plpgsql security definer set search_path=''
 as $function$
 declare
  v_uid uuid:=auth.uid(); v_main uuid; v_payment public.winning_item_payments%rowtype;
- v_wallet public.wallet_accounts%rowtype; v_key text:=btrim(coalesce(p_idempotency_key,''));
+ v_wallet public.wallet_accounts%rowtype; v_tx public.wallet_transactions%rowtype;
+ v_key text:=btrim(coalesce(p_idempotency_key,''));
  v_enabled boolean:=false; v_new_balance numeric(14,2);
 begin
  if v_uid is null then raise exception 'Authentication required' using errcode='42501'; end if;
@@ -365,11 +366,19 @@ begin
  select * into v_payment from public.winning_item_payments
  where id=p_payment_id and fixed_bid_campaign_id is not null and winner_member_id=v_main for update;
  if not found then raise exception 'Fixed Bid winner payment not found' using errcode='P0002'; end if;
- if exists(select 1 from public.wallet_transactions where idempotency_key=v_key) then
-  if exists(select 1 from public.wallet_transactions where idempotency_key=v_key and reference_type='winning_item_payment' and reference_id=p_payment_id and member_id=v_main) then
-   return jsonb_build_object('success',true,'payment_id',p_payment_id,'status','paid','replayed',true);
+ select * into v_tx from public.wallet_transactions where idempotency_key=v_key;
+ if found then
+  if v_tx.member_id is distinct from v_main
+    or v_tx.transaction_type is distinct from 'fixed_bid_winner_payment'
+    or v_tx.direction is distinct from 'debit'
+    or v_tx.amount is distinct from v_payment.amount
+    or v_tx.reference_type is distinct from 'winning_item_payment'
+    or v_tx.reference_id is distinct from p_payment_id
+    or not exists(select 1 from public.wallet_accounts w
+      where w.id=v_tx.wallet_account_id and w.member_id=v_main and w.wallet_type='income') then
+   raise exception 'This payment request key conflicts with a different ledger transaction' using errcode='23505';
   end if;
-  raise exception 'This payment request key was used for another transaction' using errcode='23505';
+  return jsonb_build_object('success',true,'payment_id',p_payment_id,'status','paid','replayed',true);
  end if;
  if v_payment.status<>'pending' then raise exception 'This winning payment is no longer pending' using errcode='55000'; end if;
  select coalesce((setting_value#>>'{}')::boolean,false) into v_enabled
@@ -424,10 +433,17 @@ begin
  if not found then raise exception 'Winning payment not found' using errcode='P0002'; end if;
  select * into v_tx from public.wallet_transactions where idempotency_key=v_key;
  if found then
-  if v_tx.reference_type='winning_item_payment' and v_tx.reference_id=p_payment_id and v_tx.member_id=v_main then
+  if v_tx.reference_type='winning_item_payment'
+    and v_tx.reference_id=p_payment_id
+    and v_tx.member_id=v_main
+    and v_tx.transaction_type='winning_item_payment'
+    and v_tx.direction='debit'
+    and v_tx.amount=v_payment.amount
+    and exists(select 1 from public.wallet_accounts w
+      where w.id=v_tx.wallet_account_id and w.member_id=v_main and w.wallet_type='income') then
    return jsonb_build_object('success',true,'payment_id',p_payment_id,'status','paid','replayed',true);
   end if;
-  raise exception 'This payment request key was used for another transaction' using errcode='23505';
+  raise exception 'This payment request key conflicts with a different ledger transaction' using errcode='23505';
  end if;
  if v_payment.status<>'pending' then raise exception 'This winning payment is no longer pending' using errcode='55000'; end if;
  select coalesce((setting_value#>>'{}')::boolean,false) into v_enabled

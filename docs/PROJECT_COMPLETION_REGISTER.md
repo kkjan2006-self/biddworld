@@ -487,3 +487,11 @@
 - Admin payout confirmation now also requires a matching reservation ledger entry, preventing an approved status without a corresponding reserved amount from being marked paid.
 - Source migration only. No database migration, payout, build or test was run; all tests remain deferred to the final consolidated phase.
 - Overall completion percentage is not increased for this isolated integrity hardening.
+
+
+### 2026-11-18 — Winner-payment replay ledger verification
+- Tightened both Fixed Bid-specific and shared Auction/Fixed Bid winner-payment retry paths.
+- A repeated payment key now counts as a successful replay only when the existing ledger row matches the winner's Income Wallet, Main ID, debit direction, exact amount, transaction type and winning-payment reference.
+- A colliding key from an unrelated wallet transaction now fails closed instead of returning a false paid/replayed response.
+- Source migration only. No payment, database migration, build or test was executed; consolidated testing remains deferred.
+- Overall completion percentage is not increased for this isolated integrity hardening.
