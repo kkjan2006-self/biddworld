@@ -72,8 +72,10 @@ begin
     if v_type is distinct from 'fixed' and v_type is distinct from 'percentage' then
       raise exception 'Reward type must be fixed or percentage' using errcode='22023';
     end if;
-    if v_value is null or v_value <= 0 or v_value > 100000 then
-      raise exception 'Reward value must be greater than zero and at most 100000' using errcode='22023';
+    if v_value is null or v_value <= 0
+      or (v_type = 'fixed' and v_value > 100000)
+      or (v_type = 'percentage' and v_value > 100) then
+      raise exception 'Fixed rewards must be greater than zero and at most 100000; percentage rewards must be greater than zero and at most 100' using errcode='22023';
     end if;
     if exists (
       select 1 from public.referral_level_rules
