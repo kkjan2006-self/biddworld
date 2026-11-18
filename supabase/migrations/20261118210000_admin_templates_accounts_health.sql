@@ -7,6 +7,7 @@ create table if not exists public.notification_templates (
  channel text not null,
  subject text,
  body text not null,
+ created_by uuid references auth.users(id) on delete set null,
  is_active boolean not null default false,
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
