@@ -48,6 +48,10 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_list_auction_bids_page",
+      "ui": "src/components/AdminAuctionBidReport.tsx"
+    },
+    {
       "name": "admin_list_auction_products",
       "ui": "src/components/Admin.tsx"
     },
