@@ -438,3 +438,12 @@
 - Updated the package regression test to verify fail-closed database feature-setting behavior, conditional activation form rendering, receipt upload/RPC wiring, proposed-only wallet credit display, and continued free registration.
 - Updated withdrawal regression coverage to verify the database feature interlock, trusted-Admin RPC usage, row locking, Income Wallet reservation, idempotent release, audit logging, and member payout-data minimization.
 - Changes are committed to `completion-work`; GitHub Actions verification for the new head is pending. No TEST or Production database writes were made. No completion percentage increase is claimed from test-only changes.
+
+
+## 2026-11-18 — CI regression contract reconciliation verified
+
+- Latest branch CI run [#898](https://github.com/kkjan2006-self/biddworld/actions/runs/44234569835) passed on commit `936d05864e93b1d452a89bac9c224852510e4eb6`.
+- GitHub Actions reported **90/90 test files and 343/343 tests passed**. TypeScript project build/type-check and Vite 6.4.6 production build also completed successfully.
+- Corrected stale assertions to match current member selection, pending activation export, 20-level editor guard, referral draft validation, Fixed Bid server-side participation/idempotency, account refresh lifecycle and database-driven package activation gate.
+- Rebuilt the frontend RPC call-site inventory from the ten React surfaces: 67 unique literal RPC-and-surface entries. This is a source inventory only, not proof that all RPCs are deployed in Production.
+- No Supabase writes or migrations were run. Production remains read-only and TEST remains empty. This CI pass verifies repository source only; clean-install replay and live integration remain unverified.

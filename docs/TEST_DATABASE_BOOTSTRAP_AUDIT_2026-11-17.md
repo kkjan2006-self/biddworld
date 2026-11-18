@@ -113,3 +113,13 @@ Current branch tree inventory: **60 SQL files total: 3 legacy/unversioned and 57
 ## 2026-11-18 — Updated migration inventory
 
 The latest branch contains **61 SQL files: 3 legacy/unversioned and 58 timestamped**. Twelve new timestamped source migrations dated 2026-11-18 are present. The latest addition is `20261118190000_package_activation_history_reporting.sql`. All new migrations remain unapplied; TEST remains empty and Production remains read-only.
+
+
+## 2026-11-18 — Revalidated current branch inventory after bulk source development
+
+- Audited the exact `completion-work` tree at commit `936d05864e93b1d452a89bac9c224852510e4eb6`: **67 SQL files total — 64 timestamped migrations and 3 legacy/unversioned files**. This supersedes earlier 49-, 55-, 60- and 61-file counts recorded above.
+- Re-read the live Supabase migration catalogues: Production still has 30 ledger entries; TEST still has zero migrations and zero public tables. Production is ACTIVE_HEALTHY on PostgreSQL 17.11; TEST is ACTIVE_HEALTHY on PostgreSQL 17.12.
+- Reconciled the current 30-row Production ledger against the current source filenames: 4 exact version-and-name matches; 9 additional matching names with timestamp differences; 17 Production ledger names have no corresponding source filename. The 17 missing source names are listed in the current comparison output and must not be recreated from names alone.
+- The legacy `0001_biddworld.sql` remains structurally incompatible with the current `owner_user_id` / `member_id` schema contract; `0002_place_bid_rpc.sql` remains the old one-argument bid contract; `001_initial_schema.sql` remains empty. No clean-install baseline is verified.
+- Decision remains: do not apply any migration to TEST until a separately reviewed, complete baseline and ordered forward chain are reconstructed from verified schema/function/policy/trigger/index/grant evidence. Do not replay the current directory wholesale or fabricate missing historical SQL.
+- This was a metadata/source-tree audit only. No Production or TEST SQL writes, migrations, Storage writes, or application data changes were performed.
