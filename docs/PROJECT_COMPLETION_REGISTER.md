@@ -715,3 +715,12 @@
 - The clean-install baseline remains a candidate only: 56 ordered forward migrations and 16 explicitly excluded historical timestamped migrations are listed; three legacy/unversioned SQL files still require explicit treatment. The candidate must be reviewed and replayed only on TEST after development completion. It is not approved for Production.
 - Production Storage is not configured yet, although source migrations define the intended media/receipt buckets. This remains a TEST replay and final integration-verification item.
 - This entry records verification and blockers only. No feature completion percentage increase is claimed; no Production or TEST writes were performed.
+
+
+### 2026-11-18 — Clean-install candidate structural and migration-partition cross-check
+- Compared the schema-only baseline candidate's static object inventory with fresh read-only Production catalogue results: 21 tables, 21 RLS enablements, 20 policies, 47 functions, 11 application triggers and 28 explicit non-constraint indexes are represented; live Production reports 21 tables / 175 columns, 110 constraints, 60 total indexes, 20 policies, 47 public/private functions and 10 public-table triggers plus the Auth trigger. No object-count discrepancy was found in this structural pass.
+- Recomputed the source migration partition against the current branch directory: 75 SQL files total (72 timestamped and 3 legacy/unversioned); 56 ordered forward candidates plus 16 explicitly excluded historical migrations account for all 72 timestamped files exactly once. No missing entries, duplicates or overlaps were found.
+- Confirmed `pgcrypto` version 1.3 is already installed in the `extensions` schema in both Production and TEST, matching the baseline's extension prerequisite. No extension changes were made.
+- Reviewed the two source Storage migrations: `product-media` is public-read with Admin-only mutation; `package-receipts` is private with member-owned upload/read and Admin review. Neither Production nor TEST currently has a Storage bucket, so these policies and upload paths remain unverified until TEST replay.
+- Remaining baseline review gates: exact function-definition/ACL parity, trigger function/order and identity-sequence ownership, and dependency/semantic review of all 56 forward migrations. Candidate remains non-executable pending TEST replay; Production stays read-only.
+- No database writes, migrations, test data, member actions or wallet activity. No completion-percentage increase is claimed.
