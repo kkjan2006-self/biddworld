@@ -11,6 +11,13 @@ describe('Member withdrawal payout privacy',()=>{
   expect(migration).toContain('grant execute on function public.member_list_my_withdrawals() to authenticated');
   expect(migration).not.toMatch(/w\.payout_details\s*,/i);
  });
+ it('uses valid digit and optional-plus patterns for member contact and withdrawal inputs',()=>{
+  expect(account).toContain("!/^\\+?[0-9][0-9 ()-]{7,15}$/");
+  expect(account).toContain("!/^\\d+(?:\\.\\d{1,2})?$/");
+  expect(account).toContain("!/^\\d{6,18}$/");
+  expect(account).not.toContain("!/^\\\\d+(?:\\\\.\\\\d{1,2})?$/");
+  expect(account).not.toContain("!/^\\\\d{6,18}$/");
+ });
  it('member UI only displays the payout method label from history',()=>{
   expect(account).toContain("Boolean(w.payout_details?.method)");
   expect(account).toContain("String(w.payout_details?.method)");
