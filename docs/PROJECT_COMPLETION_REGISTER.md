@@ -969,3 +969,11 @@
 
 
 - Follow-up source compatibility refinement: the single trigger audit event retains the pre-existing RPC action name `support.ticket_updated` and the `response_updated` detail key. This avoids changing the searchable event contract while removing the duplicate row. Commit: `2015412e8377ffdd6ec9eea783f9ce6d6b09cdd4`.
+
+
+### 2026-11-18 — Support and notification idempotency retry hardening
+
+- Corrected a Member Support retry edge: when a submission failed and the member edited the subject or message before retrying, the UI previously reused the same idempotency key, causing the server to correctly reject the changed payload as key reuse. The UI now retains the key for identical retries (including ambiguous network outcomes) and generates a fresh key when the normalized subject/message changes. A successful submission clears both key and payload fingerprint.
+- Hardened Admin notification idempotency fingerprinting by encoding recipient, title, message and category as a JSON tuple instead of delimiter concatenation, eliminating ambiguous field-boundary collisions.
+- Added `tests/support-ticket-idempotency-retry.test.ts` and `tests/notification-idempotency-fingerprint.test.ts`. These source-contract tests were added but not executed.
+- No migrations, database writes, tests/build/QA or deployment were performed. Production remains read-only and TEST remains untouched.
