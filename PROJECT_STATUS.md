@@ -11,7 +11,7 @@
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration); forward manifest inclusion: `2417bf925a08178f846ab62f70f864a9c52041b1`
 - Source commit message: `feat: add secure Admin notification recipient lookup`
-- Latest verified source/documentation work commit: `db891c7c423eed4bd57ba5c0694ea54fe8990154` (`docs: update BiddWorld recovery documentation`)
+- Latest verified source/documentation work commit: `6f5de9f6a53580bcb006fcc4bf8303b133a2d424` (`docs: reconcile auction lifecycle and winner finalization`)
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
@@ -99,6 +99,8 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 - Admin notification recipient usability: replaced manual Auth UUID entry with an Admin-only search by Main ID, member name or mobile, returning up to 25 Main ID matches and requiring an explicit selection. Added migration `20261118400000_admin_notification_recipient_lookup.sql`; no database was modified and no tests/build were run. Source commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c`.
 
 - 2026-11-18 — Added Admin notification recipient lookup migration to the ordered forward manifest; current inventory is 78 timestamped migrations (62 forward, 16 excluded) plus 3 legacy files. Manifest test remains deferred to consolidated final testing. Commit: `2417bf925a08178f846ab62f70f864a9c52041b1`.
+
+- 2026-11-18 — Source-reconciled the Auction lifecycle/finalization RPC and corrected Fixed Bid draw flow. Confirmed Admin-only lifecycle gates, schedule/platform enable checks, ledger-validated atomic cancellation refunds, deterministic highest-bid winner selection, idempotent finalization, pending winner-payment creation, SHA-256 Fixed Bid ranking and one-winner-per-eligible-Main rule. Also confirmed the prior Fixed Bid refund fix now targets losing entry IDs rather than excluding all entries of a winning member. Added `docs/AUCTION_LIFECYCLE_FINALIZATION_SOURCE_RECONCILIATION_2026-11-18.md`. Frontend call-site and bid-creation RPC contract remain open. Source review only; tests/build and DB replay not run. Commit: `6f5de9f6a53580bcb006fcc4bf8303b133a2d424`.
 
 ## I. CHANGE HISTORY
 
