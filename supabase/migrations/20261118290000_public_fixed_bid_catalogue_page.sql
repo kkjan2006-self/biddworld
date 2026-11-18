@@ -66,19 +66,20 @@ begin
       v_search is null
       or position(lower(v_search) in lower(coalesce(c.title, ''))) > 0
     )
-    and (
-      c.status = 'ended'
-      or (
+    and case
+      when c.status = 'ended' then true
+      when c.status = 'scheduled' then
         nullif(c.configuration->>'starts_at', '')::timestamptz is not null
         and nullif(c.configuration->>'ends_at', '')::timestamptz is not null
+        and nullif(c.configuration->>'starts_at', '')::timestamptz > now()
         and nullif(c.configuration->>'ends_at', '')::timestamptz > now()
-        and (
-          (c.status = 'scheduled' and nullif(c.configuration->>'starts_at', '')::timestamptz > now())
-          or
-          (c.status = 'live' and nullif(c.configuration->>'starts_at', '')::timestamptz <= now())
-        )
-      )
-    )
+      when c.status = 'live' then
+        nullif(c.configuration->>'starts_at', '')::timestamptz is not null
+        and nullif(c.configuration->>'ends_at', '')::timestamptz is not null
+        and nullif(c.configuration->>'starts_at', '')::timestamptz <= now()
+        and nullif(c.configuration->>'ends_at', '')::timestamptz > now()
+      else false
+    end
   order by c.created_at desc, c.id desc
   limit p_limit
   offset p_offset;

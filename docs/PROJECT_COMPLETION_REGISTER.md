@@ -622,3 +622,8 @@
 - CI run #932 confirmed 418/418 individual tests passed, but the Fixed Bid pagination suite failed while constructing an over-escaped regular expression.
 - Replaced the regex with direct source-string assertions for client-side insert/update/upsert calls. The Fixed Bid UI and database migration remain unchanged.
 - A fresh CI run is pending.
+
+### 2026-11-18 — Fixed Bid public catalogue time-filter hardening
+- CI run #933 passed: 102/102 test files and 423/423 tests; TypeScript check and Vite production build passed.
+- Hardened the Fixed Bid public catalogue time-window predicate with an explicit SQL CASE so ended campaigns do not evaluate timestamp casts for their configuration. Scheduled/live campaign timestamp validation remains strict.
+- Added a contract assertion for the branch-specific time-window behavior. A fresh CI run is pending.

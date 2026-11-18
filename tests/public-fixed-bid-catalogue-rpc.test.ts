@@ -18,6 +18,9 @@ describe('public Fixed Bid campaign catalogue',()=>{
   expect(sql).toContain("p.status = 'published'");
   expect(sql).toContain("c.status in ('scheduled', 'live', 'ended')");
   expect(sql).toContain("c.status = 'ended'");
+  expect(sql).toContain("when c.status = 'ended' then true");
+  expect(sql).toContain("when c.status = 'scheduled' then");
+  expect(sql).toContain("when c.status = 'live' then");
   expect(sql).toContain("c.status = 'scheduled'");
   expect(sql).toContain("c.status = 'live'");
   expect(sql).toContain("p_status not in ('all', 'scheduled', 'live', 'ended')");
