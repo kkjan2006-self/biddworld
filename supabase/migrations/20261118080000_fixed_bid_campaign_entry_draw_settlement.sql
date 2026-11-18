@@ -114,7 +114,7 @@ begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
  end if;
- if p_status not in ('scheduled','live','paused','ended','cancelled') then
+ if p_status is null or p_status not in ('scheduled','live','paused','ended','cancelled') then
   raise exception 'Unsupported Fixed Bid campaign status' using errcode='22023';
  end if;
  select * into v_campaign from public.fixed_bid_campaigns where id=p_campaign_id for update;
