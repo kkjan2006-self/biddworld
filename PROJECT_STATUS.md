@@ -10,7 +10,8 @@
 - Latest verified source batch: Admin Notifications now supports searching Main ID/name/mobile and selecting a member instead of requiring the operator to know an Auth UUID. Added an Admin-only, bounded, SECURITY DEFINER lookup RPC with explicit EXECUTE grants; migration has not been applied.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration)
-- Work commit message: `docs: reconcile admin report and notification contracts`
+- Source commit message: `feat: add secure Admin notification recipient lookup`
+- Latest verified status checkpoint commit: `928290306303a935fd94427cea764d037965d4fe` (`docs: checkpoint Admin notification recipient lookup`)
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
