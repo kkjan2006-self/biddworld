@@ -374,3 +374,12 @@
 - Confirmed no public views in `information_schema.views`.
 - Added `docs/PRODUCTION_PUBLIC_SCHEMA_STRUCTURAL_SNAPSHOT_2026-11-18.md` with full structural definitions and RLS/grant predicates. It is a documentation snapshot, not executable DDL.
 - No Production/TEST writes, no migrations, no tests or builds.
+
+
+### 2026-11-18 — Production public RPC security-boundary inventory
+- Read-only inspection enumerated all 43 public functions: all 43 are SECURITY DEFINER and all 43 have an explicit function-level search_path.
+- All 43 are executable by authenticated; only one is executable by anon: `lookup_sponsor(text)`.
+- All 36 `admin_%` functions statically reference `auth.uid()` and the JWT `app_metadata`/role claim. This is an inventory result, not a substitute for full semantic code review.
+- Inspected the three public wrappers/exception cases: `lookup_sponsor(text)` returns only the matched active Main ID's member code and display label; `place_bid(uuid)` delegates to `private.place_bid(uuid)`; `submit_package_activation(uuid,text)` delegates to `private.submit_package_activation(uuid,text)`.
+- Recorded the complete security-boundary findings and remaining per-function review tasks in `docs/PRODUCTION_PUBLIC_RPC_SECURITY_INVENTORY_2026-11-18.md`.
+- No Production/TEST writes, no migrations, no build or tests.
