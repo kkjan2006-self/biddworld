@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest verified HEAD after the support-ticket audit deduplication batch: `ba396f1d8e17faf501c3b7a3930078eb0288150f` (2026-11-18).
+- Current development branch: `completion-work` — latest verified source-and-register checkpoint before this status refresh: `7d2b99d451454f1a06a723411e835a07f4312ea6` (2026-11-18).
 - Latest verified source batch: Fixed Bid public catalogue projection includes `max_entries_total` and `refund_non_winners` (forward #70); Placement Tree verifies Main-ID root ownership (forward #71); Admin notification history displays recipient Main ID/name through a bounded Admin-only RPC (forward #72); Admin pending activation receipt links now track their five-minute expiry and can be refreshed without reloading the queue; Support-ticket Admin updates now write one audit record through the row trigger rather than duplicating it in the RPC. Latest source commits: receipt viewer `d938fc397a19cac7737079236ed3f69d41d33380`; support audit dedup migration `2648cc6e6260d83494e6299290f0c211f757137a`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `2648cc6e6260d83494e6299290f0c211f757137a` (single Audit Log writer for Admin support-ticket updates).
