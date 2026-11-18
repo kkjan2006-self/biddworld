@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest verified branch HEAD before this batch `ee8eb1e590f08566d0fb00c70aa5c09a17f9439f`; latest source feature commit in this batch `f6846e12919ec0d940840a34af3505ed1e937563` (2026-11-18).
+- Current development branch: `completion-work` — latest verified branch HEAD before this status refresh `ca472a2db4908bbe22857dd05cbbc18c77463410`; latest source feature commit in this batch `f6846e12919ec0d940840a34af3505ed1e937563` (2026-11-18).
 - Latest verified source batch: Fixed Bid public catalogue projection includes `max_entries_total` and `refund_non_winners` (forward #70); Placement Tree verifies Main-ID root ownership (forward #71); Admin notification history now displays recipient Main ID/name through a bounded Admin-only RPC (forward #72). See the Fixed Bid projection review in `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `094185fa968b4327612e20752ef631e53914af08` (Placement Tree SECURITY DEFINER RPC now verifies Main-ID root ownership).
