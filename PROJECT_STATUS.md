@@ -15,6 +15,8 @@
 - Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`; verify branch HEAD on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18 — support-ticket column-level privilege correction
+- Latest verified `completion-work` HEAD after the support-ticket column privilege batch: `559a131b500ad011bf1a913b3e882e1df7e864e9`.
+- Protected `main` HEAD verified unchanged: `415364b71534c7fc31d6c0928dd8395e10cbd94f`.
 - Overall project completion estimate: **55%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
