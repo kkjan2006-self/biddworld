@@ -8,7 +8,7 @@ const migration = readFileSync(
 );
 
 describe('Serialized Admin Duplicate ID placement creation', () => {
-  it('takes a transaction-scoped lock before reading settings or locking placement rows', () => {
+  it('takes the shared graph transaction lock before reading settings or locking placement rows', () => {
     const lock = migration.indexOf('pg_catalog.pg_advisory_xact_lock');
     const settingsRead = migration.indexOf('from public.app_settings');
     const mainLock = migration.indexOf("and id_type='main' and status='active'");
@@ -17,7 +17,7 @@ describe('Serialized Admin Duplicate ID placement creation', () => {
     expect(settingsRead).toBeGreaterThan(lock);
     expect(mainLock).toBeGreaterThan(lock);
     expect(underLock).toBeGreaterThan(mainLock);
-    expect(migration).toContain("hashtextextended('biddworld.admin_create_duplicate_member_id', 0)");
+    expect(migration).toContain("hashtextextended('biddworld.member_id_graph_mutation', 0)");
   });
 
   it('preserves the active Main / Under ID checks and cross-owner placement rule', () => {
