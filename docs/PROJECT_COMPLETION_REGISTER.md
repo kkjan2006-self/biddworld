@@ -148,3 +148,23 @@
 - TEST remains ACTIVE_HEALTHY with zero migrations and zero public tables. Production received SELECT-only catalogue queries; no DDL, DML, RPC execution, Storage changes, or data writes were performed.
 - No clean-install baseline has been applied or declared verified. The 17 missing historical migration definitions must not be invented. Next safe database task is to assemble a reviewed final-state baseline from complete, verified schema/function/policy/trigger/grant evidence, then replay it only in TEST.
 - No completion-percentage increase is justified by CI repair or audit work. Referral calculation, eligibility, posting, reversal, and end-to-end verification remain incomplete.
+
+
+## 2026-11-18 — Bulk source development: Fixed Bid, referral engine, auctions, withdrawals and wallet administration
+
+- Continued on `completion-work`; source changes are committed through the GitHub Contents API using current file SHAs. No changes were made to `main`.
+- Added `20261118080000_fixed_bid_campaign_entry_draw_settlement.sql`: configurable campaign entry amount, winner payment amount, per-member/total entry limits, schedule, winner count, optional non-winner refunds, idempotent member entry, Bid-Wallet-first then Income-Wallet debit, recorded one-time draw, wallet-source refunds, and Income-Wallet-only winner payment.
+- Updated Member Fixed Bid catalogue to display campaign rules and submit an idempotent entry. Updated Admin Fixed Bid editor and lifecycle controls for schedule/open/pause/end, one-time winner draw and configured refunds. Added Member winner-payment action for both auction and Fixed Bid awards.
+- Added `20261118090000_package_publication_and_referral_commission_engine.sql`: Admin referral-plan version activation, package publish/unpublish, activation-triggered level-wise pending commission calculation through the sponsor chain, active Main ID eligibility, Duplicate ID beneficiary attribution to the linked Main ID Income Wallet, idempotent ledger posting, reversal with compensating debit, and paginated Admin commission report. Posting is automatic only when the referral feature is enabled; Admin can also post pending commissions explicitly.
+- Updated Admin package and referral-plan controls to activate a plan version, publish/unpublish packages, view/filter/paginate commissions, post pending commissions and reverse with a required reason.
+- Added `20261118100000_admin_withdrawal_review_workflow.sql`: Admin approve/reject/mark-paid workflow. Approval reserves the amount from the Income Wallet; rejecting an approved request releases it through a compensating credit; marking paid records the completed payout.
+- Updated Admin withdrawal queue with payout details for authorized Admin review and status actions.
+- Added `20261118110000_auction_lifecycle_winner_settlement.sql`: schedule/live/pause/end/cancel lifecycle, cancellation refunds to the original wallet sources, deterministic highest-accepted-bid winner finalization with earliest-bid tie-break, and winning-payment creation.
+- Updated Admin auction lifecycle and winner finalization controls.
+- Added `20261118120000_admin_wallet_adjustments.sql`: Admin-only, idempotent Bid/Income Wallet credit/debit through an immutable ledger row and audit event; debit cannot overdraw the wallet.
+- Updated Admin Wallet Management with an audited adjustment form.
+- Added `20261118130000_withdrawal_minimum_and_server_validation.sql`: configurable minimum withdrawal amount, Admin setting controls and server-side enforcement in the member withdrawal RPC. Member portal displays the current minimum and validates it before submission.
+- All new database migrations remain **source-only** pending the canonical clean-install baseline. Neither Production nor TEST received schema/data writes. No real members, wallet balances, bids, commissions, payments or payouts were created or changed.
+- Per the requested development-first sequence, no manual tests, build, migration replay, E2E or mobile checks were run in this batch. Automated checks may be triggered by GitHub on pushed commits; their results have not been reviewed here.
+- Known outstanding development remains: receipt-upload workflow, complete historical reports/CSV coverage, admin role/permission lifecycle, member lifecycle controls, complete notification provider delivery, full frontend/backend RPC reconciliation, and canonical clean-install baseline. All new SQL must be included in that baseline after dependency review.
+- No overall percentage is claimed as 100%; the source implementation has advanced materially, but integration and final verification remain outstanding.
