@@ -8,8 +8,8 @@
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
 - Protected branch: `main` (do not modify)
-- Latest verified development-batch commit: `9ec9b7984bb07a0501b0ad8611ee215bcdb5cc24`
-- Latest commit message: `docs: reconcile selected Admin frontend RPC contracts`
+- Latest verified development-batch commit: `5b8bcbe426b64ef7905fa99d5a1bd95d442bb116`
+- Latest commit message: `docs: reconcile member package and fixed bid RPC contracts`
 - Last updated: 2026-11-18
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
@@ -29,7 +29,7 @@ The following source/UI/documentation work is present in the current branch and 
 ## C. IN PROGRESS
 
 - Establish a trustworthy canonical clean-install database baseline and migration replay path.
-- Reconcile every frontend RPC call and SQL signature/result contract; selected Admin RPC names and argument signatures have now been checked against baseline/forward source (see `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md`).
+- Reconcile every frontend RPC call and SQL signature/result contract; selected Admin signatures and Member/Package/Fixed Bid argument/result contracts have now been source-checked (see `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md` and `docs/MEMBER_PACKAGE_FIXED_BID_RPC_CONTRACT_RECONCILIATION_2026-11-18.md`).
 - Review SQL dependency ordering, object prerequisites, grants, RLS, policies, triggers, Storage and function security.
 - Resolve the known stale Admin package-activation report test assertion during the consolidated final test/repair phase; the latest CI run is not green.
 - Continue source-only development only where contracts are sufficiently evidenced; do not invent missing schema or business rules.
@@ -37,7 +37,7 @@ The following source/UI/documentation work is present in the current branch and 
 ## D. PENDING — Major Development Work
 
 1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 61 forward migration dependencies; replay only in isolated TEST during final testing.
-2. **RPC reconciliation:** selected Admin call names and argument signatures are source-reconciled; remaining work is all other Admin/member RPC result fields, authorization, overloads and migration coverage. See `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md` plus the existing Production/RPC audits. Key audit: `docs/PRODUCTION_FRONTEND_RPC_LIVE_DIFF_2026-11-18.md`, `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`, and `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
+2. **RPC reconciliation:** selected Admin signatures plus Member/Package/Fixed Bid argument and consumed result contracts are source-reconciled; remaining work is all other Admin/member RPC call sites, direct table-select/RLS contracts, authorization, overloads and migration coverage. See both focused reconciliation docs and the existing Production/RPC audits. Key audit: `docs/PRODUCTION_FRONTEND_RPC_LIVE_DIFF_2026-11-18.md`, `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`, and `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
 3. **Migration compatibility:** the current source directory has 80 SQL files (77 timestamped + 3 legacy); the 61 forward and 16 excluded manifests account for all 77 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
 4. **Dependency security/reproducibility:** inspect package-lock status and current npm advisories; pin reproducible dependencies and remediate without blind forced major upgrades.
 5. **Remaining source features/integration:** receipt upload and product-media Storage integration; complete historical report/filter/export coverage; Admin role and member lifecycle edges; notification read-state and delivery/provider boundary; verify PWA/offline behavior; complete remaining UI/RPC contract gaps.
@@ -76,9 +76,9 @@ The following source/UI/documentation work is present in the current branch and 
 ## H. NEXT DEVELOPMENT BATCH
 
 Start with the existing clean-install candidate and evidence, not a new audit from zero:
-1. Continue from the new Admin RPC signature reconciliation; finish result-field, authorization and overload checks for remaining Admin and Member frontend calls.
-2. Continue the 61-forward-migration semantic dependency review, especially final function bodies, trigger references, grants and Storage policy state.
-3. Identify and fix evidenced source defects in bulk; do not infer missing business rules or change Production/TEST.
+1. Continue from the two focused RPC reconciliation docs; inspect remaining Admin RPC call sites, result mappings and direct table-select/RLS dependencies.
+2. Continue the 61-forward-migration semantic review, especially final function bodies, trigger references, grants and Storage policy state.
+3. Fix only evidenced source defects in bulk; do not infer missing business rules or change Production/TEST.
 4. Keep full tests and database replay deferred to the consolidated final testing phase.
 
 ## I. CHANGE HISTORY
@@ -86,6 +86,7 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 - 2026-11-18 — Created this official recovery status file on `completion-work` after verifying the branch and reading the completion register. No application source or database was changed.
 - 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (77 timestamped + 3 legacy), exact 61-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
 - 2026-11-18 — Compared selected Admin/Member/package/Fixed Bid frontend RPC calls with baseline and forward migration signatures. No named-argument mismatch was found in the inspected subset; confirmed wallet transaction overload first argument is required, avoiding the suspected PostgREST ambiguity. Added `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
+- 2026-11-18 — Reconciled Member Account, Package activation and Fixed Bid catalogue/entry RPC arguments and consumed result fields against their final source definitions, including final strict withdrawal payout validation. No mismatch was found in this subset; no speculative source edit was made. Added `docs/MEMBER_PACKAGE_FIXED_BID_RPC_CONTRACT_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
 - Detailed development history, evidence and prior checkpoints: `docs/PROJECT_COMPLETION_REGISTER.md`.
 
 ## Status update rule
