@@ -267,3 +267,12 @@
 - The RPC grants execution only to authenticated users and revokes PUBLIC/anon execution. No caller-supplied member ID is accepted.
 - Updated source SQL inventory: **65 files (3 legacy/unversioned + 62 timestamped)**, confirmed by a fresh recursive Git tree inventory. The migration is source-only; no SQL replay, tests, build, Production changes, or TEST changes were performed.
 - Remaining work includes complete Admin RPC inventory reconciliation, full migration dependency/baseline reconstruction, and then isolated TEST replay plus final testing.
+
+
+### 2026-11-18 — Admin RPC source reconciliation checkpoint
+- Re-audited the Admin component's RPC inventory against the migration files reviewed in this batch.
+- Confirmed source definitions for Admin member/sponsor and duplicate-ID reports, feature settings, package activation review/history, audit logs, product/auction management, delivery tracking, referral plan draft/commission workflows, Fixed Bid campaigns, withdrawal review, wallet adjustments, Main ID lifecycle, Primary Admin role management, notification templates, Admin accounts and platform health.
+- Recorded seven Admin calls whose complete definitions were not located in the reviewed migration sources: `admin_list_packages()`, `admin_list_referral_plans()`, `admin_list_withdrawal_requests(integer,integer)`, `admin_list_wallet_accounts(integer,integer)`, `admin_list_wallet_transactions(integer,integer)`, `admin_list_winning_item_payments(integer,integer)`, and `admin_set_default_sponsor(text)`.
+- Added `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md` with the confirmed source map and recovery requirements. These calls may exist in unrecovered Production migration history; they are not asserted to be absent from Production. No replacement SQL was invented because exact live signatures and result contracts must be recovered first.
+- Reconfirmed that `0001_biddworld.sql` is a simplified fresh-project baseline and is not proof of the current Production schema. The existing read-only recovery script remains the correct path for catalog evidence.
+- No tests/build, migration replay, or Supabase database writes were performed. Production and TEST remain untouched.
