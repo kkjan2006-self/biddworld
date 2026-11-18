@@ -8,8 +8,8 @@
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
 - Protected branch: `main` (do not modify)
-- Latest verified development-batch commit: `5b8bcbe426b64ef7905fa99d5a1bd95d442bb116`
-- Latest commit message: `docs: reconcile member package and fixed bid RPC contracts`
+- Latest verified development-batch commit: `dd34feece77d383979a2a60b2210def738e48064`
+- Latest commit message: `fix: derive admin dashboard counts from authorized RPCs`
 - Last updated: 2026-11-18
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
@@ -24,12 +24,12 @@ The following source/UI/documentation work is present in the current branch and 
 - Admin member/sponsor/duplicate-ID management, package/referral-plan drafts, product/media management UI, auction and Fixed Bid management, wallet ledger/adjustments, withdrawal review, winner/payment and delivery views, support queue, notification templates/send flow, Admin access/role management, platform health, audit logs, filters, pagination and CSV exports.
 - Source SQL includes wallet-first debit/idempotency patterns, referral draft versioning and commission calculation/post/reversal workflows, Duplicate ID placement and graph serialization, auction and Fixed Bid lifecycle/draw/refund/settlement workflows, withdrawal reservation/release/review, winner payment, support/notification idempotency, Admin wallet adjustment, receipt/media Storage policies, Admin role management and report RPCs.
 - Numerous static source-contract tests and migration/security audit documents exist. These are source artifacts; they do not prove that migrations are deployable or live.
-- Historical CI evidence: run #948 passed 102/102 test files and 431/431 tests, TypeScript check, Vite production build and GitHub Pages subpath build. The later latest completed run #996 on commit `f7274c13053ad593c3fa303560d0e4f06f51c42a` failed at the test step: 105/106 files and 443/444 tests passed; the only failure is a stale source-string assertion in `tests/admin-package-activation-report-filters.test.ts`. Type-check/build and Pages build were skipped. See `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`.
+- Historical CI evidence: run #948 passed 102/102 test files and 431/431 tests, TypeScript check, Vite production build and GitHub Pages subpath build. Subsequent runs #996–#1003 did not establish a green CI state; the known recurring failure is a stale source-string assertion in `tests/admin-package-activation-report-filters.test.ts`. Run #1004 was triggered by commit `dd34feece77d383979a2a60b2210def738e48064` and was in progress at this checkpoint. Type-check/build results for failed runs must not be assumed. See `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`.
 
 ## C. IN PROGRESS
 
 - Establish a trustworthy canonical clean-install database baseline and migration replay path.
-- Reconcile every frontend RPC call and SQL signature/result contract; selected Admin signatures and Member/Package/Fixed Bid argument/result contracts have now been source-checked (see `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md` and `docs/MEMBER_PACKAGE_FIXED_BID_RPC_CONTRACT_RECONCILIATION_2026-11-18.md`).
+- Reconcile every frontend RPC call and SQL signature/result contract; selected Admin signatures, Member/Package/Fixed Bid contracts, and auction/fixed-bid report contracts have been source-checked (see the focused reconciliation documents). A source-level Admin dashboard count defect was corrected: counts now derive from Admin-authorized RPC responses rather than direct table HEAD counts subject to member RLS.
 - Review SQL dependency ordering, object prerequisites, grants, RLS, policies, triggers, Storage and function security.
 - Resolve the known stale Admin package-activation report test assertion during the consolidated final test/repair phase; the latest CI run is not green.
 - Continue source-only development only where contracts are sufficiently evidenced; do not invent missing schema or business rules.
@@ -87,6 +87,7 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 - 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (77 timestamped + 3 legacy), exact 61-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
 - 2026-11-18 — Compared selected Admin/Member/package/Fixed Bid frontend RPC calls with baseline and forward migration signatures. No named-argument mismatch was found in the inspected subset; confirmed wallet transaction overload first argument is required, avoiding the suspected PostgREST ambiguity. Added `docs/ADMIN_FRONTEND_RPC_SOURCE_SIGNATURE_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
 - 2026-11-18 — Reconciled Member Account, Package activation and Fixed Bid catalogue/entry RPC arguments and consumed result fields against their final source definitions, including final strict withdrawal payout validation. No mismatch was found in this subset; no speculative source edit was made. Added `docs/MEMBER_PACKAGE_FIXED_BID_RPC_CONTRACT_RECONCILIATION_2026-11-18.md`. Source inspection only; no tests/build or database writes.
+- 2026-11-18 — Admin workspace count review found that six dashboard totals were sourced from direct table HEAD-count queries and therefore could be filtered by member-facing RLS policies. Replaced those queries with the existing Admin-authorized overview/list RPC results; renamed the tile from “Registered Profiles” to “Main Member IDs” to match the exact metric. Verified the edited source on `completion-work`. No tests/build or database writes; CI #1004 triggered and was in progress. Commit: `dd34feece77d383979a2a60b2210def738e48064`.
 - Detailed development history, evidence and prior checkpoints: `docs/PROJECT_COMPLETION_REGISTER.md`.
 
 ## Status update rule
