@@ -3,26 +3,26 @@ import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 const source=readFileSync(resolve(process.cwd(),'src/components/FixedBid.tsx'),'utf8');
 describe('Fixed Bid catalogue pagination',()=>{
- it('uses bounded stable pages for published campaign states',()=>{
+ it('uses bounded stable pages through the public catalogue RPC',()=>{
   expect(source).toContain('const PAGE_SIZE=50');
-  expect(source).toContain(".in('status',['scheduled','live','ended'])");
-  expect(source).toContain(".order('created_at',{ascending:false}).order('id',{ascending:false})");
-  expect(source).toContain('query.range(offset,offset+PAGE_SIZE-1)');
+  expect(source).toContain("rpc('public_list_fixed_bid_campaigns_page',{p_search:searchTerm.trim()||null,p_status:status,p_limit:PAGE_SIZE,p_offset:offset})");
+  expect(source).not.toContain("from('fixed_bid_campaigns').select(");
+  expect(source).toContain('setHasMore(batch.length===PAGE_SIZE)');
  });
  it('offers continuation and sends participation through the idempotent server workflow',()=>{
   expect(source).toContain('Load more campaigns');
   expect(source).toContain("supabase.rpc('member_join_fixed_bid_campaign',{p_campaign_id:campaign.id,p_idempotency_key:key})");
-  expect(source).toContain('const canJoin=r.status===\'live\'');
+  expect(source).toContain('const canJoin=r.status===\\'live\\'');
   expect(source).toContain('entryKeys.current.get(campaign.id)');
   expect(source).toContain('result.replayed?');
-  expect(source).not.toMatch(/\.insert\(|\.update\(|\.upsert\(/);
+  expect(source).not.toMatch(/\\.insert\\(|\\.update\\(|\\.upsert\\(/);
  });
 });
 describe('Fixed Bid catalogue server-side filters',()=>{
- it('filters by campaign title and selected published status before pagination',()=>{
+ it('sends title search and selected status before pagination',()=>{
   expect(source).toContain("type CampaignStatus='all'|'scheduled'|'live'|'ended'");
-  expect(source).toContain("if(status!=='all')query=query.eq('status',status)");
-  expect(source).toContain("query.ilike('title'");
+  expect(source).toContain('p_search:searchTerm.trim()||null');
+  expect(source).toContain('p_status:status');
   expect(source).toContain('load(true,search,statusFilter)');
   expect(source).toContain('No campaigns match these filters.');
  });

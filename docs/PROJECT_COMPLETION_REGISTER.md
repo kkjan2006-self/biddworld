@@ -607,3 +607,8 @@
 - Refreshed the frontend RPC inventory to 68 unique literal RPC names. The Production diff now records 35 live names and 33 source-only names, with source migration coverage checks for all 33.
 - Updated the clean-install forward chain to 51 timestamped migrations; the explicit excluded historical list remains 16, partitioning all 67 timestamped migration files exactly once.
 - No Production or TEST SQL writes or migrations were performed. The public auction RPC is source-only pending clean-install replay and final deployment.
+
+### 2026-11-18 — Public Fixed Bid catalogue CI follow-up
+- CI run #929 confirmed the new public Fixed Bid RPC source tests and the 69-name frontend RPC inventory coverage, but the pre-existing Fixed Bid pagination test still asserted the removed direct-table query.
+- Rewrote those assertions to verify the RPC-based search/status/page contract while retaining the request lifecycle and idempotent entry checks.
+- The source RPC and migration manifest changes are unchanged. A fresh CI run is pending.
