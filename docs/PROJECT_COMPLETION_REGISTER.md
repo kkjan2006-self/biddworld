@@ -984,3 +984,11 @@
 - Compared the production service worker source with the PWA implementation guide. The worker is already on cache namespace `biddworld-shell-v4`, while the guide still described v3. Updated the guide to v4 and recorded that the existing static PWA test contains a stale v3 literal assertion to be handled in the consolidated final test/repair phase; the test was not edited or executed in this development phase.
 - Confirmed by source inspection that the worker registers only in production under Vite `BASE_URL`, caches only same-origin app-shell/static assets, does not intercept cross-origin Supabase/API traffic or non-GET requests, and removes older namespaced caches on activation. This remains source review, not Android/offline runtime validation.
 - No build, test, CI, browser/device QA, database replay or deployment was performed.
+
+
+### 2026-11-18 — Support ticket queue and export pagination hardening
+
+- Replaced mutable offset pagination in the Member/Admin support queue with keyset pagination using the stable descending composite order `(updated_at, id)`. The next page starts strictly after the last displayed ticket, avoiding page shifts and duplicate/missed rows caused by concurrent support-ticket updates changing `updated_at`.
+- Replaced offset pagination in Support CSV export with the same composite cursor. Existing repeated-page and duplicate-ticket guards and the 5,000,000-row safety cap remain in place.
+- Added `tests/support-ticket-keyset-pagination.test.ts` as a source-contract test. It was not executed.
+- No tests, build, QA, deployment or database operations were performed.
