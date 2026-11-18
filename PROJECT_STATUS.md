@@ -7,11 +7,11 @@
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
-- Latest verified source batch: reconciled Auction bid creation with its frontend call and cancellation/refund ledger; fixed an eligibility gap by requiring the owning profile and Main ID to both be active. Added forward migration `20261118410000_require_active_profile_for_auction_bids.sql`; not applied to any database.
+- Latest verified source batch: Auction winner finalization now excludes inactive Main IDs/Profiles and serializes eligibility against Admin lifecycle changes; winner-payment replay paths fail closed if ledger and paid-state disagree. Added migration `20261118420000_active_winner_eligibility_and_payment_replay_guard.sql`; not applied to any database.
 - Protected branch: `main` (do not modify)
-- Latest verified application/source work commit: `2193219305f042268f8fdc8f7ad99b611e4ce81d` (active-profile eligibility guard for auction bid RPC).
-- Source commit message: `feat: add secure Admin notification recipient lookup`
-- Latest verified source/documentation batch commits: `1b0eaf994f4225c26867ce98dd98294a78f1d793` (forward manifest), `53f1140fcf149bde6eed9b822309f7707f56a78c` (clean-install README), `fa92c99ef2fc11dded7cac043757c6e3e752c950` (auction reconciliation), `0199a22977b03efeb332c57d7b5ea2c1c2c32986` (completion register).
+- Latest verified application/source work commit: `592c2a448148df1ac3884d1455f19bc627e883c4` (active winner eligibility and winner-payment replay guard migration).
+- Source commit message: `fix: validate active auction winners and payment replays`.
+- Latest verified source/documentation batch commits: `8db66605e08863139c76409ef3a86fd2c0224a41` (forward manifest), `ed462fbeaa8a9f6290e038f1a458b23b958e21b4` (clean-install README), `9b16295f7fce3609b041ab45d19700d29afc27b1` (auction reconciliation), `10ad04c5c382c6b5d02137a84bd6febe8d180596` (completion register).
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
@@ -41,9 +41,9 @@ The following source/UI/documentation work is present in the current branch and 
 
 ## D. PENDING — Major Development Work
 
-1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 63 forward migration dependencies; replay only in isolated TEST during final testing.
+1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 64 forward migration dependencies; replay only in isolated TEST during final testing.
 2. **RPC reconciliation:** selected Admin signatures plus Member/Package/Fixed Bid argument and consumed result contracts are source-reconciled; remaining work is all other Admin/member RPC call sites, direct table-select/RLS contracts, authorization, overloads and migration coverage. See both focused reconciliation docs and the existing Production/RPC audits. Key audit: `docs/PRODUCTION_FRONTEND_RPC_LIVE_DIFF_2026-11-18.md`, `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`, and `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
-3. **Migration compatibility:** the current source directory has 82 SQL files (79 timestamped + 3 legacy); the 63 forward and 16 excluded manifests account for all 79 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. The legacy `0001_biddworld.sql` mismatch is not a blocker for the candidate-baseline path: static comparison shows the separate candidate has the canonical columns used by the first forward migrations. See `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
+3. **Migration compatibility:** the current source directory has 83 SQL files (80 timestamped + 3 legacy); the 64 forward and 16 excluded manifests account for all 80 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. The legacy `0001_biddworld.sql` mismatch is not a blocker for the candidate-baseline path: static comparison shows the separate candidate has the canonical columns used by the first forward migrations. See `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
 4. **Dependency security/reproducibility:** inspect package-lock status and current npm advisories; pin reproducible dependencies and remediate without blind forced major upgrades.
 5. **Remaining source features/integration:** receipt upload and product-media Storage integration; complete historical report/filter/export coverage; Admin role and member lifecycle edges; notification read-state and delivery/provider boundary; verify PWA/offline behavior; complete remaining UI/RPC contract gaps.
 6. **Security and operational readiness:** per-function SECURITY DEFINER semantic review, grants/RLS/Storage verification, rate limiting/abuse controls, Auth configuration review, backup/monitoring/support readiness.
@@ -78,7 +78,7 @@ The following source/UI/documentation work is present in the current branch and 
 - Automatic CI: latest completed run #1005 failed during the test step; type-check/build and Pages build were skipped. Manual/full final testing remains NOT STARTED.
 - Do not claim modules fully complete merely because UI, SQL source or static tests exist.
 
-- 2026-11-18 — Clarified the clean-install starting point: do not use legacy `0001_biddworld.sql`; the separate schema-only Production baseline candidate contains the key canonical fields required by the first forward migrations. Updated the clean-install README and static reconciliation. No replay or database changes; full 63-migration dependency review remains open.
+- 2026-11-18 — Clarified the clean-install starting point: do not use legacy `0001_biddworld.sql`; the separate schema-only Production baseline candidate contains the key canonical fields required by the first forward migrations. Updated the clean-install README and static reconciliation. No replay or database changes; full 64-migration dependency review remains open.
 
 - Canonical clean-install path reconciliation: documented the distinction between the legacy `0001_biddworld.sql` schema and the separate schema-only candidate baseline. Static checks confirmed the candidate includes key canonical columns consumed by the first forward migrations. Updated `supabase/clean-install/README.md`, `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`, and added `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. No database replay, tests or DB writes. Latest documentation commit: `7e91a2e7ec97b75513db599913b6a827f6550483`.
 
@@ -90,13 +90,16 @@ The following source/UI/documentation work is present in the current branch and 
 
 ## H. NEXT DEVELOPMENT BATCH
 
-1. Continue repository-wide auction and winner-payment reconciliation: inspect Admin status/finalize UI call sites, Member winner-payment RPC source definition, result contracts, Income-Wallet-only debit ledger and idempotent retry/replay behavior. Verify Fixed Bid winner-payment uses the same safe contract.
-2. Continue the 63-forward-migration semantic dependency review, including final function bodies, trigger references, grants, baseline function ACL parity and Storage policy state.
+1. Continue auction and Fixed Bid lifecycle reconciliation: verify all end/cancel/refund paths against source bid debit ledger and idempotency keys, plus delivery tracking transition and member/admin RPC contracts.
+2. Continue the 64-forward-migration semantic dependency review, including final function bodies, trigger references, grants, baseline function ACL parity and Storage policy state.
 3. Continue remaining frontend RPC/direct-table RLS coverage and member/Admin lifecycle edge cases. Fix only evidenced defects in source migrations; do not run tests/builds or database replay before the 100% development gate.
 4. Reconcile dependency lockfile/security advisories and remaining notification provider boundary, PWA/offline source integration and operational readiness.
 5. Keep Production hbqatszyzqobgtauyuzy read-only and TEST yoaauthwejdgaevfvwpo unchanged. Consolidated tests/replay remain deferred.
 
 ## I. CHANGE HISTORY
+
+- 2026-11-18 — Auction winner/payment source reconciliation: Admin status/finalize calls match SQL signatures and consumed result fields; Member Account uses the shared winner-payment RPC with a stable retry key. Found that auction finalization did not recheck current Main ID/Profile activity, potentially selecting a suspended winner whom payment would reject. Added `20261118420000_active_winner_eligibility_and_payment_replay_guard.sql`: active Main ID/Profile winner filtering, shared lifecycle advisory lock before auction locking, and fail-closed replay validation for shared and legacy Fixed Bid winner-payment RPCs (payment must already be paid with paid_at). Preserved highest-bid tie-break, Income-Wallet-only debit, RPC signatures and grants. Forward manifest now 64; SQL inventory 83 (80 timestamped + 3 legacy; 64 forward + 16 excluded). No tests/build, replay or DB writes. Production and TEST untouched.
+
 
 - 2026-11-18 — Auction bid creation source reconciliation: verified `src/App.tsx` calls `place_bid` with the exact two named arguments exposed by the final idempotent RPC; verified wallet debit suffixes, transaction type and reference metadata match the auction cancellation refund consumer. Found and fixed the missing active-profile eligibility check with migration `20261118410000_require_active_profile_for_auction_bids.sql`. Updated the forward manifest to 63 and clean-install README. No tests/build, TEST replay or DB writes. Production and TEST remain untouched.
 
