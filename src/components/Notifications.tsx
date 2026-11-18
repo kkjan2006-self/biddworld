@@ -61,7 +61,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  const categories=['general','account','support','security'];
  return <section className="accountSection" style={{display:'block',maxWidth:980,margin:'0 auto'}}>
   <h3><Bell size={20}/> {isAdmin?'Member Notifications':'Notifications'}</h3>
-  <p className="memberModuleHint">{isAdmin?'Send an in-app notification to one member using their Auth user UUID.':'Your recent BiddWorld account and support notifications.'}</p>
+  <p className="memberModuleHint">{isAdmin?'Send an in-app notification to one member by searching their Main ID, name or mobile number.':'Your recent BiddWorld account and support notifications.'}</p>
   {error&&<div className="notice" role="alert">{error}</div>}{notice&&<div className="notice" role="status">{notice}</div>}
   {isAdmin&&<form className="memberWithdrawalForm" onSubmit={send}>
    <label>Find Member by Main ID, name or mobile<input value={recipientSearch} onChange={e=>{setRecipientSearch(e.target.value);setRecipientOptions([]);setUserId("");}} placeholder="Enter Member ID, name or mobile number"/></label>
