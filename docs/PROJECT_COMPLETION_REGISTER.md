@@ -310,3 +310,13 @@
 - Queried RLS status and policy names for the Member-facing direct-query tables. Thirteen existing tables in scope have RLS enabled and one named policy each. `support_tickets` and `member_notifications` were not found in the current Production table inventory, matching their newer source-only implementation status.
 - Added `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md` with the exact RPC/table findings and follow-up steps. Policy predicates and column-level contracts remain to be inspected; catalogue presence alone is not runtime authorization proof.
 - No tests/build, migration replay, or database writes were performed. Production and TEST remain untouched.
+
+
+### 2026-11-18 — Member-facing RLS predicate review and app_settings read fix
+- Inspected exact Production RLS predicates for Member-facing profile, settings, package, wallet, bid, referral, winning-payment, delivery and auction/campaign tables; traced corresponding frontend query scopes.
+- Confirmed member-owned financial/activity records are scoped through `member_ids.owner_user_id = auth.uid()`; profiles are scoped to the signed-in user; catalogue policies restrict package/auction/campaign visibility.
+- Found an actual frontend/RLS mismatch: Account and Packages read `minimum_withdrawal_amount` and `package_activations_enabled`, but Production's `app_settings_read_scoped` did not include those keys in its authenticated-member allow-list.
+- Added source-only migration `20261118240000_member_public_feature_settings_read.sql`, preserving existing Admin/Support/Finance visibility and allowing authenticated members to read only those two additional settings.
+- Reviewed source-only Support/Notification policies: support owner/admin read, owner insert, Admin update; notification owner/admin read, Admin insert, owner-only read-state update. Neither table exists in the current Production catalogue yet.
+- Added detailed findings to `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
+- No migration applied, no database writes, no build/tests. Production and TEST remain unchanged.
