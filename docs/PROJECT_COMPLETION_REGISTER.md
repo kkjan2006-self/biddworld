@@ -634,3 +634,12 @@
 - The full dependency audit reported 12 high-severity and 0 critical findings, concentrated in the development/build toolchain dependency graph (including picomatch, chokidar, Tailwind, Vite and Vitest). Major-version changes are not being forced blindly.
 - Added a separate `npm audit --omit=dev --audit-level=high` CI gate and a retained production-only audit report. This distinguishes deployable runtime dependencies from dev tooling and blocks high/critical production dependency findings.
 - The all-dependency high findings remain an open security-remediation item before launch; no production package upgrades have been applied yet.
+
+## 2026-11-18 — Public catalogue coverage and dependency security gate
+
+- GitHub Actions run #934 passed: 102/102 test files and 423/423 tests; TypeScript and Vite production build passed.
+- Added secure public catalogue RPCs for Fixed Bid campaigns and active packages. The public Fixed Bid UI no longer directly selects campaign rows; it receives only published-product data and member-facing campaign configuration. The Packages UI now lists active packages through a limited public RPC and reads the activation feature flag only for authenticated sessions.
+- Frontend inventory is now 70 unique literal RPC names: 35 present in Production and 35 source-only. Source coverage tests verify every source-only RPC has a corresponding forward migration and UI call.
+- Clean-install partition now contains 53 ordered forward candidates and 16 excluded historical source files, accounting for all 69 timestamped migration files exactly once (72 SQL files in `supabase/migrations`, including three legacy files).
+- GitHub Actions run #935 passed the production dependency audit gate: `npm audit --omit=dev` reported 0 vulnerabilities (0 high/critical). The full dependency audit still reports 12 high, 0 critical findings in development/build tooling; this remains an open remediation item before launch. No major dependency upgrades were forced.
+- No TEST migration replay or Production writes were performed. All three new public catalogue RPCs remain source-only.
