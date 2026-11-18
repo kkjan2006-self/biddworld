@@ -60,7 +60,12 @@ export default function Referrals(){
    const {data:next,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
    if(seq!==request.current)return;
    if(loadError)throw loadError;
-   setData(current=>{if(!current)return next as Dashboard;const page=next as Dashboard;const known=new Set(current.tree.map(member=>member.member_code));const fresh=page.tree.filter(member=>{if(known.has(member.member_code))return false;known.add(member.member_code);return true;});if(page.tree.length>0&&fresh.length===0)setError('The team list returned a repeated page. Refresh the dashboard before loading more.');return {...page,tree:[...current.tree,...fresh],has_more:page.has_more&&fresh.length>0};});
+   const page=next as Dashboard;
+   const knownCodes=new Set(data.tree.map(member=>member.member_code));
+   const fresh=page.tree.filter(member=>{if(knownCodes.has(member.member_code))return false;knownCodes.add(member.member_code);return true;});
+   const repeatedRows=fresh.length!==page.tree.length;
+   if(repeatedRows)setError('The team list returned duplicate member IDs. Refresh the dashboard before loading more.');
+   setData(current=>{if(!current)return page;const currentCodes=new Set(current.tree.map(member=>member.member_code));const additions=fresh.filter(member=>!currentCodes.has(member.member_code));return {...page,tree:[...current.tree,...additions],has_more:page.has_more&&additions.length>0&&!repeatedRows};});
   }catch(e){if(seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'More team members could not be loaded. Please retry.'));}
   finally{if(seq===request.current){loadMoreBusy.current=false;setLoadingMore(false);}}
  }
