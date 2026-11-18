@@ -137,3 +137,8 @@ All six are source-only. Do not apply them to Production or to the empty TEST pr
 ## 2026-11-18 — Current source inventory
 
 The latest branch tree contains 60 SQL files (3 legacy/unversioned plus 57 timestamped). Eleven new timestamped migrations dated 2026-11-18 have been added after the original 49-file inventory. Production ledger reconciliation remains 30 entries: 4 exact matches, 9 same-name/different-timestamp matches and 17 unrecovered historical filenames. The 11 new migrations are not applied to either database and do not alter that historical comparison. Build a canonical baseline and dependency review before any TEST replay.
+
+
+## 2026-11-18 — Updated source count
+
+The latest branch contains 61 SQL files (3 legacy/unversioned plus 58 timestamped). Twelve new 2026-11-18 source migrations now cover Fixed Bid, referral commissions, withdrawals, auctions, wallet adjustments, Main ID lifecycle, receipt uploads, Primary Admin roles, support, notifications and package activation history. These are not applied to either Supabase project; original Production ledger reconciliation remains unchanged.
