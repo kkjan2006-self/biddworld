@@ -35,19 +35,27 @@ Compare the Admin frontend's RPC calls with the migration source currently prese
 | `admin_set_user_admin_role(...)` | `20261118160000_primary_admin_role_management.sql` |
 | `admin_get_minimum_withdrawal_amount()`, `admin_set_minimum_withdrawal_amount(numeric)` | `20261118130000_withdrawal_minimum_and_server_validation.sql` |
 
-## RPCs requiring historical-source / Production-definition reconciliation
+## Recovered Production definitions
 
-The following calls are present in `src/components/Admin.tsx`, but their complete function definitions were not located in the migration files inspected for this checkpoint:
+A read-only Production catalogue query retrieved the exact `pg_get_functiondef`, signature, return type, SECURITY DEFINER flag, fixed search_path and ACL for the seven previously unreconciled Admin calls:
 
-- `admin_list_packages()`
-- `admin_list_referral_plans()`
-- `admin_list_withdrawal_requests(integer,integer)`
-- `admin_list_wallet_accounts(integer,integer)`
-- `admin_list_wallet_transactions(integer,integer)`
-- `admin_list_winning_item_payments(integer,integer)`
-- `admin_set_default_sponsor(text)`
+- `admin_list_packages()` — returns JSONB package rows.
+- `admin_list_referral_plans()` — returns JSONB package/version/rule records.
+- `admin_list_withdrawal_requests(integer,integer)` — bounded Admin-only withdrawal report.
+- `admin_list_wallet_accounts(integer,integer)` — paginated Main-ID wallet report; the existing no-argument overload was also recovered.
+- `admin_list_wallet_transactions(integer,integer)` — paginated Main-ID ledger report; the existing wallet-specific `(uuid,integer,integer)` overload was also recovered.
+- `admin_list_winning_item_payments(integer,integer)` — bounded winner-payment report.
+- `admin_set_default_sponsor(text)` — validates an active Main ID, stores its ID in `app_settings`, and writes an Admin audit record.
 
-This is **not** a claim that these RPCs are absent from Production. Some may be among the 17 unrecovered historical Production migration entries. Do not write replacement SQL until exact live signatures, result columns, source table columns, authorization checks and RLS/security-definer behavior are recovered.
+Added `20261118230000_recover_admin_read_rpc_sources.sql` with these recovered definitions, fixed empty search_path, Admin checks and explicit execution grants. Return types and overloads are retained from the Production catalogue. This is source recovery, not deployment: no function was executed or replaced in Production.
+
+The same read-only query confirmed the existing Production `get_my_placement_tree()` definition. Updated `20261118220000_member_placement_tree_rpc.sql` to preserve its exact current traversal contract (Main-ID descendants only, depth cap 20, cycle guard, and the existing JSONB response keys/order) instead of the earlier broader proposed traversal.
+
+## Remaining reconciliation
+
+- These recovered functions were present in Production but their source migration bodies were not located in the previously reviewed migration files. Their exact definitions are now represented in the branch's source migration.
+- The full historical migration chain and canonical clean-install baseline remain unreconciled. Do not replay the branch migration directory as-is.
+- The two `admin_list_wallet_transactions` overloads include defaults in the recovered Production catalogue. Verify PostgREST overload resolution for the frontend's named `p_limit`/`p_offset` call during TEST contract testing; do not remove an existing overload without a compatibility decision.
 
 ## Additional caution
 
