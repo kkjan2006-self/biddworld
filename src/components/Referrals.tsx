@@ -32,15 +32,17 @@ export default function Referrals(){
  async function exportTeam(){
   const client=supabase;if(!client||!userId||exportBusy)return;setExportBusy(true);setExportMessage('');
   try{
-   const all:TreeMember[]=[];let offset=0;
+   const all:TreeMember[]=[];const seen=new Set<string>();let offset=0;let pages=0;
    for(;;){
+    pages+=1;if(pages>10000)throw new Error('The team report exceeded the safe export limit. Please narrow the filters and retry.');
     const {data:result,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
     if(loadError)throw loadError;
     const page=result as Dashboard|null;
     if(!page||!Array.isArray(page.tree))throw new Error('The team report response was incomplete. Please refresh and retry.');
-    all.push(...page.tree);offset+=page.tree.length;
+    const fresh=page.tree.filter(member=>!seen.has(member.member_code));
+    fresh.forEach(member=>seen.add(member.member_code));all.push(...fresh);offset+=page.tree.length;
     if(!page.has_more)break;
-    if(page.tree.length===0)throw new Error('The team report could not continue to the next page. Please retry.');
+    if(page.tree.length===0||fresh.length===0)throw new Error('The team report repeated a page and could not continue safely. Please narrow the filters and retry.');
    }
    if(!all.length){setExportMessage('No matching team members are available to export.');return;}
    const rows=[['Member Name','Member ID','Sponsor ID','Account Status','Level','Joined Date'],...all.map(member=>[member.display_name,member.member_code,member.sponsor_code??'',member.status,member.depth,member.created_at])];
@@ -57,7 +59,7 @@ export default function Referrals(){
    const {data:next,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
    if(seq!==request.current)return;
    if(loadError)throw loadError;
-   setData(current=>current?({...next,tree:[...current.tree,...(next as Dashboard).tree]} as Dashboard):next as Dashboard);
+   setData(current=>{if(!current)return next as Dashboard;const page=next as Dashboard;const known=new Set(current.tree.map(member=>member.member_code));const fresh=page.tree.filter(member=>!known.has(member.member_code));return {...page,tree:[...current.tree,...fresh],has_more:page.has_more&&fresh.length>0};});
   }catch(e){if(seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'More team members could not be loaded. Please retry.'));}
   finally{if(seq===request.current){loadMoreBusy.current=false;setLoadingMore(false);}}
  }
