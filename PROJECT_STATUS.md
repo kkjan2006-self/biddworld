@@ -11,7 +11,7 @@
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration); forward manifest inclusion: `2417bf925a08178f846ab62f70f864a9c52041b1`
 - Source commit message: `feat: add secure Admin notification recipient lookup`
-- Latest verified status checkpoint commit: `5b308934613b33df9f581c8c9c451b56f9774498` (`docs: reconcile final Storage policy state`)
+- Latest verified source/documentation work commit: `db891c7c423eed4bd57ba5c0694ea54fe8990154` (`docs: update BiddWorld recovery documentation`)
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
@@ -83,6 +83,8 @@ The following source/UI/documentation work is present in the current branch and 
 - Canonical clean-install path reconciliation: documented the distinction between the legacy `0001_biddworld.sql` schema and the separate schema-only candidate baseline. Static checks confirmed the candidate includes key canonical columns consumed by the first forward migrations. Updated `supabase/clean-install/README.md`, `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`, and added `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. No database replay, tests or DB writes. Latest documentation commit: `7e91a2e7ec97b75513db599913b6a827f6550483`.
 
 - 2026-11-18 — Reviewed the package receipt Storage chain from initial upload through private bucket/Admin-only read tightening and the Admin pending-activation receipt-path RPC. Confirmed intended final source policy: member-folder INSERT only, Admin SELECT only; product-media remains a separate public-read/Admin-write bucket. Added `docs/STORAGE_POLICY_FINAL_STATE_RECONCILIATION_2026-11-18.md`. Effective policies still need TEST replay verification; no tests/build or database changes. Commit: `5b308934613b33df9f581c8c9c451b56f9774498`.
+
+- Status checkpoint: package-receipt Storage policy sequence and product-media policy separation are documented; current inventory corrected to 81 SQL files (78 timestamped + 3 legacy), 62 forward + 16 excluded timestamped migrations. Full replay and policy verification remain pending.
 
 ## H. NEXT DEVELOPMENT BATCH
 
