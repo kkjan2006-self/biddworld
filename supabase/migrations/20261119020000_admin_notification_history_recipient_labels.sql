@@ -3,7 +3,8 @@
 -- server-side while preserving bounded, stable pagination.
 create or replace function public.admin_list_member_notifications_page(
  p_limit integer default 100,
- p_offset integer default 0
+ p_offset integer default 0,
+ p_category text default 'all'
 ) returns table(
  id uuid,
  user_id uuid,
@@ -26,7 +27,8 @@ begin
   raise exception 'Administrator access required' using errcode='42501';
  end if;
  if p_limit is null or p_limit < 1 or p_limit > 100
-    or p_offset is null or p_offset < 0 or p_offset > 1000000 then
+    or p_offset is null or p_offset < 0 or p_offset > 1000000
+    or p_category is null or p_category not in ('all','general','account','support','security') then
   raise exception 'Notification page is outside the allowed range' using errcode='22023';
  end if;
 
@@ -49,10 +51,11 @@ begin
    order by m.created_at,m.id
    limit 1
  ) member on true
+ where p_category='all' or n.category=p_category
  order by n.created_at desc,n.id desc
  limit p_limit offset p_offset;
 end;
 $function$;
 
-revoke all on function public.admin_list_member_notifications_page(integer,integer) from public,anon;
-grant execute on function public.admin_list_member_notifications_page(integer,integer) to authenticated;
+revoke all on function public.admin_list_member_notifications_page(integer,integer,text) from public,anon;
+grant execute on function public.admin_list_member_notifications_page(integer,integer,text) to authenticated;
