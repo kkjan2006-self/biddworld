@@ -530,3 +530,10 @@
 - Main ID reactivation now only auto-reactivates linked Duplicate IDs whose placement parent is still active and belongs to another member.
 - Added a focused source-contract test. Development-only migration; no database changes or tests/builds were executed. Production and TEST remain unchanged.
 - No overall completion percentage increase is claimed for this security hardening batch.
+## 2026-11-18 — Admin form validation lock recovery
+
+- Fixed three Admin save handlers that acquired their in-flight mutation lock before validating input: notification template save, member profile save, and sponsor reassignment.
+- Invalid or incomplete input now returns before the lock is acquired, so the Admin can correct the fields and submit again without refreshing the page.
+- Valid submissions retain the existing in-flight guard, server RPC, success/error feedback and finally-based lock release.
+- Added a source-contract regression test for validation-before-lock ordering and the existing finally cleanup.
+- Source-only change. No tests/build were run in this development phase; all testing remains deferred to the final testing stage. Production and TEST Supabase projects were not accessed or modified. No completion-percentage increase is claimed.
