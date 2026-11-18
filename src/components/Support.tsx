@@ -51,7 +51,8 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];
-   setTickets(current=>[...current,...rows]);setHasMore(rows.length===PAGE_SIZE);
+   let added=0;setTickets(current=>{const known=new Set(current.map(ticket=>ticket.id));const fresh=rows.filter(ticket=>!known.has(ticket.id));added=fresh.length;return [...current,...fresh];});
+   if(rows.length===PAGE_SIZE&&added===0){setHasMore(false);setError('The support queue returned a repeated page. Refresh the list before loading more.');}else setHasMore(rows.length===PAGE_SIZE);
    setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
    setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
@@ -80,13 +81,14 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   try{
    let userId:string|undefined;
    if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to export your support requests.');userId=user.id;}
-   const all:Ticket[]=[];
-   for(let offset=0;;offset+=500){
+   const all:Ticket[]=[];const seenPages=new Set<string>();
+   for(let offset=0;offset<500*10000;offset+=500){
     let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
     if(userId)request=request.eq('user_id',userId);if(statusFilter!=='all')request=request.eq('status',statusFilter);
     const{data,error:loadError}=await request.range(offset,offset+499);if(loadError)throw loadError;
-    const batch=(data??[]) as Ticket[];all.push(...batch);if(batch.length<500)break;
+    const batch=(data??[]) as Ticket[];if(batch.length<500){all.push(...batch);break;}const fingerprint=JSON.stringify(batch.map(ticket=>ticket.id));if(seenPages.has(fingerprint))throw new Error('The support export repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');seenPages.add(fingerprint);all.push(...batch);
    }
+   if(all.length>=500*10000)throw new Error('The support export is too large for one request. Narrow the status filter and retry.');
    const q=search.trim().toLowerCase();const matched=all.filter(ticket=>!q||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(q)));
    if(!matched.length){setExportMessage('No matching support requests are available to export.');return;}
    const rows=[['Ticket ID','Member User ID','Subject','Message','Status','Admin Response','Created At','Updated At'],...matched.map(ticket=>[ticket.id,ticket.user_id,ticket.subject,ticket.message,ticket.status,ticket.admin_response??'',ticket.created_at,ticket.updated_at])];
