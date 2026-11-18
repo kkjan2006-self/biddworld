@@ -166,8 +166,7 @@ begin
     v_debit_total:=v_debit_total+v_debit.amount;
     v_refund_key:='fixed-bid:'||v_entry.id::text||':refund:'||v_wallet.id::text;
     if not exists(select 1 from public.wallet_transactions where idempotency_key=v_refund_key) then
-     v_debit_total:=v_debit_total+v_debit.amount;
-    v_new_balance:=v_wallet.balance+v_debit.amount;
+     v_new_balance:=v_wallet.balance+v_debit.amount;
      update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
      insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
      values(v_wallet.id,v_entry.member_id,'fixed_bid_refund','credit',v_debit.amount,v_new_balance,
@@ -324,6 +323,7 @@ begin
    loop
     select * into v_wallet from public.wallet_accounts where id=v_debit.wallet_account_id for update;
     if not found then raise exception 'Original entry wallet is unavailable; draw was rolled back' using errcode='55000'; end if;
+    v_debit_total:=v_debit_total+v_debit.amount;
     v_new_balance:=v_wallet.balance+v_debit.amount;
     update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
     insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
