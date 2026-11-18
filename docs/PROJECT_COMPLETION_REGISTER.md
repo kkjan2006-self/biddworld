@@ -239,3 +239,13 @@
 - Confirmed the two-argument Duplicate ID placement RPC is supplied by the later serialized-placement migration and the two-argument idempotent `place_bid` wrapper matches the current frontend call.
 - Added the missing Member ID list RPC in the preceding migration batch. Remaining legacy Admin template/report RPCs and the overall historical migration baseline still require further reconciliation; this review does not establish clean-install readiness.
 - No tests/build run and no database migrations applied. Production and TEST remain untouched.
+
+
+### 2026-11-18 — Admin template, account directory and health RPC completion
+- Added source migration `20261118210000_admin_templates_accounts_health.sql`.
+- Implemented Admin-only notification template list/save RPCs and a dedicated `notification_templates` table with RLS enabled and direct table privileges revoked. Template saves remain inactive drafts; no email/SMS/in-app dispatch is performed by this feature.
+- Implemented the Admin account directory from trusted `auth.users.raw_app_meta_data` role claims; the RPC returns only Admin accounts and does not expose password/authentication secrets.
+- Implemented the read-only platform health RPC with public-table/RLS counts, settings count when the settings table exists, and latest audit timestamp.
+- Frontend RPC signatures and expected result fields were checked against `src/components/Admin.tsx`.
+- This is a source-only migration. No tests/build or migration replay were run. Production and TEST databases remain untouched.
+- Current source migration inventory: **63 SQL files (3 legacy/unversioned + 60 timestamped)**, subject to final tree-wide inventory confirmation.
