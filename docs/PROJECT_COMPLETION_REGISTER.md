@@ -258,3 +258,12 @@
 - Referrals and PlacementTree call `get_my_mlm_dashboard_page` and `get_my_placement_tree`; their complete frontend/result contracts remain to be checked against the full migration history.
 - Direct Account queries for wallet balances, bids, fixed-bid entries, commissions, winning payments and delivery tracking rely on member-row RLS and will require dedicated TEST-project verification during the final test phase.
 - This batch is a source/documentation audit only. No application code, database schema, Production data or TEST data was changed. No tests/build or migration replay were run.
+
+
+### 2026-11-18 — Member RPC reconciliation correction and placement-tree implementation
+- Rechecked the original migration sources and corrected the previous checkpoint: `member_get_my_identity()`, `member_update_my_profile(text,text)`, `member_list_my_withdrawals()`, and `get_my_mlm_dashboard_page(integer,integer,text,integer)` are already defined in the historical/source migrations; they were not missing RPCs.
+- Confirmed the Member PlacementTree component calls `get_my_placement_tree()`, but no definition was found in the inspected SQL migration history. Added source migration `20261118220000_member_placement_tree_rpc.sql`.
+- The new SECURITY DEFINER RPC derives the caller's Main ID from their authenticated profile, returns the root plus descendants using `placement_parent_id`, prevents cycles, traverses duplicate IDs only as structural links, and displays Main IDs only. It returns the exact fields consumed by `PlacementTree.tsx`.
+- The RPC grants execution only to authenticated users and revokes PUBLIC/anon execution. No caller-supplied member ID is accepted.
+- Updated source SQL inventory: **64 files (3 legacy/unversioned + 61 timestamped)**. The migration is source-only; no SQL replay, tests, build, Production changes, or TEST changes were performed.
+- Remaining work includes complete Admin RPC inventory reconciliation, full migration dependency/baseline reconstruction, and then isolated TEST replay plus final testing.
