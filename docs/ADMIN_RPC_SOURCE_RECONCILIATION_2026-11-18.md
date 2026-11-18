@@ -64,3 +64,16 @@ The same read-only query confirmed the existing Production `get_my_placement_tre
 - Recover catalog definitions with the existing read-only `supabase/audit/production_migration_recovery.sql` process, then write additive source migrations against the verified Production schema.
 - Keep Production read-only. Do not replay migrations to TEST until the canonical clean-install baseline and dependency order have been established.
 - No tests, builds, migration replay, or database writes were performed for this audit.
+
+
+## Read-only Production presence check — 2026-11-18
+
+A second catalogue query compared all 51 unique RPC names called by `src/components/Admin.tsx` with the live Production `public.pg_proc` catalogue. The query was read-only.
+
+- **30 RPC names are currently present in Production.**
+- **21 RPC names are not currently installed in Production.**
+- The missing names correspond to functionality represented by newer source-only migrations in this branch, including paginated directories/reports, Fixed Bid administration, referral commission posting/reversal and plan activation, wallet adjustments, withdrawal review/minimum settings, Main ID lifecycle, Primary Admin role management, and related new controls.
+- This does not indicate a source-code absence for those newer functions. It means those migrations have not been deployed to Production, consistent with the project's no-Production-changes instruction.
+- Do not deploy these migrations to Production as part of this development continuation. Keep the distinction explicit in future audits: **defined in source** is not the same as **installed in Production**.
+- TEST contract verification remains pending after clean-install baseline reconstruction.
+
