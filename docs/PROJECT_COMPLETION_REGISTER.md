@@ -958,3 +958,11 @@
 - Updated `src/components/Admin.tsx` to store the signed URL with its expiry timestamp, hide the link after expiry, and always keep a View/Refresh button so Admins can request a new short-lived URL without reloading the pending activation queue.
 - Extended `tests/admin-pending-activation-receipt-path.test.ts` with source-contract assertions. The test was not executed.
 - Commits: `d938fc397a19cac7737079236ed3f69d41d33380` (UI) and `ea38258d36a239249a81afb533ddc14ab0e9722c` (test). No migration changes; the manifest remains 72 forward + 16 excluded timestamped migrations, plus 3 legacy SQL files. No tests/build/CI, SQL replay or database writes. Production remains read-only and TEST untouched. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Support-ticket audit event deduplication (#73)
+
+- Reviewed the Support member submission and Admin response workflow. The original support-ticket row trigger already writes an Admin update audit event, while the later idempotent `admin_update_support_ticket()` RPC also inserted an audit row for the same update. This produced duplicate audit records for a single Admin action.
+- Added forward candidate #73, `20261119030000_deduplicate_support_ticket_audit_events.sql`. The row trigger remains the sole audit writer and now includes member user ID alongside actor, ticket ID, old/new status and response-change indicator. The Admin RPC retains its role check, input validation, ticket row lock, update and response shape but no longer inserts a second audit row. Its explicit authenticated-only EXECUTE grant is retained.
+- Added `tests/support-ticket-audit-deduplication.test.ts` with source-contract assertions. The test was not run.
+- Updated the forward manifest and clean-install README to 73 forward + 16 excluded timestamped migrations + 3 legacy SQL files = 92 SQL files (89 timestamped). Source-only change; no tests/build/CI, SQL replay or database writes. Production remains read-only and TEST remains untouched. Overall completion estimate remains 55%.
