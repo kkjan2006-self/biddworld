@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` (verified present; latest verified HEAD `d27c6750dc20a5bf8fb52a713fee386aeae55d93`)
+- Current development branch: `completion-work` (verified present; latest verified HEAD `03a6b5b2747014c9a7b50f813438bd17c2cb9b7e`)
 - Latest verified source batch: Member Main-ID lifecycle serialization now also covers Fixed Bid entries, withdrawal requests and both winner-payment RPCs. Added migration `20261118440000_serialize_member_financial_eligibility.sql` (forward candidate #66 (before the latest batch)); source-only, not applied to any database.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8` (serialize Auction Bid eligibility with Main-ID lifecycle).
@@ -153,3 +153,5 @@ At every development batch/chat end, update this file with the actual verified b
 
 
 - 2026-11-18 — Frontend support/notification direct-write RLS review: `Support.tsx` reads support tickets directly under owner-or-Admin RLS, but submits and updates only through audited idempotent RPCs; the table still granted direct INSERT/UPDATE, allowing unused direct writes to bypass those RPC contracts. `Notifications.tsx` reads directly and updates only `read_at` under owner-only RLS, while Admin sends only through the audited idempotent RPC; direct authenticated INSERT was unnecessary. Added `20261118450000_restrict_direct_support_notification_writes.sql` as forward candidate #67, revoking support-ticket INSERT/UPDATE and notification INSERT from authenticated while retaining SELECT and owner-scoped notification read-state UPDATE. Added `docs/FRONTEND_SUPPORT_NOTIFICATION_DIRECT_WRITE_RLS_REVIEW_2026-11-18.md`. Updated manifest to 67 forward; inventory 83 timestamped + 3 legacy = 86 SQL files. Source-only; no tests/build/CI, SQL replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
+
+- Latest branch verification: `completion-work` HEAD `03a6b5b2747014c9a7b50f813438bd17c2cb9b7e`; protected `main` remains `415364b71534c7fc31d6c0928dd8395e10cbd94f` (identical to its prior checkpoint). Support/notification direct-write restriction is committed and present in the 67-entry forward manifest. No Production or TEST access/writes.
