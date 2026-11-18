@@ -39,8 +39,9 @@ export default function Referrals(){
     if(loadError)throw loadError;
     const page=result as Dashboard|null;
     if(!page||!Array.isArray(page.tree))throw new Error('The team report response was incomplete. Please refresh and retry.');
-    const fresh=page.tree.filter(member=>!seen.has(member.member_code));
-    fresh.forEach(member=>seen.add(member.member_code));all.push(...fresh);offset+=page.tree.length;
+    const fresh=page.tree.filter(member=>{if(seen.has(member.member_code))return false;seen.add(member.member_code);return true;});
+    if(fresh.length!==page.tree.length)throw new Error('The team report returned duplicate member IDs. Export stopped to prevent an incomplete CSV. Please refresh and retry.');
+    all.push(...fresh);offset+=page.tree.length;
     if(!page.has_more)break;
     if(page.tree.length===0||fresh.length===0)throw new Error('The team report repeated a page and could not continue safely. Please narrow the filters and retry.');
    }
