@@ -580,3 +580,10 @@
 - Referral commission reversal replay now verifies the original credit and reversal ledger rows; pending-only reversals remain replayable without a wallet debit.
 - Added focused static contract tests for the Fixed Bid and referral calculation/posting/reversal source paths. Runtime database verification remains deferred until the TEST clean-install baseline is reviewed and development is complete.
 - No TEST or Production writes or migration replay. CI for this batch is pending.
+
+## 2026-11-18 — Clean-install migration partition audit
+
+- CI run #922 passed after Fixed Bid and Referral source hardening: 98/98 test files and 372/372 tests passed; TypeScript check and Vite production build passed.
+- Reconciled the current migration directory against the clean-install forward manifest: 66 timestamped migration files are partitioned into 50 ordered forward candidates and 16 historical/source files already represented by the Production baseline.
+- Added an explicit excluded-historical manifest and a regression test requiring every timestamped migration to appear exactly once in either the forward or excluded list. The two missing Production ledger source files remain preserved only in the exact historical archive under `supabase/audit/production-ledger/`.
+- The 1,929-line Production schema baseline remains a candidate only. No TEST migration replay or Production write was performed; canonical clean-install status is not claimed.
