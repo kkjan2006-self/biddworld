@@ -98,10 +98,10 @@ export default function Account(){
   }
  }
  useEffect(()=>{loadMounted.current=true;void load();return()=>{loadMounted.current=false;loadRequest.current+=1;}},[]);
- async function loadHistoryPage<T>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
+ async function loadHistoryPage<T extends {id:string}>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
  if(!supabase||!profile?.main_member_id||historyPageInFlight.current.has(key))return;
  const client=supabase;const memberId=profile.main_member_id;historyPageInFlight.current.add(key);setHistoryLoading(key);
- try{const {data,error}=await fetchPage(client,memberId,offset,offset+pageSize-1);if(error)throw error;const batch=(data??[]) as T[];await append(batch,client);setHistoryHasMore(current=>({...current,[key]:batch.length===pageSize}));}
+ try{const {data,error}=await fetchPage(client,memberId,offset,offset+pageSize-1);if(error)throw error;const batch=(data??[]) as T[];const currentRows=key==='activations'?activations:key==='auctionBids'?auctionBids:key==='fixedBids'?fixedBids:key==='commissions'?commissions:winningPayments;const known=new Set(currentRows.map(row=>row.id));const freshCount=batch.filter(row=>!known.has(row.id)).length;await append(batch,client);if(batch.length===pageSize&&freshCount===0){setHistoryHasMore(current=>({...current,[key]:false}));setError('The '+(key==='auctionBids'?'auction':key==='fixedBids'?'Fixed Bid':key==='winningPayments'?'winner payment':key==='activations'?'package activation':'commission')+' history returned a repeated page. Refresh your account before loading more.');}else setHistoryHasMore(current=>({...current,[key]:batch.length===pageSize}));}
  catch(e){setError(e instanceof Error?e.message:'Could not load more account history.');}
  finally{historyPageInFlight.current.delete(key);setHistoryLoading(current=>current===key?'':current);}
 }
