@@ -822,3 +822,13 @@
 - Corrected clean-install README inventory text: 80 timestamped SQL files (64 forward + 16 excluded) plus 3 legacy files = 83 total. README had stale 78 / 81 counts.
 - Added `docs/AUCTION_REFUND_DELIVERY_TRACKING_SOURCE_REVIEW_2026-11-18.md`. Source review only; no tests/builds, TEST replay or database writes. Production and TEST remain untouched.
 - Documentation commits: `025ec6050f5846347d682025e2cd443feaabf5f7` (clean-install README) and `74337c27b1646887f13340d4495147189f223e4e` (source review).
+
+
+### 2026-11-18 — Serialize Auction Bid eligibility with Main-ID lifecycle
+
+- Found a source-level race between `private.place_bid` and Admin Main-ID suspend/close: the bid RPC read active Main ID/Profile state without synchronizing with the Admin status mutation.
+- Added `20261118430000_serialize_auction_bid_member_eligibility.sql`. Both paths now acquire the same per-Main-ID advisory transaction lock; the bid path rechecks Main ID and Profile active state after acquiring it, before idempotency, auction or wallet processing.
+- Retained the existing public RPC signature/grant and bid wallet debit/idempotency behavior. The Admin lifecycle function body is carried forward with the added lock; no product status rules were changed.
+- Added the migration as forward candidate 65. Current SQL inventory: 81 timestamped (65 forward + 16 excluded) + 3 legacy = 84 total.
+- Source-only change. No tests/builds, CI, TEST replay, Production access or database writes. Consolidated testing remains deferred. Overall estimate remains 55%.
+- Source commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8`.
