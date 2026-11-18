@@ -7,7 +7,7 @@ type Ticket={id:string;user_id:string;subject:string;message:string;status:'open
 const PAGE_SIZE=100;
 
 export default function Support({isAdmin=false}:{isAdmin?:boolean}){
- const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>());
+ const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>()),submitKey=useRef('');
  const [tickets,setTickets]=useState<Ticket[]>([]);
  const [subject,setSubject]=useState('');
  const [message,setMessage]=useState('');
@@ -67,9 +67,10 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   try{
    const {data:{user},error:userError}=await supabase.auth.getUser();
    if(userError||!user)throw new Error('Please sign in again to submit a support request.');
-   const {error:insertError}=await supabase.from('support_tickets').insert({user_id:user.id,subject:subject.trim(),message:message.trim()});
+   if(!submitKey.current){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);submitKey.current=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
+   const {data:submitResult,error:insertError}=await supabase.rpc('member_submit_support_ticket',{p_subject:subject.trim(),p_message:message.trim(),p_idempotency_key:submitKey.current});
    if(insertError)throw insertError;
-   setSubject('');setMessage('');setNotice('Your support request has been submitted.');
+   submitKey.current='';setSubject('');setMessage('');setNotice((submitResult as {replayed?:boolean}|null)?.replayed?'Your earlier support request was already recorded.':'Your support request has been submitted.');
    await load();
   }catch(e){setError(e instanceof Error?e.message:'Your support request could not be submitted. Please retry.');}
   finally{submitBusy.current=false;setBusy(false);}
@@ -101,7 +102,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   if(nextResponse.length>5000){setError('Admin response must be 5,000 characters or fewer.');return;}
   saveBusy.current.add(id);setSaving(id);setError('');setNotice('');
   try{
-   const {error:updateError}=await supabase.from('support_tickets').update({status:nextStatus,admin_response:nextResponse||null}).eq('id',id);
+   const {error:updateError}=await supabase.rpc('admin_update_support_ticket',{p_ticket_id:id,p_status:nextStatus,p_admin_response:nextResponse||null});
    if(updateError)throw updateError;
    setNotice('Support ticket updated.');await load();
   }catch(e){setError(e instanceof Error?e.message:'Support ticket could not be updated. Please retry.');}
