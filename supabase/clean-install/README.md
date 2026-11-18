@@ -24,7 +24,7 @@ The baseline represents the current Production schema at capture time. Do not re
 Ordered forward candidates are listed in `forward-migrations.txt` (**65 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **81 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
 
 ## Remaining work before canonical status
-1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive.
+1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive. Public function EXECUTE counts align with the Production inventory (43 authenticated, anon only public.lookup_sponsor(text)); service_role parity and audit_logs_id_seq USAGE grants to anon/authenticated remain unresolved. See docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md.
 2. Reconcile trigger functions, trigger order, extension dependencies and identity sequence ownership.
 3. Review every forward migration dependency and any repeated object replacement.
 4. Storage bucket/policy migrations, Admin pending-queue receipt-path integration, legacy receipt-read policy tightening, and Main/Duplicate placement-tree traversal are included in the forward set; final TEST replay and access verification remain pending.
@@ -35,7 +35,7 @@ This candidate reconstructs schema, not Production data. Historical SQL evidence
 
 ## Current static reconciliation checkpoint
 
-See [`docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md) for the verified 84-file inventory, baseline object counts, migration sequencing observations, Storage policy final-state dependency, and the current CI result. All findings are source-level only; no TEST or Production replay has occurred.
+See [`docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md) for the verified 84-file inventory, baseline object counts, migration sequencing observations, Storage policy final-state dependency, and the current CI result. Function ACL findings are recorded in [`docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md). All findings are source-level only; no TEST or Production replay has occurred.
 
 
 ## Canonical clean-install path clarification (source-only)
