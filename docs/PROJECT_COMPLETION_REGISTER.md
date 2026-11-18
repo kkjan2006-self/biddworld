@@ -233,3 +233,9 @@
 - Execution is revoked from PUBLIC/anon and granted to authenticated users only. The function uses a fixed empty search_path and runs as a constrained SECURITY DEFINER read.
 - This closes one confirmed frontend-to-migration source gap. Other legacy RPCs still need complete schema/production-history reconciliation before clean-install replay can be claimed.
 - Source-only change. No tests/build run and no Supabase migrations applied; Production and TEST databases remain untouched.
+
+### 2026-11-18 — Frontend/RPC contract review checkpoint
+- Compared the current frontend RPC calls with the source migration signatures for product catalogue pagination, member identity/profile, member genealogy, Admin member and Duplicate ID pagination, auction draft management, bidding idempotency, sponsor validation, delivery tracking, and the recent Fixed Bid / package / withdrawal / notification workflows.
+- Confirmed the two-argument Duplicate ID placement RPC is supplied by the later serialized-placement migration and the two-argument idempotent `place_bid` wrapper matches the current frontend call.
+- Added the missing Member ID list RPC in the preceding migration batch. Remaining legacy Admin template/report RPCs and the overall historical migration baseline still require further reconciliation; this review does not establish clean-install readiness.
+- No tests/build run and no database migrations applied. Production and TEST remain untouched.
