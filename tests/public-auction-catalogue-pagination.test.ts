@@ -26,7 +26,7 @@ describe('public auction catalogue pagination',()=>{
   expect(sql).toContain('a.starts_at > now()');
  });
  it('uses a restricted SECURITY DEFINER RPC rather than anonymous table SELECT',()=>{
-  expect(sql).toMatch(/security definer[\\s\\S]*?set search_path\\s*=\\s*''/i);
+  expect(sql).toMatch(/security definer[\s\S]*?set search_path\s*=\s*''/i);
   expect(sql).toContain('revoke all on function public.public_list_active_auctions_page(integer,integer) from public,anon,authenticated');
   expect(sql).toContain('grant execute on function public.public_list_active_auctions_page(integer,integer) to anon,authenticated');
  });

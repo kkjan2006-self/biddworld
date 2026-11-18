@@ -594,3 +594,8 @@
 - Updated the Production catalogue documentation to distinguish 243 constraints across all inspected catalogue schemas from the 110 constraints on the 21 public application tables; clarified the 17 all-schema triggers versus 11 application-owned triggers.
 - Updated migration recovery documentation to reflect the exact 30 historical Production migration SQL bodies now archived under `supabase/audit/production-ledger/`. The two unrecoverable executable paths remain archival-only and are not copied into the executable migration directory.
 - Clean-install baseline remains a candidate only. No TEST migration replay or Production write was performed.
+
+### 2026-11-18 — Public auction RPC CI follow-up
+- CI run #925 validated the new public-auction RPC source coverage, but two test assertions failed: the explicit frontend RPC inventory did not yet include the newly added RPC, and the SECURITY DEFINER test regex was over-escaped.
+- Added `public_list_active_auctions_page` to the frontend RPC inventory and refreshed its source snapshot commit. Updated the branch RPC contract test to reference the final Member ID list RPC and new public auction RPC.
+- Corrected the regex assertion. The source migration and App integration are unchanged. Awaiting a fresh CI run.

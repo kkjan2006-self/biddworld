@@ -6,8 +6,9 @@ const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8'
 
 const contracts = [
   { name: 'public_list_active_products_page', ui: 'src/App.tsx', migration: 'supabase/migrations/20261116120000_public_product_catalogue_search.sql', security: 'invoker' },
+  { name: 'public_list_active_auctions_page', ui: 'src/App.tsx', migration: 'supabase/migrations/20261118280000_public_auction_catalogue_page.sql', security: 'definer' },
   { name: 'member_get_my_identity', ui: 'src/components/Account.tsx', migration: 'supabase/migrations/20261115203000_member_identity_summary.sql', security: 'definer' },
-  { name: 'member_list_my_ids', ui: 'src/components/Account.tsx', migration: 'supabase/migrations/20261115230000_duplicate_under_id_placement_attribution.sql', security: 'definer' },
+  { name: 'member_list_my_ids', ui: 'src/components/Account.tsx', migration: 'supabase/migrations/20261118200000_member_identity_ids_rpc.sql', security: 'definer' },
   { name: 'member_update_my_profile', ui: 'src/components/Account.tsx', migration: 'supabase/migrations/20261115190000_member_profile_self_service.sql', security: 'definer' },
   { name: 'admin_list_members_sponsors_page', ui: 'src/components/Admin.tsx', migration: 'supabase/migrations/20261116090000_admin_members_sponsors_pagination.sql', security: 'definer' },
   { name: 'admin_list_duplicate_ids_page', ui: 'src/components/Admin.tsx', migration: 'supabase/migrations/20261116110000_admin_duplicate_id_pagination.sql', security: 'definer' },
