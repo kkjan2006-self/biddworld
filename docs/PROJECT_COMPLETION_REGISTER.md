@@ -495,3 +495,10 @@
 - A colliding key from an unrelated wallet transaction now fails closed instead of returning a false paid/replayed response.
 - Source migration only. No payment, database migration, build or test was executed; consolidated testing remains deferred.
 - Overall completion percentage is not increased for this isolated integrity hardening.
+
+### 2026-11-18 — Withdrawal payout details server-side validation
+- Added a forward-only migration that validates payout details independently of the member UI: exact supported methods (UPI / Bank Transfer), matching credential field, account-holder length, UPI syntax, bank account length and rejection of unexpected JSON keys.
+- The database stores a normalized method-specific payout object and audit logs record only the payout method and amount, never the UPI ID, account number or account-holder name.
+- Preserved the existing active Main ID ownership check, Income Wallet balance lock, minimum-withdrawal setting, withdrawals feature gate and authenticated-only RPC grant.
+- Added a focused static contract test. As requested, tests and builds remain deferred until the consolidated final testing phase.
+- Source-only change. No Supabase migration or payout was executed; Production and TEST remain unchanged. No overall completion percentage increase is claimed for this isolated security hardening.
