@@ -167,7 +167,7 @@ $function$;
 
 -- Preserve the existing wallet-specific overload for callers that need it.
 create or replace function public.admin_list_wallet_transactions(
- p_wallet_account_id uuid default null,
+ p_wallet_account_id uuid,
  p_limit integer default 100,
  p_offset integer default 0
 )
