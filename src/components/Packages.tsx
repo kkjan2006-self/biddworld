@@ -38,16 +38,15 @@ export default function Packages() {
       return;
     }
     try {
-      const { data, error: queryError } = await supabase
-        .from('packages')
-        .select('id,name,description,price,currency,bid_wallet_credit')
-        .eq('is_active', true)
-        .order('price', { ascending: true });
+      const { data, error: queryError } = await supabase.rpc('public_list_active_packages_page',{p_limit:100,p_offset:0});
       if (!isCurrent()) return;
       if (queryError) {
         setItems([]);
         setError('Packages could not be loaded. Please try again later.');
       } else setItems((data ?? []) as PackageItem[]);
+      const {data:sessionData}=await supabase.auth.getSession();
+      if(!isCurrent())return;
+      if(!sessionData.session){setActivationEnabled(false);return;}
       const{data:activationSetting,error:activationSettingError}=await supabase.from('app_settings').select('setting_value').eq('setting_key','package_activations_enabled').maybeSingle();
       if(!isCurrent())return;
       setActivationEnabled(!activationSettingError&&activationSetting?.setting_value===true);

@@ -268,6 +268,10 @@
       "ui": "src/App.tsx"
     },
     {
+      "name": "public_list_active_packages_page",
+      "ui": "src/components/Packages.tsx"
+    },
+    {
       "name": "public_list_active_products_page",
       "ui": "src/App.tsx"
     },
