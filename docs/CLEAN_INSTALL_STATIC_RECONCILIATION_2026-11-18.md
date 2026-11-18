@@ -130,3 +130,8 @@ GitHub Actions run #996 on the inspected branch head `f7274c13053ad593c3fa303560
 ## Follow-up migration added after this audit
 
 `20261118400000_admin_notification_recipient_lookup.sql` is the 62nd forward candidate. It adds a bounded, Admin-only recipient lookup for the Notifications UI. The forward manifest now includes it; static manifest integrity still needs to be run during the consolidated final test phase. No database has been modified.
+
+
+## 8. Clean-install starting-point distinction clarified
+
+The incompatible legacy `0001_biddworld.sql` is not part of the clean-install forward manifest. The separate `production_schema_baseline_candidate.sql` is the intended schema-only starting-point candidate under review. Static comparison against the first forward migrations confirms the required canonical fields are present: `profiles.phone` and `main_member_id`; `member_ids.owner_user_id`, `id_type`, and `status`; `wallet_accounts.member_id`; `referrals.source_member_id`; and `package_activations.activation_number`, `payment_status`, and `activation_status`. Therefore the previously documented mismatch applies to the legacy `0001` route, not to the candidate-baseline route. This is a source-level clarification only; it does not approve or execute the candidate and does not establish that all 62 migrations replay successfully.
