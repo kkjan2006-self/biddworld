@@ -724,3 +724,10 @@
 - Reviewed the two source Storage migrations: `product-media` is public-read with Admin-only mutation; `package-receipts` is private with member-owned upload/read and Admin review. Neither Production nor TEST currently has a Storage bucket, so these policies and upload paths remain unverified until TEST replay.
 - Remaining baseline review gates: exact function-definition/ACL parity, trigger function/order and identity-sequence ownership, and dependency/semantic review of all 56 forward migrations. Candidate remains non-executable pending TEST replay; Production stays read-only.
 - No database writes, migrations, test data, member actions or wallet activity. No completion-percentage increase is claimed.
+
+
+### 2026-11-18 — Notification template persistence contract repair
+- Current branch review found that `admin_save_notification_template` inserted `created_by`, but the new `notification_templates` table definition omitted that column. This would fail on first template creation after clean-install replay.
+- Added nullable `created_by uuid references auth.users(id) on delete set null` to the table definition. The save RPC continues to force all saved templates to inactive drafts; no email/SMS dispatch is introduced.
+- Source change committed as `960681dcafc84e5c86db1b6f7b02a4c8ee304f97`. No database was modified and no tests were run manually, per the requested final testing phase.
+- Remaining work continues with full module integration and schema/function/ACL reconciliation. This isolated repair does not justify a completion percentage increase.
