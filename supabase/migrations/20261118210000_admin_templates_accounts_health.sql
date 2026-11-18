@@ -67,7 +67,7 @@ begin
  if char_length(v_name)<2 or char_length(v_name)>100 then
   raise exception 'Template name must contain 2 to 100 characters' using errcode='22023';
  end if;
- if p_channel not in ('in_app','email','sms') then
+ if p_channel is null or p_channel not in ('in_app','email','sms') then
   raise exception 'Choose a supported notification channel' using errcode='22023';
  end if;
  if char_length(v_body)<1 or char_length(v_body)>5000 then
