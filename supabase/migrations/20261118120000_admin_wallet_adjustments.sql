@@ -48,7 +48,8 @@ begin
   if v_adjustment.member_id is distinct from (select id from public.member_ids where upper(member_code)=upper(trim(p_member_code)))
    or v_adjustment.wallet_type is distinct from p_wallet_type
    or v_adjustment.direction is distinct from p_direction
-   or v_adjustment.amount is distinct from p_amount then
+   or v_adjustment.amount is distinct from p_amount
+   or v_adjustment.reason is distinct from trim(p_reason) then
    raise exception 'This adjustment key was already used for a different request' using errcode='23505';
   end if;
   return jsonb_build_object('success',true,'adjustment_id',v_adjustment.id,'replayed',true);
