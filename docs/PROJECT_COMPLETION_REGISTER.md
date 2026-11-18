@@ -643,3 +643,11 @@
 - Clean-install partition now contains 53 ordered forward candidates and 16 excluded historical source files, accounting for all 69 timestamped migration files exactly once (72 SQL files in `supabase/migrations`, including three legacy files).
 - GitHub Actions run #935 passed the production dependency audit gate: `npm audit --omit=dev` reported 0 vulnerabilities (0 high/critical). The full dependency audit still reports 12 high, 0 critical findings in development/build tooling; this remains an open remediation item before launch. No major dependency upgrades were forced.
 - No TEST migration replay or Production writes were performed. All three new public catalogue RPCs remain source-only.
+
+## 2026-11-18 — PWA install icon assets
+
+- GitHub Actions run #938 passed: 102/102 test files and 423/423 tests; TypeScript check and Vite production build passed.
+- Added real 192×192 and 512×512 PNG install icons derived from the existing BiddWorld SVG brand mark. The 512 icon is declared `any maskable`; the Apple touch icon now points to the 192 PNG.
+- Added both PNGs to the service-worker shell cache and strengthened PWA tests to verify actual PNG signatures and dimensions.
+- Bumped the service-worker cache to v3 in a follow-up commit so previous shell assets are retired on activation. CI for that cache-version change is pending.
+- Android installation and offline behavior still require real-device verification during final QA; source tests/build do not prove device installation.
