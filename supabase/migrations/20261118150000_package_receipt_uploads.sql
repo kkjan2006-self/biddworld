@@ -22,10 +22,7 @@ using(bucket_id='package-receipts' and (
  or coalesce(auth.jwt()->'app_metadata'->>'role','')='admin'
 ));
 
-drop policy if exists package_receipts_delete_own on storage.objects;
-create policy package_receipts_delete_own on storage.objects
-for delete to authenticated
-using(bucket_id='package-receipts' and (storage.foldername(name))[1]=(select auth.uid())::text);
+-- Receipt deletion is intentionally not granted to members after upload.
 
 create or replace function public.submit_package_activation_with_receipt(
  p_package_id uuid,p_payment_reference text,p_receipt_path text default null
