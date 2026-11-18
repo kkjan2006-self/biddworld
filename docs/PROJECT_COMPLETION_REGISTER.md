@@ -293,3 +293,11 @@
 - Recovered the live `get_my_placement_tree()` definition and aligned `20261118220000_member_placement_tree_rpc.sql` to its existing JSONB response and Main-ID traversal contract.
 - Recorded a remaining TEST contract check: PostgREST overload resolution for the two `admin_list_wallet_transactions` signatures with default arguments must be verified before relying on the frontend named-argument call.
 - No tests/build, migration replay, or Supabase writes were performed. Production and TEST databases remain untouched.
+
+
+### 2026-11-18 — Full Admin frontend RPC presence audit against Production
+- Extracted the complete set of 51 unique RPC names used by `src/components/Admin.tsx` and compared them with `public.pg_proc` on Production using a read-only catalogue query.
+- Found 30 RPC names installed in Production and 21 not currently installed. The missing names are primarily newer Admin workflows already represented in source-only migrations; this confirms the frontend branch includes functionality that has not been deployed to Production.
+- Recorded the exact distinction in `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`. Do not infer that a source-defined RPC is live, and do not deploy anything to Production during this development phase.
+- Admin component direct table access is limited to Supabase Storage buckets `product-media` and `package-receipts`; reviewed the corresponding Storage policies and upload/signed-URL usage. Product media is public-read with Admin-only mutations; package receipts are private and readable by the owner or Admin.
+- No tests/build, migration replay, or Supabase writes were performed. Production and TEST remain untouched.
