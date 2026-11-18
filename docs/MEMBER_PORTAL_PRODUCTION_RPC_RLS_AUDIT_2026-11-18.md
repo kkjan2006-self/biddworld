@@ -73,3 +73,21 @@ All 13 listed existing direct-query tables have RLS enabled and one policy each 
 5. Run authenticated Member and Admin RLS tests only after development is complete.
 
 No tests, build, migration replay, or database writes were performed. Production and TEST remain unchanged.
+
+
+## Follow-up: exact policy predicates and frontend query alignment
+
+Inspected the exact Production policy predicates for the 13 existing Member-facing tables and traced the corresponding frontend queries. Owner-scoped policies consistently join through `member_ids.owner_user_id = auth.uid()` for wallet, bid, fixed-bid, activation, commission, winning-payment and delivery data. `profiles` is scoped to `auth.uid() = id`. Public catalogue reads are constrained to active packages and visible auction/campaign states.
+
+A concrete settings-read mismatch was found:
+- Production `app_settings_read_scoped` allowed members to read only `bidding_enabled`, `fixed_bid_enabled`, `withdrawals_enabled`, `duplicate_ids_enabled`, and `winner_selection_configured` (Admin/Support/Finance retain role-scoped access).
+- The current frontend also reads `package_activations_enabled` and `minimum_withdrawal_amount` directly as an authenticated member. Those keys were not in the Production member allow-list, so those reads would be denied by RLS.
+
+Added source-only migration `20261118240000_member_public_feature_settings_read.sql` to extend the existing policy's member-readable allow-list with exactly those two non-sensitive settings while preserving the existing role visibility. This migration has NOT been applied to Production or TEST.
+
+Also reviewed source-only Support and Notification RLS:
+- Support ticket SELECT is owner-or-Admin; INSERT is owner-bound; UPDATE is Admin-only.
+- Notification SELECT is owner-or-Admin; INSERT is Admin-only; UPDATE is limited to the owner marking their own notification read.
+These tables are not present in the current Production catalogue, so these are source definitions, not deployed Production protections.
+
+No test/build or migration replay was run. Policy behavior still requires isolated TEST role/identity tests.
