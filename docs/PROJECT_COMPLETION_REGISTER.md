@@ -391,3 +391,12 @@
 - Updated `20261116030000_admin_configurable_referral_plan_depth.sql` so fixed rewards remain capped at 100000 and percentage rewards are independently capped at 100. Both limits are enforced in the database, not just in the browser.
 - The RPC still accepts sequential plans from 1 to 20 levels and creates inactive plan versions only.
 - Source migration only; not applied to Production or TEST. No build or tests run.
+
+
+### 2026-11-18 — Member MLM dashboard pagination contract
+- Cross-checked `src/components/Referrals.tsx` against the checked-in migration set and Production RPC inventory.
+- Confirmed the component calls `get_my_mlm_dashboard_page(integer,integer,text,integer)`, while the checked-in migration set had only the legacy unpaginated `get_my_mlm_dashboard()`; the paginated RPC was not present in the Production RPC inventory either.
+- Added a source-only migration implementing the exact frontend parameter and JSON response contract: summary cards, filtered/paginated Main-ID sponsor genealogy, total count and has-more flag.
+- The recursive genealogy follows Sponsor Referral links between Main IDs only, has a 20-level traversal ceiling and cycle protection. Search and depth filters apply to the displayed genealogy; summary totals remain whole-team totals.
+- The RPC is authenticated, read-only, SECURITY DEFINER with an explicit empty search_path; public/anon execution is revoked and authenticated execution granted.
+- Not applied to Production or TEST. No build/tests run; no data writes.
