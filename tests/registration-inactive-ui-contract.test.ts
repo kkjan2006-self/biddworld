@@ -15,8 +15,9 @@ describe('Member registration lifecycle UI contract', () => {
     expect(app).toContain("sponsor_referral_id:sponsorId.trim()||null");
   });
 
-  it('does not tell a newly registered member they are active', () => {
-    expect(app).toContain('Your account remains INACTIVE until the required Admin verification process is completed.');
+  it('confirms account and Main ID creation without claiming the account is active', () => {
+    expect(app).toContain('Registration successful. Your free member account and Main ID have been created.');
     expect(app).not.toContain('Registration successful. Your account is ACTIVE');
+    expect(app).not.toContain('Your account remains INACTIVE until the required Admin verification process is completed.');
   });
 });

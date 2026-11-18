@@ -32,7 +32,7 @@ describe('Withdrawal workflow authorization and ledger safety', () => {
     expect(admin).not.toMatch(/\.from\(['"]withdrawal_requests['"]\)\s*\.update/);
   });
 
-  it('serializes approvals, reserves Income Wallet funds, and releases rejected reservations idempotently', () => {
+  it('serializes approvals, reserves Income Wallet funds, and validates idempotent release ledger replays', () => {
     const workflow = read('supabase/migrations/20261118100000_admin_withdrawal_review_workflow.sql');
     expect(workflow).toContain("auth.jwt()->'app_metadata'->>'role','')<>'admin'");
     expect(workflow).toContain('where id=p_request_id for update');
@@ -40,7 +40,13 @@ describe('Withdrawal workflow authorization and ledger safety', () => {
     expect(workflow).toContain("wallet_type='income'");
     expect(workflow).toContain("v_key:='withdrawal:'||v_request.id::text||':reserve'");
     expect(workflow).toContain("v_key:='withdrawal:'||v_request.id::text||':release'");
-    expect(workflow).toContain('if not exists(select 1 from public.wallet_transactions where idempotency_key=v_key)');
+    expect(workflow).toContain("where idempotency_key='withdrawal:'||v_request.id::text||':reserve'");
+    expect(workflow).toContain('select * into v_release_tx from public.wallet_transactions where idempotency_key=v_key');
+    expect(workflow).toContain("v_release_tx.transaction_type is distinct from 'withdrawal_release'");
+    expect(workflow).toContain("v_release_tx.direction is distinct from 'credit'");
+    expect(workflow).toContain("v_release_tx.reference_id is distinct from v_request.id");
+    expect(workflow).toContain('if found then');
+    expect(workflow).toContain('else\n    v_new_balance:=v_wallet.balance+v_request.amount;');
     expect(workflow).toContain("values(v_uid,'withdrawal.'||p_action,'withdrawal_requests'");
     expect(workflow).toContain('grant execute on function public.admin_review_withdrawal_request(uuid,text,text) to authenticated');
   });

@@ -537,3 +537,13 @@
 - Valid submissions retain the existing in-flight guard, server RPC, success/error feedback and finally-based lock release.
 - Added a source-contract regression test for validation-before-lock ordering and the existing finally cleanup.
 - Source-only change. No tests/build were run in this development phase; all testing remains deferred to the final testing stage. Production and TEST Supabase projects were not accessed or modified. No completion-percentage increase is claimed.
+
+## 2026-11-18 — Latest branch CI regression repair
+
+- Re-fetched `completion-work` and confirmed the exact head before changes: `c87a2baa3eddf159fd8f1c8c882fb0be31db1542`.
+- Inspected GitHub Actions run #915: 89/96 test files passed (355/362 tests); seven failures were traced to stale source assertions after legitimate workflow/lock/message changes, plus malformed duplicated fragments in the payout-validation migration.
+- Updated the Duplicate ID serialization contract to assert the shared `biddworld.member_id_graph_mutation` transaction lock used by Duplicate ID approval and Main ID lifecycle operations.
+- Updated registration/account tests to match the actual free-registration confirmation and current account-activation lock notice without asserting an inactive status that the Auth provisioning flow does not promise.
+- Updated withdrawal safety assertions to verify the current select-and-validate idempotent release path rather than the removed `IF NOT EXISTS` insert pattern.
+- Rebuilt the payout-detail validation migration as one complete function definition, correcting the UPI and bank-account regular expressions and removing orphaned duplicated PL/pgSQL fragments. This is source-only; no migration was applied to TEST or Production.
+- GitHub Actions verification for this repair is pending. No completion percentage increase is claimed until the integrated application/database workflows are implemented and validated.

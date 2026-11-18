@@ -12,8 +12,8 @@ describe('Member dashboard activation status guard',()=>{
 
   it('shows a clear lock notice when either status is inactive, suspended, missing or not verified',()=>{
     expect(account).toContain("activeSection==='member-overview'&&accountActivationLocked");
-    expect(account).toContain('Both your member profile and Main ID must be active');
-    expect(account).toContain('Do not make any package payment.');
+    expect(account).toContain('Your member profile and Main ID must both be active to use restricted member features.');
+    expect(account).toContain('Contact BiddWorld support or an administrator if you believe this status is incorrect.');
   });
 
   it('does not treat the dashboard notice as a replacement for server-side financial guards',()=>{
@@ -26,5 +26,4 @@ describe('Member dashboard activation status guard',()=>{
     expect(account).toContain('Withdrawal requests are unavailable until both your member profile and Main ID are active.');
     expect(account).toContain("supabase.rpc('member_create_withdrawal_request'");
   });
-
 });

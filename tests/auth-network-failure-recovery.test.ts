@@ -37,9 +37,10 @@ describe('Authentication network failure recovery', () => {
     expect(reset).toContain('finally{setBusy(false)}');
   });
 
-  it('keeps sponsor ID validation and inactive-until-verified signup messaging', () => {
+  it('keeps sponsor ID validation and accurately confirms free account creation without claiming activation', () => {
     expect(source).toContain("sponsorLookup!=='valid'");
-    expect(source).toContain('Your account remains INACTIVE until the required Admin verification process is completed.');
-    expect(source).toMatch(/\/\^\\\+\?\[0-9\\s\(\)-\]\{10,16\}\$\//);
+    expect(source).toContain('Registration successful. Your free member account and Main ID have been created.');
+    expect(source).not.toContain('Your account remains INACTIVE until the required Admin verification process is completed.');
+    expect(source).toMatch(/\/\^\\\+?\[0-9\\s\(\)-\]\{10,16\}\$\//);
   });
 });
