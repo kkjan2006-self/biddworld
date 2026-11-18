@@ -28,12 +28,14 @@ Ordered forward candidates are listed in `forward-migrations.txt` (**65 files at
 2. Source review now confirms 43 public SECURITY DEFINER/search_path declarations, all 36 Admin auth predicates, four private function boundaries and 11 trigger dependencies are coherent in the candidate; see `docs/CLEAN_INSTALL_BASELINE_SECURITY_DEFINER_TRIGGER_REVIEW_2026-11-18.md`. Platform prerequisites (`auth.users` and Supabase `extensions` schema) must exist before replay. Exact sequence ownership/ACL parity remains pending.
 3. Review every forward migration dependency and any repeated object replacement.
 4. Storage bucket/policy migrations, Admin pending-queue receipt-path integration, legacy receipt-read policy tightening, and Main/Duplicate placement-tree traversal are included in the forward set; final TEST replay and access verification remain pending.
-5. At the final testing phase, replay only on TEST and compare schema, functions, RLS, grants and Storage; then run synthetic-data integration tests.
+5. At the final testing phase, replay only on TEST and compare schema, functions, RLS, grants and Storage; then run synthetic-data integration tests. CI is intentionally not triggered by `completion-work` pushes; the final verification workflow runs on `main` pushes / PRs to `main` and uses `npm ci`.
 6. Never apply this candidate to Production.
 
 This candidate reconstructs schema, not Production data. Historical SQL evidence remains archived under `supabase/audit/production-ledger/`.
 
 ## Current static reconciliation checkpoint
+
+See [`docs/FORWARD_MIGRATION_DEPENDENCY_CI_SECURITY_REVIEW_2026-11-18.md`](../../docs/FORWARD_MIGRATION_DEPENDENCY_CI_SECURITY_REVIEW_2026-11-18.md) for the current focused migration dependency, lockfile/advisory, CI sequencing and PWA source review.
 
 See [`docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md) for the verified 84-file inventory, baseline object counts, migration sequencing observations, Storage policy final-state dependency, and the current CI result. Function ACL findings are recorded in [`docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md). All findings are source-level only; no TEST or Production replay has occurred.
 
