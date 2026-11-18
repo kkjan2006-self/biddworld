@@ -67,6 +67,8 @@ export default function Packages() {
     if(reference.length<6||reference.length>80||!/^[A-Za-z0-9./_-]+$/.test(reference)){setActivationMessage('Enter a valid payment reference (6 to 80 letters or numbers).');return;}
     if(receiptFile&&(!['image/jpeg','image/png','application/pdf'].includes(receiptFile.type)||receiptFile.size>5*1024*1024)){setActivationMessage('Receipt must be JPG, PNG or PDF and no larger than 5 MB.');return;}
     setActivationBusy(true);setActivationMessage('');
+    let uploadedReceiptPath:string|null=null;
+    let activationSubmitted=false;
     try{
       const{data:authData,error:authError}=await supabase.auth.getUser();
       if(authError)throw authError;
@@ -77,12 +79,22 @@ export default function Packages() {
         const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);const fileId=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');receiptPath=authData.user.id+'/'+fileId+'-'+safeName;
         const{error:uploadError}=await supabase.storage.from('package-receipts').upload(receiptPath,receiptFile,{contentType:receiptFile.type,upsert:false});
         if(uploadError)throw uploadError;
+        uploadedReceiptPath=receiptPath;
       }
       const{error}=await supabase.rpc('submit_package_activation_with_receipt',{p_package_id:selectedPackage,p_payment_reference:reference,p_receipt_path:receiptPath});
       if(error)throw error;
+      activationSubmitted=true;
       setActivationMessage('Package activation request submitted for Admin verification.');
       setPaymentReference('');setReceiptFile(null);setSelectedPackage('');
-    }catch(e){setActivationMessage(e instanceof Error?e.message:'Package activation request could not be completed. Check your connection and retry.');}
+    }catch(e){
+      const message=e instanceof Error?e.message:'Package activation request could not be completed. Check your connection and retry.';
+      if(uploadedReceiptPath&&!activationSubmitted){
+        try{
+          const{error:cleanupError}=await supabase.storage.from('package-receipts').remove([uploadedReceiptPath]);
+          setActivationMessage(cleanupError?message+' The uploaded receipt could not be removed automatically; please contact support.':message);
+        }catch{setActivationMessage(message+' The uploaded receipt could not be removed automatically; please contact support.');}
+      }else setActivationMessage(message);
+    }
     finally{setActivationBusy(false);}
   }
 
