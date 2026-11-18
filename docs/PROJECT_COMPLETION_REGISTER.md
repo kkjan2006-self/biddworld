@@ -890,3 +890,11 @@
 - Confirmed inspected Admin data and mutation call sites use Admin RPCs; member identity/graph/withdrawal and Fixed Bid actions use member-scoped RPCs. No additional evidenced direct-read ownership or Admin direct-table-write defect found in this focused slice.
 - Noted WalletHistory CSV export retrieves all RLS-visible transactions in 500-row batches and filters client-side; this is an efficiency enhancement, not an authorization defect.
 - Added `docs/FRONTEND_MEMBER_ADMIN_DIRECT_READ_RLS_REVIEW_2026-11-18.md`. Source-only; no tests/build/CI, SQL execution, migration replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Baseline ACL evidence and least-privilege correction
+
+- Verified current GitHub refs: `completion-work` was `bd857fefef45943f14446b5c828f9d46e6c14bdb`; protected `main` was `415364b71534c7fc31d6c0928dd8395e10cbd94f`. The branch comparison shows `main` has one documentation-only commit not present on `completion-work`; `main` was not modified.
+- Ran read-only Production catalogue queries only. Confirmed `service_role` has EXECUTE on all 43/43 public functions, matching the clean-install candidate's explicit public function grants; `private.place_bid(uuid)` remains an explicit service_role-only private grant.
+- Confirmed Production `audit_logs_id_seq` grants SELECT, UPDATE and USAGE to anon, authenticated and service_role, while `audit_logs` table access is limited to service_role and postgres. Tightened the schema-only candidate to grant only USAGE on this sequence to service_role and no sequence privileges to anon/authenticated. This is an intentional least-privilege improvement, not exact live ACL parity. Production and TEST were not changed.
+- Updated the ACL and SECURITY DEFINER/trigger audit documents to record the evidence and remaining limits. No tests, builds, CI, SQL replay or database writes were run. Overall estimate remains 55%.
