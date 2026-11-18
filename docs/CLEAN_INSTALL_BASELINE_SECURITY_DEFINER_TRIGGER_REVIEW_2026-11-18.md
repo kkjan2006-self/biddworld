@@ -46,13 +46,13 @@ The ten public-table triggers target the ten tables defined by the candidate. Th
 
 The trigger statements occur after the corresponding trigger functions and application table definitions in the candidate. This source ordering is coherent. It does not prove successful SQL execution or validate platform-side trigger privileges; those remain part of isolated TEST replay at the final test gate.
 
-## Remaining baseline ACL caveats
+## Baseline ACL reconciliation update
 
-This review does not resolve the prior ACL findings:
-- Candidate `service_role` EXECUTE grants on all public functions plus `private.place_bid(uuid)` have not been compared with an exact Production service_role privilege snapshot.
-- Candidate grants `USAGE` on `public.audit_logs_id_seq` to anon, authenticated and service_role. The candidate grants direct `audit_logs` table privileges only to service_role, and the Production audit does not include the sequence ACL snapshot. The anon/authenticated sequence grants remain unexplained and should not be changed without exact evidence.
+A fresh read-only Production catalogue query confirmed service_role EXECUTE on all 43 public functions, matching the candidate's 43 explicit public grants. The candidate's additional service_role grant on private.place_bid(uuid) preserves the private implementation boundary.
 
-See `docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md` for the role and sequence ACL comparison.
+The same query found broad SELECT/UPDATE/USAGE grants on audit_logs_id_seq for anon, authenticated and service_role in Production, while audit_logs table privileges are limited to service_role and postgres. The candidate has been tightened to grant only USAGE to service_role and no sequence privileges to anon/authenticated. This is an intentional least-privilege deviation in the schema-only candidate; Production was not changed.
+
+See `docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md` for exact observed ACLs and rationale.
 
 ## Conclusion
 
