@@ -249,3 +249,12 @@
 - Frontend RPC signatures and expected result fields were checked against `src/components/Admin.tsx`.
 - This is a source-only migration. No tests/build or migration replay were run. Production and TEST databases remain untouched.
 - Current source migration inventory: **63 SQL files (3 legacy/unversioned + 60 timestamped)**, subject to final tree-wide inventory confirmation.
+
+
+### 2026-11-18 — Member portal and remaining RPC contract audit
+- Re-audited Account, Referrals, PlacementTree, Support, Notifications, Packages and Fixed Bid frontend RPC calls against the recently authored source migrations.
+- Confirmed source definitions exist for `member_pay_winning_item_payment(uuid,text)` (Income Wallet-only, idempotent; defined in the Fixed Bid settlement migration), `member_create_withdrawal_request(numeric,jsonb)`, `member_list_my_ids()`, `member_submit_support_ticket(text,text,text)`, `admin_update_support_ticket(uuid,text,text)`, `admin_send_member_notification(uuid,text,text,text,text)`, `submit_package_activation_with_receipt(uuid,text,text)`, and `member_join_fixed_bid_campaign`.
+- Identified additional Member portal calls requiring source-history/schema reconciliation: `member_get_my_identity()`, `member_update_my_profile(text,text)`, and `member_list_my_withdrawals()`. Their full source definitions were not present in the specific migration files reviewed in this batch; no replacement function was authored without complete schema/contract evidence.
+- Referrals and PlacementTree call `get_my_mlm_dashboard_page` and `get_my_placement_tree`; their complete frontend/result contracts remain to be checked against the full migration history.
+- Direct Account queries for wallet balances, bids, fixed-bid entries, commissions, winning payments and delivery tracking rely on member-row RLS and will require dedicated TEST-project verification during the final test phase.
+- This batch is a source/documentation audit only. No application code, database schema, Production data or TEST data was changed. No tests/build or migration replay were run.
