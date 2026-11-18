@@ -12,7 +12,7 @@
 - Latest verified application/source work commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8` (serialize Auction Bid eligibility with Main-ID lifecycle).
 - Source commit message: `fix: serialize auction bid eligibility with member lifecycle`.
 - Latest verified source/documentation batch commits: `025ec6050f5846347d682025e2cd443feaabf5f7` (clean-install inventory correction), `74337c27b1646887f13340d4495147189f223e4e` (auction refund/delivery tracking review), `1d0103c623d207cfa1c2a24a19e7b78d0928b68e` (completion register).
-- Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are being recorded in this batch; verify the final commit on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
+- Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`; verify branch HEAD on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
 - Overall project completion estimate: **55%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
