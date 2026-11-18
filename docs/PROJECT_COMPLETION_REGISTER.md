@@ -181,3 +181,13 @@
 - Current repository migration inventory verified from the branch tree: **60 SQL files (3 legacy/unversioned + 57 timestamped)**. All 11 new `20261118` migrations remain source-only.
 - No Production or TEST database writes, schema changes, migration replay, real-member tests or wallet transactions were performed. No manual tests/build/mobile/E2E checks were run in this development-first batch.
 - Remaining source work includes a trustworthy clean-install baseline, full package activation and receipt integration after owner-controlled enablement, complete archival reports for all activation statuses, notification read/write audit coverage, remaining frontend/backend RPC contract fixes, and final PWA/security integration. Final full testing remains deliberately deferred until development is complete.
+
+
+## 2026-11-18 — Bulk reports and configurable referral rewards
+
+- Updated the Admin referral editor to support both fixed INR rewards and percentage rewards per level, preserving the 20-level limit and sequential-level validation.
+- Package activation requests now read the server-side `package_activations_enabled` setting instead of a hardcoded client lock. The existing disabled-by-default feature setting and database financial guard remain authoritative.
+- Added `20261118190000_package_activation_history_reporting.sql`: complete paginated Admin activation history across pending, approved, rejected and refunded statuses, including receipt path and verification metadata.
+- Added complete CSV exports for Duplicate IDs, referral commissions and package activation history; added package configuration export.
+- Current branch tree inventory: **61 SQL files (3 legacy/unversioned + 58 timestamped)**. All 12 new `20261118` migrations remain source-only.
+- No manual testing/build/E2E/mobile validation or migration replay was run, as requested. No Production or TEST database writes were performed.
