@@ -70,7 +70,7 @@ The following source/UI/documentation work is present in the current branch and 
 - Manual testing: NOT STARTED (deliberately deferred).
 - Full isolated TEST migration replay: NOT STARTED; TEST remains empty.
 - End-to-end/browser/Android checks: NOT STARTED.
-- Automatic CI: latest completed run #996 failed one stale static assertion (105/106 files; 443/444 tests); build/type-check steps were skipped. Manual/full final testing remains NOT STARTED.
+- Automatic CI: latest completed run #997 failed the same stale static assertion (105/106 files; 443/444 tests); build/type-check steps were skipped. Run #998 was in progress at the last status check. Manual/full final testing remains NOT STARTED.
 - Do not claim modules fully complete merely because UI, SQL source or static tests exist.
 
 ## H. NEXT DEVELOPMENT BATCH
@@ -85,7 +85,7 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 ## I. CHANGE HISTORY
 
 - 2026-11-18 — Created this official recovery status file on `completion-work` after verifying the branch and reading the completion register. No application source or database was changed.
-- 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (77 timestamped + 3 legacy), exact 61-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #996 failed one stale assertion; no manual testing or database replay.
+- 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (77 timestamped + 3 legacy), exact 61-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #997 failed the same stale assertion; no manual testing or database replay.
 - Detailed development history, evidence and prior checkpoints: `docs/PROJECT_COMPLETION_REGISTER.md`.
 
 ## Status update rule
