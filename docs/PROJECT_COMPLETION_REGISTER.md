@@ -832,3 +832,13 @@
 - Added the migration as forward candidate 65. Current SQL inventory: 81 timestamped (65 forward + 16 excluded) + 3 legacy = 84 total.
 - Source-only change. No tests/builds, CI, TEST replay, Production access or database writes. Consolidated testing remains deferred. Overall estimate remains 55%.
 - Source commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8`.
+
+
+### 2026-11-18 — Clean-install baseline function ACL reconciliation
+
+- Compared the candidate baseline's 47 function definitions (43 public, 4 private) and explicit EXECUTE grants with the Production public RPC security inventory.
+- Candidate grants authenticated EXECUTE on all 43 public signatures and anon EXECUTE only on public.lookup_sponsor(text), matching the recorded Production counts. Both wallet-account and wallet-transaction overloads are granted by exact signature.
+- Candidate explicitly grants service_role EXECUTE on all 43 public functions and private.place_bid(uuid). The referenced Production inventory does not record service_role privilege state; exact parity remains unverified.
+- Candidate grants anon/authenticated USAGE on audit_logs_id_seq although the identity-sequence privilege rationale is not recorded. This is flagged for exact ACL/identity behavior verification; no speculative grant change made.
+- Added docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md and linked it from the clean-install README.
+- Source-only review. No tests/build, database replay, Production or TEST access/writes. Overall estimate remains 55%.
