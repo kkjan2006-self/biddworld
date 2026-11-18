@@ -693,3 +693,8 @@
 - Added a conditional `Install App` button to the public header. It uses the browser's `beforeinstallprompt` event, appears only when the browser considers the app installable, and clears on prompt completion or `appinstalled`.
 - Added source-contract coverage for install prompt and installed-event handling. No install prompt is fabricated when the browser does not offer one.
 - Real-device installation and offline navigation remain pending final Android QA.
+
+### 2026-11-18 — PWA install header wiring correction
+- CI run #950 caught that the install-button component and test were added, but the final App source commit did not include the header render.
+- Wired the component import and render into the public header. The browser event handler component and PWA manifest/service worker are unchanged.
+- CI rerun is pending.
