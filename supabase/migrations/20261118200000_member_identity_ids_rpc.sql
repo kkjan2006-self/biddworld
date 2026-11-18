@@ -1,5 +1,10 @@
 -- Member-owned identity list used by the Account portal.
 -- Exposes only the authenticated user's own Main and Duplicate IDs.
+-- The previous migration returned an additional main_member_code column. PostgreSQL
+-- cannot change a RETURNS TABLE row type through CREATE OR REPLACE, so drop the
+-- exact zero-argument function before installing this canonical seven-column shape.
+drop function if exists public.member_list_my_ids();
+
 create or replace function public.member_list_my_ids()
 returns table(
  id uuid,

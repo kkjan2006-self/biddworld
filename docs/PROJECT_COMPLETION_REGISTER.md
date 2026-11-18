@@ -509,3 +509,9 @@
 - Hardened Auction cancellation with equivalent source-debit ownership/type/reference checks, bid-amount reconciliation, and exact validation of any existing refund key before treating it as a replay.
 - Added a focused source-contract test for both cancellation workflows. Tests/builds remain deferred to the final consolidated phase as requested.
 - Source-only changes to the not-yet-replayed migration chain. No database migrations or wallet transactions were executed; Production and TEST remain unchanged. No overall completion percentage increase is claimed for this isolated integrity work.
+
+### 2026-11-18 — Member identity RPC migration compatibility
+- Corrected the member identity migration chain: the earlier `member_list_my_ids()` definition returned eight columns, while the newer definition returns seven. PostgreSQL does not permit this table-return row type change through `CREATE OR REPLACE FUNCTION`.
+- The forward migration now drops only the exact zero-argument RPC signature before recreating the seven-column contract consumed by the Account portal, then reapplies authenticated-only execution grants.
+- This prevents a deterministic clean-install / forward-replay migration failure. Source-only correction; no Production or TEST database was changed. Tests/builds remain deferred to the final consolidated testing phase.
+- No overall completion percentage increase is claimed for this migration compatibility correction.
