@@ -33,3 +33,12 @@ Reviewed `20261118110000_auction_lifecycle_winner_settlement.sql` and the final 
 - Confirm the auction bid creation RPC uses the same accepted status, idempotency-key suffixes, wallet debit types and reference contract consumed by cancellation.
 - Confirm the final migration order and runtime row-lock behavior in isolated TEST during the consolidated final testing phase.
 - No tests, build, migration replay, Production writes or TEST writes were performed in this source review.
+
+
+## Follow-up: auction bid creation eligibility alignment — 2026-11-18
+
+Source review of `20261116190000_bid_request_idempotency.sql` and the public `src/App.tsx` bid call confirmed that the client sends both named arguments (`p_auction_id`, `p_idempotency_key`) and the authenticated wrapper exposes the matching `public.place_bid(uuid,text)` signature. The bid debit ledger uses the exact `:bid` / `:income` idempotency suffixes and `auction_bid` transaction type / `auction` reference consumed by auction cancellation refunds.
+
+A concrete eligibility inconsistency was found: Fixed Bid entry requires both an active Main ID and its owning active profile, while auction bid creation checked only the Main ID. This could allow an inactive profile whose Main ID remained active to place an auction bid despite the member-facing account lock. Added source-only migration `20261118410000_require_active_profile_for_auction_bids.sql` to join the Main ID to its owning profile and require `profiles.main_member_id` ownership plus `profiles.status='active'`. Existing idempotency, wallet-first debit, ledger metadata, public RPC signature and grants are preserved.
+
+Added the migration as forward candidate 63. The manifest now contains 63 ordered forward files; with 16 excluded timestamped files and 3 legacy/unversioned files, the migration directory inventory is 82 SQL files (79 timestamped + 3 legacy). No tests/build were run, no migration was replayed, and neither Production nor TEST was modified. Runtime validation remains deferred to the consolidated final testing phase.
