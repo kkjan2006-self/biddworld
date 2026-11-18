@@ -612,3 +612,8 @@
 - CI run #929 confirmed the new public Fixed Bid RPC source tests and the 69-name frontend RPC inventory coverage, but the pre-existing Fixed Bid pagination test still asserted the removed direct-table query.
 - Rewrote those assertions to verify the RPC-based search/status/page contract while retaining the request lifecycle and idempotent entry checks.
 - The source RPC and migration manifest changes are unchanged. A fresh CI run is pending.
+
+### 2026-11-18 — Fixed Bid pagination test syntax correction
+- CI run #931 stopped before TypeScript/build because the updated Fixed Bid pagination test had an incorrectly escaped single-quoted assertion.
+- Corrected the assertion to use a double-quoted TypeScript string. The source UI and migration are unchanged.
+- The public package catalogue RPC batch has also been committed; its CI result is pending.

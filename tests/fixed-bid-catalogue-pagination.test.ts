@@ -12,7 +12,7 @@ describe('Fixed Bid catalogue pagination',()=>{
  it('offers continuation and sends participation through the idempotent server workflow',()=>{
   expect(source).toContain('Load more campaigns');
   expect(source).toContain("supabase.rpc('member_join_fixed_bid_campaign',{p_campaign_id:campaign.id,p_idempotency_key:key})");
-  expect(source).toContain('const canJoin=r.status===\\'live\\'');
+  expect(source).toContain("const canJoin=r.status==='live'");
   expect(source).toContain('entryKeys.current.get(campaign.id)');
   expect(source).toContain('result.replayed?');
   expect(source).not.toMatch(/\\.insert\\(|\\.update\\(|\\.upsert\\(/);
