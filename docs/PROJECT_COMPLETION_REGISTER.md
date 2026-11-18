@@ -329,3 +329,15 @@
 - Therefore neither file is a valid canonical clean-install baseline. Do not replay them against Production or use them as the final TEST baseline.
 - Recorded all 30 live migration ledger versions and the need to recover private-schema dependencies, extensions/types, exact constraints/indexes/triggers/functions/policies/grants before constructing a clean-install chain.
 - No data rows exported; no DB writes, migrations, builds or tests performed. Production and TEST remain unchanged.
+
+
+### 2026-11-18 — Production private-schema and trigger reconciliation
+- Reconfirmed the latest branch HEAD as `e7050df1c973c6c73ce4ca6e94a84439a530c0f4`.
+- Recounted the repository SQL inventory from the GitHub tree: 66 files under `supabase/migrations` (63 timestamped + 3 legacy/unversioned) and 1 separate audit SQL script; 67 SQL files repository-wide.
+- Read-only Production catalogue inspection identified the app-owned `private` schema (owner postgres) and four private functions: `enforce_feature_gate()`, `handle_new_auth_user()`, `place_bid(uuid)`, and `submit_package_activation(uuid,text)`.
+- Recovered the exact auth.users trigger contract: `on_biddworld_auth_user_created` AFTER INSERT calls `private.handle_new_auth_user()`. The function provisions the profile, Main ID and wallets, and obeys registration/sponsor settings.
+- Identified 10 non-internal public-table feature-gate triggers across bids, delivery_tracking, fixed_bid_campaigns, member_ids, package_activations, referral_commissions, referrals, wallet_transactions, winning_item_payments and withdrawal_requests. All invoke `private.enforce_feature_gate()`.
+- Compared the live feature-gate body with source history. The final Production body aligns with `20261115154510_extend_wallet_and_sponsor_feature_gates.sql`; earlier versions are intermediate and must remain ordered before the final replacement in any replay.
+- Recorded installed Production extensions (pgcrypto, pg_stat_statements, plpgsql, supabase_vault, uuid-ossp) and the rule that Supabase-managed schemas/extensions must not be recreated as application objects.
+- Added `docs/PRODUCTION_PRIVATE_SCHEMA_TRIGGER_RECONCILIATION_2026-11-18.md` with function signatures, trigger inventory, ACL/search_path observations, and clean-install implications.
+- No Production or TEST writes, no migration replay, no build or tests. Canonical baseline reconstruction remains pending.
