@@ -43,7 +43,7 @@ The following source/UI/documentation work is present in the current branch and 
 
 1. **Canonical database baseline:** static object inventory and migration partition are reconciled. Remaining: semantic review of all baseline functions/ACLs/triggers/sequences and all 62 forward migration dependencies; replay only in isolated TEST during final testing.
 2. **RPC reconciliation:** selected Admin signatures plus Member/Package/Fixed Bid argument and consumed result contracts are source-reconciled; remaining work is all other Admin/member RPC call sites, direct table-select/RLS contracts, authorization, overloads and migration coverage. See both focused reconciliation docs and the existing Production/RPC audits. Key audit: `docs/PRODUCTION_FRONTEND_RPC_LIVE_DIFF_2026-11-18.md`, `docs/ADMIN_RPC_SOURCE_RECONCILIATION_2026-11-18.md`, and `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
-3. **Migration compatibility:** the current source directory has 80 SQL files (78 timestamped + 3 legacy); the 62 forward and 16 excluded manifests account for all 78 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
+3. **Migration compatibility:** the current source directory has 81 SQL files (78 timestamped + 3 legacy); the 62 forward and 16 excluded manifests account for all 78 timestamped files exactly once. Continue semantic review of function replacements, object prerequisites, ACLs and platform dependencies. The legacy `0001_biddworld.sql` mismatch is not a blocker for the candidate-baseline path: static comparison shows the separate candidate has the canonical columns used by the first forward migrations. See `docs/CANONICAL_CLEAN_INSTALL_PATH_RECONCILIATION_2026-11-18.md`. Do not treat the 30 historical Production ledger SQL snapshots as a ready-made clean-install sequence.
 4. **Dependency security/reproducibility:** inspect package-lock status and current npm advisories; pin reproducible dependencies and remediate without blind forced major upgrades.
 5. **Remaining source features/integration:** receipt upload and product-media Storage integration; complete historical report/filter/export coverage; Admin role and member lifecycle edges; notification read-state and delivery/provider boundary; verify PWA/offline behavior; complete remaining UI/RPC contract gaps.
 6. **Security and operational readiness:** per-function SECURITY DEFINER semantic review, grants/RLS/Storage verification, rate limiting/abuse controls, Auth configuration review, backup/monitoring/support readiness.
@@ -58,7 +58,7 @@ The following source/UI/documentation work is present in the current branch and 
 - Isolated TEST project was last verified empty (zero migrations/public tables/buckets). Keep it untouched until the canonical baseline has been reviewed.
 - No Production writes, migrations, data changes, wallet credits/debits, commissions, payouts or package activations are permitted in development.
 - CI: latest completed run #1005 failed during the test step; type-check/build and Pages build were skipped. The known recurring stale assertion is deferred to the consolidated final test/repair phase. Run #948 was a prior successful CI run, not the current state.
-- No overall completion percentage is asserted. Development and testing completion must be tracked separately.
+- Overall planning estimate: 55% source/development completion; consolidated testing and release are not included as completed work. Treat this as an estimate, not verified deployment readiness.
 
 ## F. DEVELOPMENT ROADMAP (Bulk Batches)
 
@@ -77,6 +77,8 @@ The following source/UI/documentation work is present in the current branch and 
 - End-to-end/browser/Android checks: NOT STARTED.
 - Automatic CI: latest completed run #1005 failed during the test step; type-check/build and Pages build were skipped. Manual/full final testing remains NOT STARTED.
 - Do not claim modules fully complete merely because UI, SQL source or static tests exist.
+
+- 2026-11-18 — Clarified the clean-install starting point: do not use legacy `0001_biddworld.sql`; the separate schema-only Production baseline candidate contains the key canonical fields required by the first forward migrations. Updated the clean-install README and static reconciliation. No replay or database changes; full 62-migration dependency review remains open.
 
 ## H. NEXT DEVELOPMENT BATCH
 
