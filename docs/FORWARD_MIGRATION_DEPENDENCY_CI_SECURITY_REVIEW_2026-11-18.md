@@ -64,3 +64,8 @@ The workflow was edited but not run. It must be re-enabled/used at the final con
 4. TEST replay, browser/Android PWA/offline checks and end-to-end testing remain pending. Production remains read-only; TEST remains untouched.
 
 No tests/builds/CI, npm install/audit, database replay or database writes were performed. Overall project completion estimate remains 55%.
+
+
+## 2026-11-18 follow-up — forward candidate #68
+
+A deeper grant review found that the original support-ticket migration granted INSERT(user_id, subject, message) and UPDATE(status, admin_response) at column scope. Forward candidate #67 revoked only table-level INSERT/UPDATE, which does not clear those independent column grants. Added candidate #68 to revoke both privilege scopes. The ordered forward manifest now contains 68 candidates; this follow-up is source-only and does not establish PostgreSQL replay success. No tests, builds, CI, npm audit, migration replay or database writes were run. Production remains read-only; TEST remains untouched.
