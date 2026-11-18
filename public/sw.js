@@ -1,6 +1,6 @@
 /* BiddWorld offline app shell. Never cache Supabase/auth or other API traffic. */
 const CACHE_PREFIX = 'biddworld-shell-';
-const CACHE_NAME = CACHE_PREFIX + 'v3';
+const CACHE_NAME = CACHE_PREFIX + 'v4';
 const APP_ROOT = new URL('./', self.registration.scope);
 const SHELL_URLS = [
   APP_ROOT.href,
@@ -49,18 +49,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache only same-origin static assets inside this app deployment scope.
+  // Network-first keeps deployed assets fresh while retaining an offline fallback.
+  // Only same-origin static assets inside this app deployment scope are cached.
   if (request.destination && ['script', 'style', 'image', 'font'].includes(request.destination)) {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
-      const cached = await cache.match(request);
-      if (cached) return cached;
       try {
         const response = await fetch(request);
         if (response.ok && response.type === 'basic') await cache.put(request, response.clone());
         return response;
       } catch {
-        return Response.error();
+        return (await cache.match(request)) || Response.error();
       }
     })());
   }
