@@ -341,3 +341,9 @@
 - Recorded installed Production extensions (pgcrypto, pg_stat_statements, plpgsql, supabase_vault, uuid-ossp) and the rule that Supabase-managed schemas/extensions must not be recreated as application objects.
 - Added `docs/PRODUCTION_PRIVATE_SCHEMA_TRIGGER_RECONCILIATION_2026-11-18.md` with function signatures, trigger inventory, ACL/search_path observations, and clean-install implications.
 - No Production or TEST writes, no migration replay, no build or tests. Canonical baseline reconstruction remains pending.
+
+### 2026-11-18 — Production Storage bucket and policy reconciliation
+- Read-only Production catalogue queries confirmed `storage.buckets` and `storage.objects` exist, but the live project currently has 0 buckets and 0 Storage RLS policies; `storage.objects` itself has RLS enabled.
+- Compared with branch source: `product-media` is declared by `20261116020000_admin_product_management_and_media.sql`; `package-receipts` is declared by `20261118150000_package_receipt_uploads.sql`. Both are source-only and not installed in Production.
+- Recorded the exact intended access controls and file restrictions in the Production private-schema/trigger reconciliation document. Treat Storage as a confirmed Production deployment gap; do not create buckets or policies in Production during this development phase.
+- No Production/TEST writes, migration replay, build or tests.
