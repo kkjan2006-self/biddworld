@@ -142,3 +142,19 @@ The latest branch tree contains 60 SQL files (3 legacy/unversioned plus 57 times
 ## 2026-11-18 — Updated source count
 
 The latest branch contains 61 SQL files (3 legacy/unversioned plus 58 timestamped). Twelve new 2026-11-18 source migrations now cover Fixed Bid, referral commissions, withdrawals, auctions, wallet adjustments, Main ID lifecycle, receipt uploads, Primary Admin roles, support, notifications and package activation history. These are not applied to either Supabase project; original Production ledger reconciliation remains unchanged.
+
+
+## 2026-11-18 — Exact Production ledger SQL recovery
+
+A read-only query of `supabase_migrations.schema_migrations` returned the exact `statements` array for all 30 Production migration versions. All 30 rows had one stored SQL statement. A source comparison found:
+- 4 entries whose repository filename already had the exact Production version prefix, but whose current file contents differed from the stored Production SQL.
+- 9 entries whose SQL text exactly matched a same-name repository file, but the repository file used a different timestamp prefix.
+- 17 entries with no same-name file in the migration directory.
+
+All 30 exact historical SQL statements have now been preserved as separate files under `supabase/audit/production-ledger/`, outside `supabase/migrations/`. This archive is deliberately non-executable by normal Supabase CLI migration discovery and does not overwrite any current migration source.
+
+- Archive files verified in GitHub tree: 31 (30 SQL snapshots + README).
+- Archive commit: `d872d6cb25d1931e5152e7f16e121a3f877fcfe5`.
+- This closes the historical SQL recovery gap for the 30 currently applied Production ledger rows.
+- It does **not** yet establish a canonical clean-install chain: source divergence, dependency ordering, schema objects, extension prerequisites, and later source-only migrations still require reconciliation.
+- No Production or TEST database writes, migration replay, tests or builds were performed.
