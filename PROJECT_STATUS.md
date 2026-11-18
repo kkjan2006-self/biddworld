@@ -6,16 +6,16 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` (verified present; latest verified starting HEAD for the 2026-11-18 continuation batch `bd857fefef45943f14446b5c828f9d46e6c14bdb`)
+- Current development branch: `completion-work` — latest verified HEAD `5cbe4d7d9e376fc574c817baa999712704a7d138` (2026-11-18).
 - Latest verified source batch: Support-ticket direct INSERT/UPDATE and notification direct INSERT grants were revoked in forward candidate #67; member/Admin direct-read/RLS contracts for Account, Wallet, Packages, Notifications, Support and selected Admin/report components have now been source-reviewed. See `docs/FRONTEND_MEMBER_ADMIN_DIRECT_READ_RLS_REVIEW_2026-11-18.md`.
 - Protected branch: `main` (do not modify)
-- Latest verified application/source work commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8` (serialize Auction Bid eligibility with Main-ID lifecycle).
-- Source commit message: `fix: serialize auction bid eligibility with member lifecycle`.
+- Latest verified application/source work commits: `e055aeb5a645f64ebb54de36af803c0a341f3bd2` (friendly/idempotent Auction Bid error handling); `88c7c5e55510161cac4e3e7c1b4c87ae8aa6988a` (guard member report export pagination against repeated pages); `d8d283593796ffa762c4d18eacf985e36713eda8` and `5cbe4d7d9e376fc574c817baa999712704a7d138` (reset Wallet History pagination when authenticated member changes).
+- Latest source commit message: `refine: keep wallet auth-scope reset side effects explicit`.
 - Latest verified source/documentation batch commits: `1bee5aa29697701bc714163bc84256b46dc4b70d` (source fix), `e0692f028bda716bf3b3b909a9bf1e1e44ffe244` (forward manifest), `ab9d485766c86d8b5e9a03a4bd9e40ee4a7e2d1d` (clean-install README), `864c2ae315e512e8b3921279375cdd6dfd290de0` (status), `98abc466b7a7e812ed965b7bff54c019d352474b` (completion register), `285fa062988ee44c39706d6cd174c3bfbbf55148` (concurrency audit).
 - Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`; verify branch HEAD on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
-- Last updated: 2026-11-18 — support-ticket column-level privilege correction
-- Latest verified `completion-work` HEAD before the notification column privilege batch: `62c7cea44ca620ea89e339a4e00f45863491bdc3`.
+- Last updated: 2026-11-18 — Account report pagination and Wallet History auth-scope reset
+- Previous historical checkpoints below are retained as evidence; they are superseded by the latest verified HEAD above.
 - Protected `main` HEAD verified unchanged: `415364b71534c7fc31d6c0928dd8395e10cbd94f`.
 - Overall project completion estimate: **55%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
@@ -175,3 +175,12 @@ At every development batch/chat end, update this file with the actual verified b
 
 
 - 2026-11-18 — Completed explicit GRANT/REVOKE statement scan across all 69 ordered forward migrations. The only independently granted column-scoped write privileges identified were support-ticket INSERT/UPDATE (corrected in #68) and member-notification INSERT (corrected in #69); notification UPDATE(read_at) is intentionally retained for owner-scoped read-state changes. No other explicit column-scoped INSERT/UPDATE grants were found in the forward candidates. Broader baseline/effective ACL parity, policies, default privileges and runtime verification remain pending. Updated `docs/FORWARD_MIGRATION_DEPENDENCY_CI_SECURITY_REVIEW_2026-11-18.md`. Source-only; no tests/build/CI or database access/writes. Production remains read-only; TEST remains untouched. Overall estimate remains 55%.
+
+
+- 2026-11-18 — Member Auction Bid UX source correction: the existing idempotent `place_bid` caller now maps insufficient funds to the requested “Insufficient Funds – Please Add Funds” message, explains closed/ended/non-live auctions, and avoids presenting uncertain network outcomes as confirmed failures. The same retry key is retained for ambiguous outcomes. Commit: `e055aeb5a645f64ebb54de36af803c0a341f3bd2`. No tests/build/CI or database operations.
+
+- 2026-11-18 — Member Account report export hardening: paginated CSV export now detects repeated full pages and applies a safe upper bound, stopping with a clear error instead of hanging or silently duplicating records. Commit: `88c7c5e55510161cac4e3e7c1b4c87ae8aa6988a`.
+
+- 2026-11-18 — Member Wallet History account-scope correction: when the authenticated user changes, wallet history rows, page/retry state, has-more state and prior errors are reset before loading the new member's records. A ref tracks the active auth scope so state-reset side effects are not placed inside a state updater. Commits: `d8d283593796ffa762c4d18eacf985e36713eda8`, `5cbe4d7d9e376fc574c817baa999712704a7d138`. No tests/build/CI, database replay or DB access/writes. Production remains read-only; TEST untouched. Overall estimate remains 55%.
+
+- 2026-11-18 — Recovery checkpoint refreshed after verifying `completion-work` HEAD `5cbe4d7d9e376fc574c817baa999712704a7d138`. Updated latest source commits and the exact completed Account/Wallet changes above. No application or database changes in this checkpoint update; no tests/build/CI or database replay initiated.
