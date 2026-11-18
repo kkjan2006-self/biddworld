@@ -842,3 +842,14 @@
 - Candidate grants anon/authenticated USAGE on audit_logs_id_seq although the identity-sequence privilege rationale is not recorded. This is flagged for exact ACL/identity behavior verification; no speculative grant change made.
 - Added docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md and linked it from the clean-install README.
 - Source-only review. No tests/build, database replay, Production or TEST access/writes. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Clean-install baseline SECURITY DEFINER and trigger dependency review
+
+- Inspected all 43 public function declarations: all are SECURITY DEFINER and carry explicit function-level search_path settings.
+- All 36 Admin functions contain auth.uid() and exact JWT app_metadata.role = admin authorization checks with a rejection path. The SQL `admin_list_members_sponsors()` applies the predicate in its WHERE clause and returns no rows to unauthorized callers.
+- Member-scoped RPCs use auth.uid(); public bid and package-activation wrappers delegate to the private implementations. The four private functions and their client-execution boundary were recorded.
+- Confirmed the candidate creates one auth.users signup trigger and ten public feature-gate triggers after the corresponding private function and application table definitions. Supabase-managed schemas/tables remain platform prerequisites, not app-created schema objects.
+- No evidenced authorization or trigger-order source defect found; no speculative SQL patch made. service_role and audit_logs identity-sequence ACL parity remain unresolved pending exact evidence.
+- Added docs/CLEAN_INSTALL_BASELINE_SECURITY_DEFINER_TRIGGER_REVIEW_2026-11-18.md and linked it from the clean-install README.
+- Source-only review. No tests/build/CI, database replay, Production or TEST changes. Overall estimate remains 55%.
