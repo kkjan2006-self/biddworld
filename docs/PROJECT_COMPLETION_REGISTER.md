@@ -210,3 +210,12 @@
 - Hardened wallet-adjustment idempotency: replay keys must also match the original reason, in addition to member, wallet, direction and amount.
 - Latest branch head: `e7050df1c973c6c73ce4ca6e94a84439a530c0f4` on `completion-work`. Changes remain source-only. Production remains read-only; TEST remains empty and untouched.
 - Remaining blockers are unchanged: historical migration reconstruction/canonical baseline, SQL dependency and schema compatibility review, missing frontend/backend RPC reconciliation, and final end-to-end testing after development is complete.
+
+
+## 2026-11-18 — SQL source review: Fixed Bid migration corrections
+
+- Static review of the 12 latest source-only migrations identified an invalid PL/pgSQL UPDATE/RETURNING statement in `admin_save_fixed_bid_campaign`. Moved `RETURNING id INTO` into the UPDATE statement so the function body is syntactically structured correctly.
+- Added cancellation settlement to `admin_set_fixed_bid_campaign_status`: when an unfinalized campaign is cancelled, every accepted/submitted entry is voided and its original Bid Wallet / Income Wallet debit splits are refunded through compensating ledger credits. A campaign with an already-paid winning item cannot be cancelled.
+- Refund idempotency now guards both the wallet balance update and ledger insert, preventing a duplicate credit if a refund key already exists.
+- Existing auction cancellation refund keys were checked against the bid RPC ledger key convention (`:bid` / `:income`) and match the source implementation.
+- These are source-code corrections only. No migrations were applied, no TEST or Production data was changed, and no test/build was run. SQL execution and full schema compatibility remain pending until the clean TEST baseline is prepared.
