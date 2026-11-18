@@ -27,11 +27,11 @@ The three legacy files are:
 - `0002_place_bid_rpc.sql` — incompatible legacy RPC/schema contract.
 - `001_initial_schema.sql` — empty placeholder.
 
-The 61 forward paths and 16 excluded paths were checked against the live GitHub directory listing:
+The 62 forward paths and 16 excluded paths were checked against the live GitHub directory listing:
 - No forward or excluded path is missing.
 - No path appears in both lists.
 - No timestamped migration is missing from the combined manifests.
-- All 61 forward candidates and all 16 excluded entries are in lexical/timestamp order.
+- All 62 forward candidates and all 16 excluded entries are in lexical/timestamp order.
 - Existing test `tests/clean-install-migration-manifest-integrity.test.ts` asserts the exact partition, path existence, order and candidate-only marker. This test was inspected but not run in this batch.
 
 Older documents referred to 48 or 56 forward candidates and 72 timestamped migrations. Those figures belong to earlier source checkpoints and are superseded by the current 61 + 16 = 77 inventory.
@@ -72,7 +72,7 @@ A second static scan of the baseline SQL confirmed:
 
 ## 3. Ordered migration dependency observations
 
-A source-level pass inspected all 61 forward migration files and their DDL/object references. These sequencing relationships are material:
+A source-level pass inspected all 62 forward migration files and their DDL/object references. These sequencing relationships are material:
 
 1. `20261116020000_admin_product_management_and_media.sql` creates the `product-media` bucket and its public-read/Admin-write Storage policies. The Supabase Storage schema is assumed to exist.
 2. `20261116041000_member_support_tickets.sql` creates `support_tickets`; `20261116060000_support_ticket_notifications.sql` adds a notification trigger that depends on it.
@@ -125,3 +125,8 @@ GitHub Actions run #996 on the inspected branch head `f7274c13053ad593c3fa303560
 3. Review frontend RPC contracts against final source function signatures and result shapes.
 4. Keep all database replay and full integration testing for the agreed consolidated final testing phase, using TEST only.
 5. Correct stale historical counts in the official status and audit documentation; never treat this candidate as production deployment SQL.
+
+
+## Follow-up migration added after this audit
+
+`20261118400000_admin_notification_recipient_lookup.sql` is the 62nd forward candidate. It adds a bounded, Admin-only recipient lookup for the Notifications UI. The forward manifest now includes it; static manifest integrity still needs to be run during the consolidated final test phase. No database has been modified.
