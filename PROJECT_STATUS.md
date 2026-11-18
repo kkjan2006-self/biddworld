@@ -6,10 +6,11 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest verified HEAD `ec70002007d2b52719af7709f68dcff700f9eabc` (2026-11-18).
+- Current development branch: `completion-work` — latest verified branch HEAD before this status refresh `6cf906a0a3e78d11330f8ba068850219fc0c9d7a`; latest source feature commit `ec70002007d2b52719af7709f68dcff700f9eabc` (2026-11-18).
 - Latest verified source batch: Fixed Bid public catalogue projection now includes `max_entries_total` and `refund_non_winners` in its bounded published-rules response (forward candidate #70); Placement Tree now distinguishes Main/Duplicate IDs and shows the owning Main ID for duplicates. See the Fixed Bid projection review in `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `ec70002007d2b52719af7709f68dcff700f9eabc` (Placement Tree now identifies Main and Duplicate IDs and shows Duplicate ID ownership).
+- This bulk batch's committed updates: forward manifest `9e4ee080befb1bdafe83148487ba5a81acb31ba5`, clean-install README `22cb014748abb373880ad3b084a4e5c7191870b7`, Fixed Bid projection contract test source `3331875af097b925e0336cc9bfd88d059ae7b521`, static reconciliation `7e79fa0a36509ae6a28fe9101ab36d9e5f81005a`, completion register `071e16e058f0c54aa71884b99cd2171fa1a68ed7`; this status checkpoint was then updated from branch HEAD `6cf906a0a3e78d11330f8ba068850219fc0c9d7a`.
 - Latest source commit message: `fix: align placement tree UI with duplicate ID hierarchy`.
 - Latest verified source/documentation batch commits: `1bee5aa29697701bc714163bc84256b46dc4b70d` (source fix), `e0692f028bda716bf3b3b909a9bf1e1e44ffe244` (forward manifest), `ab9d485766c86d8b5e9a03a4bd9e40ee4a7e2d1d` (clean-install README), `864c2ae315e512e8b3921279375cdd6dfd290de0` (status), `98abc466b7a7e812ed965b7bff54c019d352474b` (completion register), `285fa062988ee44c39706d6cd174c3bfbbf55148` (concurrency audit).
 - Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`; verify branch HEAD on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
