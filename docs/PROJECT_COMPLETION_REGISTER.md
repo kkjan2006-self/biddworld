@@ -898,3 +898,11 @@
 - Ran read-only Production catalogue queries only. Confirmed `service_role` has EXECUTE on all 43/43 public functions, matching the clean-install candidate's explicit public function grants; `private.place_bid(uuid)` remains an explicit service_role-only private grant.
 - Confirmed Production `audit_logs_id_seq` grants SELECT, UPDATE and USAGE to anon, authenticated and service_role, while `audit_logs` table access is limited to service_role and postgres. Tightened the schema-only candidate to grant only USAGE on this sequence to service_role and no sequence privileges to anon/authenticated. This is an intentional least-privilege improvement, not exact live ACL parity. Production and TEST were not changed.
 - Updated the ACL and SECURITY DEFINER/trigger audit documents to record the evidence and remaining limits. No tests, builds, CI, SQL replay or database writes were run. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Support-ticket residual column privilege correction
+
+- Inspected the original support-ticket grants and discovered that migration #67 revoked only table-level INSERT/UPDATE, while the original migration had separately granted INSERT(user_id, subject, message) and UPDATE(status, admin_response). PostgreSQL column ACLs are independent; those column-level privileges can survive table-level REVOKE.
+- Added `20261118460000_revoke_support_ticket_column_writes.sql` as forward candidate #68. It revokes both table-level and exact column-level INSERT/UPDATE from authenticated while preserving SELECT and the intended audited/idempotent RPC write paths.
+- Added `docs/SUPPORT_TICKET_COLUMN_PRIVILEGE_FOLLOWUP_2026-11-18.md`; updated manifest to 68 forward + 16 excluded timestamped + 3 legacy SQL files (87 total), clean-install README, status and static inventory checkpoint.
+- Source-only. No tests/build/CI, SQL execution, migration replay or database access/writes. Production remains read-only; TEST remains untouched. Overall estimate remains 55%.
