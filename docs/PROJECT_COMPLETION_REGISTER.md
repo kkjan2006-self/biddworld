@@ -731,3 +731,10 @@
 - Added nullable `created_by uuid references auth.users(id) on delete set null` to the table definition. The save RPC continues to force all saved templates to inactive drafts; no email/SMS dispatch is introduced.
 - Source change committed as `960681dcafc84e5c86db1b6f7b02a4c8ee304f97`. No database was modified and no tests were run manually, per the requested final testing phase.
 - Remaining work continues with full module integration and schema/function/ACL reconciliation. This isolated repair does not justify a completion percentage increase.
+
+
+### 2026-11-18 — Fixed Bid winner draw security hardening
+- Reviewed the existing Fixed Bid entry/draw/settlement SQL and found winner ranking used PostgreSQL `hashtextextended` with a random UUID seed. This is a non-cryptographic hash, so replaced the future-draw ranking with a seeded SHA-256 digest using the already-installed `pgcrypto` extension in the `extensions` schema.
+- Added forward migration `20261118340000_secure_fixed_bid_random_draw.sql`; existing recorded draw rows remain immutable. New migration is appended to the ordered clean-install forward manifest (57 candidates now) and the README count was updated.
+- Added a source-contract assertion to the existing Fixed Bid integrity test for the SHA-256 ranking and absence of the old hash scoring. Tests intentionally not run, per the request to execute the full test suite only after development completion.
+- No Production or TEST database changes; no real member, wallet or campaign activity. The source migration remains pending final TEST replay and integration verification.
