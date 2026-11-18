@@ -41,6 +41,7 @@ begin
  end if;
  select * into v_package from public.packages where id=p_package_id for update;
  if not found then raise exception 'Package not found' using errcode='P0002'; end if;
+ if p_publish is null then raise exception 'A publication state is required' using errcode='22023'; end if;
  if p_publish and not exists(select 1 from public.referral_plan_versions where package_id=p_package_id and is_active) then
   raise exception 'Activate a referral plan version before publishing this package' using errcode='55000';
  end if;
