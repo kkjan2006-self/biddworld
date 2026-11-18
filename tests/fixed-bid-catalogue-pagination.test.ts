@@ -43,3 +43,19 @@ describe('Fixed Bid catalogue request lifecycle',()=>{
   expect(source).toContain('setLoading(false);setLoadingMore(false)');
  });
 });
+
+
+const fixedBidProjection=readFileSync(resolve(process.cwd(),'supabase/migrations/20261119000000_fixed_bid_public_rules_projection.sql'),'utf8');
+describe('Fixed Bid public campaign rules projection',()=>{
+ it('exposes the published entry limits and refund rule required by the Member catalogue',()=>{
+  for(const key of ['entry_amount','winner_payment_amount','max_entries_per_member','max_entries_total','winner_count','starts_at','ends_at','refund_non_winners']){
+   expect(fixedBidProjection).toContain(`'${key}', c.configuration->'${key}'`);
+  }
+  expect(fixedBidProjection).toContain("where p.status = 'published'");
+  expect(fixedBidProjection).toContain("c.status in ('scheduled', 'live', 'ended')");
+  expect(fixedBidProjection).toContain('limit p_limit');
+  expect(fixedBidProjection).toContain('offset p_offset');
+  expect(fixedBidProjection).toContain('set search_path = \'\'');
+  expect(fixedBidProjection).toContain('to anon, authenticated;');
+ });
+});
