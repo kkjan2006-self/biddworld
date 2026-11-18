@@ -112,7 +112,7 @@ GitHub Actions run #996 on the inspected branch head `f7274c13053ad593c3fa303560
 ## 6. Remaining blockers
 
 - No canonical baseline has been executed against the isolated TEST project.
-- The full 61-migration sequence has not been replayed or proven to compile in PostgreSQL.
+- The full 62-migration sequence has not been replayed or proven to compile in PostgreSQL.
 - Function-body equivalence, grants, RLS, trigger behavior, Storage policies and frontend RPC integration remain unverified at runtime.
 - The final receipt-storage state depends on the entire ordered sequence through migration `20261118370000`.
 - Current branch CI #996 has one failing static assertion and no successful build step for that commit.
@@ -121,7 +121,7 @@ GitHub Actions run #996 on the inspected branch head `f7274c13053ad593c3fa303560
 ## 7. Next development work
 
 1. Continue semantic dependency review of the baseline's 47 functions, 11 triggers, ACLs, identity sequences and all forward migration object replacements.
-2. Reconcile the 61-migration list against the exact baseline object inventory and identify any prerequisite not created by either the baseline or Supabase platform.
+2. Reconcile the 62-migration list against the exact baseline object inventory and identify any prerequisite not created by either the baseline or Supabase platform.
 3. Review frontend RPC contracts against final source function signatures and result shapes.
 4. Keep all database replay and full integration testing for the agreed consolidated final testing phase, using TEST only.
 5. Correct stale historical counts in the official status and audit documentation; never treat this candidate as production deployment SQL.
@@ -135,3 +135,8 @@ GitHub Actions run #996 on the inspected branch head `f7274c13053ad593c3fa303560
 ## 8. Clean-install starting-point distinction clarified
 
 The incompatible legacy `0001_biddworld.sql` is not part of the clean-install forward manifest. The separate `production_schema_baseline_candidate.sql` is the intended schema-only starting-point candidate under review. Static comparison against the first forward migrations confirms the required canonical fields are present: `profiles.phone` and `main_member_id`; `member_ids.owner_user_id`, `id_type`, and `status`; `wallet_accounts.member_id`; `referrals.source_member_id`; and `package_activations.activation_number`, `payment_status`, and `activation_status`. Therefore the previously documented mismatch applies to the legacy `0001` route, not to the candidate-baseline route. This is a source-level clarification only; it does not approve or execute the candidate and does not establish that all 62 migrations replay successfully.
+
+
+## 9. Storage policy final-state reconciliation
+
+See `docs/STORAGE_POLICY_FINAL_STATE_RECONCILIATION_2026-11-18.md` for the ordered receipt Storage policy chain: initial owner-or-Admin SELECT is replaced by Admin-only SELECT, while Member INSERT remains restricted to the signed-in user's folder. The product-media bucket remains a separate public-read/Admin-write bucket. These are source-level findings; effective Storage policy composition remains pending TEST replay.
