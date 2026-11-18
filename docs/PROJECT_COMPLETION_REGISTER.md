@@ -599,3 +599,11 @@
 - CI run #925 validated the new public-auction RPC source coverage, but two test assertions failed: the explicit frontend RPC inventory did not yet include the newly added RPC, and the SECURITY DEFINER test regex was over-escaped.
 - Added `public_list_active_auctions_page` to the frontend RPC inventory and refreshed its source snapshot commit. Updated the branch RPC contract test to reference the final Member ID list RPC and new public auction RPC.
 - Corrected the regex assertion. The source migration and App integration are unchanged. Awaiting a fresh CI run.
+
+## 2026-11-18 — Public Auction RPC and source inventory verification
+
+- GitHub Actions run #926 passed on source commit `6c272b5b9a462e7943dc97be6e0f34a030bbed77`: 100/100 test files and 413/413 tests passed; TypeScript and Vite production build passed.
+- Added the public paginated auction catalogue RPC and replaced the anonymous direct-table query in the website. The function exposes only public listing fields for published products with live/scheduled time windows and grants RPC execution to anon/authenticated, without table SELECT grants.
+- Refreshed the frontend RPC inventory to 68 unique literal RPC names. The Production diff now records 35 live names and 33 source-only names, with source migration coverage checks for all 33.
+- Updated the clean-install forward chain to 51 timestamped migrations; the explicit excluded historical list remains 16, partitioning all 67 timestamped migration files exactly once.
+- No Production or TEST SQL writes or migrations were performed. The public auction RPC is source-only pending clean-install replay and final deployment.

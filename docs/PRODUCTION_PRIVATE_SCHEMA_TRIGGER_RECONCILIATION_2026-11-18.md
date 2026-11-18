@@ -9,13 +9,13 @@
 
 ## Current repository inventory
 
-At branch `completion-work`, the repository contains **69 SQL files in `supabase/migrations`**:
-- 66 timestamped migration files.
+At branch `completion-work`, the repository contains **70 SQL files in `supabase/migrations`**:
+- 67 timestamped migration files.
 - 3 legacy/unversioned files: `0001_biddworld.sql`, `0002_place_bid_rpc.sql`, and `001_initial_schema.sql`.
 - The exact 30 historical Production migration bodies are archived separately under `supabase/audit/production-ledger/`.
 - One read-only SQL catalogue audit script is outside the migration directory: `supabase/audit/production_migration_recovery.sql`.
 - The clean-install candidate baseline is kept separately under `supabase/clean-install/`.
-- The 66 timestamped source migrations are partitioned into 50 ordered forward candidates and 16 excluded historical files.
+- The 66 timestamped source migrations are partitioned into 51 ordered forward candidates and 16 excluded historical files.
 
 The empty `001_initial_schema.sql` and incompatible `0001_biddworld.sql` remain disqualified as a clean-install baseline.
 
@@ -97,7 +97,7 @@ Only required application dependencies should be represented in the clean-instal
 ## Checkpoint
 
 - Branch: `completion-work`
-- Source checkpoint audited: `581de55a073e17df64e1aa3553c1d20da705d63a`.
+- Source checkpoint audited: `6c272b5b9a462e7943dc97be6e0f34a030bbed77`.
 - No database writes or migration applications.
 - GitHub CI is source verification only; full clean-install replay and database integration tests remain deferred until development is complete.
 
