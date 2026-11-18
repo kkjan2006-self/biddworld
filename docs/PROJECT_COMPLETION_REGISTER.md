@@ -383,3 +383,11 @@
 - Inspected the three public wrappers/exception cases: `lookup_sponsor(text)` returns only the matched active Main ID's member code and display label; `place_bid(uuid)` delegates to `private.place_bid(uuid)`; `submit_package_activation(uuid,text)` delegates to `private.submit_package_activation(uuid,text)`.
 - Recorded the complete security-boundary findings and remaining per-function review tasks in `docs/PRODUCTION_PUBLIC_RPC_SECURITY_INVENTORY_2026-11-18.md`.
 - No Production/TEST writes, no migrations, no build or tests.
+
+
+### 2026-11-18 — Referral reward percentage validation hardening
+- Compared Admin UI validation with the configurable-depth database migration.
+- Found that the UI limits percentage rewards to 100%, but the database RPC previously accepted percentage values up to 100000 (the fixed-INR ceiling).
+- Updated `20261116030000_admin_configurable_referral_plan_depth.sql` so fixed rewards remain capped at 100000 and percentage rewards are independently capped at 100. Both limits are enforced in the database, not just in the browser.
+- The RPC still accepts sequential plans from 1 to 20 levels and creates inactive plan versions only.
+- Source migration only; not applied to Production or TEST. No build or tests run.
