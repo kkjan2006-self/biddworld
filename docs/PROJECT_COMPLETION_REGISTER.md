@@ -320,3 +320,12 @@
 - Reviewed source-only Support/Notification policies: support owner/admin read, owner insert, Admin update; notification owner/admin read, Admin insert, owner-only read-state update. Neither table exists in the current Production catalogue yet.
 - Added detailed findings to `docs/MEMBER_PORTAL_PRODUCTION_RPC_RLS_AUDIT_2026-11-18.md`.
 - No migration applied, no database writes, no build/tests. Production and TEST remain unchanged.
+
+
+### 2026-11-18 — Production schema catalogue snapshot and clean-install blockers
+- Read-only Production catalogue snapshot verified: 21 public tables, 175 columns, 243 constraints, 60 indexes, 17 triggers, 43 public functions, 20 RLS policies, 21/21 tables with RLS enabled, and 30 Supabase migration ledger rows.
+- Captured all 21 table names, column names/types, primary keys and foreign-key relationships in `docs/PRODUCTION_SCHEMA_CATALOGUE_SNAPSHOT_2026-11-18.md`.
+- Confirmed the repository's `001_initial_schema.sql` is empty (newline only); `0001_biddworld.sql` is a simplified early schema with incompatible column names and object contracts (e.g. user_id vs owner_user_id/member_id; amount vs bid_amount).
+- Therefore neither file is a valid canonical clean-install baseline. Do not replay them against Production or use them as the final TEST baseline.
+- Recorded all 30 live migration ledger versions and the need to recover private-schema dependencies, extensions/types, exact constraints/indexes/triggers/functions/policies/grants before constructing a clean-install chain.
+- No data rows exported; no DB writes, migrations, builds or tests performed. Production and TEST remain unchanged.
