@@ -5,7 +5,7 @@ import {supabase} from '../lib/supabase';
 type Notice={id:string;user_id:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
- const requestSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false);
+ const requestSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false),sendKey=useRef<{key:string;fingerprint:string}|null>(null);
  const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
  const load=useCallback(async()=>{
   const seq=++requestSeq.current;loadMoreBusy.current=false;
@@ -27,7 +27,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){setError('Enter a valid member user UUID.');return;}
   if(title.trim().length<3||title.trim().length>120||message.trim().length<5||message.trim().length>2000){setError('Title must be 3–120 characters and message 5–2,000 characters.');return;}
   setBusy(true);setError('');setNotice('');
-  try{const {error:sendError}=await supabase.from('member_notifications').insert({user_id:target,title:title.trim(),message:message.trim(),category});if(sendError)throw sendError;setUserId('');setTitle('');setMessage('');setNotice('Notification sent to the selected member.');await load();}
+  try{const fingerprint=[target,title.trim(),message.trim(),category].join('|');if(!sendKey.current||sendKey.current.fingerprint!==fingerprint){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);sendKey.current={key:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(''),fingerprint};}const{data:sendResult,error:sendError}=await supabase.rpc('admin_send_member_notification',{p_user_id:target,p_title:title.trim(),p_message:message.trim(),p_category:category,p_idempotency_key:sendKey.current.key});if(sendError)throw sendError;sendKey.current=null;setUserId('');setTitle('');setMessage('');setNotice((sendResult as {replayed?:boolean}|null)?.replayed?'This notification request was already delivered.':'Notification sent to the selected member.');await load();}
   catch(e){setError(e instanceof Error?e.message:'Notification could not be sent. Please retry.');}
   finally{setBusy(false);}
  }
