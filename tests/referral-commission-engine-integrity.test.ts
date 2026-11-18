@@ -3,6 +3,7 @@ import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 
 const sql=readFileSync(resolve(process.cwd(),'supabase/migrations/20261118090000_package_publication_and_referral_commission_engine.sql'),'utf8');
+const admin=readFileSync(resolve(process.cwd(),'src/components/Admin.tsx'),'utf8');
 const body=(name:string)=>{const s=sql.indexOf('create or replace function '+name);const e=sql.indexOf('$function$;',s)+11;return sql.slice(s,e);};
 
 describe('Configurable referral commission engine integrity',()=>{
@@ -39,6 +40,15 @@ describe('Configurable referral commission engine integrity',()=>{
   expect(s).toContain('v_existing.reference_id is distinct from v_commission.id');
   expect(s).toContain('update public.wallet_accounts set balance=v_new_balance');
   expect(s).toContain('insert into public.wallet_transactions');
+ });
+ it('provides level/status-filtered complete Admin commission CSV reporting',()=>{
+  expect(admin).toContain('commissionLevelFilter');
+  expect(admin).toContain('Commission level');
+  expect(admin).toContain("commissionStatusFilter==='all'?null:commissionStatusFilter");
+  expect(admin).toContain("commissionLevelFilter==='all'?null:Number(commissionLevelFilter)");
+  expect(admin).toContain("commissionRows.filter(row=>(commissionStatusFilter==='all'||row.status===commissionStatusFilter)&&(commissionLevelFilter==='all'||String(row.level_number)===commissionLevelFilter))");
+  expect(admin).toContain('Export Complete Referral Commission CSV');
+  expect(admin).toContain('biddworld-referral-commissions-complete.csv');
  });
  it('validates both original credit and reversal ledger entries, including replayed reversals',()=>{
   const s=body('public.admin_reverse_referral_commission(p_commission_id uuid,p_reason text)');

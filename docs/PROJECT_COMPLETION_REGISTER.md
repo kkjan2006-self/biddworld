@@ -673,3 +673,8 @@
 - CI run #946 confirmed the new paginated Admin auction and Fixed Bid export source contracts, but the existing filter test still expected the previous “current loaded rows” export button labels.
 - Updated the assertions to the new complete-history CSV labels. The filters, RPCs and migration are unchanged.
 - CI for the refreshed assertions is pending.
+
+### 2026-11-18 — Referral commission report level filtering
+- Added a 1–20 level filter to the Admin commission register, alongside the existing status filter.
+- Complete CSV export now passes the selected status and level filters to the paginated Admin RPC, while the on-screen list retains its load-more behavior.
+- Added source-contract coverage for the level/status filter and complete export. CI is pending.
