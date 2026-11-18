@@ -60,7 +60,7 @@ Column types below are from the live Production catalogue. `?` means nullable; d
    - It uses `wallet_accounts.user_id`, while Production uses `member_id`.
    - It uses `bids.user_id/amount`, while Production uses `member_id/bid_amount`.
    - It defines older enum types/statuses and materially different package/referral/auction structures.
-3. Production's 30 migration ledger versions do not correspond one-to-one to the current repository's 67 SQL files. Several historical timestamped source files were renamed/recovered, and 17 Production versions were previously recorded as unrecovered.
+3. At the time of this original catalogue snapshot, the repository inventory was recorded as 67 SQL files. A later 2026-11-18 branch inventory found 80 SQL files (77 timestamped and 3 legacy/unversioned), partitioned into 61 forward candidates and 16 excluded historical files. The exact SQL statements for all 30 Production migration-ledger rows were subsequently recovered into `supabase/audit/production-ledger/`; that archive is historical evidence, not an executable replay sequence.
 4. Source-only migrations authored during the recent completion work are not installed in Production. They must be included in the eventual clean-install source baseline, but must not be applied to Production as a shortcut.
 5. The live schema includes 243 constraints, 60 indexes, 17 triggers, 43 public functions and 20 policies. Recreating only table names/columns is insufficient.
 
