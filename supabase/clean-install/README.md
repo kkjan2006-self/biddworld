@@ -21,7 +21,7 @@ Schema-only baseline candidate reconstructed from read-only Production PostgreSQ
 ## Forward migration manifest
 The baseline represents the current Production schema at capture time. Do not replay historical migrations at/before `20261115163218` on top of it. The source migration `20261115180000_admin_audit_log_pagination.sql` is excluded because its effect is already represented in the captured state.
 
-Ordered forward candidates are listed in `forward-migrations.txt` (**61 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **77 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
+Ordered forward candidates are listed in `forward-migrations.txt` (**62 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **78 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
 
 ## Remaining work before canonical status
 1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive.
@@ -35,4 +35,9 @@ This candidate reconstructs schema, not Production data. Historical SQL evidence
 
 ## Current static reconciliation checkpoint
 
-See [`docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md) for the verified 80-file inventory, baseline object counts, migration sequencing observations, Storage policy final-state dependency, and the current CI result. All findings are source-level only; no TEST or Production replay has occurred.
+See [`docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`](../../docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md) for the verified 81-file inventory, baseline object counts, migration sequencing observations, Storage policy final-state dependency, and the current CI result. All findings are source-level only; no TEST or Production replay has occurred.
+
+
+## Canonical clean-install path clarification (source-only)
+
+The legacy `supabase/migrations/0001_biddworld.sql` schema is not the clean-install starting point and must not be combined with the current forward chain. The intended candidate path under review is the schema-only `production_schema_baseline_candidate.sql`, followed by the ordered entries in `forward-migrations.txt`. Static comparison confirms that the candidate defines the canonical columns used by the first forward migrations, including `profiles.phone`, `profiles.main_member_id`, `member_ids.owner_user_id/id_type/status`, `wallet_accounts.member_id`, `referrals.source_member_id`, and `package_activations.activation_number/payment_status/activation_status`. This resolves the specific old-legacy-shape mismatch for this candidate path, but does not prove every dependency or SQL body compiles. Candidate approval and TEST replay remain pending.
