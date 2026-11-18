@@ -103,3 +103,8 @@ The current repository now contains **55 SQL files: 3 legacy/unversioned and 52 
 - `20261118130000_withdrawal_minimum_and_server_validation.sql`
 
 These migrations are source-only. They have not been applied to TEST or Production. Their prerequisites include the verified current schema objects described in the earlier inventory; they must be incorporated into the separately reviewed clean-install baseline and replayed only after that baseline is prepared. Production remains read-only; TEST remains empty.
+
+
+## 2026-11-18 — Final source migration count after bulk development
+
+Current branch tree inventory: **60 SQL files total: 3 legacy/unversioned and 57 timestamped**. Eleven new timestamped migrations dated 2026-11-18 are present, covering Fixed Bid, referral commissions, withdrawals, auctions, wallet adjustments, Main ID lifecycle, receipt uploads, Primary Admin roles, support tickets and notification idempotency. All remain source-only. TEST is still empty; Production remains read-only.
