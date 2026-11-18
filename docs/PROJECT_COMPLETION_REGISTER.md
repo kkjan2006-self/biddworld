@@ -881,3 +881,12 @@
 - Added `supabase/migrations/20261118450000_restrict_direct_support_notification_writes.sql` (forward candidate #67): revoke authenticated direct INSERT/UPDATE on support_tickets and direct INSERT on member_notifications; preserve SELECT and owner-only read-state UPDATE.
 - Added `docs/FRONTEND_SUPPORT_NOTIFICATION_DIRECT_WRITE_RLS_REVIEW_2026-11-18.md`; updated manifest/clean-install README to 67 forward + 16 excluded timestamped + 3 legacy SQL files (86 total).
 - Source-only. No tests/build/CI, SQL execution, migration replay or database writes. Production and TEST untouched. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Frontend member/Admin direct-read and RLS review
+
+- Reviewed App catalogue/wallet summary, Account, Packages, WalletHistory, Referrals, PlacementTree, FixedBid, Notifications, Support, Admin dashboard and selected report components against the clean-install baseline RLS and relevant forward policies.
+- Confirmed own-profile SELECT, member-owned wallet account/transaction SELECT through member_ids.owner_user_id, allowlisted app_settings read for the package activation switch, and owner/Admin notification/support read boundaries.
+- Confirmed inspected Admin data and mutation call sites use Admin RPCs; member identity/graph/withdrawal and Fixed Bid actions use member-scoped RPCs. No additional evidenced direct-read ownership or Admin direct-table-write defect found in this focused slice.
+- Noted WalletHistory CSV export retrieves all RLS-visible transactions in 500-row batches and filters client-side; this is an efficiency enhancement, not an authorization defect.
+- Added `docs/FRONTEND_MEMBER_ADMIN_DIRECT_READ_RLS_REVIEW_2026-11-18.md`. Source-only; no tests/build/CI, SQL execution, migration replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
