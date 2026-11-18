@@ -11,7 +11,7 @@
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `592c2a448148df1ac3884d1455f19bc627e883c4` (active winner eligibility and winner-payment replay guard migration).
 - Source commit message: `fix: validate active auction winners and payment replays`.
-- Latest verified source/documentation batch commits: `8db66605e08863139c76409ef3a86fd2c0224a41` (forward manifest), `ed462fbeaa8a9f6290e038f1a458b23b958e21b4` (clean-install README), `9b16295f7fce3609b041ab45d19700d29afc27b1` (auction reconciliation), `10ad04c5c382c6b5d02137a84bd6febe8d180596` (completion register).
+- Latest verified source/documentation batch commits: `025ec6050f5846347d682025e2cd443feaabf5f7` (clean-install inventory correction), `74337c27b1646887f13340d4495147189f223e4e` (auction refund/delivery tracking review), `1d0103c623d207cfa1c2a24a19e7b78d0928b68e` (completion register).
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
@@ -90,7 +90,7 @@ The following source/UI/documentation work is present in the current branch and 
 
 ## H. NEXT DEVELOPMENT BATCH
 
-1. Continue auction and Fixed Bid lifecycle reconciliation: verify all end/cancel/refund paths against source bid debit ledger and idempotency keys, plus delivery tracking transition and member/admin RPC contracts.
+1. Auction cancellation and Fixed Bid refund source paths have been reconciled against original debit ledger metadata and idempotency keys. Delivery Tracking table/RLS and Member/Admin RPC callers are reconciled. The missing Delivery Tracking transition graph is documented; do not invent terminal-state or return/re-shipment rules absent an approved product contract.
 2. Continue the 64-forward-migration semantic dependency review, including final function bodies, trigger references, grants, baseline function ACL parity and Storage policy state.
 3. Continue remaining frontend RPC/direct-table RLS coverage and member/Admin lifecycle edge cases. Fix only evidenced defects in source migrations; do not run tests/builds or database replay before the 100% development gate.
 4. Reconcile dependency lockfile/security advisories and remaining notification provider boundary, PWA/offline source integration and operational readiness.
@@ -131,3 +131,6 @@ At every development batch/chat end, update this file with the actual verified b
 - Added this mandatory reporting rule to Section 9 and the compact prompt in `docs/AI_CONTINUATION_GUIDE.md`.
 - Guide update commit: `da8d4040ab40c47bdd8dfb428d37c55263f67d32`.
 - Documentation-only update; no application/SQL/Supabase changes and no tests, builds, CI workflows or database replay initiated. Overall estimate remains 55%.
+
+
+- 2026-11-18 — Auction cancellation and Fixed Bid refund ledger reconciliation completed at source level. Delivery Tracking table/RLS and Member/Admin RPC calls were traced; paid-payment-only creation, payment advisory lock, owner-only member reads and Admin-only writes are confirmed in source. The status vocabulary exists but no allowed-transition graph is defined; documented this as an unresolved product contract rather than inventing state transitions. Corrected clean-install README inventory to 83 SQL files (80 timestamped = 64 forward + 16 excluded, plus 3 legacy). Added `docs/AUCTION_REFUND_DELIVERY_TRACKING_SOURCE_REVIEW_2026-11-18.md` and updated completion register. No tests/build, migration replay or database writes. Production and TEST untouched. Documentation commits: `025ec6050f5846347d682025e2cd443feaabf5f7`, `74337c27b1646887f13340d4495147189f223e4e`, `1d0103c623d207cfa1c2a24a19e7b78d0928b68e`. Overall estimate remains 55%.
