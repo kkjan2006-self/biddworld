@@ -862,3 +862,13 @@
 - Updated CI workflow: push-triggered verification no longer runs on completion-work, while main pushes and PRs to main retain verification. Changed install step to npm ci for lockfile-based reproducibility. Workflow was not executed.
 - Reviewed PWA production-only service worker registration, BASE_URL scope, relative manifest URLs/icons, and service-worker cache rules that exclude cross-origin Supabase/API traffic. Actual Android install/offline verification remains pending.
 - Added docs/FORWARD_MIGRATION_DEPENDENCY_CI_SECURITY_REVIEW_2026-11-18.md. No tests/build/CI, npm install/audit, migration replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
+
+
+### 2026-11-18 — Member Main-ID lifecycle concurrency: Fixed Bid, withdrawals and winner payments
+
+- Found four member RPCs that checked active Main-ID/Profile status without sharing the per-Main-ID advisory lock introduced for Admin lifecycle changes and auction bids: `member_join_fixed_bid_campaign`, `member_create_withdrawal_request`, `member_pay_winning_item_payment`, and `member_pay_fixed_bid_winning_payment`.
+- Added `supabase/migrations/20261118440000_serialize_member_financial_eligibility.sql` (forward candidate #66). Each function acquires the shared lifecycle transaction lock and rechecks the same user's Main ID ownership/type and active Profile/Main-ID status before processing.
+- Preserved function signatures, idempotency keys, campaign/payment behavior, wallet debit rules, strict payout validation and authenticated EXECUTE grants.
+- Package activation already locks the Main-ID row `FOR UPDATE`; auction winner selection already takes the member-graph mutation lock. Those paths were not changed.
+- Updated clean-install forward manifest and README to 66 forward + 16 excluded timestamped migrations, plus 3 legacy SQL files (85 total). Added `docs/MEMBER_LIFECYCLE_FINANCIAL_ACTION_CONCURRENCY_REVIEW_2026-11-18.md`.
+- Source-only. No tests/build/CI, SQL execution, migration replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
