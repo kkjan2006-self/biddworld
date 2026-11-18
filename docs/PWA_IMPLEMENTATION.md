@@ -15,3 +15,9 @@
 - The worker does not intercept cross-origin requests, Supabase requests, auth traffic, or non-GET requests. Wallet, bidding, package and other financial actions are never queued or replayed offline.
 - Offline mode is a shell fallback only; authenticated member data is not persisted by the worker.
 - A passing source test/build does not prove device installation. Verify Android Chrome install prompt, standalone launch, offline shell, update lifecycle and GitHub Pages scope on a real device during final QA.
+
+## Browser install control
+
+- `src/components/PWAInstallButton.tsx` listens for `beforeinstallprompt` and `appinstalled`.
+- The header shows **Install App** only when the browser has offered a valid install prompt; it hides after the install prompt is used or the app is installed.
+- Browsers that do not expose `beforeinstallprompt` (for example, iOS Safari) keep their native Add to Home Screen workflow; the custom button stays hidden.

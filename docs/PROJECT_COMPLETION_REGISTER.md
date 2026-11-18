@@ -688,3 +688,8 @@
 - Migration partition: 75 SQL files total (72 timestamped + 3 legacy); 56 ordered forward candidates and 16 excluded historical files account for all 72 timestamped files exactly once.
 - GitHub Actions run #948 passed: 102/102 test files, 431/431 tests, TypeScript, normal production build and GitHub Pages subpath build. Production dependency audit: 0 vulnerabilities; full development/build dependency audit still reports 12 high, 0 critical.
 - No Production or TEST writes were performed. The new reporting RPCs remain source-only pending the clean-install replay and integration phase.
+
+### 2026-11-18 — Android PWA install control
+- Added a conditional `Install App` button to the public header. It uses the browser's `beforeinstallprompt` event, appears only when the browser considers the app installable, and clears on prompt completion or `appinstalled`.
+- Added source-contract coverage for install prompt and installed-event handling. No install prompt is fabricated when the browser does not offer one.
+- Real-device installation and offline navigation remain pending final Android QA.

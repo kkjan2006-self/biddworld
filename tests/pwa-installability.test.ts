@@ -36,6 +36,16 @@ describe('BiddWorld installable PWA foundation', () => {
     expect(html).toContain('name="theme-color" content="#101827"');
   });
 
+  it('offers a browser-controlled install action from the application header', () => {
+    const app = read('src/App.tsx');
+    const installButton = read('src/components/PWAInstallButton.tsx');
+    expect(app).toContain('<PWAInstallButton/>');
+    expect(installButton).toContain("'beforeinstallprompt'");
+    expect(installButton).toContain("'appinstalled'");
+    expect(installButton).toContain('current.prompt()');
+    expect(installButton).toContain('Install App');
+  });
+
   it('registers the worker only in production and scopes it to Vite BASE_URL', () => {
     expect(entry).toContain("import.meta.env.PROD && 'serviceWorker' in navigator");
     expect(entry).toContain("import.meta.env.BASE_URL + 'sw.js'");

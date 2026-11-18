@@ -4,6 +4,7 @@ import type {User} from '@supabase/supabase-js';
 import {Gavel,Wallet,Gift,ShieldCheck,LogIn,LogOut,Clock3,Sparkles,Search,Menu,X,Package,Users,History,LockKeyhole} from 'lucide-react';
 import {appMode,configurationError,configured,supabase} from './lib/supabase';
 import{money,left}from'./lib/format';
+import PWAInstallButton from './components/PWAInstallButton';
 import { isSponsorLookupValid } from './lib/sponsor-lookup';
 import { isRpcContractUnavailable } from './lib/rpc-errors';
 const Packages=lazy(()=>import('./components/Packages'));
