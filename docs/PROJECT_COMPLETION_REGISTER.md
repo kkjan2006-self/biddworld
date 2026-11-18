@@ -812,3 +812,13 @@
 - Hardened both shared and legacy Fixed Bid winner-payment idempotent replay branches: an existing matching ledger row now returns replay success only if the winning payment row is already marked paid and has `paid_at`; inconsistent ledger/payment state fails closed. Income-Wallet-only debit, ledger metadata, public signatures and authenticated grants remain intact.
 - Added migration to clean-install forward manifest (64 candidates) and updated README. Inventory: 83 SQL files (80 timestamped + 3 legacy), 64 forward + 16 excluded timestamped migrations.
 - Source review only; tests/build and TEST replay remain deferred. Production `hbqatszyzqobgtauyuzy` and TEST `yoaauthwejdgaevfvwpo` were not modified.
+
+
+### 2026-11-18 — Auction refund and delivery tracking source reconciliation
+- Rechecked Auction cancellation against source bid debits and refund idempotency keys: accepted bid rows and wallet accounts are locked; member, wallet type, transaction metadata, auction reference and debit suffixes are validated; summed source debits must equal the recorded bid amount; mismatches roll back the transaction.
+- Rechecked Fixed Bid draw refunds: SHA-256 seeded ranking remains deterministic for the recorded draw; only exact winning entry IDs are excluded from refunds; each losing entry's wallet debit is reconciled and conflicting refund ledger rows fail closed.
+- Reconciled Delivery Tracking table/RLS and Member/Admin callers: members receive owner-scoped read-only access; Admin RPCs enforce role; new tracking requires a paid winning-item payment and uses a payment advisory lock; updates lock the tracking row and recheck paid status; Member Account loads tracking alongside paginated winning-payment history.
+- Found that Delivery Tracking validates the status vocabulary but does not define allowed transitions. Admin can reopen a delivered record or move returned records to shipped; changing away from delivered clears delivered_at. The repository does not specify an authoritative transition graph or correction/return rules, so no speculative guard was added. This remains a documented policy requirement before lifecycle hardening.
+- Corrected clean-install README inventory text: 80 timestamped SQL files (64 forward + 16 excluded) plus 3 legacy files = 83 total. README had stale 78 / 81 counts.
+- Added `docs/AUCTION_REFUND_DELIVERY_TRACKING_SOURCE_REVIEW_2026-11-18.md`. Source review only; no tests/builds, TEST replay or database writes. Production and TEST remain untouched.
+- Documentation commits: `025ec6050f5846347d682025e2cd443feaabf5f7` (clean-install README) and `74337c27b1646887f13340d4495147189f223e4e` (source review).
