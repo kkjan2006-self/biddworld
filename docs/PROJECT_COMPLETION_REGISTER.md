@@ -744,3 +744,10 @@
 - Source inspection of the member Account portal found several regular-expression literals with doubled backslashes. As written, the mobile-number pattern expected a backslash rather than an optional plus sign, and the withdrawal amount / bank-account patterns did not match ordinary digits. Corrected the literals to use the intended digit and plus-sign classes.
 - Added a regression contract to `tests/member-withdrawal-payout-privacy.test.ts` covering the mobile, amount and bank-account patterns. Tests were not run; all testing remains deferred to the final phase as requested.
 - No database changes or financial actions were performed. The fix affects client-side input validation only; server-side payout validation remains authoritative.
+
+
+### 2026-11-18 — Private package receipt Storage integration
+- Found an end-to-end gap: Member and Admin portals both use the `package-receipts` bucket, while the reviewed Production and TEST catalogues had no Storage buckets and no forward migration created this bucket.
+- Added `20261118350000_private_package_receipt_storage.sql`: private 5 MB bucket, JPEG/PNG/PDF allowlist, authenticated member upload restricted to their own `auth.uid()` folder, and SELECT access restricted to the Admin `app_metadata.role` claim. No public access, member read, update or delete policy is added.
+- Added a source-contract test and included the migration in the clean-install forward manifest (58 candidates). Updated clean-install documentation.
+- Tests not run per the requested final-only testing phase. No Production or TEST database writes; the migration still requires isolated TEST replay and Storage API verification at final testing.
