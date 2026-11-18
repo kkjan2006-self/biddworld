@@ -98,3 +98,20 @@ Only required application dependencies should be represented in the clean-instal
 - Verified HEAD: `e7050df1c973c6c73ce4ca6e94a84439a530c0f4`
 - No database writes or migration applications.
 - No build/tests run; final testing remains deferred until development is complete.
+
+
+## Storage catalogue reconciliation
+
+A separate read-only Production query confirmed that `storage.buckets` and `storage.objects` exist, but the live project currently has:
+- **0 Storage buckets**
+- **0 Storage RLS policies**
+- `storage.objects` has RLS enabled.
+
+The branch source migrations declare two application buckets that are therefore source-only and not installed in Production:
+
+| Bucket | Source migration | Intended access |
+|---|---|---|
+| `product-media` | `20261116020000_admin_product_management_and_media.sql` | Public read; authenticated Admin-only insert/update/delete; JPG/PNG/WebP; 5 MB |
+| `package-receipts` | `20261118150000_package_receipt_uploads.sql` | Private; owner upload/read and Admin read; no member delete; JPG/PNG/PDF; 5 MB |
+
+This is an explicit frontend/backend deployment gap: the source supports product image and package receipt storage, but the Production Storage catalogue currently has no buckets or policies. Do not create these in Production as part of development. Include them in the eventual clean-install/TEST replay and verify both bucket metadata and policy predicates there before any deployment decision.
