@@ -225,3 +225,11 @@
 - Rechecked the source schema snapshot: `fixed_bids.status` explicitly permits `voided`, and `winning_item_payments.fixed_bid_campaign_id` exists with its foreign key to `fixed_bid_campaigns`.
 - Hardened Fixed Bid campaign cancellation and optional non-winner refunds: each entry's original debit ledger rows must now sum exactly to the recorded entry amount before the entry can be voided. Missing or partial debit history raises an exception and rolls back the complete operation, preventing silent under-refunds.
 - No tests/build run (per development-first workflow). No Supabase migrations applied; Production and TEST databases remain untouched.
+
+
+### 2026-11-18 — Member identity list RPC contract completion
+- Added source migration `20261118200000_member_identity_ids_rpc.sql` for the Account portal's existing `member_list_my_ids()` call.
+- The RPC returns only the authenticated user's own Main and Duplicate IDs, with the placement parent code needed by the Member UI; it accepts no caller-supplied user/member identifier.
+- Execution is revoked from PUBLIC/anon and granted to authenticated users only. The function uses a fixed empty search_path and runs as a constrained SECURITY DEFINER read.
+- This closes one confirmed frontend-to-migration source gap. Other legacy RPCs still need complete schema/production-history reconciliation before clean-install replay can be claimed.
+- Source-only change. No tests/build run and no Supabase migrations applied; Production and TEST databases remain untouched.
