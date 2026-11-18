@@ -6,7 +6,7 @@ type Notice={id:string;user_id:string;title:string;message:string;category:strin
 const PAGE_SIZE=100;
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  const requestSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false),sendKey=useRef<{key:string;fingerprint:string}|null>(null);
- const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
+ const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[recipientSearch,setRecipientSearch]=useState(''),[recipientOptions,setRecipientOptions]=useState<{user_id:string;member_code:string;display_name:string;phone:string}[]>([]),[recipientLookupBusy,setRecipientLookupBusy]=useState(false),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
  const load=useCallback(async()=>{
   const seq=++requestSeq.current;loadMoreBusy.current=false;
   if(!supabase){setError('Notifications are unavailable until Supabase is configured.');setItems([]);setHasMore(false);return;}
@@ -22,12 +22,18 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
+ async function lookupRecipients(){
+  if(!supabase||!isAdmin||recipientLookupBusy)return;const term=recipientSearch.trim();if(term.length<2){setError('Enter at least 2 characters to search members.');return;}setRecipientLookupBusy(true);setError('');setRecipientOptions([]);setUserId('');
+  try{const{data,error:lookupError}=await supabase.rpc('admin_lookup_notification_recipients',{p_search:term});if(lookupError)throw lookupError;const rows=(data??[]) as {user_id:string;member_code:string;display_name:string;phone:string}[];setRecipientOptions(rows);if(rows.length===0)setNotice('No matching Main ID members were found.');}
+  catch(e){setError(e instanceof Error?e.message:'Member lookup failed. Please retry.');}
+  finally{setRecipientLookupBusy(false);}
+ }
  async function send(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();if(!supabase||busy)return;const target=userId.trim();
-  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(target)){setError('Enter a valid member user UUID.');return;}
+  if(!recipientOptions.some(member=>member.user_id===target)){setError('Search for and select a member before sending.');return;}
   if(title.trim().length<3||title.trim().length>120||message.trim().length<5||message.trim().length>2000){setError('Title must be 3–120 characters and message 5–2,000 characters.');return;}
   setBusy(true);setError('');setNotice('');
-  try{const fingerprint=[target,title.trim(),message.trim(),category].join('|');if(!sendKey.current||sendKey.current.fingerprint!==fingerprint){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);sendKey.current={key:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(''),fingerprint};}const{data:sendResult,error:sendError}=await supabase.rpc('admin_send_member_notification',{p_user_id:target,p_title:title.trim(),p_message:message.trim(),p_category:category,p_idempotency_key:sendKey.current.key});if(sendError)throw sendError;sendKey.current=null;setUserId('');setTitle('');setMessage('');setNotice((sendResult as {replayed?:boolean}|null)?.replayed?'This notification request was already delivered.':'Notification sent to the selected member.');await load();}
+  try{const fingerprint=[target,title.trim(),message.trim(),category].join('|');if(!sendKey.current||sendKey.current.fingerprint!==fingerprint){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);sendKey.current={key:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(''),fingerprint};}const{data:sendResult,error:sendError}=await supabase.rpc('admin_send_member_notification',{p_user_id:target,p_title:title.trim(),p_message:message.trim(),p_category:category,p_idempotency_key:sendKey.current.key});if(sendError)throw sendError;sendKey.current=null;setUserId('');setRecipientSearch('');setRecipientOptions([]);setTitle('');setMessage('');setNotice((sendResult as {replayed?:boolean}|null)?.replayed?'This notification request was already delivered.':'Notification sent to the selected member.');await load();}
   catch(e){setError(e instanceof Error?e.message:'Notification could not be sent. Please retry.');}
   finally{setBusy(false);}
  }
@@ -58,7 +64,9 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   <p className="memberModuleHint">{isAdmin?'Send an in-app notification to one member using their Auth user UUID.':'Your recent BiddWorld account and support notifications.'}</p>
   {error&&<div className="notice" role="alert">{error}</div>}{notice&&<div className="notice" role="status">{notice}</div>}
   {isAdmin&&<form className="memberWithdrawalForm" onSubmit={send}>
-   <label>Member Auth User UUID<input required value={userId} onChange={e=>setUserId(e.target.value)} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"/></label>
+   <label>Find Member by Main ID, name or mobile<input value={recipientSearch} onChange={e=>{setRecipientSearch(e.target.value);setRecipientOptions([]);setUserId("");}} placeholder="Enter Member ID, name or mobile number"/></label>
+   <button className="outline small" type="button" disabled={recipientLookupBusy||recipientSearch.trim().length<2} onClick={()=>void lookupRecipients()}>{recipientLookupBusy?"Searching…":"Search members"}</button>
+   {recipientOptions.length>0&&<label>Select recipient<select required value={userId} onChange={e=>setUserId(e.target.value)}><option value="">Choose a member</option>{recipientOptions.map(member=><option key={member.user_id} value={member.user_id}>{member.member_code} · {member.display_name||"Name not provided"} · {member.phone||"No mobile"}</option>)}</select></label>}
    <label>Title<input required minLength={3} maxLength={120} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Notification title"/></label>
    <label>Message<textarea required minLength={5} maxLength={2000} rows={3} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Write a clear account notification"/></label>
    <label>Category<select value={category} onChange={e=>setCategory(e.target.value)}><option value="general">General</option><option value="account">Account</option><option value="support">Support</option><option value="security">Security</option></select></label>
