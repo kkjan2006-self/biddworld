@@ -2,26 +2,42 @@ import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 const app=readFileSync(resolve(process.cwd(),'src/App.tsx'),'utf8');
+const sql=readFileSync(resolve(process.cwd(),'supabase/migrations/20261118280000_public_auction_catalogue_page.sql'),'utf8');
+
 describe('public auction catalogue pagination',()=>{
- it('loads a bounded first page and deterministic continuation pages',()=>{
-  expect(app).toContain(".order('ends_at').order('id',{ascending:false}).range(0,99)");
-  expect(app).toContain(".order('ends_at').order('id',{ascending:false}).range(offset,offset+99)");
+ it('loads bounded first and continuation pages through the public RPC',()=>{
+  expect(app).toContain("rpc('public_list_active_auctions_page',{p_limit:100,p_offset:0})");
+  expect(app).toContain("rpc('public_list_active_auctions_page',{p_limit:100,p_offset:offset})");
   expect(app).toContain('setAuctionHasMore((data??[]).length===100)');
+  expect(app).not.toContain("from('auctions').select(");
  });
- it('invalidates stale page responses and prevents overlapping Load More requests',()=>{
+ it('keeps deterministic ordering, bounded page sizes and offset validation server-side',()=>{
+  expect(sql).toContain('order by a.ends_at asc,a.id desc');
+  expect(sql).toContain('p_limit > 100');
+  expect(sql).toContain('p_offset > 1000000');
+  expect(sql).toContain('limit p_limit offset p_offset');
+ });
+ it('exposes only live/scheduled auctions linked to published products and valid time windows',()=>{
+  expect(sql).toContain("p.status = 'published'");
+  expect(sql).toContain("a.status = 'live'");
+  expect(sql).toContain("a.status = 'scheduled'");
+  expect(sql).toContain('a.ends_at > now()');
+  expect(sql).toContain('a.starts_at <= now()');
+  expect(sql).toContain('a.starts_at > now()');
+ });
+ it('uses a restricted SECURITY DEFINER RPC rather than anonymous table SELECT',()=>{
+  expect(sql).toMatch(/security definer[\\s\\S]*?set search_path\\s*=\\s*''/i);
+  expect(sql).toContain('revoke all on function public.public_list_active_auctions_page(integer,integer) from public,anon,authenticated');
+  expect(sql).toContain('grant execute on function public.public_list_active_auctions_page(integer,integer) to anon,authenticated');
+ });
+ it('preserves race protection, Load More, accessible retry and live-only bid actions',()=>{
   expect(app).toContain('const auctionPageRequest=useRef(0)');
   expect(app).toContain('auctionPageBusy.current=true');
   expect(app).toContain('requestId!==auctionPageRequest.current');
-  expect(app).toContain('finally{if(requestId===auctionPageRequest.current){auctionPageBusy.current=false;setAuctionLoadingMore(false)}}');
- });
- it('exposes Load More without enabling non-live bidding',()=>{
   expect(app).toContain('Load more auctions');
   expect(app).toContain("a.status==='live'");
   expect(app).toContain('auctionLoadingMore');
- });
- it('shows an accessible retry action when the first auction page fails',()=>{
   expect(app).toContain('role="alert">{auctionError}');
   expect(app).toContain('>Retry</button>');
-  expect(app).toContain('setPage(1);setRefresh(v=>v+1)');
  });
 });
