@@ -112,7 +112,7 @@ as $function$
 declare
  v_campaign public.fixed_bid_campaigns%rowtype; v_start timestamptz; v_end timestamptz;
  v_enabled boolean:=false; v_entry record; v_debit record; v_wallet public.wallet_accounts%rowtype;
- v_new_balance numeric(14,2); v_refunded integer:=0; v_refund_key text;
+ v_new_balance numeric(14,2); v_refunded integer:=0; v_refund_key text; v_debit_total numeric(14,2);
 begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -151,10 +151,11 @@ begin
    raise exception 'A campaign with a paid winner item cannot be cancelled' using errcode='55000';
   end if;
   for v_entry in
-   select id,member_id from public.fixed_bids
+   select id,member_id,bid_amount from public.fixed_bids
    where campaign_id=p_campaign_id and status in ('submitted','accepted')
    order by id for update
   loop
+   v_debit_total:=0;
    for v_debit in
     select wallet_account_id,amount from public.wallet_transactions
     where reference_type='fixed_bid_entry' and reference_id=v_entry.id and direction='debit'
@@ -162,15 +163,20 @@ begin
    loop
     select * into v_wallet from public.wallet_accounts where id=v_debit.wallet_account_id for update;
     if not found then raise exception 'Original entry wallet is unavailable; cancellation was rolled back' using errcode='55000'; end if;
+    v_debit_total:=v_debit_total+v_debit.amount;
     v_refund_key:='fixed-bid:'||v_entry.id::text||':refund:'||v_wallet.id::text;
     if not exists(select 1 from public.wallet_transactions where idempotency_key=v_refund_key) then
-     v_new_balance:=v_wallet.balance+v_debit.amount;
+     v_debit_total:=v_debit_total+v_debit.amount;
+    v_new_balance:=v_wallet.balance+v_debit.amount;
      update public.wallet_accounts set balance=v_new_balance,updated_at=now() where id=v_wallet.id;
      insert into public.wallet_transactions(wallet_account_id,member_id,transaction_type,direction,amount,balance_after,reference_type,reference_id,idempotency_key,description)
      values(v_wallet.id,v_entry.member_id,'fixed_bid_refund','credit',v_debit.amount,v_new_balance,
       'fixed_bid_entry',v_entry.id,v_refund_key,'Refund for cancelled Fixed Bid campaign entry');
     end if;
    end loop;
+   if v_debit_total<>v_entry.bid_amount then
+    raise exception 'Entry debit ledger does not reconcile to its recorded amount; cancellation was rolled back' using errcode='55000';
+   end if;
    update public.fixed_bids set status='voided' where id=v_entry.id;
    v_refunded:=v_refunded+1;
   end loop;
@@ -264,7 +270,7 @@ declare
  v_seed uuid:=gen_random_uuid(); v_seed_key bigint; v_winner_count integer;
  v_winner_entries uuid[]:='{}'; v_winner_members uuid[]:='{}';
  v_entry record; v_payment_amount numeric(14,2); v_refund boolean:=false;
- v_refund_count integer:=0; v_debit record; v_wallet public.wallet_accounts%rowtype; v_new_balance numeric(14,2);
+ v_refund_count integer:=0; v_debit record; v_wallet public.wallet_accounts%rowtype; v_new_balance numeric(14,2); v_debit_total numeric(14,2);
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -305,11 +311,12 @@ begin
  values(p_campaign_id,v_seed,v_winner_entries,v_winner_members,array_length(v_winner_members,1),v_uid);
  if v_refund then
   for v_entry in
-   select id,member_id from public.fixed_bids
+   select id,member_id,bid_amount from public.fixed_bids
    where campaign_id=p_campaign_id and status in ('submitted','accepted')
     and not (member_id=any(v_winner_members))
    order by id
   loop
+   v_debit_total:=0;
    for v_debit in
     select wallet_account_id,amount from public.wallet_transactions
     where reference_type='fixed_bid_entry' and reference_id=v_entry.id and direction='debit'
@@ -323,6 +330,9 @@ begin
     values(v_wallet.id,v_entry.member_id,'fixed_bid_refund','credit',v_debit.amount,v_new_balance,'fixed_bid_entry',v_entry.id,
      'fixed-bid:'||v_entry.id::text||':refund:'||v_wallet.id::text,'Refund for non-winning Fixed Bid entry');
    end loop;
+   if v_debit_total<>v_entry.bid_amount then
+    raise exception 'Entry debit ledger does not reconcile to its recorded amount; draw was rolled back' using errcode='55000';
+   end if;
    update public.fixed_bids set status='voided' where id=v_entry.id;
    v_refund_count:=v_refund_count+1;
   end loop;
