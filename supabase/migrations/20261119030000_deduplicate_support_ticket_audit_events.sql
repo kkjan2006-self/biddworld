@@ -12,13 +12,13 @@ begin
     insert into public.audit_logs(actor_user_id, action, entity_type, entity_id, details)
     values (
       auth.uid(),
-      'support_ticket_updated',
+      'support.ticket_updated',
       'support_tickets',
       new.id,
       jsonb_build_object(
         'old_status', old.status,
         'new_status', new.status,
-        'response_changed', old.admin_response is distinct from new.admin_response,
+        'response_updated', old.admin_response is distinct from new.admin_response,
         'member_user_id', new.user_id
       )
     );
