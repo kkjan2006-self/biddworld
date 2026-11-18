@@ -45,7 +45,9 @@ describe('BiddWorld installable PWA foundation', () => {
     expect(worker).toContain('cache.match(APP_ROOT.href)');
     expect(worker).toContain("new URL('icons/biddworld-192.png', APP_ROOT).href");
     expect(worker).toContain("new URL('icons/biddworld-512.png', APP_ROOT).href");
+    expect(worker).toContain("const CACHE_NAME = CACHE_PREFIX + 'v3'");
     expect(worker).toContain('key.startsWith(CACHE_PREFIX)');
+    expect(worker).toContain('key !== CACHE_NAME');
   });
 
   it('never intercepts cross-origin requests or non-GET financial/API requests', () => {

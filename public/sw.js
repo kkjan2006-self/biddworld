@@ -1,6 +1,6 @@
 /* BiddWorld offline app shell. Never cache Supabase/auth or other API traffic. */
 const CACHE_PREFIX = 'biddworld-shell-';
-const CACHE_NAME = CACHE_PREFIX + 'v2';
+const CACHE_NAME = CACHE_PREFIX + 'v3';
 const APP_ROOT = new URL('./', self.registration.scope);
 const SHELL_URLS = [
   APP_ROOT.href,
