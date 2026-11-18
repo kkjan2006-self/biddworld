@@ -44,8 +44,18 @@ export default function AdminAuctionBidReport(){
    if(rpcError)throw rpcError;
    if(requestId!==request.current)return;
    const batch=(data??[]) as AuctionBidReportRow[];
-   setRows(current=>reset?batch:appendUnique(current,batch));
-   setHasMore(batch.length===PAGE_SIZE);
+   let added=batch.length;
+   setRows(current=>{
+    if(reset){added=batch.length;return batch;}
+    const known=new Set(current.map(row=>row.bid_id));
+    const fresh=batch.filter(row=>!known.has(row.bid_id));
+    added=fresh.length;
+    return [...current,...fresh];
+   });
+   if(batch.length===PAGE_SIZE&&added===0){
+    setHasMore(false);
+    setError('The auction bid report returned a repeated page. Refresh the report before loading more.');
+   }else setHasMore(batch.length===PAGE_SIZE);
   }catch(e){
    if(requestId===request.current)setError(e instanceof Error?e.message:'Auction bid report could not be loaded. Please retry.');
   }finally{
@@ -61,8 +71,10 @@ export default function AdminAuctionBidReport(){
   setExporting(true);setError('');
   try{
    const all:AuctionBidReportRow[]=[];
-   for(let offset=0;;offset+=PAGE_SIZE){
-    if(offset>1000000)throw new Error('The report exceeds the safe export limit.');
+   const seenIds=new Set<string>(),seenPages=new Set<string>();
+   for(let offset=0,pages=0;;offset+=PAGE_SIZE){
+    pages+=1;
+    if(pages>10000)throw new Error('The report exceeds the safe export limit.');
     const{data,error:rpcError}=await supabase.rpc('admin_list_auction_bids_page',{
      p_search:applied.search||null,p_status:applied.status==='all'?null:applied.status,
      p_from:boundary(applied.from,false),p_to:boundary(applied.to,true),
@@ -70,7 +82,15 @@ export default function AdminAuctionBidReport(){
     });
     if(rpcError)throw rpcError;
     const batch=(data??[]) as AuctionBidReportRow[];
-    all.push(...batch);
+    if(batch.length===PAGE_SIZE){
+     const fingerprint=JSON.stringify(batch.map(row=>row.bid_id));
+     if(seenPages.has(fingerprint))throw new Error('The report repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');
+     seenPages.add(fingerprint);
+    }
+    for(const row of batch){
+     if(seenIds.has(row.bid_id))throw new Error('The report returned duplicate records. Export stopped to avoid an inaccurate CSV. Please retry.');
+     seenIds.add(row.bid_id);all.push(row);
+    }
     if(batch.length<PAGE_SIZE)break;
    }
    const csv=csvDocument([
