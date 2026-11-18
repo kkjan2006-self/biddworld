@@ -1,22 +1,41 @@
 import {useEffect,useRef,useState} from 'react';
-import {Gavel,Package,RefreshCw} from 'lucide-react';
+import {Gavel,Package,RefreshCw,ShieldCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {escapeLikePattern} from '../lib/like-pattern';
-type Campaign={id:string;title:string;description:string|null;status:string;created_at:string;product: {name:string;description:string|null;category:string|null;image_path:string|null}|null};
+import {money} from '../lib/format';
+
+type CampaignConfig={
+ entry_amount?:number|string;
+ winner_payment_amount?:number|string;
+ max_entries_per_member?:number;
+ max_entries_total?:number;
+ winner_count?:number;
+ starts_at?:string;
+ ends_at?:string;
+ refund_non_winners?:boolean;
+};
+type Campaign={
+ id:string;title:string;description:string|null;status:string;created_at:string;
+ configuration:CampaignConfig|null;
+ product:{name:string;description:string|null;category:string|null;image_path:string|null}|null
+};
 const PAGE_SIZE=50;
 type CampaignStatus='all'|'scheduled'|'live'|'ended';
+function requestKey(){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
+
 export default function FixedBid(){
  const [rows,setRows]=useState<Campaign[]>([]),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[error,setError]=useState('');
  const [search,setSearch]=useState(''),[statusFilter,setStatusFilter]=useState<CampaignStatus>('all');
- const mounted=useRef(true),requestId=useRef(0),requestInFlight=useRef(false);
+ const [message,setMessage]=useState(''),[joining,setJoining]=useState('');
+ const mounted=useRef(true),requestId=useRef(0),requestInFlight=useRef(false),entryKeys=useRef(new Map<string,string>());
  async function load(reset=true,searchTerm=search,status=statusFilter){
   if(!reset&&(requestInFlight.current||loadingMore||!hasMore))return;
   if(!reset)requestInFlight.current=true;
   const request=++requestId.current;
   if(reset){requestInFlight.current=false;setLoading(true);setError('');setRows([]);setHasMore(false);}else{setLoadingMore(true);setError('');}
   try {
-   if(!supabase){if(mounted.current&&request===requestId.current){setRows([]);setHasMore(false);}return;}
-   let query=supabase.from('fixed_bid_campaigns').select('id,title,description,status,created_at,product:products(name,description,category,image_path)').in('status',['scheduled','live','ended']).order('created_at',{ascending:false}).order('id',{ascending:false});
+   if(!supabase){if(mounted.current&&request===requestId.current){setRows([]);setHasMore(false);setError('Supabase is not configured.');}return;}
+   let query=supabase.from('fixed_bid_campaigns').select('id,title,description,status,created_at,configuration,product:products(name,description,category,image_path)').in('status',['scheduled','live','ended']).order('created_at',{ascending:false}).order('id',{ascending:false});
    if(status!=='all')query=query.eq('status',status);
    if(searchTerm.trim())query=query.ilike('title',`%${escapeLikePattern(searchTerm.trim())}%`);
    const offset=reset?0:rows.length;
@@ -24,31 +43,58 @@ export default function FixedBid(){
    if(error)throw error;
    if(!mounted.current||request!==requestId.current)return;
    const batch=(data??[]) as unknown as Campaign[];
-   setRows(current=>{
-    if(reset)return batch;
-    const known=new Set(current.map(row=>row.id));
-    return [...current,...batch.filter(row=>!known.has(row.id))];
-   });
+   setRows(current=>{if(reset)return batch;const known=new Set(current.map(row=>row.id));return [...current,...batch.filter(row=>!known.has(row.id))];});
    setHasMore(batch.length===PAGE_SIZE);
   } catch {
-   if(mounted.current&&request===requestId.current)setError(reset?'Fixed Bid campaigns are not available yet.':'More campaigns could not be loaded. Please retry.');
+   if(mounted.current&&request===requestId.current)setError(reset?'Fixed Bid campaigns could not be loaded. Please retry.':'More campaigns could not be loaded. Please retry.');
   } finally {
    if(!reset&&request===requestId.current)requestInFlight.current=false;
    if(mounted.current&&request===requestId.current){setLoading(false);setLoadingMore(false);}
   }
  }
- useEffect(()=>{
-  mounted.current=true;
-  const timer=window.setTimeout(()=>void load(true,search,statusFilter),search.trim()?250:0);
-  return()=>{window.clearTimeout(timer);requestId.current+=1;};
- },[search,statusFilter]);
+ useEffect(()=>{mounted.current=true;const timer=window.setTimeout(()=>void load(true,search,statusFilter),search.trim()?250:0);return()=>{window.clearTimeout(timer);requestId.current+=1;};},[search,statusFilter]);
  useEffect(()=>()=>{mounted.current=false;requestId.current+=1;requestInFlight.current=false;},[]);
- const visibleRows=rows;
- return <section className="fixedBidList"><div className="packageIntro"><span className="workspaceIcon"><Gavel/></span><div><h3>Fixed Bid campaigns</h3><p>Scheduled, live and ended campaigns are shown. Campaign information is read-only; no entries or payments are processed here.</p></div><button className="outline small" onClick={()=>void load(true)} disabled={loading||loadingMore}><RefreshCw size={14}/> Refresh</button></div>
- <div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:14}}><label>Search campaign title<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Enter campaign title"/></label><label>Campaign status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as CampaignStatus)}><option value="all">All statuses</option><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="ended">Ended</option></select></label></div>
- {loading?<p className="packageState">Loading campaigns…</p>:error&&rows.length===0?<div className="notice">{error} <button className="outline small" onClick={()=>void load(true)}>Retry</button></div>:rows.length===0?<div className="empty">{search.trim()||statusFilter!=='all'?'No campaigns match these filters.':'No scheduled, live or ended Fixed Bid campaigns are available.'}</div>:
- <><div className="memberModuleHint">{rows.length} matching campaigns loaded{hasMore?' · more results are available':''}.</div><button className="outline small" type="button" onClick={()=>{setSearch('');setStatusFilter('all')}}>Clear filters</button><div className="fixedBidGrid">{visibleRows.map(r=><article className="fixedBidCard" key={r.id}><div className="fixedBidVisual">{r.product?.image_path?<img src={r.product.image_path} alt={r.product.name}/>:<Package size={34}/>}<span>{r.product?.category??'FIXED BID'}</span></div><div className="fixedBidBody"><span className="status">{r.status.toUpperCase()}</span><h3>{r.title}</h3>{r.product?.name&&<b>{r.product.name}</b>}<p>{r.description||r.product?.description||'Campaign details will be published by the administrator.'}</p><small>Published {new Date(r.created_at).toLocaleDateString()}</small></div></article>)}</div>
- {error&&<div className="notice">{error}</div>}
- {hasMore&&<div className="marketPagination"><button className="outline darkOutline" disabled={loadingMore} onClick={()=>void load(false)}>{loadingMore?'Loading…':'Load more campaigns'}</button><span>{rows.length} campaigns loaded</span></div>}</>}
+ async function joinCampaign(campaign:Campaign){
+  if(!supabase||joining)return;
+  setJoining(campaign.id);setMessage('');
+  try{
+   const {data:authData,error:authError}=await supabase.auth.getUser();
+   if(authError)throw authError;
+   if(!authData.user){setMessage('Please sign in from the website header before entering a campaign.');return;}
+   let key=entryKeys.current.get(campaign.id);
+   if(!key){key=requestKey();entryKeys.current.set(campaign.id,key);}
+   const {data,error}=await supabase.rpc('member_join_fixed_bid_campaign',{p_campaign_id:campaign.id,p_idempotency_key:key});
+   if(error){
+    const raw=String(error.message||'');
+    if(/insufficient/i.test(raw))throw new Error('Insufficient Funds – Please Add Funds');
+    throw error;
+   }
+   entryKeys.current.delete(campaign.id);
+   const result=(data??{}) as {entry_id?:string;entry_amount?:number;replayed?:boolean};
+   setMessage(result.replayed?'Your previous entry request was already recorded. No second entry was created.':`Entry confirmed. Entry ID: ${result.entry_id||'recorded'} · Amount: ${money(Number(result.entry_amount??campaign.configuration?.entry_amount??0),'INR')}.`);
+  }catch(e){setMessage(e instanceof Error?e.message:'Campaign entry could not be confirmed. Retry safely; the same request key will be reused.');}
+  finally{setJoining('');}
+ }
+ return <section className="fixedBidList">
+  <div className="packageIntro"><span className="workspaceIcon"><Gavel/></span><div><h3>Fixed Bid campaigns</h3><p>Review campaign rules, entry limits and schedules before participating. Entries are recorded by the secure server workflow.</p></div><button className="outline small" onClick={()=>void load(true)} disabled={loading||loadingMore}><RefreshCw size={14}/> Refresh</button></div>
+  {message&&<div className="notice" role="status" aria-live="polite">{message}</div>}
+  <div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:14}}><label>Search campaign title<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Enter campaign title"/></label><label>Campaign status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as CampaignStatus)}><option value="all">All statuses</option><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="ended">Ended</option></select></label></div>
+  {loading?<p className="packageState">Loading campaigns…</p>:error&&rows.length===0?<div className="notice">{error} <button className="outline small" onClick={()=>void load(true)}>Retry</button></div>:rows.length===0?<div className="empty">{search.trim()||statusFilter!=='all'?'No campaigns match these filters.':'No scheduled, live or ended Fixed Bid campaigns are available.'}</div>:
+  <><div className="memberModuleHint">{rows.length} matching campaigns loaded{hasMore?' · more results are available':''}.</div><button className="outline small" type="button" onClick={()=>{setSearch('');setStatusFilter('all');}}>Clear filters</button>
+  <div className="fixedBidGrid">{rows.map(r=>{const config=r.configuration??{};const canJoin=r.status==='live'&&Number(config.entry_amount)>0&&Boolean(config.starts_at)&&Boolean(config.ends_at);return <article className="fixedBidCard" key={r.id}>
+   <div className="fixedBidVisual">{r.product?.image_path?<img src={r.product.image_path} alt={r.product.name}/>:<Package size={34}/>}<span>{r.product?.category??'FIXED BID'}</span></div>
+   <div className="fixedBidBody"><span className="status">{r.status.toUpperCase()}</span><h3>{r.title}</h3>{r.product?.name&&<b>{r.product.name}</b>}<p>{r.description||r.product?.description||'Campaign details will be published by the administrator.'}</p>
+    {Number(config.entry_amount)>0&&<p><b>Entry amount:</b> {money(Number(config.entry_amount),'INR')}</p>}
+    {Number(config.winner_payment_amount)>0&&<p><b>Winner payment:</b> {money(Number(config.winner_payment_amount),'INR')}</p>}
+    {config.max_entries_per_member&&<small>Entries per member: {config.max_entries_per_member}</small>}
+    {config.winner_count&&<small>Winner count: {config.winner_count}</small>}
+    {config.starts_at&&<small>Starts: {new Date(config.starts_at).toLocaleString('en-IN')}</small>}
+    {config.ends_at&&<small>Closes: {new Date(config.ends_at).toLocaleString('en-IN')}</small>}
+    <small>Published {new Date(r.created_at).toLocaleDateString('en-IN')}</small>
+    {canJoin?<button className="primary small" type="button" disabled={joining!==''} onClick={()=>void joinCampaign(r)}>{joining===r.id?'Submitting entry…':'Enter Fixed Bid Campaign'}</button>:r.status==='live'?<small className="protected">Entry rules are incomplete. Contact the administrator.</small>:null}
+   </div></article>;})}</div>
+  {error&&<div className="notice">{error}</div>}
+  {hasMore&&<div className="marketPagination"><button className="outline darkOutline" disabled={loadingMore} onClick={()=>void load(false)}>{loadingMore?'Loading…':'Load more campaigns'}</button><span>{rows.length} campaigns loaded</span></div>}</>}
+  <p className="memberModuleHint"><ShieldCheck size={14}/> Each entry uses a unique retry key and is processed with server-side limits and wallet-ledger checks.</p>
  </section>;
 }
