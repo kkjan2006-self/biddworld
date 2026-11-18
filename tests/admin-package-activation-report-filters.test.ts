@@ -17,4 +17,13 @@ describe('Admin package activation report filters',()=>{
  it('clearly identifies the RPC result as pending review, not activation history',()=>{
   expect(admin).toContain('not historical approved/rejected activations');
  });
+
+ it('filters complete activation history by server payment status and inclusive submitted date/search',()=>{
+  expect(admin).toContain("activationHistoryStatus==='all'?null:activationHistoryStatus");
+  expect(admin).toContain('activationHistorySearch.trim().toLowerCase()');
+  expect(admin).toContain('activationHistoryFrom,activationHistoryTo');
+  expect(admin).toContain("option value=\"refunded\">Refunded</option>");
+  expect(admin).toContain('Export Filtered Complete Activation History CSV');
+  expect(admin).toContain('x.payment_status,x.activation_status');
+ });
 });
