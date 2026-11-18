@@ -8,17 +8,19 @@
 
 ## Verified inventory
 
-| Catalogue item | Count |
-|---|---:|
-| Public base tables | 21 |
-| Columns | 175 |
-| Constraints | 243 |
-| Indexes | 60 |
-| Triggers | 17 |
-| Public functions | 43 |
-| RLS policies | 20 |
-| Tables with RLS enabled | 21 / 21 |
-| Supabase migration ledger rows | 30 |
+| Catalogue item | Count | Scope |
+|---|---:|---|
+| Public base tables | 21 | `public` |
+| Columns | 175 | `public` |
+| Constraints | 243 | All inspected catalogue schemas |
+| Constraints | 110 | The 21 public application tables |
+| Indexes | 60 | Public application tables |
+| Triggers | 17 | All inspected catalogue schemas, including managed/internal triggers |
+| Application-owned triggers | 11 | 10 public-table triggers plus the app-owned `auth.users` trigger |
+| Public functions | 43 | `public` |
+| RLS policies | 20 | `public` |
+| Tables with RLS enabled | 21 / 21 | `public` |
+| Supabase migration ledger rows | 30 | Production project |
 
 Every one of the 21 public tables has RLS enabled. The catalogue currently reports fewer policies than tables because some tables have no directly defined policy and rely on RPC/service-side access; this requires separate privilege and RPC review.
 

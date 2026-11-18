@@ -9,11 +9,13 @@
 
 ## Current repository inventory
 
-At branch `completion-work`, the repository contains **66 SQL files in `supabase/migrations`**:
-- 63 timestamped migration files.
+At branch `completion-work`, the repository contains **69 SQL files in `supabase/migrations`**:
+- 66 timestamped migration files.
 - 3 legacy/unversioned files: `0001_biddworld.sql`, `0002_place_bid_rpc.sql`, and `001_initial_schema.sql`.
-- One additional SQL audit script is outside the migration directory: `supabase/audit/production_migration_recovery.sql`.
-- Total repository SQL files: **67**.
+- The exact 30 historical Production migration bodies are archived separately under `supabase/audit/production-ledger/`.
+- One read-only SQL catalogue audit script is outside the migration directory: `supabase/audit/production_migration_recovery.sql`.
+- The clean-install candidate baseline is kept separately under `supabase/clean-install/`.
+- The 66 timestamped source migrations are partitioned into 50 ordered forward candidates and 16 excluded historical files.
 
 The empty `001_initial_schema.sql` and incompatible `0001_biddworld.sql` remain disqualified as a clean-install baseline.
 
@@ -89,15 +91,15 @@ Only required application dependencies should be represented in the clean-instal
 2. The auth.users trigger must be recreated only after the private signup function and all referenced public tables/functions exist. The trigger is app-owned even though it attaches to a Supabase-managed table.
 3. The 10 public feature-gate triggers must be recreated after their target tables and the final `private.enforce_feature_gate()` body exist.
 4. Preserve the private function ACLs: trigger functions are not client-callable; `private.place_bid(uuid)` is restricted to postgres/service_role and reached through the public invoker wrapper.
-5. Continue reconciling all 43 public functions, all 243 constraints, 60 indexes, 20 RLS policies, table/sequence grants, storage buckets/policies, and migration dependencies against source files.
+5. Reconcile all 43 public functions and four private functions; 110 constraints on the 21 public tables (243 constraints across all inspected catalogue schemas); 60 public indexes; 20 public RLS policies; table/sequence grants; Storage buckets/policies; and migration dependencies against source files.
 6. The repository migration directory is still not a canonical replayable baseline. Do not replay it wholesale to TEST or Production until dependency order and structural equivalence have been established.
 
 ## Checkpoint
 
 - Branch: `completion-work`
-- Verified HEAD: `e7050df1c973c6c73ce4ca6e94a84439a530c0f4`
+- Source checkpoint audited: `581de55a073e17df64e1aa3553c1d20da705d63a`.
 - No database writes or migration applications.
-- No build/tests run; final testing remains deferred until development is complete.
+- GitHub CI is source verification only; full clean-install replay and database integration tests remain deferred until development is complete.
 
 
 ## Storage catalogue reconciliation

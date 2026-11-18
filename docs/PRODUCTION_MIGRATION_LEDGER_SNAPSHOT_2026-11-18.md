@@ -50,12 +50,14 @@ The TEST project reports zero applied migrations.
 
 ## Repository comparison
 
-The current `completion-work` migration directory contains 49 SQL files: 46 timestamped and three legacy/unversioned files.
+The current `completion-work` migration directory contains 69 SQL files: 66 timestamped and three legacy/unversioned files. The clean-install partition currently assigns 50 timestamped files to the ordered forward manifest and 16 timestamped files to the explicit excluded-historical list; every timestamped file is accounted for exactly once.
 
-Two Production ledger entries are absent as source files and have no matching GitHub path history in this repository:
+Two Production ledger entries still have no same-named executable source file under `supabase/migrations`:
 
 - `20261114181107_sponsor_referral_validation_and_admin_management`
 - `20261114181114_admin_member_sponsor_listing`
+
+Their exact SQL text was subsequently recovered from Production's `supabase_migrations.schema_migrations` history and is preserved under `supabase/audit/production-ledger/`. Keep those files archival; do not automatically move them into the executable migration directory or replay them on top of the current Production baseline.
 
 Nine entries have recognizable source filenames but different version timestamps:
 
@@ -82,11 +84,11 @@ The remaining entries cannot be reconciled from migration names and versions alo
 
 1. Do not replay the repository migration directory as-is.
 2. Do not use `0001_biddworld.sql` as a baseline; its table/column contract is incompatible with the current Production schema.
-3. Do not fabricate the two missing historical migrations from their names.
+3. Do not fabricate or recreate historical migrations from their names; exact recovered bodies remain archival evidence under `supabase/audit/production-ledger/`.
 4. Do not mark ledger versions as applied to make the histories appear aligned.
-5. Recover exact historical SQL from a trustworthy source if available; otherwise document the unrecoverable gap and build a separately reviewed clean-install baseline from verified schema/function/policy/trigger/index/grant evidence.
+5. Use the recovered historical SQL archive as evidence when reviewing the current baseline; build a separately reviewed clean-install baseline from verified schema/function/policy/trigger/index/grant evidence.
 6. Replay only the curated baseline and forward migrations on TEST after it is complete. Keep Production read-only.
 
 ## What this snapshot proves — and does not prove
 
-It proves the exact 30 version/name rows currently reported by the Production migration catalogue and the zero-row TEST ledger at the time of inspection. It does not reveal the SQL body of any applied migration, establish that same-named files are equivalent, or certify that the current branch can be replayed from an empty database.
+It proves the exact 30 version/name rows reported by the Production migration catalogue and the zero-row TEST ledger at the time of inspection. The companion archive separately preserves the exact SQL text recovered for all 30 ledger versions. Neither the ledger nor the archive proves that the current branch can be replayed from an empty database; that still requires the curated baseline and ordered forward chain to be replayed and compared on isolated TEST.

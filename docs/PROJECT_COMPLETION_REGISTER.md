@@ -587,3 +587,10 @@
 - Reconciled the current migration directory against the clean-install forward manifest: 66 timestamped migration files are partitioned into 50 ordered forward candidates and 16 historical/source files already represented by the Production baseline.
 - Added an explicit excluded-historical manifest and a regression test requiring every timestamped migration to appear exactly once in either the forward or excluded list. The two missing Production ledger source files remain preserved only in the exact historical archive under `supabase/audit/production-ledger/`.
 - The 1,929-line Production schema baseline remains a candidate only. No TEST migration replay or Production write was performed; canonical clean-install status is not claimed.
+
+### 2026-11-18 — Clean-install partition CI verification and catalogue scope correction
+- GitHub Actions run #923 passed: 99/99 test files and 375/375 tests; TypeScript and Vite production build passed.
+- Added a machine-checked partition of the 66 timestamped source migrations: 50 forward candidates plus 16 explicitly excluded historical files, with every file accounted for exactly once.
+- Updated the Production catalogue documentation to distinguish 243 constraints across all inspected catalogue schemas from the 110 constraints on the 21 public application tables; clarified the 17 all-schema triggers versus 11 application-owned triggers.
+- Updated migration recovery documentation to reflect the exact 30 historical Production migration SQL bodies now archived under `supabase/audit/production-ledger/`. The two unrecoverable executable paths remain archival-only and are not copied into the executable migration directory.
+- Clean-install baseline remains a candidate only. No TEST migration replay or Production write was performed.
