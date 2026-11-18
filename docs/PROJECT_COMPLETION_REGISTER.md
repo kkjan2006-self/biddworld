@@ -765,3 +765,10 @@
 - Added `20261118370000_restrict_package_receipt_reads_to_admin.sql` to drop the permissive legacy SELECT policy and duplicate legacy INSERT policy, then retain one owner-folder-only member upload rule and one Admin-role-only read rule.
 - Added a regression source-contract test and included the migration in the clean-install forward manifest (60 candidates). Updated clean-install documentation.
 - Tests not run per the requested final-only testing phase. No Production or TEST database writes; policy behavior still requires isolated TEST replay and Storage API verification at final testing.
+
+
+### 2026-11-18 — Member placement tree includes Duplicate IDs
+- Source review found `get_my_placement_tree()` traversed only child rows with `id_type='main'`, omitting Duplicate IDs even though Duplicate IDs participate in placement and can be selected as Under IDs for subsequent placements.
+- Added `20261118380000_include_duplicate_ids_in_member_placement_tree.sql`: cycle-safe, depth-bounded traversal now includes Main and Duplicate nodes, and each returned node identifies its ID type and owning Main ID. The authenticated member's own Main ID remains the only root.
+- Added regression source-contract test; included migration in clean-install forward manifest (61 candidates) and updated README.
+- Tests not run per requested final-only testing phase. No Production or TEST database writes; runtime RPC validation remains part of final isolated TEST replay.
