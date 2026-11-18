@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` (verified present; latest verified HEAD `b3dd20395c115055b69c55af4e0eaef8b438e7d6`)
+- Current development branch: `completion-work` (verified present; latest verified HEAD `a6574cfdb85f416aa0b0cde1c8304a487af6e240`)
 - Latest verified source batch: Support-ticket direct INSERT/UPDATE and notification direct INSERT grants were revoked in forward candidate #67; member/Admin direct-read/RLS contracts for Account, Wallet, Packages, Notifications, Support and selected Admin/report components have now been source-reviewed. See `docs/FRONTEND_MEMBER_ADMIN_DIRECT_READ_RLS_REVIEW_2026-11-18.md`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8` (serialize Auction Bid eligibility with Main-ID lifecycle).
@@ -159,3 +159,5 @@ At every development batch/chat end, update this file with the actual verified b
 - Latest verified checkpoint before this documentation batch: `b3dd20395c115055b69c55af4e0eaef8b438e7d6`. Member/Admin direct-read and RLS review covers Account, WalletHistory, Packages, App catalogue/wallet summary, Referrals, PlacementTree, FixedBid, Notifications, Support, Admin dashboard and selected reports. No additional evidenced access defect found in this slice; full grant parity and effective policy verification remain pending for final TEST replay.
 
 - 2026-11-18 — Focused frontend direct-read/RLS reconciliation: checked profile self-read, wallet account/transaction owner policies, allowlisted member app_settings read, Packages feature switch, public catalogue and member-scoped RPC callers, notification owner read-state updates, Support owner/Admin reads, and Admin dashboard/report RPC-only data and mutation paths. No additional evidenced authorization defect found in this slice. Documented wallet CSV export's all-visible-rows client filtering as an efficiency enhancement, not an access-control defect. Added `docs/FRONTEND_MEMBER_ADMIN_DIRECT_READ_RLS_REVIEW_2026-11-18.md`. Static source review only; no tests/build/CI, SQL replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
+
+- Latest documentation checkpoint verified: `a6574cfdb85f416aa0b0cde1c8304a487af6e240`; protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f`. No Production or TEST access/writes.
