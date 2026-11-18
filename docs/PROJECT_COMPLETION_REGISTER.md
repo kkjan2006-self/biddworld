@@ -447,3 +447,11 @@
 - Corrected stale assertions to match current member selection, pending activation export, 20-level editor guard, referral draft validation, Fixed Bid server-side participation/idempotency, account refresh lifecycle and database-driven package activation gate.
 - Rebuilt the frontend RPC call-site inventory from the ten React surfaces: 67 unique literal RPC-and-surface entries. This is a source inventory only, not proof that all RPCs are deployed in Production.
 - No Supabase writes or migrations were run. Production remains read-only and TEST remains empty. This CI pass verifies repository source only; clean-install replay and live integration remain unverified.
+
+
+## 2026-11-18 — Production RPC/schema contract diff captured
+
+- Added `docs/PRODUCTION_FRONTEND_RPC_LIVE_DIFF_2026-11-18.md` from fresh read-only Production catalogue queries and the refreshed 67-name frontend RPC inventory.
+- Current comparison: 35 frontend RPC names exist in Production; 32 are absent. Confirmed live drift includes one-argument bidding and Duplicate ID functions, five-level live referral draft validation versus the source 1–20-level editor, a stale feature-setting implementation, and no configured Storage buckets.
+- Revalidated 21/21 public tables have RLS, 110 constraints, 60 indexes, 20 SELECT-only policies, 10 non-internal application triggers, and 43 SECURITY DEFINER public functions with explicit settings. TEST remains empty.
+- This is an evidence/reconciliation checkpoint, not a completed clean-install baseline. Production and TEST remain unmodified; no completion percentage increase is claimed.
