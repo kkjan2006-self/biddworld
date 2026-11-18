@@ -265,5 +265,5 @@
 - Confirmed the Member PlacementTree component calls `get_my_placement_tree()`, but no definition was found in the inspected SQL migration history. Added source migration `20261118220000_member_placement_tree_rpc.sql`.
 - The new SECURITY DEFINER RPC derives the caller's Main ID from their authenticated profile, returns the root plus descendants using `placement_parent_id`, prevents cycles, traverses duplicate IDs only as structural links, and displays Main IDs only. It returns the exact fields consumed by `PlacementTree.tsx`.
 - The RPC grants execution only to authenticated users and revokes PUBLIC/anon execution. No caller-supplied member ID is accepted.
-- Updated source SQL inventory: **64 files (3 legacy/unversioned + 61 timestamped)**. The migration is source-only; no SQL replay, tests, build, Production changes, or TEST changes were performed.
+- Updated source SQL inventory: **65 files (3 legacy/unversioned + 62 timestamped)**, confirmed by a fresh recursive Git tree inventory. The migration is source-only; no SQL replay, tests, build, Production changes, or TEST changes were performed.
 - Remaining work includes complete Admin RPC inventory reconciliation, full migration dependency/baseline reconstruction, and then isolated TEST replay plus final testing.
