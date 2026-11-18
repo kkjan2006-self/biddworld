@@ -364,3 +364,13 @@
 - Confirmed `0002_place_bid_rpc.sql` is not a valid substitute prerequisite because it uses legacy `user_id`/old bid columns and incompatible status contracts.
 - Updated the migration recovery archive README and reconciliation document. Preserve the historical SQL archive; do not overwrite source files or replay the legacy baseline as a shortcut.
 - No database writes, migration replay, build or tests.
+
+
+### 2026-11-18 — Full Production public-schema structural snapshot
+- Ran read-only catalogue queries against Production and captured the complete column/default definitions for all 21 public base tables (175 columns).
+- Captured all 110 table constraints (21 primary keys, 34 foreign keys, 11 unique constraints, 44 checks), all 60 indexes (34 unique), and all 20 RLS policies across 20 tables.
+- Captured direct table grants for API roles: authenticated has SELECT on 17 tables and no direct write grants; anon has no public-table grants. Application writes are intended to use audited/authorized RPC paths.
+- Recorded the only public sequence usage grants: `audit_logs_id_seq` currently grants USAGE to anon, authenticated, postgres and service_role. This is an observed state for later baseline review; no privileges were changed.
+- Confirmed no public views in `information_schema.views`.
+- Added `docs/PRODUCTION_PUBLIC_SCHEMA_STRUCTURAL_SNAPSHOT_2026-11-18.md` with full structural definitions and RLS/grant predicates. It is a documentation snapshot, not executable DDL.
+- No Production/TEST writes, no migrations, no tests or builds.
