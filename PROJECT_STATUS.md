@@ -115,3 +115,11 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 ## Status update rule
 
 At every development batch/chat end, update this file with the actual verified branch head, commit, completed/in-progress/pending items, testing status and next batch. Never downgrade completed source work without a documented regression/reopen reason. Never claim a GitHub commit, CI pass, migration replay or deployment without verifying it.
+
+## J. AI continuation documentation
+
+- Added `docs/AI_CONTINUATION_GUIDE.md` as the repository operating contract for future AI-assisted chats. It defines the source-of-truth hierarchy, mandatory new-chat startup, development-before-testing gate, Production/TEST boundaries, product scope, commit discipline and the compact Universal Master Prompt.
+- New chats should paste only the compact prompt in Section 10 of that guide; then read this status file, the guide, the relevant completion-register entries and focused audit documents before continuing.
+- Guide commit: `65194b9452a10de7f6d7a0527ef8c2b5ebd70dc3`.
+- This documentation-only batch did not change application source, SQL, Supabase, member or financial data. No tests, builds, CI workflows or database replay were initiated.
+- Existing planning estimate remains 55%; this documentation addition does not change development completion.
