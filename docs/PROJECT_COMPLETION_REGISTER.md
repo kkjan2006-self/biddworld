@@ -790,3 +790,10 @@
 - Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md` and corrected the current inventory in the clean-install README and Production audit documents. Earlier 48/56 forward and 72 timestamped counts are superseded by the current 61/16/77 inventory.
 - Latest GitHub Actions run #989 on commit `dd72209c1da51d7953da14245d6520431f03469c` failed at the test step: 105/106 files and 443/444 tests passed. The only failure is a stale source-string assertion in `tests/admin-package-activation-report-filters.test.ts`; type-check/build and Pages build were skipped. This automatic CI result is recorded for the consolidated final testing/repair phase; no manual tests were run.
 - No Production or TEST database writes, migrations, Storage changes, member actions, wallet transactions or payouts occurred. No overall completion percentage is claimed.
+
+
+### 2026-11-18 — Baseline function ACL/search-path static pass and repeated CI result
+- Scanned the baseline candidate's function and grant statements: 47 SECURITY DEFINER function definitions, 47 function-level search_path settings, 88 explicit EXECUTE grants across 42 function names, and schema-wide function revocations before grants. Three private helper functions have no direct client EXECUTE grant; `private.place_bid(uuid)` is service_role-only. All 11 app-owned triggers are defined after the functions they invoke.
+- Confirmed 38 table grant statements align with authenticated SELECT on 17 public tables and service_role access to all 21 public tables. These are source-level ACL observations, not runtime verification.
+- Latest completed CI at this checkpoint is run #996 on `f7274c13053ad593c3fa303560d0e4f06f51c42a`; it repeats the single stale assertion failure in `tests/admin-package-activation-report-filters.test.ts` (105/106 files, 443/444 tests). Build/type-check and Pages build were skipped. The failure remains deferred to the consolidated final test/repair phase.
+- No Production or TEST writes, no migration replay, no manual test execution, and no wallet or member activity.

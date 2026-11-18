@@ -58,6 +58,18 @@ The baseline has no Storage bucket or Storage object policy DDL. This matches th
 
 This is still a candidate, not a canonical approved executable migration. Static counts do not prove successful PostgreSQL replay, exact function-body equivalence or runtime authorization.
 
+
+### Function ACL and search-path pass
+
+A second static scan of the baseline SQL confirmed:
+- 47 function definitions, representing 45 distinct function names because the wallet-account and wallet-transaction list RPCs each have two overloads.
+- All 47 definitions are marked SECURITY DEFINER.
+- 47 function-level `SET search_path` clauses are present; the additional 48th search_path occurrence is the baseline session setting.
+- Two schema-wide function revocations reset PUBLIC/API execution before explicit grants. There are 88 explicit EXECUTE grant statements across 42 distinct public/private function names.
+- The three private trigger/activation helper functions `private.enforce_feature_gate()`, `private.handle_new_auth_user()` and `private.submit_package_activation(uuid,text)` receive no direct client EXECUTE grant. `private.place_bid(uuid)` is granted to `service_role`; the public wrapper remains the authenticated entry point.
+- 38 table grant statements correspond to authenticated SELECT grants on 17 public tables and service_role privileges on all 21 public tables.
+- The baseline defines all 11 app-owned triggers after the function definitions. This is a static ordering observation, not runtime permission verification.
+
 ## 3. Ordered migration dependency observations
 
 A source-level pass inspected all 61 forward migration files and their DDL/object references. These sequencing relationships are material:
@@ -90,7 +102,7 @@ The test file itself was read, not executed.
 
 ## 5. CI observation at this checkpoint
 
-GitHub Actions run #989 on the inspected branch head `dd72209c1da51d7953da14245d6520431f03469c` completed with failure:
+GitHub Actions run #996 on the inspected branch head `f7274c13053ad593c3fa303560d0e4f06f51c42a` completed with failure (runs #989–#996 repeated the same test failure):
 - 105/106 test files passed.
 - 443/444 tests passed.
 - The sole failure is `tests/admin-package-activation-report-filters.test.ts`, which expects the old literal expression `activationHistoryStatus==='all'?null:activationHistoryStatus`.
@@ -103,7 +115,7 @@ GitHub Actions run #989 on the inspected branch head `dd72209c1da51d7953da14245d
 - The full 61-migration sequence has not been replayed or proven to compile in PostgreSQL.
 - Function-body equivalence, grants, RLS, trigger behavior, Storage policies and frontend RPC integration remain unverified at runtime.
 - The final receipt-storage state depends on the entire ordered sequence through migration `20261118370000`.
-- Current branch CI #989 has one failing static assertion and no successful build step for that commit.
+- Current branch CI #996 has one failing static assertion and no successful build step for that commit.
 - Production remains read-only; TEST remains unchanged.
 
 ## 7. Next development work

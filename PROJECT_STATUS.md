@@ -8,8 +8,8 @@
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
 - Protected branch: `main` (do not modify)
-- Latest verified repository commit at this checkpoint: `bf4ab9afab25536f8a4a0972ca9327ce10256404`
-- Latest commit message: `docs: record clean-install static reconciliation checkpoint`
+- Latest verified repository commit at this checkpoint: `f7274c13053ad593c3fa303560d0e4f06f51c42a`
+- Latest commit message: `docs: clarify complete clean-install migration inventory`
 - Last updated: 2026-11-18
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
@@ -24,7 +24,7 @@ The following source/UI/documentation work is present in the current branch and 
 - Admin member/sponsor/duplicate-ID management, package/referral-plan drafts, product/media management UI, auction and Fixed Bid management, wallet ledger/adjustments, withdrawal review, winner/payment and delivery views, support queue, notification templates/send flow, Admin access/role management, platform health, audit logs, filters, pagination and CSV exports.
 - Source SQL includes wallet-first debit/idempotency patterns, referral draft versioning and commission calculation/post/reversal workflows, Duplicate ID placement and graph serialization, auction and Fixed Bid lifecycle/draw/refund/settlement workflows, withdrawal reservation/release/review, winner payment, support/notification idempotency, Admin wallet adjustment, receipt/media Storage policies, Admin role management and report RPCs.
 - Numerous static source-contract tests and migration/security audit documents exist. These are source artifacts; they do not prove that migrations are deployable or live.
-- Historical CI evidence: run #948 passed 102/102 test files and 431/431 tests, TypeScript check, Vite production build and GitHub Pages subpath build. The later latest run #989 on commit `dd72209c1da51d7953da14245d6520431f03469c` failed at the test step: 105/106 files and 443/444 tests passed; the only failure is a stale source-string assertion in `tests/admin-package-activation-report-filters.test.ts`. Type-check/build and Pages build were skipped. See `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`.
+- Historical CI evidence: run #948 passed 102/102 test files and 431/431 tests, TypeScript check, Vite production build and GitHub Pages subpath build. The later latest completed run #996 on commit `f7274c13053ad593c3fa303560d0e4f06f51c42a` failed at the test step: 105/106 files and 443/444 tests passed; the only failure is a stale source-string assertion in `tests/admin-package-activation-report-filters.test.ts`. Type-check/build and Pages build were skipped. See `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`.
 
 ## C. IN PROGRESS
 
@@ -52,7 +52,7 @@ The following source/UI/documentation work is present in the current branch and 
 - Production Storage currently has no configured buckets/policies according to the latest read-only audit, while source migrations define `product-media` and `package-receipts`.
 - Isolated TEST project was last verified empty (zero migrations/public tables/buckets). Keep it untouched until the canonical baseline has been reviewed.
 - No Production writes, migrations, data changes, wallet credits/debits, commissions, payouts or package activations are permitted in development.
-- CI: latest run #989 failed one static assertion (105/106 test files; 443/444 tests); type-check/build steps were skipped. The stale assertion is deferred to the consolidated final test/repair phase. Run #948 was a prior successful CI run, not the current state.
+- CI: latest completed run #996 failed one static assertion (105/106 test files; 443/444 tests); type-check/build steps were skipped. The stale assertion is deferred to the consolidated final test/repair phase. Run #948 was a prior successful CI run, not the current state.
 - No overall completion percentage is asserted. Development and testing completion must be tracked separately.
 
 ## F. DEVELOPMENT ROADMAP (Bulk Batches)
@@ -85,7 +85,7 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 ## I. CHANGE HISTORY
 
 - 2026-11-18 — Created this official recovery status file on `completion-work` after verifying the branch and reading the completion register. No application source or database was changed.
-- 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (77 timestamped + 3 legacy), exact 61-forward / 16-excluded partition, candidate baseline object counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest CI #989 failed one stale assertion; no manual testing or database replay.
+- 2026-11-18 — Clean-install static reconciliation: verified 80 SQL files (77 timestamped + 3 legacy), exact 61-forward / 16-excluded partition, candidate baseline object counts, function ACL/search_path counts, ordered replacement dependencies and final package-receipt Storage policy dependency. Added `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`; corrected historical inventory figures. Latest completed CI #996 failed one stale assertion; no manual testing or database replay.
 - Detailed development history, evidence and prior checkpoints: `docs/PROJECT_COMPLETION_REGISTER.md`.
 
 ## Status update rule
