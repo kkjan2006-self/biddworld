@@ -7,12 +7,14 @@
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
 - Current development branch: `completion-work` (verified present)
+- Latest verified source batch: Admin Notifications now supports searching Main ID/name/mobile and selecting a member instead of requiring the operator to know an Auth UUID. Added an Admin-only, bounded, SECURITY DEFINER lookup RPC with explicit EXECUTE grants; migration has not been applied.
 - Protected branch: `main` (do not modify)
-- Latest verified application/documentation work commit (before this status-only checkpoint): `cfca840519a09b585e96e398036d45f210a705d6`
+- Latest verified application/source work commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c` (Admin notification recipient lookup UI + Admin-only lookup RPC migration)
 - Work commit message: `docs: reconcile admin report and notification contracts`
 - This status file is the current branch recovery checkpoint; verify `completion-work` HEAD when resuming.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
 - Last updated: 2026-11-18
+- Overall project completion estimate: **55%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
 - Budget/hosting: free-tier only; no domain or hosting purchase during development
@@ -82,6 +84,8 @@ Start with the existing clean-install candidate and evidence, not a new audit fr
 2. Continue the 61-forward-migration semantic review, especially final function bodies, trigger references, grants and Storage policy state.
 3. Fix only evidenced source defects in bulk; do not infer missing business rules or change Production/TEST.
 4. Keep full tests and database replay deferred to the consolidated final testing phase.
+
+- Admin notification recipient usability: replaced manual Auth UUID entry with an Admin-only search by Main ID, member name or mobile, returning up to 25 Main ID matches and requiring an explicit selection. Added migration `20261118400000_admin_notification_recipient_lookup.sql`; no database was modified and no tests/build were run. Source commit: `5908a39bd9412d8fa3a974cc9df1df39c19ca03c`.
 
 ## I. CHANGE HISTORY
 
