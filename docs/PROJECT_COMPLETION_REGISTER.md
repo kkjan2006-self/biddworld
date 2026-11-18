@@ -471,3 +471,11 @@
 - Added explicit function/sequence ACL revocation before replaying observed grants, preventing PostgreSQL's default PUBLIC function EXECUTE privilege from weakening the captured access model.
 - This is a schema-only candidate, not a verified canonical migration chain. No migration was executed and no Production or TEST writes occurred. Final replay, comparison and all tests remain deferred until the consolidated testing phase.
 - Overall completion percentage remains unchanged; baseline replay and end-to-end integration are not yet verified.
+
+
+### 2026-11-18 — Referral commission ledger idempotency integrity
+- Hardened commission posting so a pre-existing credit idempotency key is accepted only when the ledger row matches the exact Income Wallet, credited Main ID, transaction type, direction, amount and commission reference.
+- Hardened reversal so the original credit ledger row must reconcile before reversal, and an existing reversal key must match the exact debit transaction before it is treated as a replay.
+- This prevents an unrelated wallet transaction with a colliding idempotency key from being mistaken for a posted commission or completed reversal.
+- Source migration only. No database migration, financial transaction, build or test was run; final consolidated testing remains deferred as requested.
+- Overall completion percentage is not increased for this isolated integrity hardening.
