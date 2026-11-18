@@ -356,3 +356,11 @@
 - Verified archive commit: `d872d6cb25d1931e5152e7f16e121a3f877fcfe5`.
 - This recovers the historical SQL evidence, but the canonical clean-install migration chain still needs dependency ordering, source-divergence reconciliation, complete schema-object comparison, and later source-only migration integration.
 - No Production/TEST writes, no migration replay, no build or tests.
+
+### 2026-11-18 — Historical migration semantic divergence check
+- Normalized the four same-version-prefix source files against the exact Production ledger SQL by removing comments and whitespace.
+- Three files (`20261114183412`, `20261114183454`, `20261115154433`) are semantically identical; their raw differences are comments/formatting.
+- One file (`20261114161950_secure_bid_rpc_and_signup_provisioning.sql`) differs materially: Production history moves an existing `public.place_bid(uuid)` into `private`, while the current source file creates/recreates the private implementation. The historical migration depends on a correct pre-ledger public function.
+- Confirmed `0002_place_bid_rpc.sql` is not a valid substitute prerequisite because it uses legacy `user_id`/old bid columns and incompatible status contracts.
+- Updated the migration recovery archive README and reconciliation document. Preserve the historical SQL archive; do not overwrite source files or replay the legacy baseline as a shortcut.
+- No database writes, migration replay, build or tests.
