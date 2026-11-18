@@ -34,8 +34,15 @@ begin
   raise exception 'A valid notification request key is required' using errcode='22023';
  end if;
  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(p_user_id::text||':'||v_key,0));
- select id into v_id from public.member_notifications where user_id=p_user_id and idempotency_key=v_key;
- if v_id is not null then return jsonb_build_object('success',true,'notification_id',v_id,'replayed',true); end if;
+ select id into v_id from public.member_notifications
+ where user_id=p_user_id and idempotency_key=v_key
+  and title=trim(p_title) and message=trim(p_message) and category=p_category;
+ if v_id is not null then
+  return jsonb_build_object('success',true,'notification_id',v_id,'replayed',true);
+ end if;
+ if exists(select 1 from public.member_notifications where user_id=p_user_id and idempotency_key=v_key) then
+  raise exception 'This notification request key was already used for different content' using errcode='23505';
+ end if;
  insert into public.member_notifications(user_id,title,message,category,idempotency_key)
  values(p_user_id,trim(p_title),trim(p_message),p_category,v_key)
  returning id into v_id;
