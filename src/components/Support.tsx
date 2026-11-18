@@ -81,14 +81,25 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   try{
    let userId:string|undefined;
    if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to export your support requests.');userId=user.id;}
-   const all:Ticket[]=[];const seenPages=new Set<string>();
-   for(let offset=0;offset<500*10000;offset+=500){
+   const all:Ticket[]=[];const seenPages=new Set<string>(),seenIds=new Set<string>();
+   for(let offset=0,pages=0;pages<10000;offset+=500){
+    pages+=1;
     let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
     if(userId)request=request.eq('user_id',userId);if(statusFilter!=='all')request=request.eq('status',statusFilter);
     const{data,error:loadError}=await request.range(offset,offset+499);if(loadError)throw loadError;
-    const batch=(data??[]) as Ticket[];if(batch.length<500){all.push(...batch);break;}const fingerprint=JSON.stringify(batch.map(ticket=>ticket.id));if(seenPages.has(fingerprint))throw new Error('The support export repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');seenPages.add(fingerprint);all.push(...batch);
+    const batch=(data??[]) as Ticket[];
+    if(batch.length===500){
+     const fingerprint=JSON.stringify(batch.map(ticket=>ticket.id));
+     if(seenPages.has(fingerprint))throw new Error('The support export repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');
+     seenPages.add(fingerprint);
+    }
+    for(const ticket of batch){
+     if(seenIds.has(ticket.id))throw new Error('The support export returned duplicate ticket IDs. Export stopped to avoid an inaccurate CSV. Please retry.');
+     seenIds.add(ticket.id);all.push(ticket);
+    }
+    if(batch.length<500)break;
+    if(pages===10000)throw new Error('The support export reached the 5,000,000-row safety limit. Narrow the status filter and retry.');
    }
-   if(all.length>=500*10000)throw new Error('The support export is too large for one request. Narrow the status filter and retry.');
    const q=search.trim().toLowerCase();const matched=all.filter(ticket=>!q||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(q)));
    if(!matched.length){setExportMessage('No matching support requests are available to export.');return;}
    const rows=[['Ticket ID','Member User ID','Subject','Message','Status','Admin Response','Created At','Updated At'],...matched.map(ticket=>[ticket.id,ticket.user_id,ticket.subject,ticket.message,ticket.status,ticket.admin_response??'',ticket.created_at,ticket.updated_at])];
