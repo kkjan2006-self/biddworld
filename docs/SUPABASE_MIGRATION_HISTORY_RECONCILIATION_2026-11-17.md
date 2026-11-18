@@ -132,3 +132,8 @@ A separate final-state baseline must be assembled from complete verified schema 
 The source tree now contains 55 SQL files (3 legacy/unversioned plus 52 timestamped). The six new timestamped feature migrations are documented in `docs/TEST_DATABASE_BOOTSTRAP_AUDIT_2026-11-17.md`. They add Fixed Bid entry/draw/settlement, package publication and referral commission calculation/posting/reversal, Admin withdrawal review and Income Wallet reservation/release, auction lifecycle/winner finalization/refunds, Admin wallet adjustments, and configurable minimum withdrawal validation.
 
 All six are source-only. Do not apply them to Production or to the empty TEST project until the reviewed clean-install baseline and dependency order are complete. The historical Production ledger reconciliation counts (30 entries; 4 exact matches, 9 name-only matches, 17 unrecovered filenames) are unchanged by these new source files.
+
+
+## 2026-11-18 — Current source inventory
+
+The latest branch tree contains 60 SQL files (3 legacy/unversioned plus 57 timestamped). Eleven new timestamped migrations dated 2026-11-18 have been added after the original 49-file inventory. Production ledger reconciliation remains 30 entries: 4 exact matches, 9 same-name/different-timestamp matches and 17 unrecovered historical filenames. The 11 new migrations are not applied to either database and do not alter that historical comparison. Build a canonical baseline and dependency review before any TEST replay.
