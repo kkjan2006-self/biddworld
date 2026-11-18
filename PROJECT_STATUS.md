@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest source checkpoint: `d5fe11c14695290189a0fbc5a78b3b4c3836be1a` (Support/notification idempotency retry hardening and PWA cache documentation alignment) (2026-11-18).
+- Current development branch: `completion-work` — latest verified branch checkpoint before this status refresh: `584c4fd1813166b752c20b9d5128c8e8475ea1ec` (Support/notification idempotency retry hardening and PWA cache documentation alignment) (2026-11-18).
 - Latest verified source batch: Fixed Bid public catalogue projection includes `max_entries_total` and `refund_non_winners` (forward #70); Placement Tree verifies Main-ID root ownership (forward #71); Admin notification history displays recipient Main ID/name through a bounded Admin-only RPC (forward #72); Admin pending activation receipt links now track their five-minute expiry and can be refreshed without reloading the queue; Support-ticket Admin updates now write one audit record through the row trigger rather than duplicating it in the RPC; Member Support retries retain a key only for unchanged payloads, and Admin notification fingerprints use an unambiguous JSON tuple. Latest source commits: receipt viewer `d938fc397a19cac7737079236ed3f69d41d33380`; support audit dedup migration `2648cc6e6260d83494e6299290f0c211f757137a`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `2648cc6e6260d83494e6299290f0c211f757137a` (single Audit Log writer for Admin support-ticket updates, preserving the existing `support.ticket_updated` action and `response_updated` detail contract).
