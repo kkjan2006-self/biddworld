@@ -199,3 +199,14 @@
 - Bumped the service-worker shell cache from v1 to v2 so the next deployment invalidates the prior cached shell.
 - Confirmed the current branch contains the PWA manifest, service worker and BiddWorld SVG icon. No PWA install/offline browser testing was run in this development-first phase.
 - No migrations or database writes were performed for this UI/PWA change.
+
+
+## 2026-11-18 — Bulk source hardening: lifecycle propagation and idempotent request integrity
+
+- Re-reviewed the 12 newest source-only migrations against the available Production schema snapshot and the existing package-review contract. No migration was replayed and no tests/build were run, consistent with the development-first sequence.
+- Fixed Main ID closure propagation: when an Admin closes a Main ID that was previously suspended, Duplicate IDs already suspended by that Main ID lifecycle are now also closed; manually suspended Duplicate IDs remain untouched.
+- Hardened support-ticket idempotency: reusing a request key with a different subject or message now fails instead of silently returning the earlier ticket.
+- Hardened notification idempotency: reusing a recipient-scoped request key with different title, message or category now fails instead of silently treating it as the same delivery.
+- Hardened wallet-adjustment idempotency: replay keys must also match the original reason, in addition to member, wallet, direction and amount.
+- Latest branch head: `e7050df1c973c6c73ce4ca6e94a84439a530c0f4` on `completion-work`. Changes remain source-only. Production remains read-only; TEST remains empty and untouched.
+- Remaining blockers are unchanged: historical migration reconstruction/canonical baseline, SQL dependency and schema compatibility review, missing frontend/backend RPC reconciliation, and final end-to-end testing after development is complete.
