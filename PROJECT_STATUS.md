@@ -6,15 +6,15 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` (verified present)
-- Latest verified source batch: Auction bid eligibility now serializes with Admin Main-ID lifecycle changes and rechecks active Main ID/Profile status after acquiring a shared per-member advisory lock. Added migration `20261118430000_serialize_auction_bid_member_eligibility.sql`; not applied to any database.
+- Current development branch: `completion-work` (verified present; starting HEAD for latest batch `52110d08561c1975470d056172368f4216135aab`)
+- Latest verified source batch: Member Main-ID lifecycle serialization now also covers Fixed Bid entries, withdrawal requests and both winner-payment RPCs. Added migration `20261118440000_serialize_member_financial_eligibility.sql` (forward candidate #66); source-only, not applied to any database.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `5f15127ec192bd04c0fcd0908e0bb441674daaa8` (serialize Auction Bid eligibility with Main-ID lifecycle).
 - Source commit message: `fix: serialize auction bid eligibility with member lifecycle`.
 - Latest verified source/documentation batch commits: `025ec6050f5846347d682025e2cd443feaabf5f7` (clean-install inventory correction), `74337c27b1646887f13340d4495147189f223e4e` (auction refund/delivery tracking review), `1d0103c623d207cfa1c2a24a19e7b78d0928b68e` (completion register).
 - Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`; verify branch HEAD on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
-- Last updated: 2026-11-18
+- Last updated: 2026-11-18 — member financial action lifecycle serialization batch
 - Overall project completion estimate: **55%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
@@ -92,8 +92,8 @@ The following source/UI/documentation work is present in the current branch and 
 
 1. Auction cancellation and Fixed Bid refund source paths have been reconciled against original debit ledger metadata and idempotency keys. Delivery Tracking table/RLS and Member/Admin RPC callers are reconciled. The missing Delivery Tracking transition graph is documented; do not invent terminal-state or return/re-shipment rules absent an approved product contract.
 2. Baseline function ACL source reconciliation: 43/43 public functions have authenticated EXECUTE and anon EXECUTE is limited to public.lookup_sponsor(text), matching the Production inventory. Candidate also grants service_role on all 43 public functions plus private.place_bid(uuid); live service_role parity is not captured. audit_logs_id_seq USAGE for anon/authenticated is unexplained. Do not change either grant without evidence. See docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md.
-3. Continue the 65-forward-migration semantic dependency review, including final function bodies, trigger references, function search_path, trigger order, extensions and sequence ownership.
-4. Continue remaining frontend RPC/direct-table RLS coverage and member/Admin lifecycle edge cases. Fix only evidenced defects in source migrations; do not run tests/builds or database replay before the 100% development gate.
+3. Continue the 66-forward-migration semantic dependency review, including final function bodies, trigger references, function search_path, trigger order, extensions and sequence ownership.
+4. Continue remaining frontend RPC/direct-table RLS coverage and member/Admin lifecycle edge cases. Fixed Bid entry, withdrawal request and both winner-payment RPCs now share the Admin Main-ID lifecycle advisory lock and recheck activity after acquiring it. Fix only evidenced defects in source migrations; do not run tests/builds or database replay before the 100% development gate.
 5. Reconcile dependency lockfile/security advisories and remaining notification provider boundary, PWA/offline source integration and operational readiness.
 6. Keep Production hbqatszyzqobgtauyuzy read-only and TEST yoaauthwejdgaevfvwpo unchanged. Consolidated tests/replay remain deferred.
 
@@ -147,3 +147,6 @@ At every development batch/chat end, update this file with the actual verified b
 
 
 - 2026-11-18 — Reviewed the 65-file forward migration chain in focused high-impact groups (Auth/signup, member graph, package/referral, financial guards, Fixed Bid/auction settlement, withdrawal, wallet, Storage receipts, notification, reports and public catalogues). No evidenced ordering defect was found in inspected dependencies; full PostgreSQL replay remains deferred. Reviewed lockfile v3 (228 packages): Vite 6.4.6 and @vitest/mocker 4.1.12 match published patched floors for current advisories; full npm audit remains pending. Corrected CI sequencing so pushes to completion-work do not automatically run tests/builds before development completion, and changed install to npm ci. Reviewed PWA registration, manifest and service-worker scope/cache boundaries; Android/offline verification remains pending. Added focused audit. No tests/build/CI run, npm install/audit or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
+
+
+- 2026-11-18 — Member Main-ID lifecycle concurrency review found four source paths that checked active Main-ID/Profile status without sharing the per-Main-ID advisory lock already used by Admin suspension/closure and auction bids: Fixed Bid entry, withdrawal request, auction winner payment and Fixed Bid winner payment. Added `20261118440000_serialize_member_financial_eligibility.sql` as forward candidate #66. Each path now acquires the same transaction lock and rechecks ownership/type/active status before campaign/payment processing, request insertion or wallet debit. Existing RPC signatures, idempotency, wallet rules, payout validation and grants are retained. Updated forward manifest to 66; inventory is now 82 timestamped (66 forward + 16 excluded) + 3 legacy = 85 SQL files. Added `docs/MEMBER_LIFECYCLE_FINANCIAL_ACTION_CONCURRENCY_REVIEW_2026-11-18.md`. No tests/build/CI, migration replay or database access/writes. Production and TEST untouched. Overall estimate remains 55%.
