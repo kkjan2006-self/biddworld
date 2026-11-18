@@ -25,7 +25,7 @@ begin
 
   -- Serialize this low-frequency Admin graph mutation before taking row locks.
   perform pg_catalog.pg_advisory_xact_lock(
-    pg_catalog.hashtextextended('biddworld.admin_create_duplicate_member_id', 0)
+    pg_catalog.hashtextextended('biddworld.member_id_graph_mutation', 0)
   );
 
   select coalesce((setting_value #>> '{}')::boolean,false) into v_enabled

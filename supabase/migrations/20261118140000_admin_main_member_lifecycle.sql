@@ -22,6 +22,7 @@ begin
  if length(trim(coalesce(p_reason,'')))<5 or length(p_reason)>500 then
   raise exception 'Provide a reason between 5 and 500 characters' using errcode='22023';
  end if;
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('biddworld.member_id_graph_mutation',0));
  select * into v_main from public.member_ids
  where upper(member_code)=upper(trim(p_member_code)) and id_type='main' for update;
  if not found then raise exception 'Main Member ID not found' using errcode='P0002'; end if;
@@ -44,8 +45,10 @@ begin
     and (status in ('active','pending') or (status='suspended' and main_status_managed));
   get diagnostics v_duplicate_count=row_count;
  elsif p_status='active' then
-  update public.member_ids set status='active',main_status_managed=false
-  where main_member_id=v_main.id and id_type='duplicate' and status='suspended' and main_status_managed;
+  update public.member_ids d set status='active',main_status_managed=false
+  where d.main_member_id=v_main.id and d.id_type='duplicate' and d.status='suspended' and d.main_status_managed
+    and exists(select 1 from public.member_ids parent where parent.id=d.placement_parent_id
+      and parent.status='active' and parent.owner_user_id is distinct from d.owner_user_id);
   get diagnostics v_duplicate_count=row_count;
  end if;
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)

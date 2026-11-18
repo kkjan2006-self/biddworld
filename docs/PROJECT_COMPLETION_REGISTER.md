@@ -522,3 +522,11 @@
 - Replaced the Account portal's unrelated review wording with a direct support/admin instruction for genuinely inactive accounts.
 - Added a focused static contract test. Source-only change; no registrations, database writes, builds or tests were run. Production and TEST remain unchanged.
 - No overall completion percentage increase is claimed for this UI consistency correction.
+
+### 2026-11-18 — Duplicate ID placement approval hardening
+- Removed the obsolete one-argument `admin_create_duplicate_member_id(text)` overload, which could create a pending Duplicate ID without an Under ID. The current two-argument placement RPC remains the sole creation contract.
+- Duplicate ID activation now requires an active owner Main ID, a non-null active placement parent, and a different parent owner. The existing closed-ID no-reactivation rule remains, and status changes are audited.
+- Unified the transaction-scoped advisory lock for Duplicate ID creation, Duplicate ID status changes, and Main ID lifecycle changes to serialize overlapping graph mutations.
+- Main ID reactivation now only auto-reactivates linked Duplicate IDs whose placement parent is still active and belongs to another member.
+- Added a focused source-contract test. Development-only migration; no database changes or tests/builds were executed. Production and TEST remain unchanged.
+- No overall completion percentage increase is claimed for this security hardening batch.
