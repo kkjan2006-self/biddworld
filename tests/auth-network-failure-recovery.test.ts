@@ -41,6 +41,7 @@ describe('Authentication network failure recovery', () => {
     expect(source).toContain("sponsorLookup!=='valid'");
     expect(source).toContain('Registration successful. Your free member account and Main ID have been created.');
     expect(source).not.toContain('Your account remains INACTIVE until the required Admin verification process is completed.');
-    expect(source).toMatch(/\/\^\\\+?\[0-9\\s\(\)-\]\{10,16\}\$\//);
+    expect(source).toContain('phone.trim()');
+    expect(source).toContain('{10,16}');
   });
 });

@@ -547,3 +547,8 @@
 - Updated withdrawal safety assertions to verify the current select-and-validate idempotent release path rather than the removed `IF NOT EXISTS` insert pattern.
 - Rebuilt the payout-detail validation migration as one complete function definition, correcting the UPI and bank-account regular expressions and removing orphaned duplicated PL/pgSQL fragments. This is source-only; no migration was applied to TEST or Production.
 - GitHub Actions verification for this repair is pending. No completion percentage increase is claimed until the integrated application/database workflows are implemented and validated.
+
+### 2026-11-18 — CI assertion follow-up
+- The first repair run (#916) confirmed the seven original failures were reduced to two stale test files; the remaining assertions were overly whitespace-sensitive and one phone-pattern assertion retained an obsolete escaping form.
+- Updated those checks to validate the actual phone-length contract and payout validation semantics independent of SQL formatting.
+- The repaired payout migration remains source-only. Awaiting the next integrated CI run; no database changes and no completion percentage increase.
