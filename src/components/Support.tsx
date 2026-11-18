@@ -7,7 +7,7 @@ type Ticket={id:string;user_id:string;subject:string;message:string;status:'open
 const PAGE_SIZE=100;
 
 export default function Support({isAdmin=false}:{isAdmin?:boolean}){
- const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>()),submitKey=useRef('');
+ const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>()),submitKey=useRef(''),submitKeyPayload=useRef('');
  const [tickets,setTickets]=useState<Ticket[]>([]);
  const [subject,setSubject]=useState('');
  const [message,setMessage]=useState('');
@@ -70,10 +70,12 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   try{
    const {data:{user},error:userError}=await supabase.auth.getUser();
    if(userError||!user)throw new Error('Please sign in again to submit a support request.');
+   const submissionPayload=JSON.stringify([subject.trim(),message.trim()]);
+   if(submitKeyPayload.current!==submissionPayload){submitKey.current='';submitKeyPayload.current=submissionPayload;}
    if(!submitKey.current){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);submitKey.current=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
    const {data:submitResult,error:insertError}=await supabase.rpc('member_submit_support_ticket',{p_subject:subject.trim(),p_message:message.trim(),p_idempotency_key:submitKey.current});
    if(insertError)throw insertError;
-   submitKey.current='';setSubject('');setMessage('');setNotice((submitResult as {replayed?:boolean}|null)?.replayed?'Your earlier support request was already recorded.':'Your support request has been submitted.');
+   submitKey.current='';submitKeyPayload.current='';setSubject('');setMessage('');setNotice((submitResult as {replayed?:boolean}|null)?.replayed?'Your earlier support request was already recorded.':'Your support request has been submitted.');
    await load();
   }catch(e){setError(e instanceof Error?e.message:'Your support request could not be submitted. Please retry.');}
   finally{submitBusy.current=false;setBusy(false);}
