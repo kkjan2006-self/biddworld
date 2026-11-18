@@ -627,3 +627,10 @@
 - CI run #933 passed: 102/102 test files and 423/423 tests; TypeScript check and Vite production build passed.
 - Hardened the Fixed Bid public catalogue time-window predicate with an explicit SQL CASE so ended campaigns do not evaluate timestamp casts for their configuration. Scheduled/live campaign timestamp validation remains strict.
 - Added a contract assertion for the branch-specific time-window behavior. A fresh CI run is pending.
+
+## 2026-11-18 — Production dependency audit gate
+
+- CI run #934 passed: 102/102 test files and 423/423 tests; TypeScript check and Vite production build passed.
+- The full dependency audit reported 12 high-severity and 0 critical findings, concentrated in the development/build toolchain dependency graph (including picomatch, chokidar, Tailwind, Vite and Vitest). Major-version changes are not being forced blindly.
+- Added a separate `npm audit --omit=dev --audit-level=high` CI gate and a retained production-only audit report. This distinguishes deployable runtime dependencies from dev tooling and blocks high/critical production dependency findings.
+- The all-dependency high findings remain an open security-remediation item before launch; no production package upgrades have been applied yet.
