@@ -24,16 +24,14 @@ export default function WalletHistory(){
  const [retryRequest,setRetryRequest]=useState(0);
  const [exportBusy,setExportBusy]=useState(false);
  const [exportMessage,setExportMessage]=useState('');
- const loadMoreBusy=useRef(false);
+ const loadMoreBusy=useRef(false),userScopeRef=useRef<string|null>(null);
 
  useEffect(()=>{
   if(!supabase){setLoading(false);return;}
   let active=true;let authEventObserved=false;
   const applyUserScope=(nextUserId:string|null)=>{
-   setUserId(current=>{
-    if(current!==nextUserId){setPage(0);setRetryPage(null);setRows([]);setHasMore(false);setError('');}
-    return nextUserId;
-   });
+   if(userScopeRef.current!==nextUserId){userScopeRef.current=nextUserId;setPage(0);setRetryPage(null);setRows([]);setHasMore(false);setError('');}
+   setUserId(nextUserId);
   };
   const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{
    authEventObserved=true;if(active)applyUserScope(session?.user?.id??null);
