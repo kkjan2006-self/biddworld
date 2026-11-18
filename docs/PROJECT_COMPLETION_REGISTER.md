@@ -1000,3 +1000,11 @@
 - Replaced full wallet CSV export offset pagination with the same composite cursor while retaining duplicate transaction ID detection and the export safety cap. Existing wallet, direction, transaction type, search and date filters continue to apply to exported rows.
 - Added `tests/wallet-history-keyset-pagination.test.ts` as a source-contract coverage; it was not executed.
 - No tests, build, QA, deployment or database operations were performed.
+
+
+### 2026-11-18 — Admin auction and Fixed Bid report keyset pagination
+
+- Replaced the current Auction Bid and Fixed Bid Entry report UI pagination and complete CSV export with dedicated cursor RPCs using stable descending `(created_at,id)` ordering.
+- Added forward migrations #74 and #75. Both RPCs enforce Admin authorization, bounded page size, paired cursor validation, empty search_path and explicit authenticated EXECUTE grants. Existing offset RPCs remain unchanged for compatibility.
+- Added source-contract tests for both report components and SQL contracts. The tests were not executed.
+- Updated the clean-install forward manifest to 75 forward + 16 excluded timestamped + 3 legacy SQL files (94 total). No tests/build/CI, database replay or database writes were performed. Production remains read-only and TEST remains untouched. Overall estimate remains 55% (Provisional).
