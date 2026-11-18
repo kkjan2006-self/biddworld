@@ -657,3 +657,8 @@
 - Bumped the service-worker shell cache to v3 so the prior v2 cache is removed on activation after the PNG icon update.
 - Added an explicit PWA test for the GitHub Pages `/biddworld/` base-path contract and a second CI build using `GITHUB_PAGES=true`. This validates the Pages subpath build without deploying or configuring hosting.
 - CI for the Pages subpath build is pending; real Android installation/offline verification remains part of final QA.
+
+### 2026-11-18 — Auction Bid report inventory follow-up
+- CI run #942 validated the new Admin auction bid report source coverage, but the explicit frontend RPC inventory surface allow-list did not yet include the new `AdminAuctionBidReport.tsx` component.
+- Added the component to the known UI surface list and refreshed the inventory snapshot commit. The SQL RPC, Admin integration and pagination/CSV implementation are unchanged.
+- A fresh CI run is pending.

@@ -10,6 +10,7 @@ const surfaces = [
   'src/App.tsx',
   'src/components/Account.tsx',
   'src/components/Admin.tsx',
+  'src/components/AdminAuctionBidReport.tsx',
   'src/components/FixedBid.tsx',
   'src/components/Notifications.tsx',
   'src/components/Packages.tsx',
