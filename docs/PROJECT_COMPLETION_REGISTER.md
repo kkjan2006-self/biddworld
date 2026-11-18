@@ -400,3 +400,10 @@
 - The recursive genealogy follows Sponsor Referral links between Main IDs only, has a 20-level traversal ceiling and cycle protection. Search and depth filters apply to the displayed genealogy; summary totals remain whole-team totals.
 - The RPC is authenticated, read-only, SECURITY DEFINER with an explicit empty search_path; public/anon execution is revoked and authenticated execution granted.
 - Not applied to Production or TEST. No build/tests run; no data writes.
+
+
+### 2026-11-18 — Member withdrawal privacy and settings RLS audit
+- Read-only comparison found that live Production `member_list_my_withdrawals()` still returns the complete payout_details JSON, while the checked-in `20261116170000_minimize_member_withdrawal_payout_data.sql` returns only the payout method needed by the member UI.
+- Read-only comparison found that live Production `app_settings_read_scoped` does not yet allow members to read `package_activations_enabled` and `minimum_withdrawal_amount`; checked-in `20261118240000_member_public_feature_settings_read.sql` adds both keys while preserving privileged role visibility.
+- Both fixes are already in source migrations. Recorded the live Production/source divergence and the required TEST validation in `docs/MEMBER_WITHDRAWAL_PRIVACY_AND_SETTINGS_RLS_AUDIT_2026-11-18.md`.
+- No Production or TEST changes, no migration execution, no build or tests.
