@@ -347,3 +347,12 @@
 - Compared with branch source: `product-media` is declared by `20261116020000_admin_product_management_and_media.sql`; `package-receipts` is declared by `20261118150000_package_receipt_uploads.sql`. Both are source-only and not installed in Production.
 - Recorded the exact intended access controls and file restrictions in the Production private-schema/trigger reconciliation document. Treat Storage as a confirmed Production deployment gap; do not create buckets or policies in Production during this development phase.
 - No Production/TEST writes, migration replay, build or tests.
+
+
+### 2026-11-18 — Exact Production migration SQL history recovered
+- Queried the Production `supabase_migrations.schema_migrations` ledger read-only and recovered the exact stored SQL statements for all 30 applied migration versions.
+- Compared the ledger against the current repository migration directory: 4 same-version files had divergent contents, 9 same-name files had matching SQL but different timestamp prefixes, and 17 ledger migration names had no same-name source file.
+- Archived all 30 exact historical SQL statements under `supabase/audit/production-ledger/` (30 SQL snapshots + README). This is an evidence archive outside `supabase/migrations/`; it is not automatically executable by Supabase CLI and does not overwrite current source.
+- Verified archive commit: `d872d6cb25d1931e5152e7f16e121a3f877fcfe5`.
+- This recovers the historical SQL evidence, but the canonical clean-install migration chain still needs dependency ordering, source-divergence reconciliation, complete schema-object comparison, and later source-only migration integration.
+- No Production/TEST writes, no migration replay, no build or tests.
