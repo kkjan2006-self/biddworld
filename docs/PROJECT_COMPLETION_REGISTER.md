@@ -772,3 +772,10 @@
 - Added `20261118380000_include_duplicate_ids_in_member_placement_tree.sql`: cycle-safe, depth-bounded traversal now includes Main and Duplicate nodes, and each returned node identifies its ID type and owning Main ID. The authenticated member's own Main ID remains the only root.
 - Added regression source-contract test; included migration in clean-install forward manifest (61 candidates) and updated README.
 - Tests not run per requested final-only testing phase. No Production or TEST database writes; runtime RPC validation remains part of final isolated TEST replay.
+
+
+### 2026-11-18 — Filterable complete package activation history export
+- Extended the Admin Reports package activation section beyond the pending-only queue export. Administrators can now export the complete activation history with payment-status (pending / approved / rejected / refunded), text search and inclusive submission-date filters.
+- The status filter is passed to the Admin-only paginated RPC; search/date filters are applied across all fetched pages before CSV generation. The existing pending-only report remains separate and clearly labelled.
+- Added regression assertions for the complete-history filter contract. Tests intentionally not run until the final testing phase. No Production or TEST database changes.
+- Source commits: `ea86ea7f0f2b591d7a908e9c820fcf86cec2bbbc` (Admin UI) and `8f958924453442a194350d5974cf28afba494c65` (regression coverage).
