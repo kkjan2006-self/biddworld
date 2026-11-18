@@ -557,3 +557,11 @@
 - CI run #918 passed 95/96 test files (the only remaining failure was an over-specific assertion that omitted the deliberate JSON null-type guard's `coalesce(..., 'null')` wrapper).
 - Updated the assertion to verify the complete fail-closed type check. The payout validation migration itself now has one complete function definition and both format patterns include their end anchors.
 - Awaiting CI run #919 for the final test/type-check/build result. No database migration was executed.
+
+## 2026-11-18 — CI verification restored and withdrawal profile guard strengthened
+
+- GitHub Actions run [#919](https://github.com/kkjan2006-self/biddworld/actions/runs/44241327288) passed on commit `ea2082e4fecd747621d2726f37cfb9f0d1285d05`: 96/96 test files and 362/362 tests passed; TypeScript project build/type-check and Vite production build passed.
+- Follow-up source review found that the member withdrawal RPC and Admin approval workflow checked the active Main ID but did not independently require the linked member profile to be active, although the Member UI already checks both.
+- Updated the member request RPC to require an active profile and Main ID, and Admin approval to lock/check the linked profile and Main ID together before reserving Income Wallet funds.
+- Added regression assertions for both server-side checks. Source-only; no TEST or Production database writes or migration replay.
+- The next CI run is pending. No completion percentage increase is claimed.

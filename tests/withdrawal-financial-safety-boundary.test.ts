@@ -38,6 +38,9 @@ describe('Withdrawal workflow authorization and ledger safety', () => {
     expect(workflow).toContain('where id=p_request_id for update');
     expect(workflow).toContain("setting_key='withdrawals_enabled'");
     expect(workflow).toContain("wallet_type='income'");
+    expect(workflow).toContain('join public.profiles p');
+    expect(workflow).toContain("and p.status='active'");
+    expect(workflow).toMatch(/for share of m,\s*p/);
     expect(workflow).toContain("v_key:='withdrawal:'||v_request.id::text||':reserve'");
     expect(workflow).toContain("v_key:='withdrawal:'||v_request.id::text||':release'");
     expect(workflow).toContain("where idempotency_key='withdrawal:'||v_request.id::text||':reserve'");

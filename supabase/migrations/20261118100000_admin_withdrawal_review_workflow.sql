@@ -29,9 +29,18 @@ begin
   select coalesce((setting_value#>>'{}')::boolean,false) into v_enabled
   from public.app_settings where setting_key='withdrawals_enabled';
   if not coalesce(v_enabled,false) then raise exception 'Withdrawals are currently disabled' using errcode='55000'; end if;
-  select * into v_member from public.member_ids
-  where id=v_request.member_id and id_type='main' and status='active' for share;
-  if not found then raise exception 'Withdrawal must belong to an active Main ID' using errcode='55000'; end if;
+  select m.* into v_member
+  from public.member_ids m
+  join public.profiles p
+    on p.id=m.owner_user_id and p.main_member_id=m.id
+  where m.id=v_request.member_id
+    and m.id_type='main'
+    and m.status='active'
+    and p.status='active'
+  for share of m, p;
+  if not found then
+   raise exception 'Withdrawal must belong to an active member profile and Main ID' using errcode='55000';
+  end if;
   select * into v_wallet from public.wallet_accounts
   where member_id=v_request.member_id and wallet_type='income' for update;
   if not found or v_wallet.balance<v_request.amount then

@@ -100,7 +100,8 @@ begin
   select p.main_member_id
   into v_member
   from public.profiles p
-  where p.id = v_uid;
+  where p.id = v_uid
+    and p.status = 'active';
 
   if v_member is null or not exists (
     select 1
@@ -110,7 +111,7 @@ begin
       and m.id_type = 'main'
       and m.status = 'active'
   ) then
-    raise exception 'An active Main ID belonging to this account is required' using errcode = '42501';
+    raise exception 'An active member profile and Main ID belonging to this account are required' using errcode = '42501';
   end if;
 
   select balance
