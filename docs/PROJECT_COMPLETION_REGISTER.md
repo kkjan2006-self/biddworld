@@ -168,3 +168,16 @@
 - Per the requested development-first sequence, no manual tests, build, migration replay, E2E or mobile checks were run in this batch. Automated checks may be triggered by GitHub on pushed commits; their results have not been reviewed here.
 - Known outstanding development remains: receipt-upload workflow, complete historical reports/CSV coverage, admin role/permission lifecycle, member lifecycle controls, complete notification provider delivery, full frontend/backend RPC reconciliation, and canonical clean-install baseline. All new SQL must be included in that baseline after dependency review.
 - No overall percentage is claimed as 100%; the source implementation has advanced materially, but integration and final verification remain outstanding.
+
+
+## 2026-11-18 — Bulk source development continuation
+
+- Added `20261118140000_admin_main_member_lifecycle.sql`: Admin Main ID active/suspended/closed workflow, profile status synchronization, and controlled propagation/restoration for linked Duplicate IDs using an explicit management marker. Admin UI now exposes audited Main ID lifecycle controls.
+- Added `20261118150000_package_receipt_uploads.sql`: private `package-receipts` Storage bucket, member-owned upload paths, Admin-only review access, 5 MB JPG/PNG/PDF constraints, receipt path on package activation, and signed Admin receipt links. Member activation form source now supports optional receipt upload while the existing activation lock remains unchanged.
+- Added `20261118160000_primary_admin_role_management.sql`: only the designated Primary Admin account can grant/revoke trusted Admin app_metadata roles for existing accounts; prevents Primary Admin demotion and last-Admin removal, with audit records. Admin Access UI now exposes the controlled workflow.
+- Added `20261118170000_support_ticket_idempotency_admin_audit.sql`: idempotent member support submission and Admin-only audited response/status RPC. Support UI now uses those server-side RPCs instead of direct ticket inserts/updates.
+- Added `20261118180000_notification_delivery_idempotency.sql`: idempotent Admin in-app notification send RPC with recipient/category validation and audit record. Notifications UI now uses this RPC.
+- Expanded Admin reports with complete paginated Duplicate ID and referral commission CSV exports, plus package configuration export.
+- Current repository migration inventory verified from the branch tree: **60 SQL files (3 legacy/unversioned + 57 timestamped)**. All 11 new `20261118` migrations remain source-only.
+- No Production or TEST database writes, schema changes, migration replay, real-member tests or wallet transactions were performed. No manual tests/build/mobile/E2E checks were run in this development-first batch.
+- Remaining source work includes a trustworthy clean-install baseline, full package activation and receipt integration after owner-controlled enablement, complete archival reports for all activation statuses, notification read/write audit coverage, remaining frontend/backend RPC contract fixes, and final PWA/security integration. Final full testing remains deliberately deferred until development is complete.
