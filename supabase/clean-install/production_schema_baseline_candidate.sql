@@ -1834,8 +1834,6 @@ grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on table pub
 revoke all on all functions in schema public from public, anon, authenticated, service_role;
 revoke all on all functions in schema private from public, anon, authenticated, service_role;
 revoke all on all sequences in schema public from public, anon, authenticated, service_role;
-grant USAGE on sequence public.audit_logs_id_seq to anon;
-grant USAGE on sequence public.audit_logs_id_seq to authenticated;
 grant USAGE on sequence public.audit_logs_id_seq to service_role;
 grant execute on function public.admin_create_duplicate_member_id(text) to authenticated;
 grant execute on function public.admin_create_duplicate_member_id(text) to service_role;
