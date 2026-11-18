@@ -41,14 +41,8 @@ export default function AdminFixedBidEntryReport(){
    const fetched=(data??[]) as FixedBidEntryRow[];
    const batch=fetched.slice(0,PAGE_SIZE);
    cursorRef.current=batch.length?{created_at:batch[batch.length-1].created_at,id:batch[batch.length-1].entry_id}:cursor;
-   let added=batch.length;
-   setRows(current=>{
-    if(reset){added=batch.length;return batch;}
-    const known=new Set(current.map(row=>row.entry_id));
-    const fresh=batch.filter(row=>!known.has(row.entry_id));
-    added=fresh.length;
-    return [...current,...fresh];
-   });
+   const added=reset?batch.length:batch.filter(row=>!rows.some(existing=>existing.entry_id===row.entry_id)).length;
+   setRows(current=>reset?batch:appendUnique(current,batch));
    if(fetched.length>PAGE_SIZE&&added===0){
     setHasMore(false);
     setError('The Fixed Bid entry report returned a repeated page. Refresh the report before loading more.');
