@@ -27,7 +27,7 @@ Ordered forward candidates are listed in `forward-migrations.txt` (57 files at t
 1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive.
 2. Reconcile trigger functions, trigger order, extension dependencies and identity sequence ownership.
 3. Review every forward migration dependency and any repeated object replacement.
-4. Storage bucket/policy migrations are now included in the forward set; final TEST replay and access verification remain pending.
+4. Storage bucket/policy migrations and the Admin pending-queue receipt-path integration are included in the forward set; final TEST replay and access verification remain pending.
 5. At the final testing phase, replay only on TEST and compare schema, functions, RLS, grants and Storage; then run synthetic-data integration tests.
 6. Never apply this candidate to Production.
 
