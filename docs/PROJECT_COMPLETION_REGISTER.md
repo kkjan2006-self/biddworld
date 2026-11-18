@@ -941,3 +941,12 @@
 - Updated `tests/member-placement-tree-duplicate-ids.test.ts` with source-contract assertions for root ownership and retained RPC grants. The test was not run.
 - Updated the forward manifest and clean-install inventory to 71 forward + 16 excluded timestamped + 3 legacy = 90 SQL files (87 timestamped).
 - Source-only development. No tests/build/CI, migration replay or database writes. Production remains read-only and TEST remains untouched.
+
+
+### 2026-11-18 — Admin notification history recipient labels
+
+- Reviewed the current Admin and Member notification flows. Admin recipient search already resolves Main ID/name/mobile through `admin_lookup_notification_recipients(text)`; notification sending already uses the idempotent Admin-only in-app delivery RPC.
+- Found the Admin history still displayed the raw Auth UUID as its recipient label. Added forward candidate #72, `20261119020000_admin_notification_history_recipient_labels.sql`, with Admin-only `admin_list_member_notifications_page(integer,integer,text)`. It returns bounded 100-row pages, validates category filters and offset bounds, uses an empty `search_path`, verifies the Admin app_metadata role, joins Main ID/display name and has explicit grants.
+- Updated `src/components/Notifications.tsx` so Admin history uses the new RPC for initial and load-more pages and shows Main ID/name; Member inbox and owner-only read-state updates remain unchanged.
+- Added `tests/admin-notification-history-page.test.ts` and extended `tests/notification-inbox-actions.test.ts` with source-contract assertions. Tests were not executed.
+- Forward manifest and clean-install README updated to 72 forward + 16 excluded timestamped + 3 legacy = 91 SQL files (88 timestamped). Source-only work; no tests/build/CI, migration replay or database writes. Production remains read-only and TEST remains untouched.
