@@ -1,7 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {Gavel,Package,RefreshCw,ShieldCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
-import {escapeLikePattern} from '../lib/like-pattern';
 import {money} from '../lib/format';
 
 type CampaignConfig={
@@ -35,11 +34,8 @@ export default function FixedBid(){
   if(reset){requestInFlight.current=false;setLoading(true);setError('');setRows([]);setHasMore(false);}else{setLoadingMore(true);setError('');}
   try {
    if(!supabase){if(mounted.current&&request===requestId.current){setRows([]);setHasMore(false);setError('Supabase is not configured.');}return;}
-   let query=supabase.from('fixed_bid_campaigns').select('id,title,description,status,created_at,configuration,product:products(name,description,category,image_path)').in('status',['scheduled','live','ended']).order('created_at',{ascending:false}).order('id',{ascending:false});
-   if(status!=='all')query=query.eq('status',status);
-   if(searchTerm.trim())query=query.ilike('title',`%${escapeLikePattern(searchTerm.trim())}%`);
    const offset=reset?0:rows.length;
-   const {data,error}=await query.range(offset,offset+PAGE_SIZE-1);
+   const {data,error}=await supabase.rpc('public_list_fixed_bid_campaigns_page',{p_search:searchTerm.trim()||null,p_status:status,p_limit:PAGE_SIZE,p_offset:offset});
    if(error)throw error;
    if(!mounted.current||request!==requestId.current)return;
    const batch=(data??[]) as unknown as Campaign[];

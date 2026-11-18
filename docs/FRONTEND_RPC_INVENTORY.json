@@ -272,6 +272,10 @@
       "ui": "src/App.tsx"
     },
     {
+      "name": "public_list_fixed_bid_campaigns_page",
+      "ui": "src/components/FixedBid.tsx"
+    },
+    {
       "name": "submit_package_activation_with_receipt",
       "ui": "src/components/Packages.tsx"
     }
