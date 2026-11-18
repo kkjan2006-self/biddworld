@@ -39,8 +39,9 @@ export default function FixedBid(){
    if(error)throw error;
    if(!mounted.current||request!==requestId.current)return;
    const batch=(data??[]) as unknown as Campaign[];
-   setRows(current=>{if(reset)return batch;const known=new Set(current.map(row=>row.id));return [...current,...batch.filter(row=>!known.has(row.id))];});
-   setHasMore(batch.length===PAGE_SIZE);
+   let added=batch.length;
+   setRows(current=>{if(reset)return batch;const known=new Set(current.map(row=>row.id));const fresh=batch.filter(row=>!known.has(row.id));added=fresh.length;return [...current,...fresh];});
+   setHasMore(batch.length===PAGE_SIZE&&(reset||added>0));
   } catch {
    if(mounted.current&&request===requestId.current)setError(reset?'Fixed Bid campaigns could not be loaded. Please retry.':'More campaigns could not be loaded. Please retry.');
   } finally {
