@@ -60,7 +60,7 @@ returns trigger
 language plpgsql security definer set search_path=''
 as $function$
 declare
- v_plan_id uuid; v_member_id uuid; v_rule record; v_ancestor record; v_amount numeric(14,2);
+ v_plan_id uuid; v_member_id uuid; v_rule record; v_ancestor record; v_amount numeric(14,2); v_commissions_enabled boolean:=false;
 begin
  if new.payment_status<>'approved' or new.activation_status<>'active'
    or (old.payment_status='approved' and old.activation_status='active') then
@@ -120,6 +120,11 @@ begin
     v_ancestor.credited_main_member_id,v_amount,'pending');
   end if;
  end loop;
+ select coalesce((setting_value#>>'{}')::boolean,false) into v_commissions_enabled
+ from public.app_settings where setting_key='referral_commissions_enabled';
+ if coalesce(v_commissions_enabled,false) then
+  perform public.admin_post_referral_commissions(new.id);
+ end if;
  return new;
 end;
 $function$;
