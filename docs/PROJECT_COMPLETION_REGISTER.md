@@ -407,3 +407,10 @@
 - Read-only comparison found that live Production `app_settings_read_scoped` does not yet allow members to read `package_activations_enabled` and `minimum_withdrawal_amount`; checked-in `20261118240000_member_public_feature_settings_read.sql` adds both keys while preserving privileged role visibility.
 - Both fixes are already in source migrations. Recorded the live Production/source divergence and the required TEST validation in `docs/MEMBER_WITHDRAWAL_PRIVACY_AND_SETTINGS_RLS_AUDIT_2026-11-18.md`.
 - No Production or TEST changes, no migration execution, no build or tests.
+
+
+### 2026-11-18 — Admin wallet transaction RPC overload ambiguity fixed in source
+- Compared Admin.tsx's `admin_list_wallet_transactions({p_limit,p_offset})` call with live Production signatures and recovered source migration.
+- Confirmed the wallet-wide overload accepts `p_limit,p_offset`, while the wallet-specific overload also had a defaulted `p_wallet_account_id = NULL`. Both therefore match the same named PostgREST argument set and can produce an ambiguous RPC resolution.
+- Updated `20261118230000_recover_admin_read_rpc_sources.sql` so the wallet-specific overload requires `p_wallet_account_id`; its remaining pagination parameters keep defaults. Existing wallet-wide Admin call now has one unambiguous match, while wallet-specific callers can still supply the account ID.
+- Source-only correction. Production and TEST databases were not changed; no build or tests were run. Validate overload resolution on the isolated TEST project after clean-install baseline is prepared.
