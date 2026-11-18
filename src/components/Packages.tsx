@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Gift, RefreshCw, ShieldCheck, Upload } from 'lucide-react';
+import { Gift, RefreshCw, ShieldCheck } from 'lucide-react';
 import { configured, supabase } from '../lib/supabase';
 import { money } from '../lib/format';
 
