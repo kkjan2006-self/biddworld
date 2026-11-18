@@ -430,3 +430,11 @@
 - Confirmed `001_initial_schema.sql` is empty and `0002_place_bid_rpc.sql` is a legacy implementation using the old wallet schema.
 - Read-only isolated TEST catalogue check: no public tables, public functions, migration-history table or Storage buckets; no migrations applied.
 - Documented that the current folder is not yet a validated clean-install sequence and recorded remediation paths. No schema was changed; no Production/TEST writes, no builds or tests.
+
+
+## 2026-11-18 — CI assertion alignment with current feature contracts
+
+- Inspected the latest `completion-work` head and GitHub Actions run #893 logs. The two current failures were stale source assertions: the package test expected a removed hard-coded lock constant, and the withdrawal test expected a read-only queue that had since been replaced by a server-authorized Admin review workflow.
+- Updated the package regression test to verify fail-closed database feature-setting behavior, conditional activation form rendering, receipt upload/RPC wiring, proposed-only wallet credit display, and continued free registration.
+- Updated withdrawal regression coverage to verify the database feature interlock, trusted-Admin RPC usage, row locking, Income Wallet reservation, idempotent release, audit logging, and member payout-data minimization.
+- Changes are committed to `completion-work`; GitHub Actions verification for the new head is pending. No TEST or Production database writes were made. No completion percentage increase is claimed from test-only changes.
