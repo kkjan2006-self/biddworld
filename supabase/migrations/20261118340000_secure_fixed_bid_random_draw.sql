@@ -13,6 +13,7 @@ declare
  v_winner_entries uuid[]:='{}'; v_winner_members uuid[]:='{}';
  v_entry record; v_payment_amount numeric(14,2); v_refund boolean:=false;
  v_refund_count integer:=0; v_debit record; v_wallet public.wallet_accounts%rowtype; v_new_balance numeric(14,2); v_debit_total numeric(14,2);
+ v_refund_key text; v_existing public.wallet_transactions%rowtype;
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -59,7 +60,7 @@ begin
   for v_entry in
    select id,member_id,bid_amount,idempotency_key from public.fixed_bids
    where campaign_id=p_campaign_id and status in ('submitted','accepted')
-    and not (member_id=any(v_winner_members))
+    and not (id=any(v_winner_entries))
    order by id
   loop
    v_debit_total:=0;
