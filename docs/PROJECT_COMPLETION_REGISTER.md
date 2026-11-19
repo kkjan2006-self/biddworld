@@ -1730,3 +1730,11 @@
 - Added source-contract checks in `tests/admin-member-detail-search-selection.test.ts`; authored, not executed.
 - Commits: Admin UI `d39fd2d646ddc3e737f7f093a723fb7597866160`; regression contract `fee444afb8becfabcdc165729a3883d91ab010f8`.
 - No tests/build/type-check/browser/mobile QA, migrations, DB writes, Production access, deployment or protected `main` changes.
+
+
+## 2026-11-19 — Duplicate placement ownership alignment
+
+- Fixed automatic Duplicate-ID BFS slot selection so it skips the owner's own Main ID and owner-linked Duplicate IDs as placement parents. Only active parent IDs belonging to another member are eligible, aligning auto-placement with the existing approval guard while retaining traversal within the owner's Main-ID placement tree.
+- Added migration `20261119340000_exclude_owner_ids_from_duplicate_placement.sql`, forward-migration manifest entry, and source-contract regression test `tests/automatic-duplicate-placement-owner-guard.test.ts`.
+- Commits: migration `9199443`; regression contract `e12ab87`; manifest `2faed2d`.
+- Source-only change; no tests/build/type-check/browser/mobile QA, migration application, DB writes, Production access, deployment or protected `main` changes.
