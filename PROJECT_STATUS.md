@@ -1300,7 +1300,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member history UI `4b586721e1842d5bbb125bc4b7f528d7666fedc7`; member history migration `8bd890f7e54e34e1394107cffa6d528c462b1f73`; member history test `0fc47e89e0be629882a4b4af31456fc26124b445`; anon catalogue RLS/column grants `460182be64d3dda0ba17e7424d4697c1f494d902`; gallery column grant `8721d20970b8972987a6b2245c6ee24d9a2b9216`; updated tests `82e7d9e0bbce28a820dee7d5ebc296602d0626d1`, `07b6bdb632e77143fc74e517fb30af1e7d426172`.
 - Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
 - Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
-- Source development estimate: **97% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
+- Source development estimate: **98% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
 
 
 ## 2026-11-19 — Mandatory package receipt and current migration inventory
@@ -1438,3 +1438,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Commit: workflow `75063753211ce5a32e8c615f2049b9ba849b5c52`; regression source `b04898dcb5becb4383dfaa615811b8881741cf0c0`.
 - No deployment was triggered; no TEST/Production database change; `main` remains untouched.
 - Overall source development estimate remains **94% provisional**; final integration reconciliation remains open.
+
+
+## 2026-11-19 — Current-head RPC and RLS source contract delta
+
+- Updated the Admin and Member RPC/RLS audit documents with the current source-only contracts for paged product moderation/history, paged wallet-funding and withdrawal histories, complete product galleries, duplicate pending-product prevention, mandatory package receipts, Matrix commission actions and current feature settings.
+- Documented the published-product anon RLS/column grant correction, private product-image ownership, public image publication, and the separate Supabase Auth Confirm Email environment boundary.
+- Statically compared the 14 visible Admin feature keys against the settings response, server allowlist and enabled-key set; no mismatch remains in that contract.
+- Current migration inventory: 124 forward + 16 excluded = 140 timestamped migrations; all source paths are accounted for, unique and sorted.
+- This is source/documentation reconciliation only. No tests/build/type-check, SQL replay, Supabase reads/writes, Preview deployment or browser/Android verification.
+- Source development estimate: **98% provisional**; final whole-branch frontend/RPC and baseline semantic review remains open.
