@@ -121,7 +121,7 @@ function loadMoreFixedBids(){return loadHistoryPage<FixedBidRow>('fixedBids',fix
 function loadMoreCommissions(){return loadHistoryPage<CommissionRow>('commissions',commissions.length,100,(client,id,from,to)=>client.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),rows=>setCommissions(current=>appendUniqueRows(current,rows)));}
 async function loadMoreMatrixCommissions(){
  if(!supabase||!profile?.main_member_id||matrixHistoryBusy.current||!matrixHistoryHasMore)return;
- const request=loadRequest.current,memberId=profile.main_member_id;matrixHistoryBusy.current=true;setMatrixHistoryLoading(true);setError('');
+ const request=loadRequest.current;matrixHistoryBusy.current=true;setMatrixHistoryLoading(true);setError('');
  try{
   const offset=matrixCommissions.length;
   const {data,error}=await supabase.rpc('member_list_my_matrix_commissions_page',{p_limit:100,p_offset:offset});
@@ -133,7 +133,7 @@ async function loadMoreMatrixCommissions(){
   setMatrixCommissions(current=>[...current,...data as MatrixCommissionRow[]]);
   setMatrixHistoryHasMore(data.length===100);
  }catch(e){if(request===loadRequest.current&&loadMounted.current)setError(e instanceof Error?e.message:'Could not load more Matrix commission history.');}
- finally{matrixHistoryBusy.current=false;if(request===loadRequest.current&&loadMounted.current)setMatrixHistoryLoading(false);}
+ finally{if(request===loadRequest.current&&loadMounted.current){matrixHistoryBusy.current=false;setMatrixHistoryLoading(false);}}
 }
 function loadMoreWinningPayments(){return loadHistoryPage<WinningPayment>('winningPayments',winningPayments.length,100,(client,id,from,to)=>client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),async(rows,client)=>{const ids=rows.map(row=>row.id);let deliveryRows:DeliveryRow[]=[];if(ids.length){const {data,error}=await client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',ids).order('updated_at',{ascending:false}).order('id',{ascending:false});if(error)throw error;deliveryRows=(data??[]) as DeliveryRow[];}setWinningPayments(current=>appendUniqueRows(current,rows));setDeliveries(current=>appendUniqueRows(current,deliveryRows));});}
 function createWinnerPaymentKey(){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
