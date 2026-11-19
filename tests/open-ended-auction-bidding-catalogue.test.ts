@@ -29,5 +29,7 @@ describe('open-ended Expected Price auction lifecycle',()=>{
   expect(ui).toContain('function auctionTimeLabel');
   expect(ui).toContain('Open until expected price is reached');
   expect(ui).toContain('Starts in');
+  expect(ui).toContain("auction.status!=='scheduled'||!auction.starts_at");
+  expect(ui).toContain('window.setTimeout(()=>setRefresh(value=>value+1),delay)');
  });
 });
