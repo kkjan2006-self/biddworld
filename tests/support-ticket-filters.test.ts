@@ -14,6 +14,10 @@ describe('support queue filters',()=>{
   expect(source).toContain('Status is filtered on the server before pagination; text search applies to loaded records.');
   expect(source).toContain('No loaded support requests match these filters.');
  });
+ it('distinguishes an initial support load failure from an empty queue and offers retry',()=>{
+  expect(source).toContain('error&&tickets.length===0');
+  expect(source).toContain('Retry loading support requests');
+ });
  it('retains bounded 100-row pagination and owner/Admin RLS notice',()=>{
   expect(source).toContain('const PAGE_SIZE=100;');
   expect(source).toContain('Load 100 more requests');
