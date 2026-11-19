@@ -1,17 +1,22 @@
 name: Deploy BiddWorld preview and build GoDaddy package
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      confirm_production_deployment:
+        description: 'Explicitly approve a Production deployment from the protected main branch.'
+        required: true
+        type: boolean
+        default: false
 permissions:
   contents: read
   pages: write
   id-token: write
 concurrency:
-  group: github-pages
-  cancel-in-progress: true
+  group: biddworld-production-deployment
+  cancel-in-progress: false
 jobs:
   build:
+    if: github.ref == 'refs/heads/main' && inputs.confirm_production_deployment == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -59,6 +64,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
   deploy:
+    if: github.ref == 'refs/heads/main' && inputs.confirm_production_deployment == true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
