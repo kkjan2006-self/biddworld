@@ -864,3 +864,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added regression contract. Commits: component `691ff9f`, test `190ed8a`, register `83181de7bf4026fa5b47422efe0cd62c70366245`.
 - No tests/build/type-check/browser/mobile QA run; no TEST/Production database changes. Protected `main` unchanged.
 - Overall development estimate: **69% provisional**.
+
+
+## Latest checkpoint — Sponsor and Under ID display separation
+
+- Member Account dashboard/profile now displays Main ID Under ID / Placement Parent separately from Sponsor Member ID. Root placement is labelled explicitly; Duplicate ID cards retain their own Under ID.
+- Sponsor genealogy, Placement Tree, and Matrix Under ID commission history remain distinct. Added UI contract test.
+- Commits: UI `d346f515`, contract `26cf980`, register `9458ca4a82d40108ed4938a9aa1455fbdc5649b4`.
+- No tests/build/type-check/browser/mobile QA run; no TEST/Production data or migrations changed. Protected `main` unchanged.
+- Overall development estimate: **70% provisional**.
