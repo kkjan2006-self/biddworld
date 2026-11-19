@@ -73,7 +73,7 @@ drop function if exists public.admin_list_auctions();
 create function public.admin_list_auctions()
 returns table(auction_id uuid,product_id uuid,title text,description text,image_url text,category text,
  currency text,starting_price numeric,current_price numeric,minimum_increment numeric,starts_at timestamptz,
- ends_at timestamptz,expected_price numeric,status text,product_name text)
+ ends_at timestamptz,expected_price numeric,target_reached_at timestamptz,status text,product_name text)
 language plpgsql stable security definer set search_path=''
 as $function$
 begin
@@ -81,7 +81,7 @@ begin
   raise exception 'Administrator access required' using errcode='42501';
  end if;
  return query select a.id,a.product_id,a.title,a.description,a.image_url,a.category,a.currency::text,
-  a.starting_price,a.current_price,a.minimum_increment,a.starts_at,a.ends_at,a.expected_price,a.status,p.name
+  a.starting_price,a.current_price,a.minimum_increment,a.starts_at,a.ends_at,a.expected_price,a.target_reached_at,a.status,p.name
  from public.auctions a join public.products p on p.id=a.product_id order by a.created_at desc;
 end;$function$;
 revoke all on function public.admin_list_auctions() from public,anon;
