@@ -56,9 +56,17 @@ export default function WalletHistory(){
     const {data,error:qError}=await query.limit(100);
     if(!active)return;
     if(qError)throw qError;
-    const batch=(data??[]) as Tx[];let added=batch.length;
+    if(!Array.isArray(data??[]))throw new Error('The wallet history response was invalid. Refresh and retry.');
+    const batch=(data??[]) as Tx[];
+    const pageIds=new Set<string>(),knownIds=new Set(page===0?[]:rows.map(row=>row.id));
+    for(const row of batch){
+     if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('The wallet history contains an invalid transaction record. Refresh before continuing.');
+     if(pageIds.has(row.id)||knownIds.has(row.id))throw new Error('The wallet history returned duplicate transaction IDs. Refresh before loading more.');
+     pageIds.add(row.id);
+    }
+    let added=batch.length;
     if(batch.length){const last=batch[batch.length-1];pageCursor.current={created_at:last.created_at,id:last.id};}
-    setRows(current=>{if(page===0)return batch;const known=new Set(current.map(row=>row.id));const fresh=batch.filter(row=>!known.has(row.id));added=fresh.length;return [...current,...fresh];});setHasMore(batch.length===100&&(page===0||added>0));setRetryPage(null);
+    setRows(current=>page===0?batch:[...current,...batch]);setHasMore(batch.length===100&&(page===0||added>0));setRetryPage(null);
    }catch(e){if(active){if(page>0)setRetryPage(page);setError(e instanceof Error?e.message:'Transaction history could not be loaded. Please retry.');}}
    finally{if(active){loadMoreBusy.current=false;setLoading(false);setLoadingMore(false);}}
   }
