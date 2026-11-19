@@ -1670,3 +1670,12 @@
 - Full findings and safe resolution requirements: `docs/SCHEMA_BASELINE_AUDIT.md`.
 - Commit: `a76de56db1183a54ade8525a4278bd9be0450e69`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+
+
+## TEST migration baseline verification — 2026-11-19
+
+- Corrected the earlier source-only baseline warning using read-only TEST evidence: TEST uses `biddworld_clean_install_schema_baseline`, has 89 applied migration entries, and the core member/activation/wallet/audit columns match the current schema model.
+- TEST's latest applied source migration is `20261119170000_admin_open_ended_auction_status`. The 14 subsequent branch migrations from `20261119180000` through `20261119320000` remain unapplied there; Matrix plan/commission tables are consequently not yet present.
+- Updated `docs/SCHEMA_BASELINE_AUDIT.md` to supersede the initial legacy-baseline concern. No database writes or migrations were performed; Production was not queried.
+- Audit correction commit: `177916ef85ec82488dcdd6029c1b77d67e1bcfd3`.
+- No tests/build/type-check/browser/mobile QA run.
