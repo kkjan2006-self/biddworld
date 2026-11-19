@@ -31,4 +31,11 @@ describe('Automatic Duplicate ID placement RPC contract',()=>{
   expect(migration).toContain('insert into public.audit_logs');
   expect(migration).toContain('grant execute on function public.admin_create_duplicate_member_id(text) to authenticated');
  });
+
+ it('contains one complete Duplicate ID RPC definition without orphaned SQL fragments',()=>{
+  expect((migration.match(/create or replace function public\\.admin_create_duplicate_member_id\\(/g)||[])).toHaveLength(1);
+  expect(migration.trimEnd()).toMatch(/grant execute on function public\\.admin_create_duplicate_member_id\\(text\\) to authenticated;$/);
+  expect(migration).not.toMatch(/^\\s*\\)\\)\\)/m);
+  expect(migration).not.toMatch(/^\\s*order by t\\.depth,t\\.path,slot\\.position\\s*$/m);
+ });
 });
