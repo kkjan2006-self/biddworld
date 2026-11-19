@@ -1053,3 +1053,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added source-contract coverage in `tests/admin-package-referral-directory-integrity.test.ts`. Commits: Admin source `7e778c4602163866222fc0fe26b62077a2872395`; contract test `e50e3e11d05fce1646add8d94c62e1d72f338709`.
 - Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database reads or writes, migrations, Preview deployment, or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** (not runtime verified).
+
+## 2026-11-19 — Admin Auction and Fixed Bid directory integrity
+
+- Replaced unchecked casts for Admin Auction Products, Auctions and Fixed Bid campaign list responses with strict runtime parsers. The parsers validate bounded arrays, unique IDs, required names/statuses, nullable text fields, auction prices/increments and optional lifecycle timestamps, plus Fixed Bid configuration objects and campaign timestamps.
+- Malformed data now clears only the affected module and adds a module-specific warning; the rest of the Admin workspace can still load. Existing auction/product/campaign actions and RPC contracts are unchanged.
+- Added source-contract coverage in `tests/admin-auction-fixed-bid-directory-integrity.test.ts`.
+- Commits: Admin UI `a01ec4b7d91b18f2c37ec9ee740a5aff880c1f2c`; regression source `4d817c3bf007daa8c61478e9700bb0e69d8abc67`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database access or writes, migrations, Preview deployment or protected `main` changes occurred.
+- Overall development completion remains **71% provisional**.
