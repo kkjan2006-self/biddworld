@@ -465,3 +465,10 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - [x] Member OLX-style product submission form, private image uploads, owner-scoped history, Admin approval/rejection queue, signed private image previews, and publication into the existing public catalogue are now implemented in source.
 - [x] Source-only migration `20261119440000_member_product_submission_moderation.sql` is registered in the clean-install forward migration manifest.
 - [ ] Apply and validate the migration only in the isolated TEST database during the final testing phase; do not use Production for this task.
+
+
+## Member product editing — development source added (2026-11-19)
+
+- [x] Members can edit and resubmit their own Pending or Rejected product submissions. Existing private images can be retained or replaced; corrected submissions return to Pending Admin review.
+- [x] Added owner-scoped RPC migration `20261119450000_member_product_submission_editing.sql`, registered in the clean-install forward manifest, plus source-only regression coverage.
+- [ ] Apply and validate the migration only in the isolated TEST database during the final testing phase; do not use Production for this task.
