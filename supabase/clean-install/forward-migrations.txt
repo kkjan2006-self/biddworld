@@ -1,8 +1,3 @@
-# Ordered forward migration candidates after the Production snapshot (2026-11-18)
-# Historical Production migrations are represented by the baseline candidate.
-# Do not replay the historical chain or the excluded duplicate audit-log migration.
-# Review dependencies and replay only on isolated TEST during final testing.
-
 supabase/migrations/20261115190000_member_profile_self_service.sql
 supabase/migrations/20261115203000_member_identity_summary.sql
 supabase/migrations/20261115220000_inactive_until_verified_package_activation.sql
@@ -124,5 +119,4 @@ supabase/migrations/20261119490000_member_product_submission_keyset_pagination.s
 supabase/migrations/20261119500000_require_package_activation_receipt.sql
 supabase/migrations/20261119510000_member_wallet_funding_history_pagination.sql
 supabase/migrations/20261119520000_member_withdrawal_history_pagination.sql
-supabase/migrations/20261119530000_remove_email_verification_switch.sql
 supabase/migrations/20261119530000_remove_email_verification_switch.sql
