@@ -1549,3 +1549,14 @@
 - Source migration `20261119300000_automatic_duplicate_matrix_placement.sql` is registered in the forward migration manifest.
 - No database migration or tests/build/typecheck/browser QA were executed. No database data was changed.
 - Remaining: Under ID Matrix commission calculation, atomic Main-ID Income Wallet credit with Duplicate source attribution, reports/dashboard integration, then final QA.
+
+
+## 2026-11-19 — Under ID Matrix commission engine
+
+- Fixed the SQL regex syntax defect in the automatic Duplicate placement migration.
+- Added a separate Matrix commission engine that traverses the Under ID placement chain, independently of Sponsor Referral relationships. It stores the actual source ID and credited Main ID separately; Duplicate ID ancestors are attributed as the source while their owner Main ID Income Wallet receives the credit.
+- Added transaction-safe/idempotent posting, ledger-backed reversal, Admin audit entries and paginated source-aware reporting. Direct commission-table access is revoked.
+- Added a Matrix commission feature setting that defaults OFF and remains locked in the Admin UI until the complete workflow is ready.
+- Added `tests/matrix-commission-engine.test.ts` and `docs/MATRIX_COMMISSION_ENGINE_2026-11-19.md`; registered the migration in the clean-install manifest.
+- Commits: migration `7c56bdaffbb5fa364f377a40d9b8d1e2e49ad624`; setting gate `3bde0d8a00d116becb764db80670eaf177318911`; UI locked state `56fca0fa28527917f55d11bf04e609ee05835b41`; manifest `8a7b01a8a7d4133e4ba41d3ebb501ee0560dddad`; tests `70af94aab1320e02b23836a27780744002a6e7f3`.
+- Test source was authored but not executed. No typecheck/build/browser QA, TEST migration or Production change occurred.
