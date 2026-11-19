@@ -920,3 +920,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: migration `02e193d`; contract test `4ab3dce`; manifest `bd5ab33`.
 - Source-only. No tests/build/type-check/browser/mobile QA, TEST/Production migration, database writes, deployment or protected `main` changes.
 - Overall development completion remains **69% provisional**.
+
+## Duplicate ID insert-trigger OLD-record safety — 2026-11-19
+
+- Hardened the database trigger that enforces `duplicate_ids_enabled`: it now branches on `TG_OP` before reading `OLD`, avoiding an unassigned-record access on INSERT.
+- INSERTs of Duplicate IDs and UPDATEs that convert another ID type into `duplicate` still acquire the shared graph lock and fail closed when the feature is OFF. Unrelated updates and existing Duplicate IDs remain unaffected.
+- Added migration `20261119360000_fix_duplicate_toggle_trigger_insert_record.sql`, regression contract `tests/duplicate-id-toggle-trigger-old-record.test.ts`, and clean-install manifest registration.
+- Commits: migration `d936ad3`; test `b5c9a4b`; manifest `01376a4`.
+- Source-only. No tests/build/type-check/browser/mobile QA, database migrations, database writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
