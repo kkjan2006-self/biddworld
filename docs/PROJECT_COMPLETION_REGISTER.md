@@ -1713,3 +1713,11 @@
 - Added source-contract coverage in `tests/member-sponsor-under-id-separation.test.ts`; authored but not executed under the final-testing gate.
 - Commits: Account UI `324c34572a43064aee56c64796648e08d5c65049`; contract test `92d011b138f247d19012c77f226f660df7587394`.
 - No tests/build/type-check/browser/mobile QA, Supabase migrations/writes, Production access, deployment or protected `main` changes.
+
+
+## 2026-11-19 — Placement Tree Under ID labels
+
+- Extended the authenticated Placement Tree RPC response with each node's actual `placement_parent_code`; Member UI now displays **Under ID** and uses **Root placement** for the Main ID root.
+- Registered source migration `20261119330000_member_placement_tree_parent_labels.sql` in the clean-install forward list and added source-contract coverage to `tests/member-placement-tree-duplicate-ids.test.ts`.
+- Commits: migration `57a79146c8b6b1e74ee23be540a9101223fe6b8a`; UI `6aba7b418763b88735f100794314a6d94b342487`; manifest `d9045fb35c86f65a81e42a38c7b08f943cb5d4e0`; test `28d134838f5e559fe48dc440fc0ffe95f82a114c`.
+- Test source was authored but not executed. No migrations applied, no database writes, Production access, deployment or protected `main` changes.
