@@ -11,11 +11,13 @@ begin
   -- When Starting Price already equals Expected Price, the clock begins at scheduled start.
   v_target_time:=new.starts_at;
  elsif new.status='live' and (new.starts_at is null or new.starts_at<=clock_timestamp()) then
-  if tg_op='UPDATE' and (
-    (old.current_price<new.expected_price and new.current_price>=new.expected_price)
-    or (old.expected_price is distinct from new.expected_price and new.expected_price<=new.current_price)
-  ) then
-   v_target_time:=clock_timestamp();
+  if tg_op='UPDATE' then
+   if (old.current_price<new.expected_price and new.current_price>=new.expected_price)
+      or (old.expected_price is distinct from new.expected_price and new.expected_price<=new.current_price) then
+    v_target_time:=clock_timestamp();
+   else
+    v_target_time:=coalesce(new.starts_at,clock_timestamp());
+   end if;
   else
    v_target_time:=coalesce(new.starts_at,clock_timestamp());
   end if;
@@ -273,3 +275,7 @@ end;
 $function$;
 revoke all on function public.public_list_active_auctions_page(integer,integer) from public,anon,authenticated;
 grant execute on function public.public_list_active_auctions_page(integer,integer) to anon,authenticated;
+revoke all on function private.place_bid(uuid,text) from public,anon,authenticated;
+revoke all on function public.place_bid(uuid,text) from public,anon;
+grant execute on function public.place_bid(uuid,text) to authenticated;
+comment on function public.place_bid(uuid,text) is 'Authenticated idempotent bidding entry point; supports open-ended auctions and atomically debits Bid Wallet before Income Wallet.';
