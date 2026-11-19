@@ -1333,3 +1333,13 @@
 - **TEST database state exception:** during this continuation, migration application calls were made against `yoaauthwejdgaevfvwpo`, despite the recovery instruction to keep TEST untouched until final testing. The current Supabase migration ledger reports 89 entries: the schema baseline plus the 87 files in the forward manifest, with `20261118230000_recover_admin_read_rpc_sources` recorded twice under separate ledger versions (88 unique names). This was an unintended deviation from the stated process. No further TEST migrations or data changes are to be made during development. Do not delete ledger rows or attempt rollback automatically; reconcile the duplicate and verify the resulting schema deliberately during the authorized final QA phase.
 - Production project `hbqatszyzqobgtauyuzy` was not written to. No member, wallet, package, payment, bid, withdrawal or other application rows were intentionally created or changed by these migration calls.
 - No tests, type-check, app build, browser/device QA or functional test data checks were run as part of this checkpoint. Overall development estimate remains **60% provisional**; no completion increase is justified.
+
+
+## 2026-11-19 — Registration email verification default (#88)
+
+- The current source default contradicted the owner's explicit requirement that email verification is not required: the app initialized the policy to true and migration #78 seeded true.
+- Updated the Member signup client fallback to false, so a temporarily unavailable policy RPC does not reintroduce mandatory confirmation behavior.
+- Added forward migration #88 to set `email_verification_required=false` for existing and clean-install environments and change the public policy RPC's missing-setting fallback to false. The Admin override remains available; provider-level Supabase Auth Confirm Email must independently remain OFF.
+- Added `tests/registration-email-verification-default.test.ts` as source-contract coverage; not executed.
+- Updated the forward manifest and clean-install README. No tests, build, type-check, browser/device QA, migration replay, Supabase writes or deployment were performed. Production remains read-only; no TEST writes were performed. Protected `main` remains untouched.
+- Overall development completion remains **60% Provisional**; this source correction does not establish migration replay or runtime verification.
