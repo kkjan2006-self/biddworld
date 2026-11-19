@@ -10,6 +10,10 @@ type MatrixCommissionRow={
  amount:number;status:'pending'|'credited'|'reversed';created_at:string;has_more?:boolean;
 };
 const PAGE_SIZE=100;
+type MatrixSummary={total_count:number;total_amount:number;pending_count:number;pending_amount:number;credited_count:number;credited_amount:number;reversed_count:number;reversed_amount:number};
+const emptySummary:MatrixSummary={total_count:0,total_amount:0,pending_count:0,pending_amount:0,credited_count:0,credited_amount:0,reversed_count:0,reversed_amount:0};
+function validSummary(value:unknown):value is MatrixSummary{if(!value||typeof value!=='object')return false;const row=value as Record<string,unknown>;return Object.keys(emptySummary).every(key=>Number.isFinite(Number(row[key]))&&Number(row[key])>=0);}
+const formatINR=(value:number)=>'₹'+Number(value).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const validStatuses=['pending','credited','reversed'] as const;
 function validRow(value:unknown):value is MatrixCommissionRow{
  if(!value||typeof value!=='object')return false;
@@ -31,6 +35,9 @@ export default function AdminMatrixCommissions(){
  const [status,setStatus]=useState('all'),[level,setLevel]=useState('all'),[search,setSearch]=useState('');
  const [loading,setLoading]=useState(false),[more,setMore]=useState(false),[hasMore,setHasMore]=useState(false);
  const [message,setMessage]=useState(''),[exportBusy,setExportBusy]=useState(false);
+ const [summary,setSummary]=useState<MatrixSummary>(emptySummary),[summaryLoading,setSummaryLoading]=useState(true),[summaryError,setSummaryError]=useState('');
+ const loadSummary=useCallback(async()=>{if(!supabase){setSummaryError('Supabase is not configured.');setSummaryLoading(false);return;}setSummaryLoading(true);setSummaryError('');try{const {data,error}=await supabase.rpc('admin_get_matrix_commission_summary');if(error)throw error;if(!validSummary(data))throw new Error('The Matrix summary response was invalid.');setSummary(data);}catch(e){setSummaryError(e instanceof Error?e.message:'Could not load the overall Matrix summary.');}finally{setSummaryLoading(false);}},[]);
+ useEffect(()=>{void loadSummary();},[loadSummary]);
  const fetchPage=useCallback(async(offset:number,filterStatus:string,filterLevel:string)=>{
   if(!supabase)throw new Error('Supabase is not configured for this environment.');
   const {data,error}=await supabase.rpc('admin_list_matrix_commissions_page',{
@@ -91,7 +98,7 @@ export default function AdminMatrixCommissions(){
  const total=filtered.reduce((sum,row)=>sum+Number(row.amount),0);
  return <section className="sponsorAdmin" aria-label="Matrix commission report">
   <div className="memberReportHeading"><div><h3>Matrix Commission Register</h3><small>Independent Under ID placement-chain commissions. Duplicate IDs remain visible as source IDs; their linked Main ID receives the Income Wallet credit.</small></div>
-   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="outline small" disabled={loading||more} onClick={()=>void load(true)}><RefreshCw size={14}/> Refresh</button><button type="button" className="outline small" disabled={exportBusy||loading||rows.length===0} onClick={()=>void exportAll()}><ArrowDownToLine size={14}/>{exportBusy?'Preparing…':'Export complete CSV'}</button></div>
+   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="outline small" disabled={loading||more} onClick={()=>{void load(true);void loadSummary();}}><RefreshCw size={14}/> Refresh</button><button type="button" className="outline small" disabled={exportBusy||loading||rows.length===0} onClick={()=>void exportAll()}><ArrowDownToLine size={14}/>{exportBusy?'Preparing…':'Export complete CSV'}</button></div>
   </div>
   {message&&<div className="notice" role="status">{message}</div>}
   <div className="sponsorAdminForm">
@@ -99,7 +106,9 @@ export default function AdminMatrixCommissions(){
    <label>Status<select value={status} onChange={e=>setStatus(e.target.value)}><option value="all">All statuses</option><option value="pending">Pending</option><option value="credited">Credited</option><option value="reversed">Reversed</option></select></label>
    <label>Matrix level<select value={level} onChange={e=>setLevel(e.target.value)}><option value="all">All levels</option>{Array.from({length:50},(_,i)=><option key={i+1} value={String(i+1)}>Level {i+1}</option>)}</select></label>
   </div>
-  <div className="mlmCards"><article><small>Loaded records</small><b>{filtered.length}</b></article><article><small>Loaded commission total</small><b>₹{total.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</b></article><article><small>Pending</small><b>{filtered.filter(r=>r.status==='pending').length}</b></article><article><small>Credited</small><b>{filtered.filter(r=>r.status==='credited').length}</b></article></div>
+  {summaryError&&<div className="notice" role="alert">Overall summary: {summaryError}</div>}
+  <div className="mlmCards"><article><small>All Matrix commissions</small><b>{summaryLoading?'…':summary.total_count.toLocaleString('en-IN')}</b><small>{formatINR(summary.total_amount)} total</small></article><article><small>Pending</small><b>{summaryLoading?'…':summary.pending_count.toLocaleString('en-IN')}</b><small>{formatINR(summary.pending_amount)}</small></article><article><small>Credited</small><b>{summaryLoading?'…':summary.credited_count.toLocaleString('en-IN')}</b><small>{formatINR(summary.credited_amount)}</small></article><article><small>Reversed</small><b>{summaryLoading?'…':summary.reversed_count.toLocaleString('en-IN')}</b><small>{formatINR(summary.reversed_amount)}</small></article></div>
+  <small>Overall totals cover all Matrix commission records, independent of the filters and loaded pages below. Current filtered page: {filtered.length} records · {formatINR(total)}.</small>
   {loading?<div className="packageState">Loading Matrix commissions…</div>:filtered.length===0?<div className="empty">{rows.length?'No Matrix commissions match these filters.':'No Matrix commission records are available yet.'}</div>:
    <div className="referralList">{filtered.map(row=><article key={row.commission_id} style={{display:'flex',flexDirection:'column',gap:6,overflowWrap:'anywhere'}}>
     <div className="memberReportHeading"><b>Level {row.level_number} · {row.source_member_code} ({row.source_id_type==='duplicate'?'Duplicate ID':'Main ID'})</b><strong>{row.status.toUpperCase()}</strong></div>
