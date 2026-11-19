@@ -1,3 +1,8 @@
+- Admin dashboard overview, member-structure report, notification templates and Admin account directory now validate bounded response shapes, numeric counters, unique identities, ID ownership, summary consistency, supported notification channels, required email subjects and timestamps before rendering. Invalid module data is isolated and surfaced without changing existing Admin role or notification mutation RPCs.
+- Added source-contract coverage in `tests/admin-overview-notification-role-directory-integrity.test.ts` (source only; not executed).
+- Commits: Admin parser hardening `bb3d0d40ee73f660f80af765a5933e3e1e27f0d0`; regression source `d310947620018601e8ffc946deaa4c7ab35c84ec`.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production database reads/writes/migrations, no Preview deployment, and no protected `main` changes.
+
 # Current development checkpoint — 2026-11-19
 
 - Active branch: `completion-work`; protected `main` unchanged.
