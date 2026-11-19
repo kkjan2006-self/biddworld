@@ -2043,3 +2043,12 @@
 - Key commits: migration e1592c9b03f992e4df81ebc7aab8d38f5198a08f; member UI 4f8259ffcc09fe7dc68dd3464ca47acc5b1343e7; Admin UI b60f81c251905966eb3d76090122de6dbaf7a6ef; App integration 31298afb947876ae708c4da178bb086613bb5ddf; Admin integration 68fd52e6f5e2c2bd970aa07f35496b80a96d3e55; manifest 7b36476f84fac70e71688af540c9de7f09c31294; regression source e85ee5adcc2dcb60bb45d982d80d1d91bf514d3c.
 - Migration remains source-only; not applied to TEST or Production. No tests/type-check/browser/mobile QA run. Protected main unchanged.
 - Overall development completion remains **74% provisional**.
+
+
+## 2026-11-19 — Member product submission editing and resubmission
+
+- Added a member edit/resubmit workflow for own Pending or Rejected product submissions. The form restores saved fields and optional details, supports retaining existing images or uploading replacements, and returns a corrected listing to Pending Admin review.
+- Added `supabase/migrations/20261119450000_member_product_submission_editing.sql` with owner-scoped row locking, editable-state enforcement, active Main ID revalidation, private image path ownership checks, review-state reset and audit logging. Added to the clean-install forward manifest.
+- Added `tests/member-product-submission-editing.test.ts` as source-only regression coverage; not executed.
+- Commits: migration `88b28f955eb3021f339f72c8a1a36671518fec47`; cleanup `528ee6a863dcb4a02595c280dd275316eb29a48a`; UI `dd0448a0213eb6bf1f124d17be29c241cca13b53`; manifest `700343a79339b0293db5bc024451f65f26d28630`; test `2377b59610ff1ec85409c760b27d67dd10bc5240`.
+- No migrations applied to TEST or Production. No tests/build/type-check/browser/mobile QA run. Protected `main` unchanged. Development completion: **75% provisional**.
