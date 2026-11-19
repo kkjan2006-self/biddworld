@@ -1016,3 +1016,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: Admin winning/delivery UI `e23b6a62dfb4bc9f5b3898c4702a370b2b39d6bb`; winning/delivery tests `16ee5ebf6e7f99e9d8dcf75ec0d72e8f66f7aa46`; wallet account UI `7ffdaff7012bb342be34eb2f5c171d39ad26ce62`; wallet tests `c368b74e4fe1b16e0b690d52558e45a9441536d9`.
 - Tests/build/type-check/browser/mobile QA were not run. No DB migrations/writes, TEST or Production access, Preview deployment or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** pending remaining modules and final integrated verification.
+
+
+## Latest bulk checkpoint — Audit log, wallet ledger and report export integrity
+
+- Hardened Audit Log initial and Load More pages with unique record IDs, valid timestamps, response-envelope checks, single-flight protection, refresh-generation invalidation, stale-response suppression and repeated-page detection.
+- Hardened Wallet Ledger initial and Load More pages with unique transaction IDs, positive finite amounts, response-envelope checks, single-flight protection, refresh-generation invalidation, stale-response suppression and repeated-page detection. Existing complete ledger CSV export remains available.
+- Hardened the shared paginated CSV export engine used by multiple Admin reports: it now rejects non-array/oversized pages, malformed rows, exact duplicate records across pages, repeated pages and exports exceeding the existing 100,000-row safety ceiling. This protects report completeness and avoids silently duplicated totals.
+- Added regression source contracts in `tests/admin-audit-wallet-report-integrity.test.ts`.
+- Commits: Admin UI `68e1f8b2c7c5a3c1f56d8698512d1741fa6cc6c8`; regression test `c2eb956bad5e4bbb0e2b889b2151da788dadcd4b`.
+- Tests/build/type-check/browser/mobile QA were not run. No DB migrations/writes, TEST or Production access, Preview deployment or protected `main` changes occurred.
+- Overall development completion remains **71% provisional** pending remaining modules and final integrated verification.
