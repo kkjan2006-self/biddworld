@@ -99,7 +99,6 @@ export default function FixedBid({compact=false}:{compact?:boolean}){
     <small>Published {new Date(r.created_at).toLocaleDateString('en-IN')}</small>
     {canJoin?<button className="primary small" type="button" disabled={joining!==''} onClick={()=>void joinCampaign(r)}>{joining===r.id?'Submitting entry…':'Enter Fixed Bid Campaign'}</button>:r.status==='live'?<small className="protected">Entry rules are incomplete. Contact the administrator.</small>:null}
    </div></article>;})}</div>
-  {error&&<div className="notice">{error}</div>}
   {hasMore&&<div className="marketPagination"><button className="outline darkOutline" disabled={loadingMore} onClick={()=>void load(false)}>{loadingMore?'Loading…':'Load more campaigns'}</button><span>{rows.length} campaigns loaded</span></div>}</>}
   {!compact&&<p className="memberModuleHint"><ShieldCheck size={14}/> Each entry uses a unique retry key and is processed with server-side limits and wallet-ledger checks.</p>}
  </section>;
