@@ -1038,3 +1038,11 @@
 
 
 - Package Activation now displays the same KRFSI UPI payment QR and verified payee/UPI text as Main Wallet Add Money, before the package UTR and receipt submission fields. No test or deployment has been performed.
+
+
+### 2026-11-19 — Restricted Payment Review Staff (#79)
+
+- Added Primary Admin-controlled restricted staff role with only Package Activation and Main Wallet Add Money review permissions. Grant/revoke operations audit log and require session refresh.
+- Added isolated staff portal; no full Admin navigation or unrelated Admin actions. Matching database RPC permissions and Storage receipt-read policies enforce the same boundary.
+- Added forward migration #79 and source-contract test (not run). Inventory now 79 forward + 16 excluded + 3 legacy SQL files (98 total; 95 timestamped).
+- No tests, builds, QA, migration replay, DB writes or deployment.
