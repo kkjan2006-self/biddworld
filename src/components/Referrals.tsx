@@ -60,7 +60,8 @@ export default function Referrals(){
    const {data:next,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
    if(seq!==request.current)return;
    if(loadError)throw loadError;
-   const page=next as Dashboard;
+   const page=next as Dashboard|null;
+   if(!page||!Array.isArray(page.tree))throw new Error('The team dashboard returned an incomplete page. Refresh and retry.');
    const knownCodes=new Set(data.tree.map(member=>member.member_code));
    const fresh=page.tree.filter(member=>{if(knownCodes.has(member.member_code))return false;knownCodes.add(member.member_code);return true;});
    const repeatedRows=fresh.length!==page.tree.length;
