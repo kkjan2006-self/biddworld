@@ -1,5 +1,15 @@
 ## Latest source-development checkpoint — 2026-11-19
 
+- Current `completion-work` HEAD before checkpoint refresh: `95012bfc63cbe302985a27949d81972b1a842181`.
+- Member Auction submission history now distinguishes loading, empty and failed states; failures show a retry action instead of leaving an ambiguous blank list. Stale asynchronous loads are ignored, and malformed/duplicate submission IDs fail closed with a visible queue error.
+- Source commit: `5198cd2d7f5e9717398ece04d96c5fbf6ec843a1`; source-contract test commit: `95012bfc63cbe302985a27949d81972b1a842181`.
+- No tests/build/type-check/browser QA were run. No Supabase access, SQL application, deployment or protected `main` changes occurred.
+- Overall development completion remains **60% provisional**.
+
+---
+
+## Latest source-development checkpoint — 2026-11-19
+
 - Current `completion-work` HEAD before this checkpoint refresh: `7929bc9fa35c5989ac42e44cd3e11aa5db56dfbd`.
 - Member complete-report pagination now validates every returned row has a non-empty ID and rejects duplicate IDs both within a page and across pages. This complements repeated-page detection and prevents an export from silently including duplicated records.
 - Source commit: `113be7d17c44be252b24a99acf7cdf9bd3fdd9f2`; source-contract test commit: `7929bc9fa35c5989ac42e44cd3e11aa5db56dfbd`.
