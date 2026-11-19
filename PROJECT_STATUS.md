@@ -380,3 +380,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Updated shared Admin draft validation and its existing validation tests; corrected and extended the Admin lifecycle source-contract test. Test sources only; none executed.
 - Commits: `ff8bcc7b45fdb60890ccb116b85e681e0984d0ee` (Admin UI), `6744e49d7c55d3899fbd82738c8297bb580c3071` (migration), `a1ac4d638e91e2d54794ae57c860296b22993c42` (shared validation), `d42e34cffc1d5a0788c32e3796078c1bf4cb6a5c` (validation tests), `cc0d99460340eb561259c41234535468c1166912` (lifecycle test), `26aaa50be1600878345c05dcb2bb54906c0c21b2` (immediate-start lifecycle fix). Documentation updates follow.
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Development estimate remains **60% Provisional**.
+
+
+## 2026-11-19 — Admin open-ended Auction publishing compatibility
+
+- Found and corrected a backend contract gap exposed by the new Expected Price schedule: the existing Admin status RPC still required a fixed `ends_at`, which prevented Admin-created open-ended auctions from being scheduled or opened. Added a forward-only replacement retaining the original Admin authorization, bidding feature gate, cancellation refund ledger reconciliation/idempotency, closed-auction restrictions and audit logging.
+- The status RPC now accepts `ends_at = NULL` for Expected Price auctions; scheduled auctions still require a future start time, while immediate auctions may omit Planned Start and open now. Existing time-window checks remain for supplied start/end values.
+- Added source-contract coverage. Tests not executed; migration not applied. No build/QA/browser/device checks, Supabase writes or deployment. Production remains read-only and TEST remains untouched.
+- Commits: `4c4ee4421509927bac9fbf903ca089deaefde742` (forward migration), `bae13b91738234446744759a0b0b3576210ffea3` (test source), `575959255a2d01d9f41f133e3239edff6476ee03` and `3b51f703fdd08dcfb9f16fdf032edad32d403e96` (migration refinements), `410b52965b8ce295d116de7b19cc03c7ff590fd6` (test refinement).
+- Overall development estimate remains **60% Provisional**; broader modules and source/database contract reconciliation remain.
