@@ -1754,3 +1754,11 @@
 - Added migration `20261119360000_fix_duplicate_toggle_trigger_insert_record.sql`, regression source contract `tests/duplicate-id-toggle-trigger-old-record.test.ts`, and forward-migration manifest entry.
 - Commits: migration `d936ad3eb1224f1ab6bdf10f3519b1e06e223c53`; test `b5c9a4b0daa69a17f7c23532a47e850027fc6a3a`; manifest `01376a49c7a3e040ca059f797a0c792ead512536`.
 - Tests/build/type-check/browser/mobile QA were not run. No TEST/Production migrations or data writes, deployment or protected `main` changes occurred.
+
+## 2026-11-19 — Main-ID reactivation reconciliation retry
+
+- Fixed a lifecycle dead-end where a linked Duplicate ID remained suspended because its placement parent was inactive during Main-ID reactivation; a subsequent retry previously short-circuited because the Main ID was already active.
+- Repeated Main activation now retries reconciliation. It restores only Duplicate IDs suspended by Main-ID management whose placement parent is active and belongs to another member. Children whose parent remains inactive stay suspended/managed, and closed Main IDs cannot be reopened. Actual child changes are audited.
+- Added migration `20261119370000_retry_main_activation_duplicate_reconciliation.sql`, regression contract `tests/main-activation-duplicate-reconciliation-retry.test.ts`, and clean-install forward manifest registration.
+- Commits: migration `9ba91dad07c9721b98c4a26b2667f65976986ceb`; test `032888cfb5145f8582c8887e70986bcaf889b8eb`; manifest `cb26307be9dddf8d0ce2791b2e20d9abcad5ad58`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production migrations or data writes, deployment or protected `main` changes occurred.
