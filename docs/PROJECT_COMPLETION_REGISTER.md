@@ -1788,3 +1788,14 @@
 - No tests/build/type-check/browser/mobile QA were run. No TEST/Production migrations or data writes, Production reads, deployment or protected `main` changes occurred.
 - Overall development completion remains **69% provisional** pending development completion and final integrated verification.
 
+## 2026-11-19 — Admin Main Wallet funding queue pagination
+
+- Replaced the Admin UI's unbounded pending Main Wallet funding request fetch with a server-side keyset page RPC using stable ascending `(created_at,id)` order. The UI requests 50 rows; the RPC enforces a maximum page size of 100 and validates that cursor timestamp/ID are supplied together.
+- The response includes bounded items, `has_more`, and a continuation cursor. The UI rejects malformed rows and duplicate IDs before appending, uses request-generation guards, and creates short-lived private receipt URLs only for the current page.
+- Preserved Admin and `wallet_funding_review` Staff authorization, private receipt access, existing locked approval/rejection RPC, audit trail and atomic wallet ledger posting. The legacy no-argument queue RPC is also capped at 100 rows while retaining its array response shape for older callers.
+- Added migration `20261119390000_admin_wallet_funding_queue_keyset_pagination.sql`, updated `src/components/AdminWalletFundingReview.tsx`, added source-contract coverage in `tests/admin-wallet-funding-keyset-pagination.test.ts`, and registered the migration in the clean-install manifest.
+- Commits: migration `47bad872baa8161baab4d0bbde04d8f1af510d04` (bounded legacy RPC follow-up `3532bb20c3e67330308dee83f684e2e430b8b8e8`); UI `fc803d60bfebeca0dce3f8e9c11e0f7417045df1`; test `2b7907ae310afb1adb8ff392a49b9dc5d27a753e`; manifest `1707134b46d7391e95507da8362d9068fceb5997`; clean-install README `69c85d4787a63196ca63d6b8458276d2aaf8d6ab`.
+- Migration inventory now reconciles exactly: 124 timestamped files = 108 forward candidates + 16 excluded historical migrations; no missing, stale or duplicate timestamped entries.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database migrations or data writes, Production reads, deployment or protected `main` changes occurred.
+- Overall development completion: **70% provisional**.
+
