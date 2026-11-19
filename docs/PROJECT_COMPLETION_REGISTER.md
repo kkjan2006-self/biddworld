@@ -1938,3 +1938,13 @@
 - Commits: Admin source `078db788085696f9b2c9f455ccd90fd75e28c198`; regression source `c035b0458bdd7760bc3c6fef2d9af1068e655409`.
 - Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database access or migrations, and no protected `main` changes.
 - Overall development completion remains **71% provisional**.
+
+
+## 2026-11-19 — Admin auction finalization and Fixed Bid draw result integrity
+
+- Admin auction finalization now validates the RPC success flag, exact auction identity, winner/bid identity pairing and positive finite winning amount before presenting a completed result. No-winner results must consistently return null winner, bid and amount fields.
+- Fixed Bid winner draw now validates the success flag, exact campaign identity, positive integer winner count and non-negative integer refund count. Missing or malformed totals are no longer silently coerced to zero.
+- Existing settlement RPCs, winner selection, wallet refund behavior and replay semantics remain unchanged. Added `tests/admin-auction-finalization-draw-result-integrity.test.ts` (source authored only; not executed).
+- Commits: Admin source `3aa2f114c2e6e57267f2f629fa202cb240d0a0f3`; regression source `1e313d68648394320f9f1063456427e4606665e2`.
+- Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database access or migrations, no Preview deployment, and no protected `main` changes.
+- Overall development completion remains **71% provisional**.
