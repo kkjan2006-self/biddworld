@@ -847,3 +847,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Audit correction: `177916ef85ec82488dcdd6029c1b77d67e1bcfd3`; completion register: `06c6f30a51275226bf919888d5914ae3eb53feaa`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production writes. Production was not queried. Matrix feature remains OFF.
 - Overall development estimate remains **68% provisional**.
+
+
+## Latest checkpoint — Automatic Duplicate Placement SQL syntax
+
+- Removed 91 orphaned repeated SQL lines after the complete Duplicate ID placement RPC. Added a source-contract guard against duplicate function bodies and trailing SQL fragments.
+- Commits: migration `f21762b707337b4dec2f8e95eeb3a2676b54e02d`, test contract `ff1d50c12e0be9963c43688a0f18e4319d3d2064`, completion register `4e860f6eb9a76d5769f93aba4663d2f3d13e2023`.
+- Read-only TEST schema baseline is confirmed; this migration is still unapplied there. No tests/build/type-check/browser/mobile QA run and no TEST/Production migrations applied.
+- Protected `main` unchanged. Matrix commission feature remains OFF.
+- Overall development estimate: **69% provisional**.
