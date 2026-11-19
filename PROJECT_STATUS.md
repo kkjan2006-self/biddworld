@@ -244,3 +244,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added source-contract test file `tests/cross-workflow-payment-reference-uniqueness.test.ts` (not run).
 - Forward migration candidate #77 added. Inventory: 77 forward + 16 excluded timestamped + 3 legacy SQL files = 96 SQL files (93 timestamped).
 - Source-only development; no tests/build/CI/QA, SQL replay, database writes, Production access or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 55% (Provisional).
+
+
+## Latest development checkpoint — Registration Email Verification (#78)
+
+- Added Admin Email Verification ON/OFF under Member Registration. Default is ON. The switch is stored in app_settings, returned through Admin settings RPC and audit logged.
+- Registration reads the policy through a narrow public boolean RPC. ON keeps the confirmation redirect and confirmation messaging. OFF omits the redirect and expects Supabase Auth Confirm Email to be disabled; if provider-level confirmation remains ON, the UI clearly reports the mismatch. Browser code cannot change Supabase project-wide Auth configuration.
+- Added migration 20261119080000_registration_email_verification_setting.sql as forward candidate #78 and test source tests/registration-email-verification-setting.test.ts (not executed). Inventory: 78 forward + 16 excluded timestamped + 3 legacy SQL files = 97 SQL files (94 timestamped).
+- Removed the hardcoded client-side Admin approval lock so UI actions now defer to database safeguards. Server-side financial interlocks remain unchanged; Production remains protected. Isolated Test unlock/configuration remains part of final Test setup after canonical baseline review.
+- No tests/build/CI/QA, database replay/writes, Production access or deployment. Overall planning estimate remains 55% Provisional.
