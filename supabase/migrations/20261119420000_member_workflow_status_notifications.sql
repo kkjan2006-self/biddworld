@@ -34,15 +34,40 @@ begin
     end if;
 
   elsif tg_table_name = 'member_ids' then
-    if new.id_type is distinct from 'duplicate'
-       or old.status is not distinct from new.status then
+    if old.status is not distinct from new.status then
       return new;
     end if;
     v_user_id := new.owner_user_id;
     v_member_code := new.member_code;
-    v_title := 'Duplicate ID status updated';
-    v_message := 'Your Duplicate ID ' || v_member_code || ' status is now ' ||
-      replace(new.status, '_', ' ') || '.';
+    if new.id_type = 'duplicate' then
+      v_title := 'Duplicate ID status updated';
+      v_message := 'Your Duplicate ID ' || v_member_code || ' status is now ' ||
+        replace(new.status, '_', ' ') || '.';
+    elsif new.id_type = 'main' then
+      v_title := 'Main ID account status updated';
+      v_message := 'Your Main ID ' || v_member_code || ' account status is now ' ||
+        replace(new.status, '_', ' ') || '.';
+    else
+      return new;
+    end if;
+
+  elsif tg_table_name = 'wallet_fund_requests' then
+    if old.status is not distinct from new.status then
+      return new;
+    end if;
+    v_user_id := new.submitted_by;
+    if new.status = 'approved' then
+      v_title := 'Wallet funding approved';
+      v_message := 'Your wallet funding request has been approved and the wallet update has been processed.';
+    elsif new.status = 'rejected' then
+      v_title := 'Wallet funding request update';
+      v_message := 'Your wallet funding request was rejected.' ||
+        case when nullif(btrim(new.review_note), '') is not null
+          then ' Review note: ' || left(btrim(new.review_note), 300)
+          else '' end;
+    else
+      return new;
+    end if;
 
   elsif tg_table_name = 'auction_submissions' then
     if old.status is not distinct from new.status then
@@ -126,6 +151,12 @@ drop trigger if exists notify_member_duplicate_id_status on public.member_ids;
 create trigger notify_member_duplicate_id_status
 after update of status on public.member_ids
 for each row when (old.status is distinct from new.status and new.id_type = 'duplicate')
+execute function private.notify_member_workflow_status_change();
+
+drop trigger if exists notify_member_wallet_funding_status on public.wallet_fund_requests;
+create trigger notify_member_wallet_funding_status
+after update of status on public.wallet_fund_requests
+for each row when (old.status is distinct from new.status)
 execute function private.notify_member_workflow_status_change();
 
 drop trigger if exists notify_member_auction_submission_status on public.auction_submissions;
