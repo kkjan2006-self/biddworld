@@ -2052,3 +2052,12 @@
 - Added `tests/member-product-submission-editing.test.ts` as source-only regression coverage; not executed.
 - Commits: migration `88b28f955eb3021f339f72c8a1a36671518fec47`; cleanup `528ee6a863dcb4a02595c280dd275316eb29a48a`; UI `dd0448a0213eb6bf1f124d17be29c241cca13b53`; manifest `700343a79339b0293db5bc024451f65f26d28630`; test `2377b59610ff1ec85409c760b27d67dd10bc5240`.
 - No migrations applied to TEST or Production. No tests/build/type-check/browser/mobile QA run. Protected `main` unchanged. Development completion: **75% provisional**.
+
+
+## 2026-11-19 — Product catalogue error-state integrity
+
+- Corrected the public Products view so sample cards are used only when Supabase is intentionally unconfigured. A configured catalogue error or genuinely empty catalogue is no longer disguised as sample inventory.
+- Preserved the existing retry action, published-product pagination, and independent signed-in Member Product Submission workflow.
+- Added source-contract coverage in `tests/public-product-catalogue-fallback.test.ts`; test execution remains deferred to the consolidated testing phase.
+- Commits: UI `5ad1512ee89bca6c04f8a714f6334179f6aba018`; test source `c131f582f0ce41188709ecbc524124c6756a1794`.
+- No tests/build/type-check, database reads/writes, migrations, Preview deployment, or protected `main` changes were performed.
