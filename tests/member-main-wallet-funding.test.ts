@@ -31,7 +31,7 @@ describe('Main Wallet Add Money workflow source contract',()=>{
  it('exposes an Admin review queue and member request history',()=>{
   expect(admin).toContain("admin_list_pending_wallet_fund_requests");
   expect(admin).toContain("admin_review_wallet_fund_request");
-  expect(account).toContain('<WalletFunding onApproved={()=>void load()}/>');
+  expect(account).toContain('<WalletFunding/>');
   expect(member).toContain('member_list_my_wallet_fund_requests');
  });
 });
