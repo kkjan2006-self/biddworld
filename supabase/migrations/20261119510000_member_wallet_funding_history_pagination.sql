@@ -1,4 +1,7 @@
 -- Bounded, owner-scoped keyset pagination for the member Add Money request history.
+create index if not exists wallet_fund_requests_member_history_idx
+ on public.wallet_fund_requests(member_id,created_at desc,id desc);
+
 create or replace function public.member_list_my_wallet_fund_requests_page(
  p_limit integer default 50,
  p_before_created_at timestamptz default null,
