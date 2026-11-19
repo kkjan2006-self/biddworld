@@ -50,7 +50,7 @@ export default function FixedBid({compact=false}:{compact?:boolean}){
    const batch=(data??[]) as unknown as Campaign[];
    const pageIds=new Set<string>(),knownIds=new Set(reset?[]:rows.map(row=>row.id));
    for(const campaign of batch){
-    if(!campaign||typeof campaign.id!=='string'||!campaign.id.trim()||typeof campaign.title!=='string'||!campaign.title.trim()||!campaign.configuration||typeof campaign.configuration!=='object')throw new Error('The campaign catalogue contains an incomplete record. Refresh before continuing.');
+    if(!campaign||typeof campaign.id!=='string'||!campaign.id.trim()||typeof campaign.title!=='string'||!campaign.title.trim()||(campaign.configuration!==null&&typeof campaign.configuration!=='object'))throw new Error('The campaign catalogue contains an incomplete record. Refresh before continuing.');
     if(pageIds.has(campaign.id)||knownIds.has(campaign.id))throw new Error('The campaign catalogue returned duplicate campaign IDs. Refresh before loading more.');
     pageIds.add(campaign.id);
    }
