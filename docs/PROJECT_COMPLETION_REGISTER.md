@@ -1393,3 +1393,12 @@
 - Added `tests/member-wallet-and-inbox-retry-guards.test.ts` as source-contract coverage only; it has not been executed.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional** pending final end-to-end verification.
+
+
+## 2026-11-19 — Admin report and settlement review batch
+
+- Auction Bid History and Fixed Bid Entry reports now reject reversed From/To date ranges before applying filters or exporting CSV; invalid ranges disable the corresponding action and produce a clear validation message.
+- Added `tests/admin-auction-fixedbid-report-date-range.test.ts` as source-contract coverage only; not executed.
+- Source-reviewed the auction finalization and Fixed Bid draw RPCs: both lock the parent auction/campaign row, persist a single winner/draw result, and return the existing result on replay. Reviewed cancellation/refund ledger checks and notification send idempotency; no SQL changes were made.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional** pending final end-to-end verification.
