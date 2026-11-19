@@ -11,6 +11,8 @@ describe('approved member product details in public catalogue',()=>{
   expect(sql).toContain("v_price !~ '^[0-9]{1,9}([.][0-9]{1,2})?$'");
   expect(sql).toContain("p_public_image_path !~ '^[A-Za-z0-9_-]+[.](jpg|jpeg|png|webp)$'");
   expect(sql).toContain("Every product detail value must be plain text");
+  expect(sql).toContain('grant select (id,name,description,image_path,category,status,product_details) on public.products to anon,authenticated');
+  expect(sql).toContain('for select to anon,authenticated using (status=\'published\')');
  });
  it('copies complete submitted details into the published product record',()=>{
   expect(sql).toContain('status,product_details');
