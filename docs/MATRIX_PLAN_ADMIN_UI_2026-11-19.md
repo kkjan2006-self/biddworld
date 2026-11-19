@@ -4,7 +4,7 @@
 
 - Added a dedicated **Matrix Plans** entry under Admin → Money & Packages, separate from Sponsor Referral Commissions.
 - Added package selection and package-specific Matrix plan history.
-- Added Matrix Width selection (predefined 1:3–1:7 plus custom widths) independently from Matrix Depth (1–50).
+- Added Matrix Width input with predefined 1:3–1:7 guidance and any custom whole-number width from 2–100, independently from Matrix Depth (1–50).
 - Added per-level enable/disable, Fixed Amount / Percentage reward values, and JSON eligibility-rule input.
 - Saving creates a new inactive version through `admin_save_matrix_plan_draft`; activation requires an explicit confirmation and calls `admin_activate_matrix_plan`.
 - Published packages are read-only in this editor, matching the current database contract.
