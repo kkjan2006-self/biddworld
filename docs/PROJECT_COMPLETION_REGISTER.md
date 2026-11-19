@@ -1091,3 +1091,11 @@
 - Verified existing source/UI workflows include Main Wallet Add Money (QR, UTR, private receipt upload, member history, Admin/Staff review and atomic Main Wallet ledger credit), cross-workflow payment-reference uniqueness, Registration Email Verification setting, and restricted Staff permission assignment. Also present: notification keyset pagination, auction submission/moderation, Staff auction-review grants, approved-image media delivery, Expected Price-triggered 48-hour auction lifecycle, and individual Staff permissions.
 - The forward manifest already reconciles to 85 forward candidates + 16 excluded timestamped migrations + 3 legacy SQL files (104 total; 101 timestamped). A redundant marker added during the documentation pass was removed. No migration manifest entries were missing.
 - No source tests were executed; no build, QA, browser/device checks, migration replay, Supabase writes, or deployment were performed. Production remains read-only and TEST remains untouched. Earlier **59% Provisional** planning estimate is retained; the new inventory does not justify claiming additional implementation completeness.
+
+
+## 2026-11-19 — Member auction upload cleanup
+
+- Corrected member auction submission media lifecycle: pre-RPC upload/validation failures clean up any already-uploaded private images; a definite RPC rejection cleans them up too. Ambiguous RPC failures intentionally retain the objects to avoid breaking a database submission that may have committed despite a lost response.
+- The image picker no longer silently truncates selections above eight; the submission validation now reports the actual selected count against the 1–8 image contract.
+- Added `tests/member-auction-upload-cleanup.test.ts` as source-contract coverage (not run).
+- Implementation commit: `4640e3ce46d471cd8f2a677c5400ae75f1a35700`; test-source commit: `7014af25690d906d4e3717f3bc0c4762861dbb2d`. No tests/build/QA, migration replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
