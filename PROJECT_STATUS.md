@@ -253,3 +253,6 @@ At every development batch/chat end, update this file with the actual verified b
 - Added migration 20261119080000_registration_email_verification_setting.sql as forward candidate #78 and test source tests/registration-email-verification-setting.test.ts (not executed). Inventory: 78 forward + 16 excluded timestamped + 3 legacy SQL files = 97 SQL files (94 timestamped).
 - Removed the hardcoded client-side Admin approval lock so UI actions now defer to database safeguards. Server-side financial interlocks remain unchanged; Production remains protected. Isolated Test unlock/configuration remains part of final Test setup after canonical baseline review.
 - No tests/build/CI/QA, database replay/writes, Production access or deployment. Overall planning estimate remains 55% Provisional.
+
+
+- Follow-up in the same consolidated member-payment batch: Package Activation now displays the KRFSI UPI payee/UPI ID and payment QR beside the package selection and UTR/receipt submission form. The member can pay the selected package amount and submit the existing receipt-backed request for Admin verification. Source-only; no tests or deployment.
