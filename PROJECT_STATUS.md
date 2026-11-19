@@ -1300,7 +1300,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member history UI `4b586721e1842d5bbb125bc4b7f528d7666fedc7`; member history migration `8bd890f7e54e34e1394107cffa6d528c462b1f73`; member history test `0fc47e89e0be629882a4b4af31456fc26124b445`; anon catalogue RLS/column grants `460182be64d3dda0ba17e7424d4697c1f494d902`; gallery column grant `8721d20970b8972987a6b2245c6ee24d9a2b9216`; updated tests `82e7d9e0bbce28a820dee7d5ebc296602d0626d1`, `07b6bdb632e77143fc74e517fb30af1e7d426172`.
 - Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
 - Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
-- Source development estimate: **92% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
+- Source development estimate: **93% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
 
 
 ## 2026-11-19 — Mandatory package receipt and current migration inventory
@@ -1311,7 +1311,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commit IDs: package UI `74879c7a8a57adbb3773e5f65b930b1b9d8fa205`; server migration `fd65888f274068e5df887d51947bbd24ac56497e`; test `8ac852f3bf93c285dc6fa54fd32cec9f3304c425`; manifest `be178fe8c75b82c2d1317a954d542b6f2f5ed9d2`.
 - Current source inventory: 119 forward + 16 excluded = 135 timestamped migrations, plus 3 legacy/unversioned SQL files. The forward manifest remains sorted and unique.
 - Development-only: no SQL executed, no Supabase data changed, no Preview deployment/runtime tests, no protected `main` changes.
-- Overall source development estimate: **92% provisional**. Remaining baseline/forward migration semantic reconciliation and other outstanding module integration are still open.
+- Overall source development estimate: **93% provisional**. Remaining baseline/forward migration semantic reconciliation and other outstanding module integration are still open.
 
 
 ## 2026-11-19 — Member wallet funding and withdrawal history pagination
@@ -1323,7 +1323,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: wallet-funding UI `f93d6502ae118f52605bf3915e7cdb54ffb96160`; wallet-funding migration `fbb938dd91d3d461f16682f2664e7c4351622c09`; wallet-funding test `bea838ed75696d3794d91f21e6cfee82dad29557`; withdrawal UI `001cda93afe90d25fe14333b8f4ded0af6dd0701`; withdrawal migration `54e61b73952d475b43bddf78269dc154150fa9af`; withdrawal test `ae82e6f47a5f0d497817afd95cbe23f026b20247`; account refresh guard `d9cdf3fbbeff29e187e9cf49c21772d6d4c95e9f`.
 - Current inventory: 121 forward + 16 excluded = 137 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest is unique and strictly sorted.
 - Source-only: no tests/build/type-check, no TEST/Production migration execution or data changes, no Preview publishing/runtime QA, and no protected `main` changes.
-- Overall source development estimate: **92% provisional**; canonical baseline/forward migration semantic dependency review and final source integration remain open.
+- Overall source development estimate: **93% provisional**; canonical baseline/forward migration semantic dependency review and final source integration remain open.
 
 
 ## 2026-11-19 — Auction catalogue, product moderation and data-contract resilience
@@ -1336,4 +1336,16 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: auction catalogue `3df768c346320cc1b20bc684ea9a5d8a5a1892f3`; auction regression `212f8e24f088222315a652073700cd31e3fef2c0`; product image cleanup `330c86bee3db4048d7550133cf3614237be64ae8`; cleanup regression `d53ea1171ec74435fb9976a997b9a6fbce81a1dd`; member details validation `8800577c0fcfe02dbf3c51c6fdf4c1e4f3ad09d0`; Admin details validation `49591a4bc2841dd970443bb5bab1d8d27243323d`; test updates `c7db44fa5a6555e0d7a1c213c76807dd21d7066e`, `507a3b9ec062789218b378dcb0d4e83122a0b663`.
 - Current inventory: 121 forward + 16 excluded = 137 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest is unique and sorted.
 - Development-only boundary maintained: no SQL applied, no Supabase data changed, no Preview deployment/runtime QA, and protected `main` unchanged.
-- Source development estimate: **92% provisional**; remaining source contract reconciliation and final module integration are open.
+- Source development estimate: **93% provisional**; remaining source contract reconciliation and final module integration are open.
+
+
+## 2026-11-19 — Remove BiddWorld email verification feature
+
+- Removed the Email Verification feature toggle from the Admin feature settings and removed the client-side lookup of `public_get_registration_email_verification`.
+- Registration no longer requests email-confirmation redirect behavior, displays confirmation/resend-email instructions, or exposes a resend-confirmation action. A successful immediate Auth session closes the registration modal; if Supabase Auth returns no session, the UI reports that the authentication service did not issue an active session without directing members through an email-verification workflow.
+- Added migration `20261119530000_remove_email_verification_switch.sql`: set the legacy BiddWorld setting false, remove it from Admin settings RPC allowlists, and drop the public registration email-verification RPC. The migration deliberately does not mutate Supabase Auth's provider-level Confirm Email configuration, which is an environment setting outside SQL.
+- Added `tests/registration-email-verification-removed.test.ts`; registered the migration in the clean-install forward manifest. Tests/build/type-check and migration execution were not performed.
+- Commits: App `802bde3282785ec8ba378b90e59a4c1abc883042`; Admin settings `37858c9232ebf3a0195912416a38570efd85f2cb`; migration `c4ab323f9e6fdb2428d3b98cc24cc88f8be21bb1`; regression test `89d6b14d31e14a755c5e98afe4d9a5142b9cf983`; manifest `eda367086f94c796ffd79859435ec8a65d19e98b`; test assertion correction `8ccda85679178a3554754510b0db254050422a99`.
+- Current inventory: 123 forward + 16 excluded = 139 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest remains unique and sorted.
+- All intended source changes are on `completion-work`; no Supabase data/migrations were applied and no Preview deployment/runtime QA was performed.
+- Source development estimate: **93% provisional**; final module/contract reconciliation remains open.
