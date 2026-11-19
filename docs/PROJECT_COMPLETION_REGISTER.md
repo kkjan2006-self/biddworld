@@ -1106,3 +1106,10 @@
 - Main Wallet Add Money now removes its uploaded private receipt only when the request RPC returns a definite database error. Ambiguous transport failures preserve the object to avoid deleting a receipt potentially referenced by a committed request.
 - Added `tests/member-wallet-funding-upload-cleanup.test.ts` source-contract coverage (not run).
 - Implementation commit: `c010a7b1e72f06670191c0b74c789c7f015909a8`; test-source commit: `1e64fa623a40842ffb796df8dba0c52877030dd1`. No tests/build/QA, migration replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
+
+
+## 2026-11-19 — Member Wallet Add Money navigation integration
+
+- Found that `WalletFunding` and its QR/UTR/private receipt/request-history workflow existed in source but was not mounted in the authenticated member Wallet tab. Added a lazy import and rendered the component in the Wallet workspace above wallet transaction history.
+- Added `tests/member-wallet-funding-navigation.test.ts` source-contract coverage (not run).
+- Implementation commit: `bf4242f2a8b2435e8ad1d532bbf65b75eb786357`; test-source commit: `158faafdbe48b4585e2f49e90a44cc036edca052`. No tests/build/QA, migration replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
