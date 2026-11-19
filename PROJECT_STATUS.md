@@ -1,5 +1,17 @@
 ## Latest source-development checkpoint — 2026-11-19
 
+- Current `completion-work` HEAD before checkpoint refresh: `21a5f9e46b7424b86ef80fc28312e80b104b8092`.
+- Member Wallet History validates transaction page arrays, non-empty IDs and valid timestamps; rejects duplicate IDs within a page or across pages before advancing the cursor.
+- Fixed Bid catalogue no longer disguises a failed/invalid fetch as sample campaigns; sample cards appear only for a genuine empty result. Catalogue rows are checked for required identity/title and duplicate IDs; optional campaign configuration remains optional.
+- Admin Auction Bid and Fixed Bid Entry reports now validate page and CSV response shapes, required IDs/timestamps, and duplicate records before displaying/exporting. Cursor progression is stopped on malformed/duplicate page content.
+- Source commits: Wallet History `f6e88b7fd7c0de2c369cac337a7a659b1eb324a9`; Fixed Bid `2893de804389345bb2ae081d0bbf45d6244c2c0c`; Auction report `ea793c09115f09b22fdd3afafbfd59edde362eb0`; Fixed Bid report `20ec70355e098dc8264ad7e56390bde9c3a55ca9`. Test commits: Wallet/Fixed Bid `2b8b626dc3e186550e74e6e6b4ef5528f00265be`; Admin reports `21a5f9e46b7424b86ef80fc28312e80b104b8092`.
+- No tests/build/type-check/browser QA were run. No Supabase access, SQL application, deployment or protected `main` changes occurred.
+- Overall development completion remains **60% provisional**.
+
+---
+
+## Latest source-development checkpoint — 2026-11-19
+
 - Current `completion-work` HEAD before checkpoint refresh: `e6964462245ad298640649120755e9f21896ee26`.
 - Restricted payment-review Staff directory now handles missing Supabase configuration and Admin identity-check errors, ignores stale asynchronous directory loads, and validates account IDs and permission values before presenting editable access.
 - Member/Admin notification inbox now validates initial and subsequent page payloads, rejects missing/duplicate notification IDs, and stops pagination rather than appending ambiguous rows.
