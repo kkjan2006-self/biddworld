@@ -332,3 +332,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/member-wallet-funding-upload-cleanup.test.ts` source-contract coverage (not executed).
 - Source commits: `c010a7b1e72f06670191c0b74c789c7f015909a8` (implementation), `1e64fa623a40842ffb796df8dba0c52877030dd1` (test source).
 - No tests/build/QA, browser/device checks, SQL replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
+
+
+## Latest source-development batch — Wallet funding integration in member portal
+
+- The Add Money workflow component was present but was not mounted in the authenticated member Wallet tab. Added a lazy-loaded `WalletFunding` route section above wallet history, making the QR/UTR/receipt submission and request history reachable from the actual member navigation.
+- Added `tests/member-wallet-funding-navigation.test.ts` source-contract coverage (not executed).
+- Source commits: `bf4242f2a8b2435e8ad1d532bbf65b75eb786357` (Wallet navigation integration), `158faafdbe48b4585e2f49e90a44cc036edca052` (test source).
+- Together with the prior auction and wallet-funding receipt cleanup commits, this batch improves orphaned private upload handling without risking cleanup after ambiguous RPC outcomes.
+- No tests/build/QA, browser/device checks, SQL replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
