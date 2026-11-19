@@ -3,6 +3,7 @@ import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 
 const sql=readFileSync(resolve(process.cwd(),'supabase/migrations/20261119280000_matrix_plan_configuration.sql'),'utf8');
+const followup=readFileSync(resolve(process.cwd(),'supabase/migrations/20261119300000_automatic_duplicate_matrix_placement.sql'),'utf8');
 
 describe('package-specific Matrix plan configuration contract',()=>{
   it('keeps Matrix width and Matrix depth as independent plan fields',()=>{
@@ -21,6 +22,12 @@ describe('package-specific Matrix plan configuration contract',()=>{
     expect(sql).toContain('unique(package_id, version_number)');
     expect(sql).toContain('Matrix plan drafts can only be changed before package publication');
     expect(sql).toContain('Matrix plans can only be activated before package publication');
+  });
+  it('keeps placement depth independent from commission depth and applies the second activation placement gate',()=>{
+    expect(followup).toContain('placement_depth integer not null default 5');
+    expect(followup).toContain('p_placement_depth integer');
+    expect(followup).toContain('activation_number=2');
+    expect(followup).toContain('v_plan.placement_depth');
   });
   it('does not post wallet credits or merge Matrix commissions into Sponsor Referral commissions',()=>{
     expect(sql).not.toContain('wallet_accounts');
