@@ -15,7 +15,11 @@ declare
   v_category text := 'account';
   v_status text;
   v_member_code text;
+  v_notifications_enabled boolean:=false;
 begin
+  select coalesce((setting_value#>>'{}')::boolean,false) into v_notifications_enabled
+  from public.app_settings where setting_key='notifications_enabled';
+  if not coalesce(v_notifications_enabled,false) then return new;end if;
   if tg_table_name = 'package_activations' then
     if old.payment_status is not distinct from new.payment_status
        and old.activation_status is not distinct from new.activation_status then
