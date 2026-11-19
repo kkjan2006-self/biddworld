@@ -2273,3 +2273,11 @@
 - Current inventory: 124 forward + 16 excluded = 140 timestamped migrations, plus three legacy SQL files. Forward manifest remains unique and sorted.
 - Development-only: no migration execution, no Supabase data changes, no tests/build/type-check or Preview deployment.
 - Source development estimate: **97% provisional**; remaining final frontend/RPC/security and release-documentation reconciliation.
+
+
+## 2026-11-19 — Unique migration version correction
+
+- Resolved a migration-version collision with the pre-existing `20261119540000_support_ticket_keyset_indexes.sql`. The duplicate-pending-product guard is now uniquely versioned as `20261119550000_prevent_duplicate_pending_product_submissions.sql`; the colliding file was removed from `completion-work` and the test reference updated.
+- Re-sorted the clean-install manifest. It now contains 124 unique forward candidates and remains strictly ordered; together with 16 excluded historical migrations this accounts for all 140 timestamped SQL migration files.
+- Commits: new unique migration `c40fc5bf97dfcc0f191b4ce87c725124e7aaa11c`; removed colliding path `911b79df0f23fd521d3bc96c6b41133a3ebf4d21`; test path `97db7c483474bc7b1d548bebe7cbeb34927c6e87`; manifest `4e057b1bf681930e7387ba26ac4045a0c3c44c8a`.
+- No database migrations executed and no Supabase data changed.
