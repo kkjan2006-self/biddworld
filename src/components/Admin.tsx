@@ -183,7 +183,7 @@ export default function Admin(){
     campaigns:!fixedCampaignResult.error&&Array.isArray(fixedCampaignResult.data)?fixedCampaignResult.data.length:current.campaigns
    }));
    }catch(loadError){
-    if(active)setError(loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.');
+    if(active){setWithdrawalQueueLoading(false);setError(loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.');}
    }finally{
     if(active)setLoading(false);
    }
