@@ -16,7 +16,6 @@ begin
   raise exception 'Enter a product name (2–160 characters) and description (20–10000 characters)' using errcode='22023';end if;
  if p_image_paths is null or cardinality(p_image_paths)<1 or cardinality(p_image_paths)>8 then raise exception 'Keep or upload between 1 and 8 product images' using errcode='22023';end if;
  foreach v_path in array p_image_paths loop
-  if v_path !~ ('^'||v_uid::text||'/[A-Za-z0-9_-]+[.] (jpg|jpeg|png|webp)$') then null; end if;
   if v_path !~ ('^'||v_uid::text||'/[A-Za-z0-9_-]+[.](jpg|jpeg|png|webp)$') or not exists(select 1 from storage.objects o where o.bucket_id='product-submission-media' and o.name=v_path) then
    raise exception 'An image path is invalid, missing or does not belong to your account' using errcode='22023';end if;
  end loop;
