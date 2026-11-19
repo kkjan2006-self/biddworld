@@ -902,3 +902,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: Admin UI `d39fd2d646ddc3e737f7f093a723fb7597866160`; regression contract `fee444afb8becfabcdc165729a3883d91ab010f8`.
 - No tests/build/type-check/browser/mobile QA, migrations, database writes, Production access, deployment or protected `main` changes.
 - Overall development completion remains **69% provisional**.
+
+
+## Duplicate placement ownership alignment — 2026-11-19
+
+- Corrected automatic Duplicate-ID BFS placement to skip the owner's own Main ID and owner-linked Duplicate IDs as placement parents. It now chooses only active parent IDs owned by a different member, matching the existing activation guard, while searching the owner's Main-ID placement tree.
+- Added source-only migration `20261119340000_exclude_owner_ids_from_duplicate_placement.sql`, registered in the clean-install forward manifest, plus regression contract `tests/automatic-duplicate-placement-owner-guard.test.ts`.
+- Commits: migration `9199443`; regression contract `e12ab87`; manifest `2faed2d`.
+- No tests/build/type-check/browser/mobile QA, migrations applied, database writes, Production access, deployment or protected `main` changes.
+- Development completion remains **69% provisional**.
