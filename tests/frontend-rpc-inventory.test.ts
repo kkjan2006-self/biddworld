@@ -8,17 +8,7 @@ const manifest = JSON.parse(read('docs/FRONTEND_RPC_INVENTORY.json')) as {
 };
 const surfaces = [
   'src/App.tsx',
-  'src/components/Account.tsx',
-  'src/components/Admin.tsx',
-  'src/components/AdminAuctionBidReport.tsx',
-  'src/components/AdminFixedBidEntryReport.tsx',
-  'src/components/FixedBid.tsx',
-  'src/components/Notifications.tsx',
-  'src/components/Packages.tsx',
-  'src/components/PlacementTree.tsx',
-  'src/components/Referrals.tsx',
-  'src/components/Support.tsx',
-  'src/components/WalletHistory.tsx',
+  ...readdirSync(resolve(root,'src/components')).filter(path=>path.endsWith('.tsx')).map(path=>'src/components/'+path),
 ];
 
 describe('Frontend RPC inventory completeness', () => {
@@ -26,7 +16,7 @@ describe('Frontend RPC inventory completeness', () => {
     const discovered = new Map<string, Set<string>>();
     for (const path of surfaces) {
       const source = read(path);
-      const pattern = /\.rpc\(\s*['"\x60]([a-zA-Z0-9_]+)['"\x60]/g;
+      const pattern = /\.rpc(?:<[^>]+>)?\s*\(\s*['"\x60]([a-zA-Z0-9_]+)['"\x60]/g;
       for (const match of source.matchAll(pattern)) {
         const files = discovered.get(match[1]) ?? new Set<string>();
         files.add(path);
