@@ -588,3 +588,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Extended source-contract tests for the delivery workspace error state and report filter contracts. Tests remain unexecuted.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
 - Overall development estimate remains **60% Provisional** until broad source reconciliation and final end-to-end verification.
+
+
+## 2026-11-19 — Withdrawal report export preflight
+
+- Added a function-level reversed-date guard to the complete Withdrawal CSV export, complementing the existing disabled-button and inline validation state. Invalid dates now stop before the paginated Admin RPC is called and produce a clear report message.
+- Extended the withdrawal report source-contract test; test source only and not executed.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
+- Overall development estimate remains **60% Provisional** pending final end-to-end verification.
