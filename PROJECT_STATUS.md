@@ -1250,3 +1250,15 @@ At every development batch/chat end, update this file with the actual verified b
 - Latest documentation commits: `PROJECT_STATUS.md` `7581520c14f759df2ae1ceac0ef7287af5ffcb23`; clean-install README `1abdae80656bbb2bed654b66b38fec012f883774`; completion register `25b0ed3e70dee71295018418d122125f1decd4fe`.
 - Development-only boundary maintained: no tests, build, type-check, database reads/writes, migration replay, Preview publish, runtime QA or Production deployment. Protected `main` unchanged.
 - Overall source development estimate: **78% provisional**. This is not a runtime or release-completion claim; canonical baseline/RPC dependency review and remaining source integration work are still open.
+
+
+## 2026-11-19 — Admin product moderation queue pagination and catalogue SQL hardening
+
+- Added a server-side Admin-only keyset pagination RPC for pending product submissions. It validates page size and paired cursor fields, orders by `created_at,id`, and returns an explicit `has_more` marker.
+- Updated the Admin Product Review interface to load 50 submissions at a time, append further pages without discarding previously signed private-image URLs, and refresh the queue after review actions.
+- Added strict response-shape/date/image validation and duplicate/overlap detection before displaying a moderation page.
+- Corrected the approved product-detail migration's SQL regular expressions to use explicit character classes for decimal points and image extensions; extended catalogue search to include persisted product attributes as well as name/category/description.
+- Added regression source `tests/admin-product-submission-pagination.test.ts`; extended `tests/product-catalogue-details.test.ts`. No tests or builds were executed in this development-only batch.
+- Commits: SQL hardening `f0c47da6645795fa3f657fb6aff9374b785897ec`; catalogue regression `9d1334088f42469bf8408766ee30072e00a93712`; moderation UI `b3e9b298ed76ceee4f09a423a3526a3a972384e3`; pagination migration `19c508a3e94cda9c7b47ea368251abc8c29cf0c1`; pagination tests `b00b88496a2f344710208f9cfb9823b49a3b61fe`; forward manifest `50800ef11a558a6b36a2f6246c3a2b4722a04bd8`; UI validation `c21841e99bc4e5ce5233da91dcf6eb92fda2ff5b`; validation test `30952fcab947d364c72f8d822c6be6c1037dc6bb`.
+- Source-only on `completion-work`; no TEST/Production database changes, migration execution, Preview deployment, runtime QA or protected `main` changes.
+- Source development estimate: **80% provisional**; full baseline/RPC/security dependency reconciliation and remaining feature integration remain open.
