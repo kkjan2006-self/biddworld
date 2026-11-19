@@ -1298,7 +1298,7 @@
 - Confirmed the Member Auction submission preflight validates trimmed title/description, 1–8 JPG/PNG/WebP images (5 MB each), positive Starting Price, Expected Price not below Starting Price, positive increment and valid start time before upload. It uses an in-flight guard and cleans up definite pre-RPC/RPC-rejection upload failures; ambiguous RPC outcomes intentionally preserve media.
 - Confirmed Admin review validates edited fields before copying private images to public product media, serializes review actions, and removes copied images only on pre-RPC/definite RPC failure. Ambiguous outcomes preserve media to avoid broken published listings.
 - Full migration inventory found 103 timestamped migration files, while the prior forward/excluded manifests covered only 101. Two migrations were missing: the Admin Expected Price lifecycle migration and Admin open-ended auction status migration.
-- Corrected the duplicate `20261119160000` migration version by renaming the Admin Expected Price lifecycle file to `20261119160100_admin_auction_expected_price_lifecycle.sql`; added that file and `20261119170000_admin_open_ended_auction_status.sql` to the ordered forward manifest. The manifest now accounts for 87 forward + 16 excluded = 103 timestamped files, with unique version prefixes.
+- Corrected the duplicate `20261119160000` migration version by renaming the Admin Expected Price lifecycle file to `20261119160100_admin_auction_expected_price_lifecycle.sql`; added that file and `20261119170000_admin_open_ended_auction_status.sql` to the ordered forward manifest. The manifest now accounts for 92 forward + 16 excluded = 103 timestamped files, with unique version prefixes.
 - Updated the clean-install README and authoritative project status to reflect the current inventory and verified source HEAD. The existing manifest-integrity test source covers exact accounting and ordering; it has not been run.
 - No tests, build, QA, browser/device checks, migration replay, Supabase writes or deployment were performed. Production remains read-only; TEST remains untouched.
 - Overall development estimate remains **60% Provisional**; the correction repairs source-manifest integrity and does not imply successful database replay or runtime verification.
@@ -1335,11 +1335,11 @@
 - No tests, type-check, app build, browser/device QA or functional test data checks were run as part of this checkpoint. Overall development estimate remains **60% provisional**; no completion increase is justified.
 
 
-## 2026-11-19 — Registration email verification default (#88)
+## 2026-11-19 — Registration email verification default (#93)
 
 - The current source default contradicted the owner's explicit requirement that email verification is not required: the app initialized the policy to true and migration #78 seeded true.
 - Updated the Member signup client fallback to false, so a temporarily unavailable policy RPC does not reintroduce mandatory confirmation behavior.
-- Added forward migration #88 to set `email_verification_required=false` for existing and clean-install environments and change the public policy RPC's missing-setting fallback to false. The Admin override remains available; provider-level Supabase Auth Confirm Email must independently remain OFF.
+- Added forward migration #93 to set `email_verification_required=false` for existing and clean-install environments and change the public policy RPC's missing-setting fallback to false. The Admin override remains available; provider-level Supabase Auth Confirm Email must independently remain OFF.
 - Added `tests/registration-email-verification-default.test.ts` as source-contract coverage; not executed.
 - Updated the forward manifest and clean-install README. No tests, build, type-check, browser/device QA, migration replay, Supabase writes or deployment were performed. Production remains read-only; no TEST writes were performed. Protected `main` remains untouched.
 - Overall development completion remains **60% Provisional**; this source correction does not establish migration replay or runtime verification.
