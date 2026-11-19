@@ -837,3 +837,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Next blocker: authoritative TEST schema-only snapshot and applied migration history, then compare before authoring any forward-only reconciliation.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
 - Overall development estimate remains **68% provisional** pending schema baseline resolution.
+
+
+## Latest checkpoint — TEST baseline verified
+
+- Read-only TEST migration history: 89 entries; clean-install baseline `biddworld_clean_install_schema_baseline`; latest applied source migration `20261119170000_admin_open_ended_auction_status`.
+- TEST core schema columns match the current owner/member-scoped model. The earlier source-only legacy-baseline concern is corrected; no legacy migration replay is needed on this TEST environment.
+- 14 later source migrations (`20261119180000` through `20261119320000`) are not yet applied to TEST; Matrix tables are therefore absent. No migrations were applied.
+- Audit correction: `177916ef85ec82488dcdd6029c1b77d67e1bcfd3`; completion register: `06c6f30a51275226bf919888d5914ae3eb53feaa`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production writes. Production was not queried. Matrix feature remains OFF.
+- Overall development estimate remains **68% provisional**.
