@@ -6,10 +6,11 @@ import {money} from '../lib/format';
 type RequestRow={id:string;amount:number;currency:string;payment_reference:string;status:string;review_note:string|null;created_at:string;reviewed_at:string|null};
 export default function WalletFunding(){
  const [open,setOpen]=useState(false),[amount,setAmount]=useState(''),[utr,setUtr]=useState(''),[receipt,setReceipt]=useState<File|null>(null);
- const [busy,setBusy]=useState(false),[message,setMessage]=useState(''),[rows,setRows]=useState<RequestRow[]>([]);
- const inFlight=useRef(false);
- async function load(){if(!supabase)return;const{data,error}=await supabase.rpc('member_list_my_wallet_fund_requests');if(!error)setRows((data??[]) as RequestRow[]);}
- useEffect(()=>{void load();},[]);
+ const [busy,setBusy]=useState(false),[message,setMessage]=useState(''),[rows,setRows]=useState<RequestRow[]>([]),[historyLoading,setHistoryLoading]=useState(true),[historyError,setHistoryError]=useState(''),[userId,setUserId]=useState<string|null>(null);
+ const inFlight=useRef(false),historyRequest=useRef(0);
+ useEffect(()=>{if(!supabase){setUserId(null);setHistoryLoading(false);return;}let active=true,authEventObserved=false;const{data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{authEventObserved=true;if(active)setUserId(session?.user?.id??null);});void supabase.auth.getUser().then(({data,error})=>{if(!active||authEventObserved)return;if(error)throw error;setUserId(data.user?.id??null);}).catch(()=>{if(active&&!authEventObserved){setUserId(null);setHistoryError('Your sign-in session could not be verified. Please sign in again.');setHistoryLoading(false);}});return()=>{active=false;subscription.unsubscribe();historyRequest.current++;};},[]);
+ async function load(){const seq=++historyRequest.current;if(!supabase||!userId){setRows([]);setHistoryLoading(false);return;}setHistoryLoading(true);setHistoryError('');try{const{data,error}=await supabase.rpc('member_list_my_wallet_fund_requests');if(error)throw error;if(seq===historyRequest.current)setRows((data??[]) as RequestRow[]);}catch(e){if(seq===historyRequest.current)setHistoryError(e instanceof Error?e.message:'Add Money requests could not be loaded. Please retry.');}finally{if(seq===historyRequest.current)setHistoryLoading(false);}}
+ useEffect(()=>{setRows([]);setHistoryError('');setHistoryLoading(Boolean(userId));void load();return()=>{historyRequest.current++;};},[userId]);
  async function submit(e:FormEvent){
   e.preventDefault();if(!supabase||busy||inFlight.current)return;
   const value=Number(amount),reference=utr.trim();
@@ -46,6 +47,6 @@ export default function WalletFunding(){
     {message&&<small role="status">{message}</small>}
    </form>
   </div>}
-  <div className="walletFundingHistory"><h5><Clock3 size={16}/> Add Money Requests</h5>{rows.length?rows.map(row=><article key={row.id}><div><b>{money(Number(row.amount),row.currency||'INR')}</b><small>UTR: {row.payment_reference} · {new Date(row.created_at).toLocaleString('en-IN')}</small>{row.review_note&&<small>Admin note: {row.review_note}</small>}</div><strong className={row.status==='approved'?'memberActive':row.status==='rejected'?'memberStatus':''}>{row.status.toUpperCase()}</strong></article>):<small>No Add Money requests yet.</small>}<button type="button" className="outline small" onClick={()=>void load()}><RefreshCw size={14}/> Refresh requests</button></div>
+  <div className="walletFundingHistory"><h5><Clock3 size={16}/> Add Money Requests</h5>{historyLoading?<small>Loading Add Money requests…</small>:historyError?<small role="alert">{historyError}</small>:rows.length?rows.map(row=><article key={row.id}><div><b>{money(Number(row.amount),row.currency||'INR')}</b><small>UTR: {row.payment_reference} · {new Date(row.created_at).toLocaleString('en-IN')}</small>{row.review_note&&<small>Admin note: {row.review_note}</small>}</div><strong className={row.status==='approved'?'memberActive':row.status==='rejected'?'memberStatus':''}>{row.status.toUpperCase()}</strong></article>):<small>No Add Money requests yet.</small>}<button type="button" className="outline small" onClick={()=>void load()}><RefreshCw size={14}/> Refresh requests</button></div>
  </section>;
 }
