@@ -16,6 +16,6 @@ describe('Admin auction expected-price lifecycle contract',()=>{
  it('keeps end time derived by the 48-hour expected-price trigger',()=>{
   assert.match(migration,/expected_price=p_expected_price/);
   assert.match(migration,/ends_at=null/);
-  assert.match(migration,/p_expected_price<p_starting_price/);
+  assert.match(migration,/p_expected_price<p_starting_price/);\n  assert.match(migration,/before update of current_price,status/);\n  assert.match(migration,/new.status='live'/);
  });
 });
