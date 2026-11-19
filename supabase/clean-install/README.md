@@ -21,7 +21,7 @@ Schema-only baseline candidate reconstructed from read-only Production PostgreSQ
 ## Forward migration manifest
 The baseline represents the current Production schema at capture time. Do not replay historical migrations at/before `20261115163218` on top of it. The source migration `20261115180000_admin_audit_log_pagination.sql` is excluded because its effect is already represented in the captured state.
 
-Ordered forward candidates are listed in `forward-migrations.txt` (**84 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **96 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
+Ordered forward candidates are listed in `forward-migrations.txt` (**85 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **96 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
 
 ## Remaining work before canonical status
 1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive. Public function EXECUTE counts align with the Production inventory (43 authenticated, anon only public.lookup_sponsor(text)); read-only Production evidence confirms service_role EXECUTE on all 43 public functions. The candidate intentionally narrows audit_logs_id_seq to service_role USAGE only; effective permissions still require final TEST replay. See docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md.
@@ -78,7 +78,7 @@ The original member-notification migration separately granted column-level INSER
 - Added cursor-specific Admin-only RPCs for auction bids and Fixed Bid entries. Both use stable descending `(created_at,id)` ordering and validate paired cursor values and page bounds.
 - Updated the two report components to use the cursor RPCs for both interactive pagination and complete CSV export. The prior offset RPCs remain available for compatibility with any legacy caller.
 - Added source-contract tests for both UI/RPC contracts. Tests have not been executed.
-- Forward migration inventory: 84 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 103 SQL files (100 timestamped). No migration replay, tests/build/QA or database writes were performed.
+- Forward migration inventory: 85 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 104 SQL files (101 timestamped). No migration replay, tests/build/QA or database writes were performed.
 
 
 ## 2026-11-19 — Main Wallet funding workflow (#76)
@@ -157,3 +157,10 @@ The original member-notification migration separately granted column-level INSER
 - The bid RPC accepts `ends_at IS NULL` and still rejects bids after the deadline. A `pg_cron` job starts scheduled listings and marks them ended at the 48-hour deadline. Admin/Staff moderation edits the two prices; no end-time input remains.
 - Added source-contract test `tests/expected-price-auction-lifecycle.test.ts` (not run). Inventory: 84 forward + 16 excluded timestamped + 3 legacy SQL files = 103 total (100 timestamped).
 - No tests/build/QA, SQL replay, database writes or deployment were performed. Cron scheduling is defined in the migration and has not been applied or verified in a database.
+
+
+## 2026-11-19 — Individual restricted Staff permissions (#85)
+
+- Added `20261119160000_individual_payment_staff_permissions.sql`: Primary Admin can independently assign Package Activation Payment Review, Main Wallet Add Money Review, and Member Auction Listing Review to each existing restricted Staff account. Permission updates are allowlisted and audited; at least one permission must remain. Revoke Staff Access removes the role.
+- Added per-user permission controls and source-contract test (not run). Staff must sign out and back in to refresh app_metadata claims.
+- Inventory: 85 forward + 16 excluded timestamped + 3 legacy SQL files = 104 total (101 timestamped). No tests/build/QA, migration replay, DB writes or deployment.
