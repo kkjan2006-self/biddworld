@@ -462,3 +462,11 @@ At every development batch/chat end, update this file with the actual verified b
 - If image copying fails before the review RPC, or the RPC returns a definite database error, uploaded public copies are removed. If the RPC outcome is ambiguous (for example, a lost network response), public copies are deliberately preserved so a successfully published auction is not left with broken images.
 - Added source-contract test coverage only; it has not been executed. No build, QA, SQL replay, Supabase writes or deployment. Production remains read-only and TEST remains untouched. Overall development estimate remains **60% Provisional**.
 - Commits: `0d479c0e812b367603eaaac6c410a209cddb88af` (Admin review), `008fcc011212153295abb52315bf08ce6ea66c11` (test source).
+
+
+## 2026-11-19 — Auction review form state and date-input resilience
+
+- After a successful member-auction review, the reviewed submission's local edits and review note are cleared so stale unsaved values cannot leak into a later refresh/review session.
+- Clearing the Starts At field no longer throws a client-side `RangeError`; invalid/empty input is retained as an empty value and blocked by the approval validation before any public image copy.
+- Extended source-contract coverage; tests remain unexecuted. No build, QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
+- Commits: `a6cd717cd4fe82d330004acaf5930cb6a1c44b2c` (UI), `d5d1753f37733b12295abea9281f66400f3ffe0e` (test source).
