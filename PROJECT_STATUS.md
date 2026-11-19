@@ -856,3 +856,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Read-only TEST schema baseline is confirmed; this migration is still unapplied there. No tests/build/type-check/browser/mobile QA run and no TEST/Production migrations applied.
 - Protected `main` unchanged. Matrix commission feature remains OFF.
 - Overall development estimate: **69% provisional**.
+
+
+## Latest checkpoint — Wallet history request lifecycle
+
+- Prevented stale wallet-history requests from applying Matrix source attribution, pagination cursor, or transaction rows after an async attribution lookup completes.
+- Added regression contract. Commits: component `691ff9f`, test `190ed8a`, register `83181de7bf4026fa5b47422efe0cd62c70366245`.
+- No tests/build/type-check/browser/mobile QA run; no TEST/Production database changes. Protected `main` unchanged.
+- Overall development estimate: **69% provisional**.
