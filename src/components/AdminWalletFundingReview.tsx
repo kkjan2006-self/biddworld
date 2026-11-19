@@ -1,13 +1,58 @@
-import {useEffect,useState} from 'react';
-import {CheckCircle2,RefreshCw,ExternalLink} from 'lucide-react';
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {RefreshCw,ExternalLink} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {money} from '../lib/format';
 type Row={id:string;member_code:string;member_name:string|null;amount:number;currency:string;payment_reference:string;receipt_path:string;created_at:string};
 export default function AdminWalletFundingReview(){
- const [rows,setRows]=useState<Row[]>([]),[urls,setUrls]=useState<Record<string,string>>({}),[note,setNote]=useState<Record<string,string>>({});
- const [busy,setBusy]=useState(''),[message,setMessage]=useState('');
- async function load(){if(!supabase)return;setMessage('');const{data,error}=await supabase.rpc('admin_list_pending_wallet_fund_requests');if(error){setMessage(error.message);return;}const items=(data??[]) as Row[];setRows(items);const next:Record<string,string>={};await Promise.all(items.map(async row=>{const{data}=await supabase.storage.from('wallet-funding-receipts').createSignedUrl(row.receipt_path,300);if(data?.signedUrl)next[row.id]=data.signedUrl;}));setUrls(next);}
- useEffect(()=>{void load();},[]);
- async function review(id:string,approve:boolean){if(!supabase||busy)return;setBusy(id);setMessage('');try{const{error}=await supabase.rpc('admin_review_wallet_fund_request',{p_request_id:id,p_approve:approve,p_review_note:note[id]??null});if(error)throw error;setMessage(approve?'Payment approved. The amount has been credited to the member Main Wallet.':'Payment request rejected. No wallet credit was made.');await load();}catch(e){setMessage(e instanceof Error?e.message:'The request could not be reviewed.');}finally{setBusy('');}}
- return <section className="adminModuleDetail" style={{marginTop:18}}><h4>Main Wallet Add Money Reviews</h4><p>Check the UTR and payment receipt before approving. Approval credits the member Main Wallet and records the wallet ledger entry.</p>{message&&<div className="notice" role="status">{message}</div>}{rows.length===0?<div className="empty">No pending Add Money requests.</div>:<div className="referralList">{rows.map(row=><article key={row.id} style={{display:'flex',flexDirection:'column',gap:8,padding:14}}><b>{row.member_code} · {row.member_name||'Member'}</b><strong>{money(Number(row.amount),row.currency||'INR')}</strong><small>UTR: {row.payment_reference}</small><small>Submitted: {new Date(row.created_at).toLocaleString('en-IN')}</small>{urls[row.id]&&<a href={urls[row.id]} target="_blank" rel="noreferrer"><ExternalLink size={14}/> View payment receipt</a>}<label>Review note (optional)<input value={note[row.id]??''} maxLength={500} onChange={e=>setNote(v=>({...v,[row.id]:e.target.value}))}/></label><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="primary small" disabled={busy!==''} onClick={()=>void review(row.id,true)}>{busy===row.id?'Saving…':'Approve & Credit Main Wallet'}</button><button type="button" className="outline small" disabled={busy!==''} onClick={()=>void review(row.id,false)}>Reject</button></div></article>)}</div>}<button type="button" className="outline small" onClick={()=>void load()}><RefreshCw size={14}/> Refresh queue</button></section>;
+ const [rows,setRows]=useState<Row[]>([]),[urls,setUrls]=useState<Record<string,string>>({}),[receiptErrors,setReceiptErrors]=useState<Record<string,string>>({}),[note,setNote]=useState<Record<string,string>>({});
+ const [busy,setBusy]=useState(''),[loading,setLoading]=useState(true),[error,setError]=useState(''),[message,setMessage]=useState('');
+ const requestSeq=useRef(0),reviewBusy=useRef(false);
+ const load=useCallback(async()=>{
+  const seq=++requestSeq.current;
+  if(!supabase){setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);return;}
+  setLoading(true);setError('');setReceiptErrors({});
+  try{
+   const{data,error:loadError}=await supabase.rpc('admin_list_pending_wallet_fund_requests');
+   if(loadError)throw loadError;
+   const items=(data??[]) as Row[];
+   if(!Array.isArray(data??[]))throw new Error('The wallet funding review response was invalid. Please retry.');
+   if(seq!==requestSeq.current)return;
+   setRows(items);setUrls({});
+   const next:Record<string,string>={},failures:Record<string,string>={};
+   await Promise.all(items.map(async row=>{
+    const{data:signed,error:signedError}=await supabase.storage.from('wallet-funding-receipts').createSignedUrl(row.receipt_path,300);
+    if(signedError||!signed?.signedUrl)failures[row.id]=signedError?.message||'Receipt link could not be created. Refresh and retry.';
+    else next[row.id]=signed.signedUrl;
+   }));
+   if(seq!==requestSeq.current)return;
+   setUrls(next);setReceiptErrors(failures);
+   if(Object.keys(failures).length)setError('One or more receipts could not be opened. Refresh the queue before reviewing those requests.');
+  }catch(e){if(seq===requestSeq.current){setRows([]);setUrls({});setError(e instanceof Error?e.message:'Wallet funding requests could not be loaded. Please retry.');}}
+  finally{if(seq===requestSeq.current)setLoading(false);}
+ },[]);
+ useEffect(()=>{void load();return()=>{requestSeq.current++;};},[load]);
+ async function review(id:string,approve:boolean){
+  if(!supabase||reviewBusy.current)return;
+  if(approve&&!urls[id]){setError('Open and verify the payment receipt before approving this request. Refresh the queue to retry the receipt link.');return;}
+  reviewBusy.current=true;setBusy(id);setError('');setMessage('');
+  try{
+   const{error:reviewError}=await supabase.rpc('admin_review_wallet_fund_request',{p_request_id:id,p_approve:approve,p_review_note:note[id]??null});
+   if(reviewError)throw reviewError;
+   setMessage(approve?'Payment approved. The amount has been credited to the member Main Wallet.':'Payment request rejected. No wallet credit was made.');
+   await load();
+  }catch(e){setError(e instanceof Error?e.message:'The request could not be reviewed. Please retry.');}
+  finally{reviewBusy.current=false;setBusy('');}
+ }
+ return <section className="adminModuleDetail" style={{marginTop:18}}>
+  <h4>Main Wallet Add Money Reviews</h4><p>Check the UTR and payment receipt before approving. Approval credits the member Main Wallet and records the wallet ledger entry.</p>
+  {error&&<div className="notice" role="alert">{error} <button type="button" className="outline small" onClick={()=>void load()} disabled={loading}>Retry</button></div>}
+  {message&&<div className="notice" role="status">{message}</div>}
+  {loading?<div className="empty">Loading pending Add Money requests…</div>:error&&!rows.length?null:rows.length===0?<div className="empty">No pending Add Money requests.</div>:<div className="referralList">{rows.map(row=><article key={row.id} style={{display:'flex',flexDirection:'column',gap:8,padding:14}}>
+   <b>{row.member_code} · {row.member_name||'Member'}</b><strong>{money(Number(row.amount),row.currency||'INR')}</strong><small>UTR: {row.payment_reference}</small><small>Submitted: {new Date(row.created_at).toLocaleString('en-IN')}</small>
+   {urls[row.id]?<a href={urls[row.id]} target="_blank" rel="noreferrer"><ExternalLink size={14}/> View payment receipt</a>:<small role="alert">{receiptErrors[row.id]||'Preparing secure receipt link…'}</small>}
+   <label>Review note (optional)<input value={note[row.id]??''} maxLength={500} onChange={e=>setNote(v=>({...v,[row.id]:e.target.value}))}/></label>
+   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="primary small" disabled={busy!==''||!urls[row.id]} onClick={()=>void review(row.id,true)}>{busy===row.id?'Saving…':'Approve & Credit Main Wallet'}</button><button type="button" className="outline small" disabled={busy!==''} onClick={()=>void review(row.id,false)}>Reject</button></div>
+  </article>)}</div>}
+  <button type="button" className="outline small" onClick={()=>void load()} disabled={loading||busy!==''}><RefreshCw size={14}/> Refresh queue</button>
+ </section>;
 }
