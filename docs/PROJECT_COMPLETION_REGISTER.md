@@ -2032,3 +2032,14 @@
 - Commits: UI 9877925e96a83564d69ebce7be8b7a0bae927199, follow-up UI 658d955a0315d7d92d33e8eadabdbdd4c7ee0af8, migration 607eecceb05f11bfac3f9fb02f1d2e93261a9fa9, manifest 04f67481ae602ba8c6e61e0da5277e6ee5c6c0d4, UI controls 826332c36b14eff623be56a03b57f02e0386f24f, regression source 1522eb7d6f77dd5a2e45bdfc3e1e7c60fd067935.
 - No tests/type-check/browser/mobile QA run; no TEST/Production database access or migrations; protected main unchanged.
 - Overall development completion remains 72% provisional.
+
+
+## 2026-11-19 — Member product submission and Admin moderation
+
+- Added a separate OLX-style member product submission workspace on the public Products tab: title, detailed description, category, brand/model, condition, age/year, location, extra details and 1–8 images (JPG/PNG/WebP, 5 MB each). Members can see their own submission statuses and review notes.
+- Added a private product-submission Storage bucket and owner-scoped submission RPCs. Pending images remain private; only an Admin can review. On approval, Admin copies the first image to public product media and the database publishes the product in the existing catalogue. Rejections remain private and are audit-logged.
+- Added Admin Product Review queue with signed private image previews, Approve & Publish and Reject actions. Integrated into the Admin workspace.
+- Migration: supabase/migrations/20261119440000_member_product_submission_moderation.sql; registered in supabase/clean-install/forward-migrations.txt. Regression source: tests/member-product-submission-moderation.test.ts. UI: src/components/MemberProductSubmission.tsx and src/components/AdminProductSubmissionReview.tsx.
+- Key commits: migration e1592c9b03f992e4df81ebc7aab8d38f5198a08f; member UI 4f8259ffcc09fe7dc68dd3464ca47acc5b1343e7; Admin UI b60f81c251905966eb3d76090122de6dbaf7a6ef; App integration 31298afb947876ae708c4da178bb086613bb5ddf; Admin integration 68fd52e6f5e2c2bd970aa07f35496b80a96d3e55; manifest 7b36476f84fac70e71688af540c9de7f09c31294; regression source e85ee5adcc2dcb60bb45d982d80d1d91bf514d3c.
+- Migration remains source-only; not applied to TEST or Production. No tests/type-check/browser/mobile QA run. Protected main unchanged.
+- Overall development completion remains **74% provisional**.
