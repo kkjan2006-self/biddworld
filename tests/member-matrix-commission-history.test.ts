@@ -7,3 +7,10 @@ describe('member Matrix commission history',()=>{
  it('returns source ID type and member code for duplicate attribution',()=>{expect(sql).toContain('source.member_code,source.id_type');expect(account).toContain('Source ID: {x.source_member_code}');expect(account).toContain("x.source_id_type==='duplicate'");});
  it('keeps Sponsor and Matrix history as separate sections',()=>{expect(account).toContain('Sponsor Referral Commissions');expect(account).toContain('Matrix Commissions (Under ID Chain)');expect(account).toContain("member_list_my_matrix_commissions_page" );});
 });
+
+
+describe('member Matrix commission history pagination',()=>{
+ it('loads the next 100 rows using the current record count as offset',()=>{expect(account).toContain('loadMoreMatrixCommissions');expect(account).toContain('p_limit:100,p_offset:offset');expect(account).toContain('matrixCommissions.length');});
+ it('validates and rejects repeated commission rows before appending',()=>{expect(account).toContain('Matrix commission history returned invalid data');expect(account).toContain('Matrix commission history repeated an existing record');});
+ it('shows a load-more control only when another page may exist',()=>{expect(account).toContain('matrixHistoryHasMore&&');expect(account).toContain('Load more Matrix commissions');});
+});
