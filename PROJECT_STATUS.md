@@ -754,3 +754,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: migration `808f1e996d814df1a6296f8b1dd5260e0d0b27af`; member UI `9a9488c8ea59ea8e293cde912cdc9a73dcd2b25f`; forward manifest `1c6862dcdeca2647cb872fcb3424b382843c4ead`; source-contract test `06f21fc0b4bd8c97ad676e4e05f1e01843898ef1`; completion register `c155447690322ea1d69b1c6f541dc96432f9f30b`.
 - No tests/build/type-check/browser/mobile QA run. No TEST or Production migration applied. Protected `main` remains unchanged.
 - Matrix commission feature remains OFF. Full schema reconciliation and final QA are still pending. Overall completion remains **60% provisional**.
+
+
+## Latest checkpoint — Member Matrix commission history
+
+- Member Account Commission History now separates Sponsor Referral and Matrix (Under ID chain) records. Matrix history shows source Main/Duplicate ID attribution, level, amount, status and timestamp. Secure member RPC restricts records to the authenticated user's linked Main ID.
+- Commits: UI `7e85ee8445a272f3a89965b5ea11601c84474858`; RPC `874ed1928aea683ba1308b87e72713a9dd71b8ec`; source-contract test `0d43c1c7bb25ee17fcc7ab773d5fbdedf156dc2d`; completion register `dde38f7f30eedc4a8f8bc6ff0a1d0c3e03e1b2a7`.
+- No tests/build/type-check/browser/mobile QA run and no TEST/Production migrations applied. Protected `main` unchanged. Matrix commission feature remains OFF. Matrix history pagination and final QA remain pending.
+- Overall development estimate: **61% provisional**.
