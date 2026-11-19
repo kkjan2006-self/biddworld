@@ -2202,3 +2202,10 @@
 - Current inventory: 123 forward + 16 excluded = 139 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest remains unique and sorted.
 - All intended source changes are on `completion-work`; no Supabase data/migrations were applied and no Preview deployment/runtime QA was performed.
 - Source development estimate: **93% provisional**; final module/contract reconciliation remains open.
+
+
+## 2026-11-19 — Final migration manifest de-duplication
+
+- Reconciled the clean-install manifest against the Git tree after the email-verification migration registration. Removed one duplicate entry and restored strict lexical order. Final inventory is 122 unique forward migrations + 16 unique excluded historical migrations = 138 timestamped migration files, plus three legacy SQL files. All paths exist; no overlap or uncovered timestamped migration remains.
+- Commit: `a91c7f949a15625b8135cb059ac160f50e2dbb19`.
+- No SQL execution, Supabase data changes, tests/build, Preview deployment or runtime QA. Work remains on `completion-work`.
