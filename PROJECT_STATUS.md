@@ -1276,3 +1276,16 @@ At every development batch/chat end, update this file with the actual verified b
 - Source inventory: 117 forward + 16 excluded = 133 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest remains unique and sorted.
 - All changes remain on `completion-work`. No migrations applied, no TEST/Production database writes, no Preview publish/runtime QA, and protected `main` untouched.
 - Source development estimate: **82% provisional**; remaining baseline/RPC/security dependency reconciliation and feature integration are still open.
+
+
+## 2026-11-19 — Complete member product image lifecycle
+
+- Member Product Submission history now generates short-lived private signed image previews, displays all images beside each submission, and shows the existing gallery while editing so members can confirm the images retained by resubmission.
+- Admin moderation now copies all 1–8 submitted private images into the public media bucket and submits the full image-path array through a dedicated Admin-only RPC. Failed approval attempts clean up every public image uploaded during that attempt.
+- Added a persistent `products.image_paths` gallery while preserving/backfilling legacy `image_path`; public catalogue pagination returns both, and product cards provide a mobile swipeable gallery with descriptive image alt text.
+- Rebuilt the product-detail SQL migration into a single valid definition after source review identified duplicated/malformed SQL; both moderation RPCs now explicitly reject null decisions. Added explicit column SELECT grants for the two new published catalogue fields, still subject to existing row policies.
+- Added `tests/product-gallery-publication.test.ts` and `tests/member-product-submission-image-preview.test.ts`; extended catalogue-detail regression checks. Tests/build/type-check remain intentionally unrun.
+- Latest member preview commit `8ad4b7b9221bb3212e3874f5a3721dba93d01523`; null-decision SQL guards `372d936348234d9dc36346460ead2804dfdd5c11` and `58123f63e1427d648402731d76c45ad046e28125`; regression updates `6df37ecfe9e68d3a20a9feecec604cf1d505c2ea` and `10a9d768a0e7e69b2197c35677ae425ed080bd9e`.
+- Inventory currently: 117 forward + 16 excluded = 133 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is unique and sorted.
+- All work remains on `completion-work`; no migration was applied, no TEST/Production database was changed, no Preview deployment/runtime QA was run, and protected `main` remains untouched.
+- Source development estimate: **84% provisional**; full database baseline/RPC dependency reconciliation and remaining module integration still need source completion.
