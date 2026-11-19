@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -8,7 +8,7 @@ const manifest = JSON.parse(read('docs/FRONTEND_RPC_INVENTORY.json')) as {
 };
 const surfaces = [
   'src/App.tsx',
-  ...readdirSync(resolve(root,'src/components')).filter(path=>path.endsWith('.tsx')).map(path=>'src/components/'+path),
+  ...readdirSync(resolve(process.cwd(),'src/components')).filter(path=>path.endsWith('.tsx')).map(path=>'src/components/'+path),
 ];
 
 describe('Frontend RPC inventory completeness', () => {
