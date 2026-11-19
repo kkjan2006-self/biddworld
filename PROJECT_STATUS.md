@@ -650,3 +650,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Extended the withdrawal report source-contract test; test source only and not executed.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
 - Overall development estimate remains **60% Provisional** pending final end-to-end verification.
+
+## 2026-11-19 — Admin feature settings diagnostics and enablement alignment
+
+- Fixed the Admin feature-settings contract: the email-verification policy was displayed in the UI but omitted from both `admin_get_feature_settings` and the Admin setting allowlist. Added forward migration `20261119240000_admin_email_verification_feature_setting.sql` to expose it while preserving the existing server-side allowlist, condition checks, and audit logging.
+- Admin Settings now validates that every expected setting is present as a boolean. RPC failures, malformed responses and missing keys are shown explicitly, with a Retry Settings action; missing values are no longer silently converted to OFF.
+- Frontend switches now distinguish backend workflows that are not enabled from settings requiring a server-side condition. Registration, email-verification policy, Sponsor Referral and Delivery Tracking are the currently supported enable actions; other switches cannot be enabled by bypassing the UI, and already-enabled locked features can still be switched OFF.
+- Added source-contract coverage for response validation, retry diagnostics, frontend enablement boundaries, server-side interlock preservation and non-optimistic save handling. Tests were not executed.
+- Added the new migration to the ordered clean-install forward manifest and updated the inventory to 94 forward + 16 excluded = 110 timestamped migrations.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment were performed. Production remains read-only; TEST remains untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional** pending full source reconciliation and final end-to-end verification.
