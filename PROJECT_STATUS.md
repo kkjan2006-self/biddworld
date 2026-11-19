@@ -928,3 +928,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Added migration `20261119360000_fix_duplicate_toggle_trigger_insert_record.sql`, regression contract `tests/duplicate-id-toggle-trigger-old-record.test.ts`, and clean-install manifest registration.
 - Commits: migration `d936ad3`; test `b5c9a4b`; manifest `01376a4`.
 - Source-only. No tests/build/type-check/browser/mobile QA, database migrations, database writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
+
+## Main-ID reactivation reconciliation retry — 2026-11-19
+
+- Fixed a lifecycle edge case: when a linked Duplicate ID could not reactivate because its placement parent was still inactive, it remained suspended and Main-managed. A later retry of Main-ID activation previously returned early because the Main ID was already active.
+- Main activation now retries linked Duplicate-ID reconciliation even when Main status is already active. Only Main-managed suspended duplicates with an active placement parent belonging to another member are restored; unresolved children remain suspended and managed. Closed Main IDs remain irreversible; actual changes are audited.
+- Added migration `20261119370000_retry_main_activation_duplicate_reconciliation.sql`, regression contract `tests/main-activation-duplicate-reconciliation-retry.test.ts`, and forward manifest registration.
+- Commits: migration `9ba91da`; test `032888c`; manifest `cb26307`.
+- Source-only. No tests/build/type-check/browser/mobile QA, DB migrations/writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
