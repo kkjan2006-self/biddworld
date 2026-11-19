@@ -2177,3 +2177,16 @@
 - Current inventory: 121 forward + 16 excluded = 137 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest is unique and strictly sorted.
 - Source-only: no tests/build/type-check, no TEST/Production migration execution or data changes, no Preview publishing/runtime QA, and no protected `main` changes.
 - Overall source development estimate: **90% provisional**; canonical baseline/forward migration semantic dependency review and final source integration remain open.
+
+
+## 2026-11-19 — Auction catalogue, product moderation and data-contract resilience
+
+- Fixed the Auction catalogue error-state bug: the component referenced a block-scoped RPC error from outside its scope, which could break the build. The catch handler now uses the caught error object correctly.
+- Auction sample cards now appear only when Supabase is intentionally unconfigured. A configured empty catalogue or RPC failure no longer masquerades as live sample inventory; the real empty/error state is preserved.
+- Hardened Admin product moderation cleanup: uploaded public images are removed only before the review RPC starts or after a definite server rejection. If the network outcome is uncertain, images are retained and the Admin is told to refresh before retrying, preventing a successful published product from being left with broken image URLs.
+- Member and Admin product submission readers now reject non-string optional-detail JSON values before rendering, preventing malformed historical JSON from causing React render failures.
+- Added regression sources `tests/auction-catalogue-error-state.test.ts` and `tests/admin-product-submission-image-cleanup.test.ts`; extended member/Admin product detail rendering tests. No tests/build/type-check were run.
+- Commits: auction catalogue `3df768c346320cc1b20bc684ea9a5d8a5a1892f3`; auction regression `212f8e24f088222315a652073700cd31e3fef2c0`; product image cleanup `330c86bee3db4048d7550133cf3614237be64ae8`; cleanup regression `d53ea1171ec74435fb9976a997b9a6fbce81a1dd`; member details validation `8800577c0fcfe02dbf3c51c6fdf4c1e4f3ad09d0`; Admin details validation `49591a4bc2841dd970443bb5bab1d8d27243323d`; test updates `c7db44fa5a6555e0d7a1c213c76807dd21d7066e`, `507a3b9ec062789218b378dcb0d4e83122a0b663`.
+- Current inventory: 121 forward + 16 excluded = 137 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest is unique and sorted.
+- Development-only boundary maintained: no SQL applied, no Supabase data changed, no Preview deployment/runtime QA, and protected `main` unchanged.
+- Source development estimate: **92% provisional**; remaining source contract reconciliation and final module integration are open.
