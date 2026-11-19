@@ -7,6 +7,7 @@ describe('approved member product details in public catalogue',()=>{
  it('validates positive bounded asking price and safe plain-text detail values',()=>{
   expect(sql).toContain("v_price:=new.optional_details->>'Price'");
   expect(sql).toContain("A valid product asking price is required");
+  expect(sql).toContain("p_decision is null or p_decision not in ('approve','reject')");
   expect(sql).toContain("v_price !~ '^[0-9]{1,9}([.][0-9]{1,2})?$'");
   expect(sql).toContain("p_public_image_path !~ '^[A-Za-z0-9_-]+[.](jpg|jpeg|png|webp)$'");
   expect(sql).toContain("Every product detail value must be plain text");
