@@ -944,3 +944,10 @@ At every development batch/chat end, update this file with the actual verified b
 - Added migration `20261119380000_close_all_linked_duplicate_ids.sql`, regression contract `tests/main-close-linked-duplicate-ids.test.ts`, and clean-install manifest registration.
 - Commits: migration `4aed942a9a09ee7d0936d02e86c0e108f931c928`; test `12587e9ed218ccbfb6f26efa2652442245ce9c1f`; manifest `c1cd577162ad6948300bbe2ae502cae1e8a3a918`.
 - Source-only. No tests/build/type-check/browser/mobile QA, DB migrations/writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
+
+## Admin lifecycle guidance alignment — 2026-11-19
+
+- Updated the Main-ID details help text to match the implemented lifecycle: suspension affects active linked Duplicate IDs; closure closes every non-closed linked Duplicate ID, including manually suspended IDs; reactivation restores only Main-managed children whose placement parent is active.
+- Extended `tests/admin-member-detail-search-selection.test.ts` with a source contract for these lifecycle explanations. Test source was authored but not executed.
+- Commits: Admin UI `2003879540dc9cec4686282895c6eaecf508ec68`; contract `cee39c50919f785276d5d806a98a7b5f163c5887`.
+- No tests/build/type-check/browser/mobile QA, DB migrations/writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
