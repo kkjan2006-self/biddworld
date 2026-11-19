@@ -30,14 +30,16 @@ declare
  v_uid uuid:=auth.uid();
  v_enabled_keys text[]:=array[
   'registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled',
-  'package_activations_enabled','bid_wallet_enabled','income_wallet_enabled','delivery_tracking_enabled'
+  'package_activations_enabled','referral_commissions_enabled','matrix_commissions_enabled',
+  'bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled',
+  'fixed_bid_enabled','winning_payment_enabled','delivery_tracking_enabled','notifications_enabled'
  ];
- v_financial_approved boolean:=false;
- v_financial_keys text[]:=array[
-  'duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled',
+ v_server_condition_keys text[]:=array[
+  'package_activations_enabled','referral_commissions_enabled','matrix_commissions_enabled',
   'bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled',
   'fixed_bid_enabled','winning_payment_enabled'
  ];
+ v_server_condition_satisfied boolean:=false;
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -46,17 +48,22 @@ begin
  if p_setting_key is null or p_setting_key<>all(array[
   'registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled',
   'automatic_placement_enabled','package_activations_enabled','referral_commissions_enabled',
-  'bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled',
-  'fixed_bid_enabled','winner_selection_configured','winning_payment_enabled',
+  'matrix_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled',
+  'bidding_enabled','fixed_bid_enabled','winner_selection_configured','winning_payment_enabled',
   'delivery_tracking_enabled','notifications_enabled'
  ]) then raise exception 'Unsupported feature setting' using errcode='22023';end if;
- if p_enabled and not (p_setting_key=any(v_enabled_keys)) then
-  raise exception 'Cannot enable % yet: its complete backend workflow and verification are not implemented. It remains safely disabled.',p_setting_key using errcode='55000';
+ if p_setting_key='duplicate_ids_enabled' then
+  perform pg_catalog.pg_advisory_xact_lock(
+   pg_catalog.hashtextextended('biddworld.member_id_graph_mutation',0)
+  );
  end if;
- if p_enabled and p_setting_key=any(v_financial_keys) then
-  select coalesce((setting_value#>>'{}')::boolean,false) into v_financial_approved
+ if p_enabled and not (p_setting_key=any(v_enabled_keys)) then
+  raise exception 'Cannot enable % yet: its complete backend workflow is not implemented. It remains safely disabled.',p_setting_key using errcode='55000';
+ end if;
+ if p_enabled and p_setting_key=any(v_server_condition_keys) then
+  select coalesce((setting_value#>>'{}')::boolean,false) into v_server_condition_satisfied
   from public.app_settings where setting_key='financial_model_approved';
-  if not coalesce(v_financial_approved,false) then
+  if not coalesce(v_server_condition_satisfied,false) then
    raise exception 'This feature is currently locked by a server-side condition (%).',p_setting_key using errcode='55000';
   end if;
  end if;
