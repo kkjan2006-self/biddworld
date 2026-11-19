@@ -48,11 +48,11 @@ export default function Account(){
  const [members,setMembers]=useState<Member[]>([]);const [activations,setActivations]=useState<Activation[]>([]);const [wallets,setWallets]=useState<WalletRow[]>([]);const [auctionBids,setAuctionBids]=useState<AuctionBid[]>([]);const [fixedBids,setFixedBids]=useState<FixedBidRow[]>([]);const [commissions,setCommissions]=useState<CommissionRow[]>([]);const [matrixCommissions,setMatrixCommissions]=useState<MatrixCommissionRow[]>([]);const [matrixHistoryHasMore,setMatrixHistoryHasMore]=useState(false);const [matrixHistoryLoading,setMatrixHistoryLoading]=useState(false);const [winningPayments,setWinningPayments]=useState<WinningPayment[]>([]);const [deliveries,setDeliveries]=useState<DeliveryRow[]>([]);
  const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [reportBusy,setReportBusy]=useState(false);const [reportMessage,setReportMessage]=useState('');const [historyLoading,setHistoryLoading]=useState('');const [historyHasMore,setHistoryHasMore]=useState({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
  const [activeSection,setActiveSection]=useState('member-overview');
- const loadRequest=useRef(0),loadMounted=useRef(true),withdrawSubmitBusy=useRef(false),historyPageInFlight=useRef(new Set<string>()),winningPaymentKeys=useRef(new Map<string,string>());
+ const loadRequest=useRef(0),loadMounted=useRef(true),withdrawSubmitBusy=useRef(false),historyPageInFlight=useRef(new Set<string>()),matrixHistoryBusy=useRef(false),winningPaymentKeys=useRef(new Map<string,string>());
  const [withdrawals,setWithdrawals]=useState<WithdrawalRow[]>([]);const [minimumWithdrawalAmount,setMinimumWithdrawalAmount]=useState(0);const [winnerPaymentBusy,setWinnerPaymentBusy]=useState(''),[winnerPaymentMessage,setWinnerPaymentMessage]=useState('');const [withdrawEnabled,setWithdrawEnabled]=useState(false);const [withdrawAmount,setWithdrawAmount]=useState('');const [payoutMethod,setPayoutMethod]=useState('UPI');const [payoutName,setPayoutName]=useState('');const [payoutReference,setPayoutReference]=useState('');const [withdrawMessage,setWithdrawMessage]=useState('');const [withdrawBusy,setWithdrawBusy]=useState(false);
  const [newPassword,setNewPassword]=useState(''),[confirmNewPassword,setConfirmNewPassword]=useState(''),[securityMessage,setSecurityMessage]=useState(''),[securityBusy,setSecurityBusy]=useState(false);const [currentEmail,setCurrentEmail]=useState(''),[newEmail,setNewEmail]=useState(''),[emailChangeMessage,setEmailChangeMessage]=useState(''),[emailChangeBusy,setEmailChangeBusy]=useState(false);
  async function load(){
-  const request=++loadRequest.current;
+  const request=++loadRequest.current;matrixHistoryBusy.current=false;
   const isCurrent=()=>loadMounted.current&&request===loadRequest.current;
   setLoading(true);setError('');
   const client=supabase;
@@ -120,19 +120,20 @@ function loadMoreAuctionBids(){return loadHistoryPage<AuctionBid>('auctionBids',
 function loadMoreFixedBids(){return loadHistoryPage<FixedBidRow>('fixedBids',fixedBids.length,100,(client,id,from,to)=>client.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),rows=>setFixedBids(current=>appendUniqueRows(current,rows)));}
 function loadMoreCommissions(){return loadHistoryPage<CommissionRow>('commissions',commissions.length,100,(client,id,from,to)=>client.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),rows=>setCommissions(current=>appendUniqueRows(current,rows)));}
 async function loadMoreMatrixCommissions(){
- if(!supabase||!profile?.main_member_id||matrixHistoryLoading||!matrixHistoryHasMore)return;
- setMatrixHistoryLoading(true);setError('');
+ if(!supabase||!profile?.main_member_id||matrixHistoryBusy.current||!matrixHistoryHasMore)return;
+ const request=loadRequest.current,memberId=profile.main_member_id;matrixHistoryBusy.current=true;setMatrixHistoryLoading(true);setError('');
  try{
   const offset=matrixCommissions.length;
   const {data,error}=await supabase.rpc('member_list_my_matrix_commissions_page',{p_limit:100,p_offset:offset});
+  if(request!==loadRequest.current||!loadMounted.current)return;
   if(error)throw error;
   if(!Array.isArray(data)||data.some((row:any)=>!row||typeof row.commission_id!=='string'||!row.commission_id||!Number.isInteger(row.level_number)||row.level_number<1||typeof row.source_member_code!=='string'||!['main','duplicate'].includes(row.source_id_type)||!Number.isFinite(Number(row.amount))||!['pending','credited','reversed'].includes(row.status)||!Number.isFinite(Date.parse(row.created_at))))throw new Error('Matrix commission history returned invalid data. Refresh your account and retry.');
   const known=new Set(matrixCommissions.map(row=>row.commission_id));
   if(data.some((row:MatrixCommissionRow)=>known.has(row.commission_id)))throw new Error('Matrix commission history repeated an existing record. Refresh your account before continuing.');
   setMatrixCommissions(current=>[...current,...data as MatrixCommissionRow[]]);
   setMatrixHistoryHasMore(data.length===100);
- }catch(e){setError(e instanceof Error?e.message:'Could not load more Matrix commission history.');}
- finally{setMatrixHistoryLoading(false);}
+ }catch(e){if(request===loadRequest.current&&loadMounted.current)setError(e instanceof Error?e.message:'Could not load more Matrix commission history.');}
+ finally{matrixHistoryBusy.current=false;if(request===loadRequest.current&&loadMounted.current)setMatrixHistoryLoading(false);}
 }
 function loadMoreWinningPayments(){return loadHistoryPage<WinningPayment>('winningPayments',winningPayments.length,100,(client,id,from,to)=>client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),async(rows,client)=>{const ids=rows.map(row=>row.id);let deliveryRows:DeliveryRow[]=[];if(ids.length){const {data,error}=await client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',ids).order('updated_at',{ascending:false}).order('id',{ascending:false});if(error)throw error;deliveryRows=(data??[]) as DeliveryRow[];}setWinningPayments(current=>appendUniqueRows(current,rows));setDeliveries(current=>appendUniqueRows(current,deliveryRows));});}
 function createWinnerPaymentKey(){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
