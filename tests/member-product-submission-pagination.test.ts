@@ -17,6 +17,7 @@ describe('member product submission history pagination',()=>{
   expect(ui).toContain("'member_list_own_product_submissions_page'");
   expect(ui).toContain('setRows(previous=>reset?result:[...previous,...result])');
   expect(ui).toContain('Load more submissions');
+  expect(ui).toContain('createSignedUrl(path,300)');
   expect(ui).toContain('duplicate or overlapping records');
  });
 });
