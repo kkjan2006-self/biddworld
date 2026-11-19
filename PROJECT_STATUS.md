@@ -1,5 +1,16 @@
 ## Latest source-development checkpoint — 2026-11-19
 
+- Current `completion-work` HEAD before checkpoint refresh: `e6964462245ad298640649120755e9f21896ee26`.
+- Restricted payment-review Staff directory now handles missing Supabase configuration and Admin identity-check errors, ignores stale asynchronous directory loads, and validates account IDs and permission values before presenting editable access.
+- Member/Admin notification inbox now validates initial and subsequent page payloads, rejects missing/duplicate notification IDs, and stops pagination rather than appending ambiguous rows.
+- Source commits: Staff directory `d35fe0dee0a4a5d9afc7d79879c8a9d1d98e31de`; notification integrity `72ec7a0644f1e5d2689342f68db621417acaa692`. Test commits: notification `5778b8806360cc5198a17f804bf38fb9d4870664`; Staff directory `e6964462245ad298640649120755e9f21896ee26`.
+- No tests/build/type-check/browser QA were run. No Supabase access, SQL application, deployment or protected `main` changes occurred.
+- Overall development completion remains **60% provisional**.
+
+---
+
+## Latest source-development checkpoint — 2026-11-19
+
 - Current `completion-work` HEAD before checkpoint refresh: `95012bfc63cbe302985a27949d81972b1a842181`.
 - Member Auction submission history now distinguishes loading, empty and failed states; failures show a retry action instead of leaving an ambiguous blank list. Stale asynchronous loads are ignored, and malformed/duplicate submission IDs fail closed with a visible queue error.
 - Source commit: `5198cd2d7f5e9717398ece04d96c5fbf6ec843a1`; source-contract test commit: `95012bfc63cbe302985a27949d81972b1a842181`.
