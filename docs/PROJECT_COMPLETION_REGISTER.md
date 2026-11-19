@@ -1053,3 +1053,11 @@
 - Member and Admin notification history now use bounded 100-row keyset pages with a stable `(created_at,id)` cursor and look-ahead row. Member access remains scoped to the authenticated user; Admin history uses a dedicated Admin-only cursor RPC.
 - Previous Admin offset RPC retained for compatibility. Added migration #80 and source-contract test (not run). Inventory: 80 forward + 16 excluded + 3 legacy SQL files (99 total; 96 timestamped).
 - No tests, builds, QA, migration replay, DB writes or deployment.
+
+
+### 2026-11-19 — Member auction submissions and moderation (#81–#82)
+
+- Added member Place an Auction submission flow with item images, title, description, price, schedule and optional extra details. Active Main ID eligibility is checked on the server.
+- Submissions remain pending/private until Admin or restricted Staff with explicit auction review permission edits and approves/rejects. Approval creates the published product and scheduled/live auction; moderation is audited. Members can view submission status.
+- Added migrations #81–#82, member and staff UI, and source-contract test (not run). Inventory: 82 forward + 16 excluded + 3 legacy SQL files (101 total; 98 timestamped).
+- Approved-image public delivery remains a separate required integration. No tests, builds, QA, migration replay, DB writes or deployment.
