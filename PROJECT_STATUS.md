@@ -222,3 +222,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Added forward migration candidates #74 and #75: `20261119040000_admin_auction_bid_report_keyset_pagination.sql` and `20261119050000_admin_fixed_bid_entry_report_keyset_pagination.sql`. Manifest now contains 75 forward + 16 excluded timestamped + 3 legacy SQL files = 94 SQL files (91 timestamped).
 - No tests, builds, CI, QA, database replay, Production/TEST writes or deployment were performed. Production remains read-only; TEST remains untouched.
 - Overall planning estimate remains 55% (Provisional); this source-only batch does not justify changing the overall estimate.
+
+
+## Latest development checkpoint — 2026-11-19 Main Wallet funding
+
+- Added member-facing Add Money to Wallet Balances with KRFSI UPI QR (krindia@bpunity), amount entry, UTR, payment screenshot/receipt upload and pending/approved/rejected request history.
+- Added Admin pending funding review queue with private signed receipt links, review note, approve/reject actions. Approval credits the Main Wallet through a locked server-side transaction and immutable wallet ledger entry; duplicate UTRs and repeat reviews are rejected.
+- Renamed member-facing Income Wallet labels to Main Wallet while preserving internal wallet_type='income' and existing settlement contracts. Bid Wallet unchanged.
+- Added 20261119060000_member_wallet_funding_requests.sql as forward migration #76 and added private Storage policies, member submit/history RPCs, Admin list/review RPCs, audit events and idempotent ledger credit.
+- The existing authorization model currently defines Admin, not a distinct Admin Staff role; no new staff role was fabricated. Admin-only approval remains enforced.
+- QR payload was regenerated from the supplied UPI payment data: upi://pay?pa=krindia@bpunity&pn=KRFSI&cu=INR. No payment was made or verified.
+- No tests/build/CI/QA, SQL replay, database writes, Production access or deployment. Production remains read-only; TEST untouched. Overall estimate remains 55% (Provisional).
