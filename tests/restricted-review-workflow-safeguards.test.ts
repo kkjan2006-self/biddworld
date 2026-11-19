@@ -22,7 +22,7 @@ describe('Restricted review workflow safeguards',()=>{
   expect(auction).toContain('Auction submission queue could not be loaded:');
   expect(auction).toContain('Loading auction submissions…');
   expect(auction).toContain('Retry queue');
-  expect(auction).toContain('image preview issue');
+  expect(auction).toContain('Image preview issue:');
  });
  it('blocks auction approval until every submitted image has a signed preview URL',()=>{
   expect(auction).toContain('disabled={!!busy||(r.image_paths??[]).length<1||(urls[r.id]??[]).length!==(r.image_paths??[]).length}');
