@@ -1978,3 +1978,12 @@
 - Commits: Admin source `df4e7eb459bdd97aa03a97e24011cd14f191b064`; regression source `2a100bfe83712f8cc65dbd82ee5af436dc69522b`.
 - No TEST/Production database access or migrations and no protected `main` changes. Preview trigger and deployment result will be tracked separately. Tests/type-check/QA remain deferred; the Preview pipeline's required build is not a QA sign-off.
 - Overall development completion remains **71% provisional**.
+
+
+## 2026-11-19 — Admin Matrix commissions Preview syntax correction
+
+- Inspected Preview run `44537970735` logs. The prior Admin delivery guard syntax correction progressed further; the next parser failure was in `src/components/AdminMatrixCommissions.tsx:36`, where a literal escaped newline sequence had been committed into TypeScript source.
+- Replaced the literal sequence with a real source line break and added `tests/admin-matrix-commissions-source-integrity.test.ts` as source-only regression coverage. Test was not executed.
+- Commits: component `7531e99d5550b515298a2fd87e6f097618556748`; regression source `07b2bc2d69e4a5bb9abd54ff52d338b309f0b7f3`.
+- No database access/migrations, no protected `main` changes, and no QA/tests/type-check were run. Preview's required deployment build is tracked separately.
+- Overall development completion remains **71% provisional**.
