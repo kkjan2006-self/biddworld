@@ -32,7 +32,7 @@
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — migration ledger has 89 rows / 88 unique names (schema baseline + 87 forward-manifest migrations; one migration name duplicated). No more writes or rollback attempts; reconcile at authorized final QA.
 - Budget/hosting: free-tier only; no domain or hosting purchase during development
 
-- Isolated Preview repository: `https://github.com/kkjan2006-self/biddworld-preview`, branch `main`; latest workflow/docs commits `8a8f8eb553031404b4da244b0844e9319a496708` and `1c1530fdfb6f8f24d3d362603b3154c2acca9913`. It is configured to consume only TEST URL/publishable-key secrets. Owner must add both secrets and ensure Settings → Pages → Source → GitHub Actions is selected. Do not add Production or service-role credentials.
+- Isolated Preview repository: `https://github.com/kkjan2006-self/biddworld-preview`, branch `main`; latest workflow/docs commits `8a8f8eb553031404b4da244b0844e9319a496708`, `1c1530fdfb6f8f24d3d362603b3154c2acca9913`, fail-closed TEST-secret guard `f4446ac0f06c3e0d64246ecb8897b979c536f2f9`, and README `80c27b58987c54d9e347c8e88c25c035d0da8054`. It is configured to consume only TEST URL/publishable-key secrets. Owner must add both secrets and ensure Settings → Pages → Source → GitHub Actions is selected. Do not add Production or service-role credentials.
 
 ## B. COMPLETED — Verified Source Work (not equivalent to deployed/live completion)
 
