@@ -13,6 +13,9 @@ describe('Homepage auction discovery controls',()=>{
   expect(home).toContain('Price: low to high');
   expect(home).toContain('Price: high to low');
   expect(home).toContain('Ending soon');
+  expect(app).toContain('aria-expanded={mobileNav}');
+  expect(app).toContain('aria-controls="primary-navigation"');
+  expect(app).toContain("aria-label={tab==='Auctions'?'Search auctions':'Search products'}");
  });
  it('provides visible keyboard focus and respects reduced-motion preferences',()=>{
   expect(css).toMatch(/:where\(button,a,input,select,textarea,summary,\[tabindex\]\):focus-visible/);
