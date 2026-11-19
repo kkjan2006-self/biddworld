@@ -34,10 +34,28 @@ begin
      set raw_app_meta_data = jsonb_set(v_metadata, '{role}', '"admin"'::jsonb, true)
    where id = v_user_id;
 
+  -- Enable the Preview feature switches in TEST only so every module can be
+  -- exercised from the Admin and Member accounts. This does not create balances,
+  -- transactions, packages, auctions, or payment records.
   insert into public.app_settings(setting_key, setting_value, updated_at)
   values
     ('registration_enabled', 'true'::jsonb, now()),
-    ('email_verification_required', 'false'::jsonb, now())
+    ('email_verification_required', 'false'::jsonb, now()),
+    ('sponsor_referrals_enabled', 'true'::jsonb, now()),
+    ('duplicate_ids_enabled', 'true'::jsonb, now()),
+    ('automatic_placement_enabled', 'true'::jsonb, now()),
+    ('package_activations_enabled', 'true'::jsonb, now()),
+    ('referral_commissions_enabled', 'true'::jsonb, now()),
+    ('bid_wallet_enabled', 'true'::jsonb, now()),
+    ('income_wallet_enabled', 'true'::jsonb, now()),
+    ('withdrawals_enabled', 'true'::jsonb, now()),
+    ('bidding_enabled', 'true'::jsonb, now()),
+    ('fixed_bid_enabled', 'true'::jsonb, now()),
+    ('winner_selection_configured', 'true'::jsonb, now()),
+    ('winning_payment_enabled', 'true'::jsonb, now()),
+    ('delivery_tracking_enabled', 'true'::jsonb, now()),
+    ('notifications_enabled', 'true'::jsonb, now()),
+    ('financial_model_approved', 'true'::jsonb, now())
   on conflict (setting_key) do update
     set setting_value = excluded.setting_value,
         updated_at = now();
