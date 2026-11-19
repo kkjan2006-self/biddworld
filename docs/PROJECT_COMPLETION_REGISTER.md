@@ -1948,3 +1948,13 @@
 - Commits: Admin source `3aa2f114c2e6e57267f2f629fa202cb240d0a0f3`; regression source `1e313d68648394320f9f1063456427e4606665e2`.
 - Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database access or migrations, no Preview deployment, and no protected `main` changes.
 - Overall development completion remains **71% provisional**.
+
+
+## 2026-11-19 — Admin Staff JSX preview-build blocker correction
+
+- The Preview workflow exposed a pre-existing JSX syntax defect in `src/components/AdminStaff.tsx`: the conditional rendering expression for Auction Submission Review was missing its closing brace. Corrected the JSX so the Staff page can be parsed by the bundler.
+- Added `tests/admin-staff-permission-jsx-contract.test.ts` as source-only regression coverage. It was not executed.
+- Commits: Staff component `52722b2601f118da693b2cd8d273c4b90b70919c`; regression source `6d9d325de4299ad0d83b7e9126e3c882b9adb4a7`.
+- The previous Preview run `44536912340` failed at Vite transformation due to this syntax error. A new Preview workflow run has been queued for the latest source; deployment outcome remains pending. No TEST/Production database access or migrations and no protected `main` changes.
+- Tests/build/type-check/browser/mobile QA remain deferred; the Preview pipeline's required Vite build is used only to publish the preview and is not a separate QA sign-off.
+- Overall development completion remains **71% provisional**.
