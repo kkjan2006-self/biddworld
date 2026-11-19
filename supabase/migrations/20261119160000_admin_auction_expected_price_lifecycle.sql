@@ -1,5 +1,27 @@
 -- Align Admin-created auction drafts with the Expected Price / 48-hour lifecycle.
 -- End time is system-derived only after Expected Price is reached.
+-- Also handle an Admin auction whose starting price already equals its target:
+-- the 48-hour clock begins when the scheduled auction actually becomes live.
+create or replace function public.apply_auction_expected_price_deadline()
+returns trigger language plpgsql set search_path=''
+as $function$
+begin
+ if new.expected_price is not null
+    and new.target_reached_at is null
+    and new.status='live'
+    and new.starts_at is not null
+    and new.starts_at<=clock_timestamp()
+    and new.current_price>=new.expected_price then
+   new.target_reached_at:=clock_timestamp();
+   new.ends_at:=new.target_reached_at+interval '48 hours';
+ end if;
+ return new;
+end;$function$;
+drop trigger if exists auctions_expected_price_deadline on public.auctions;
+create trigger auctions_expected_price_deadline
+before update of current_price,status on public.auctions
+for each row execute function public.apply_auction_expected_price_deadline();
+
 drop function if exists public.admin_save_auction_draft(uuid,uuid,text,text,text,text,numeric,numeric,timestamptz,timestamptz);
 create function public.admin_save_auction_draft(
  p_auction_id uuid,p_product_id uuid,p_title text,p_description text,p_image_url text,
