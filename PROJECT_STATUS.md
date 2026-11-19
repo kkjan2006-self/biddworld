@@ -540,3 +540,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/restricted-review-workflow-safeguards.test.ts` as source-contract coverage only; it has not been executed.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
 - Overall development completion remains **60% provisional** until the remaining modules and final end-to-end QA are completed.
+
+
+## 2026-11-19 — Member wallet, referral and Fixed Bid resilience
+
+- Wallet transaction history now exposes a direct retry action when its initial or paginated load fails, resetting the page cursor before retrying the first page.
+- Add Money request history now exposes a dedicated retry action when its history RPC fails; the existing refresh action remains available.
+- Referral genealogy pagination now validates the RPC page payload before reading or appending its tree rows, displaying a recoverable error for an incomplete response instead of risking a client exception.
+- Fixed Bid campaign loading errors are shown once rather than duplicated in two separate banners.
+- Added `tests/member-wallet-and-inbox-retry-guards.test.ts` as source-contract coverage only; it has not been executed.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional** pending final end-to-end verification.
