@@ -1130,3 +1130,12 @@
 - Added tests/olx-style-auction-classified-fields.test.ts as source-contract coverage; not executed. No tests/build/QA/browser checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST untouched.
 - Implementation commits: 0006ea751a11d343aad2e65df2e1e2e71cb6abdb (member classified form), cc2c3c3361468a45fb85ced579d6eb1473ce3f61 (Admin review fields); test source commit: 1ae04c0d3a665e9b24b6623823baec908175f07f.
 - Overall development estimate remains **60% Provisional**; this feature batch does not imply the broader project is complete.
+
+
+## Latest source-development batch — Auction classified form validation hardening
+
+- Member auction submission now validates positive Starting Price, Expected Price greater than or equal to Starting Price, positive bid increment and a valid start date before uploading images, reducing avoidable orphan uploads.
+- Successful submission clears every classified field (brand, model, condition, age, warranty, ownership, locality, city, state, PIN), pricing/schedule fields and extra specifications so the next listing starts cleanly.
+- Corrected the classified form's category-to-fields markup separator. Added source-contract assertions for price validation and complete form reset; test file not executed.
+- Commits: `2b703301857bcf9d5fc561b67dde883ccb574a7c` (implementation), `71c980e26f54e51d2a5a1ed324c4302e783f25cc` (test source). No tests/build/QA/browser checks, SQL replay, Supabase writes or deployment.
+- Further development remains: bring the Admin's direct Auction draft form into parity with the expected-price/open-ended schedule rules and complete the wider project work. Development estimate remains **60% Provisional**.
