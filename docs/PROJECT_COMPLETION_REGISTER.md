@@ -1411,3 +1411,13 @@
 - Source review confirms notification history is fetched through the Admin keyset RPC, while member inbox reads remain user-scoped; support reads remain owner-scoped for members and policy-checked for Admin. No SQL changes were required.
 - Added/updated source-contract tests only; tests were not executed. No build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
 - Overall development estimate remains **60% Provisional** pending full contract reconciliation and final end-to-end verification.
+
+
+## 2026-11-19 — Bulk Admin report and delivery workflow alignment
+
+- Corrected the Delivery Tracking report status filter to use the exact backend enum values: pending, packed, shipped, in_transit, delivered and returned. Removed the unsupported processing/cancelled choices from this report control.
+- Winning Payment and Delivery Tracking complete CSV exports now reject reversed From/To ranges before any paginated RPC retrieval, show a clear validation message, and disable their export buttons while the range is invalid or another report export is running.
+- Extended the Admin winning/delivery report source-contract test to cover the date-range guards, disabled controls and exact delivery status contract. Test source only; not executed.
+- Reviewed the delivery tracking migration and current Admin integration: tracking creation requires a paid winning payment, serializes creation per payment, prevents duplicate tracking rows, restricts member reads to the owning member, and records Admin tracking updates in audit logs. No migration was changed or applied.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
+- Overall development estimate remains **60% Provisional** pending full source reconciliation and final end-to-end verification.
