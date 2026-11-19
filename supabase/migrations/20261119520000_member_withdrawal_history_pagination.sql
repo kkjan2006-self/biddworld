@@ -1,4 +1,7 @@
 -- Owner-scoped keyset pagination for member withdrawal history.
+create index if not exists withdrawal_requests_member_history_idx
+ on public.withdrawal_requests(member_id,requested_at desc,id desc);
+
 create or replace function public.member_list_my_withdrawals_page(
  p_limit integer default 50,
  p_before_requested_at timestamptz default null,
