@@ -2233,3 +2233,13 @@
 - Migration manifest audit: **122 forward + 16 excluded = 138 timestamped SQL files**, all accounted for exactly once; forward entries are unique and strictly sorted. Three legacy/unversioned SQL files remain excluded from clean installation.
 - Development-only boundary: no tests/build/type-check/browser QA, no Supabase migration execution or data changes, no Preview deployment, and no protected `main` changes.
 - Overall source development estimate: **94% provisional**. Remaining work is full frontend/RPC/RLS/Storage integration reconciliation and closure of the remaining source-level workflow gaps.
+
+
+## 2026-11-19 — Remove unused placement and winner readiness switches
+
+- Removed the non-functional Automatic Placement switch from Admin Settings. Duplicate-ID creation already performs server-side breadth-first placement using the active package Matrix width/depth, and the Admin Duplicate ID workflow clearly describes the automatic placement behavior. Duplicate-ID creation itself remains independently controlled by the Duplicate IDs switch and its serialized server guard.
+- Removed the non-actionable Winner Selection Configured switch. Winner selection is performed by the protected `admin_finalize_auction` RPC after the auction ends, selecting the highest accepted bid with deterministic tie-breaking; it is not a manually toggleable setting.
+- Removed both unused keys from the consolidated feature-settings RPC response/allowlist so the Admin controls match actual supported workflows. Matrix commissions remain available through the ready switch and protected server condition.
+- Added `tests/duplicate-auto-placement-control.test.ts` and `tests/auction-winner-control-contract.test.ts`. Tests/build/type-check not run.
+- Commits: Admin control cleanup `d90bdbe312fe9708cb6059cec67178b3f6b8ab04`; feature RPC alignment `ff3beb6b889a6c15859955086395fd06c4063039`; duplicate placement test `6358d848c8138a363689d912bf1a46fa35969198`; winner control cleanup `955280092167da63acdc679de93adab01f211e11`; feature RPC cleanup `f2bbcbae3d0941a261092e3414a6b3dc7ce4e22b`; winner contract test `8bf5a4b2e070fd72ba34ef0ff29aa16c7fa0decb`.
+- Forward migration inventory unchanged at 122 files. Source development estimate: **95% provisional**; final full RPC/security/feature integration review remains.
