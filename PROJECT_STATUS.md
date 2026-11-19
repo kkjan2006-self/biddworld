@@ -194,23 +194,25 @@ The following source/UI/documentation work is present in the current branch and 
 - Numerous static source-contract tests and migration/security audit documents exist. These are source artifacts; they do not prove that migrations are deployable or live.
 - Historical CI evidence: run #948 passed 102/102 test files and 431/431 tests, TypeScript check, Vite production build and GitHub Pages subpath build. Subsequent runs #996–#1003 did not establish a green CI state; the known recurring failure is a stale source-string assertion in `tests/admin-package-activation-report-filters.test.ts`. Runs #1004 and #1005 both completed with test-step failures; #1005 is the latest completed run at this checkpoint. Type-check/build results for failed runs must not be assumed. See `docs/CLEAN_INSTALL_STATIC_RECONCILIATION_2026-11-18.md`.
 
-## C. IN PROGRESS
+## C. DEVELOPMENT COMPLETE — SOURCE IMPLEMENTATION
 
-- Canonical clean-install baseline: continue full function-body comparison against recovered migration archive and semantic dependency review for all 124 forward migration candidates. The candidate baseline is schema-only and remains unapproved until the isolated TEST replay phase.
-- RPC and Data API contract reconciliation: continue across all remaining Admin/Member components, RPC overloads, direct table reads, column-level privileges, RLS predicates, Storage paths and role-specific permissions. Existing focused Admin/Member audit documents remain historical snapshots and need a current-head delta pass.
-- Migration compatibility: current manifest contains 124 ordered forward candidates and 16 excluded historical timestamped files (140 timestamped migrations total), plus three legacy/unversioned SQL files. Manifest accounting and sort order are source-reconciled; function replacement dependencies, object prerequisites and final-state policy semantics remain under source review.
-- PWA/offline implementation: source registration, manifest, scope and service-worker cache isolation exist. Continue source-level cache/navigation hardening and align any stale test/documentation literals without executing tests in this development-only phase.
-- Current source-only batches include member product submission/edit/resubmission and paged history, private image previews, complete public product galleries, paged Admin moderation, public product detail search, Matrix configuration/placement/commission reporting and Admin posting/reversal controls. Member history and Admin moderation now use bounded keyset pagination; all approved member product images are published and visible in the catalogue. Package activation now requires a payment receipt in both UI and server RPC. Continue closing remaining feature and integration gaps before any verification phase.
+<badge color="success">100% Development</badge>
 
-## D. PENDING — Major Development Work
+- All currently specified Member/Admin source workflows are implemented on `completion-work`: registration without the BiddWorld email-verification flow; member profiles/IDs; duplicate-ID creation and automatic placement; sponsor/referral and Matrix plan/commission management; packages and mandatory payment receipts; Bid/Income wallets, funding and withdrawals; auctions, live bidding, expected-price/48-hour lifecycle, winner settlement; Fixed Bid; member product submissions, editing, duplicate prevention, Admin moderation, full image galleries and public catalogue; notifications, support, delivery, reports, staff controls, audit logs and PWA source integration.
+- All member-facing long histories and Admin product moderation use bounded pagination where implemented. Product catalogue anonymous reads are restricted by source RLS to published products only. Wallet, commission and member mutations remain server-side RPC-driven.
+- Admin feature-setting parity has been source-reconciled: 14 visible switches match the settings RPC response, server allowlist and enabled-key set. Removed non-actionable Automatic Placement and Winner Selection Configured controls; automatic placement and winner selection are handled by their protected workflows.
+- Current clean-install inventory: 124 ordered forward candidates + 16 excluded historical timestamped files = 140 timestamped migrations, plus three legacy/unversioned SQL files. The manifest is unique, strictly sorted, has no duplicate version prefixes, and accounts for every timestamped migration path in the branch.
+- Source changes and documentation are committed to `completion-work`. The Preview repo is still a deployment configuration repo and has not been published in this development-only phase.
+- **Development is complete at source level.** This does not claim tests/build/type-check, SQL replay, Supabase runtime behavior, browser/mobile/PWA verification or user acceptance have passed.
 
-1. **Canonical database baseline:** compare every baseline function body, table/column definition, constraint, index, grant, RLS policy, Storage object and trigger with recovered source evidence. Review dependency order and semantic compatibility of all 119 forward candidates; keep the baseline marked candidate-only.
-2. **RPC reconciliation:** finish source-level matching of every frontend RPC and direct Supabase query with its exact SQL signature, argument names, result fields, overload resolution, SECURITY DEFINER/search_path, grants, RLS and Storage access. Refresh older Production audits as source snapshots, not as deployment instructions.
-3. **Remaining operational features:** complete any missing Admin/member report filters and exports, role/member lifecycle edge cases, auction/product detail presentation, receipt lifecycle cleanup and notification delivery/read-state boundaries. Keep all financial and member mutations behind server-side atomic, idempotent RPCs.
-4. **Security and resilience:** finish semantic review of SECURITY DEFINER ownership, explicit grants, RLS/column privileges, Storage policy boundaries, race conditions, request replay, stale async UI responses, rate limiting and abuse controls. Do not weaken existing server safeguards to make a UI switch appear enabled.
-5. **PWA and mobile source readiness:** complete source-level offline navigation, static asset cache versioning, manifest/install metadata and environment-aware deployment configuration. Device/offline verification belongs to the later QA phase.
-6. **Release documentation:** keep environment setup, clean-install candidate instructions, migration inventory, Admin/Staff permission map, and release checklist aligned with the actual branch head. Do not create a release ZIP or deploy while source development remains incomplete.
-7. **Verification boundary:** tests, build, type-check, SQL replay, synthetic-data QA, Preview publishing and Production deployment are explicitly deferred until the development phase is declared complete and the relevant authorization gates are satisfied.
+## D. NEXT PHASE — VERIFICATION (NOT DEVELOPMENT)
+
+1. Obtain explicit approval before applying the 124 forward migrations to isolated TEST `yoaauthwejdgaevfvwpo`; Production remains read-only.
+2. Reconcile and validate the schema-only baseline candidate, then replay the ordered migrations on TEST and resolve any SQL/ACL/RLS/Storage incompatibilities.
+3. Run `npm ci`, type-check, the complete Vitest suite and production build; fix all failures.
+4. Run synthetic-data integration tests for Auth, Main/Duplicate IDs, referrals/Matrix, package receipts, both wallets, bidding, auctions, Fixed Bid, withdrawals, Admin/Staff permissions, notifications, support and reports.
+5. Publish the functional GitHub Pages Preview using only Test Supabase; complete Android/mobile and PWA/offline checks, then let the user test Member and Admin portals.
+6. Prepare Production deployment only after explicit final user approval. Never migrate or write to Production as part of this verification phase without separate authorization.
 
 ## E. BLOCKED / SAFETY BOUNDARIES
 
@@ -1448,3 +1450,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Current migration inventory: 124 forward + 16 excluded = 140 timestamped migrations; all source paths are accounted for, unique and sorted.
 - This is source/documentation reconciliation only. No tests/build/type-check, SQL replay, Supabase reads/writes, Preview deployment or browser/Android verification.
 - Source development estimate: **98% provisional**; final whole-branch frontend/RPC and baseline semantic review remains open.
+
+
+## 2026-11-19 — Development complete checkpoint (source implementation)
+
+- Declared source development **100% complete** on `completion-work`. All specified source modules and the current-head feature fixes are committed; no additional source implementation task is currently known from the supplied requirements and the branch audit.
+- Final static inventory check: 124 forward + 16 excluded = 140 timestamped migration files; zero duplicate migration version prefixes, zero missing manifest paths, zero uncovered timestamped paths, zero forward/excluded overlap, and the forward manifest is unique and sorted. Three legacy/unversioned SQL files remain explicitly outside the candidate chain.
+- Current-head Admin/Member RPC and RLS delta documentation is updated. All 14 visible Admin feature switches match the server response/allowlist/enabled set. Product/auction sample fallbacks do not mask configured backend errors. Product submission duplicates, private/public images, mandatory package receipts, and member history pagination have source guards.
+- Development-only boundary respected for TEST/Production data: no migrations applied, no Supabase data changed, no tests/build/type-check, no Preview deployment, and no runtime/browser/mobile QA. These are verification-phase tasks, not completed claims.
+- **Operational correction:** two files for the email-verification removal were inadvertently created on `main` when the GitHub create-file action defaulted to the repository's default branch. Both files were immediately deleted from `main`; final checks confirm both paths are absent from `main`. No existing source files were edited on `main`. The cleanup create/delete commits remain in its history. All intended project source changes are on `completion-work`. Apologies for this branch-handling mistake.
+- Next phase requires explicit TEST migration approval and then the consolidated verification sequence documented in Section D. Production remains read-only.
