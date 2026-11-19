@@ -530,3 +530,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/admin-withdrawal-queue-diagnostics.test.ts` as source-contract coverage only; it has not been executed.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
 - Overall development completion remains **60% provisional**; this focused Admin workflow improvement does not establish end-to-end withdrawal readiness.
+
+
+## 2026-11-19 — Bulk restricted-review workflow hardening
+
+- Package Activation Staff queue now has explicit loading/error/empty states, retry support, stale-request protection, per-receipt signing diagnostics, and an approval guard requiring an accessible signed receipt. Rejection remains available when a receipt is missing or inaccessible.
+- Auction Submission Review now distinguishes queue failures from an empty queue, ignores stale loads, reports signed-image preview failures, and blocks approval until every submitted image can be previewed. Rejection remains available.
+- Primary Admin Staff manager now distinguishes Staff directory load failures from an empty directory and exposes retry. Corrected its busy-state type/values so row-specific permission saves and global grant/revoke actions use one consistent string token.
+- Added `tests/restricted-review-workflow-safeguards.test.ts` as source-contract coverage only; it has not been executed.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
+- Overall development completion remains **60% provisional** until the remaining modules and final end-to-end QA are completed.
