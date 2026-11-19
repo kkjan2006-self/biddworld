@@ -39,6 +39,7 @@ declare
  v_uid uuid:=auth.uid();
  v_enabled_keys text[]:=array[
   'registration_enabled','email_verification_required','sponsor_referrals_enabled',
+  'duplicate_ids_enabled','package_activations_enabled','bid_wallet_enabled','income_wallet_enabled',
   'delivery_tracking_enabled'
  ];
  v_financial_approved boolean:=false;
