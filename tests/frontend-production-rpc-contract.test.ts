@@ -13,7 +13,7 @@ const contracts = [
   { name: 'admin_list_members_sponsors_page', ui: 'src/components/Admin.tsx', migration: 'supabase/migrations/20261116090000_admin_members_sponsors_pagination.sql', security: 'definer' },
   { name: 'admin_list_duplicate_ids_page', ui: 'src/components/Admin.tsx', migration: 'supabase/migrations/20261116110000_admin_duplicate_id_pagination.sql', security: 'definer' },
   { name: 'admin_set_product_active', ui: 'src/components/Admin.tsx', migration: 'supabase/migrations/20261116020000_admin_product_management_and_media.sql', security: 'definer' },
-  { name: 'get_my_mlm_dashboard_page', ui: 'src/components/Referrals.tsx', migration: 'supabase/migrations/20261116100000_member_genealogy_pagination.sql', security: 'definer' },
+  { name: 'get_my_mlm_dashboard_page', ui: 'src/components/Referrals.tsx', migration: 'supabase/migrations/20261118250000_member_mlm_dashboard_pagination.sql', security: 'definer' },
 ];
 
 describe('Frontend to branch SQL RPC contract inventory', () => {
@@ -25,15 +25,16 @@ describe('Frontend to branch SQL RPC contract inventory', () => {
     expect(sql).toMatch(/set\s+search_path/i);
   });
 
-  it('keeps Duplicate ID placement creation on the two-argument branch contract', () => {
+  it('uses the current one-argument automatic Duplicate ID placement contract', () => {
     const ui = read('src/components/Admin.tsx');
-    const sql = read('supabase/migrations/20261115230000_duplicate_under_id_placement_attribution.sql');
+    const sql = read('supabase/migrations/20261119340000_exclude_owner_ids_from_duplicate_placement.sql');
     expect(ui).toContain('admin_create_duplicate_member_id');
-    expect(ui).toMatch(/p_main_member_code\s*:\s*code/);
-    expect(ui).toMatch(/p_under_member_code\s*:\s*under/);
-    expect(sql).toMatch(/p_main_member_code\s+text/i);
-    expect(sql).toMatch(/p_under_member_code\s+text/i);
-    expect(sql).toMatch(/drop function if exists public\.admin_create_duplicate_member_id\(text\)/i);
+    expect(ui).toMatch(/rpc\('admin_create_duplicate_member_id',\{p_main_member_code:code\}\)/);
+    expect(ui).not.toContain('p_under_member_code');
+    expect(sql).toMatch(/function public\.admin_create_duplicate_member_id\(p_main_member_code text\)/i);
+    expect(sql).toContain('duplicate_ids_enabled');
+    expect(sql).toContain('pg_advisory_xact_lock');
+    expect(sql).not.toContain('p_under_member_code');
   });
 
   it('keeps configurable referral drafts inactive and free of wallet or commission writes', () => {
