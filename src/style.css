@@ -525,3 +525,8 @@ footer{background:#2c1048;color:#f4e9ff}
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* Clearly distinguish local preview fixtures from published marketplace cards. */
+.samplePreviewCard{border:1px dashed #94a3b8!important;background:linear-gradient(155deg,#f8fbff,#fff 58%)}
+.samplePreviewCard .status{letter-spacing:.04em}
+.samplePreviewNotice{flex:0 0 100%;margin:0 0 2px}
