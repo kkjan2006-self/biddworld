@@ -313,3 +313,13 @@ At every development batch/chat end, update this file with the actual verified b
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes, or deployment. Production remains read-only; TEST Supabase remains untouched.
 - Remaining major work: complete baseline/function and all-forward-migration semantic dependency review; reconcile remaining frontend/RPC/RLS/Storage contracts; finish remaining Fixed Bid, referral, withdrawal, reporting and notification integrations; complete security/operational review. Consolidated testing is still deferred until the owner authorizes it.
 - Overall development estimate remains **59% Provisional**. This is a planning estimate, not a verified live/deployment completion percentage.
+
+
+## Latest source-development batch — Member auction upload lifecycle
+
+- Fixed a partial-upload leak in the member auction submission UI. If image upload/validation fails before the submission RPC, already uploaded private objects are removed. If the RPC returns a definite Postgres error code, uploaded objects are also removed.
+- Ambiguous RPC/network failures deliberately retain uploaded objects: the database may have committed even if the client did not receive the response, so deleting those paths could break a successfully created submission.
+- File selection now preserves the actual selected count so the existing 1–8 image limit is enforced and visible instead of silently truncating selections above eight.
+- Added source-contract coverage in `tests/member-auction-upload-cleanup.test.ts`. Test source written only; not executed. No build, QA, browser/device checks, SQL replay, Supabase writes or deployment.
+- Source commits: `4640e3ce46d471cd8f2a677c5400ae75f1a35700` (implementation), `7014af25690d906d4e3717f3bc0c4762861dbb2d` (test source).
+- Development estimate remains **59% Provisional** pending broader RPC/RLS, baseline and integration work.
