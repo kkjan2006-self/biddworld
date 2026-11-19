@@ -1,3 +1,8 @@
+## 2026-11-19 — Preview TEST secret fail-closed guard
+
+- Added a pre-deployment workflow check requiring both TEST Supabase repository secrets and rejecting any URL other than `https://yoaauthwejdgaevfvwpo.supabase.co`. This prevents a green Pages build from silently deploying a visual-only preview when secrets are missing and blocks accidental use of Production URL. Preview commits: workflow `f4446ac0f06c3e0d64246ecb8897b979c536f2f9`, README `80c27b58987c54d9e347c8e88c25c035d0da8054`.
+- A prior run #10 succeeded before this guard existed; it does not prove Supabase credentials were supplied. The next run will fail closed until the owner adds both secrets. No application tests or QA were run.
+
 ## 2026-11-19 — Isolated Preview TEST connection configuration
 
 - Confirmed the isolated Preview repository contains the same `src/App.tsx` blob as `completion-work` (`45c3a00fbbe0ea564528e6623ef44a4a7084ca8f`), so the inspected member/auth/auction UI source is synchronized for this key entry point.
