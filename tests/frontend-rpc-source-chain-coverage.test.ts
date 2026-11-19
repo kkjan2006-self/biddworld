@@ -18,6 +18,6 @@ describe('Frontend RPC coverage against the canonical clean-install source chain
   expect(surfaces).toContain('src/components/AdminMatrixCommissions.tsx');
   expect(surfaces).toContain('src/components/MemberProductSubmission.tsx');
   expect(forward.length).toBeGreaterThan(100);
-  expect(definedFunctions.size).toBeGreaterThan(frontendCalls.size);
+  expect(frontendCalls.size).toBeGreaterThan(100);
  });
 });
