@@ -33,7 +33,8 @@ function validRow(value:unknown):value is MatrixCommissionRow{
 export default function AdminMatrixCommissions(){
  const [rows,setRows]=useState<MatrixCommissionRow[]>([]);
  const [status,setStatus]=useState('all'),[level,setLevel]=useState('all'),[search,setSearch]=useState('');
- const [loading,setLoading]=useState(false),[more,setMore]=useState(false),[hasMore,setHasMore]=useState(false),[reloadToken,setReloadToken]=useState(0);\n const reportRequest=useRef(0),loadMoreBusy=useRef(false);
+ const [loading,setLoading]=useState(false),[more,setMore]=useState(false),[hasMore,setHasMore]=useState(false),[reloadToken,setReloadToken]=useState(0);
+  const reportRequest=useRef(0),loadMoreBusy=useRef(false);
  const [message,setMessage]=useState(''),[exportBusy,setExportBusy]=useState(false);
  const [summary,setSummary]=useState<MatrixSummary>(emptySummary),[summaryLoading,setSummaryLoading]=useState(true),[summaryError,setSummaryError]=useState('');
  const loadSummary=useCallback(async()=>{if(!supabase){setSummaryError('Supabase is not configured.');setSummaryLoading(false);return;}setSummaryLoading(true);setSummaryError('');try{const {data,error}=await supabase.rpc('admin_get_matrix_commission_summary');if(error)throw error;if(!validSummary(data))throw new Error('The Matrix summary response was invalid.');setSummary(data);}catch(e){setSummaryError(e instanceof Error?e.message:'Could not load the overall Matrix summary.');}finally{setSummaryLoading(false);}},[]);
