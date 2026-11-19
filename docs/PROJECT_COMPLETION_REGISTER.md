@@ -1061,3 +1061,10 @@
 - Submissions remain pending/private until Admin or restricted Staff with explicit auction review permission edits and approves/rejects. Approval creates the published product and scheduled/live auction; moderation is audited. Members can view submission status.
 - Added migrations #81–#82, member and staff UI, and source-contract test (not run). Inventory: 82 forward + 16 excluded + 3 legacy SQL files (101 total; 98 timestamped).
 - Approved-image public delivery remains a separate required integration. No tests, builds, QA, migration replay, DB writes or deployment.
+
+
+### 2026-11-19 — Approved auction image delivery (#83)
+
+- Added the approved-image publishing step: private pending uploads are copied to public product media during Admin/authorized Staff approval; public auction and product views resolve stored paths to public URLs.
+- Added migration #83 and source-contract test (not run). Inventory: 83 forward + 16 excluded + 3 legacy SQL files (102 total; 99 timestamped).
+- Image upload and database approval are separate operations; orphaned public objects may require cleanup if approval fails after copying. No tests, builds, QA, migration replay, DB writes or deployment.
