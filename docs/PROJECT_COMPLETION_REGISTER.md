@@ -2061,3 +2061,15 @@
 - Added source-contract coverage in `tests/public-product-catalogue-fallback.test.ts`; test execution remains deferred to the consolidated testing phase.
 - Commits: UI `5ad1512ee89bca6c04f8a714f6334179f6aba018`; test source `c131f582f0ce41188709ecbc524124c6756a1794`.
 - No tests/build/type-check, database reads/writes, migrations, Preview deployment, or protected `main` changes were performed.
+
+
+## 2026-11-19 — Product listing completeness and Matrix Admin actions
+
+- Completed member product listing fields with a required validated asking price and explicit Warranty and Ownership fields, while retaining Brand, Model, Condition, Year/Age, Location and free-form details. Values are stored in the existing optional-details JSON contract; no schema change required.
+- Fixed edit/resubmission browser validation: image replacement is optional when editing because existing private images are retained if no new files are selected. New submissions still require at least one image.
+- Corrected package page messaging so activation availability and card guidance reflect the connected environment's actual activation setting rather than always claiming activation is unavailable.
+- Added Admin Matrix commission actions: post pending commissions for the activation through the server RPC, and reverse an individual credited commission with a required reason and explicit confirmation. Server-side idempotency, eligibility and ledger checks remain authoritative.
+- Added/extended source-contract coverage: `tests/member-product-submission-editing.test.ts` and `tests/admin-matrix-commission-actions.test.ts`. Tests/build/type-check were not run, per development-only phase.
+- Commits: member listing UI `cefbee175e59c5e5ac8b6cfc7e378753b0ad0621`; member edit regression `1dd778b613cef2c30da1a68e9eaf092619c140f5`; package UI `24b873cbbe505b43fbfe550c09ce90655b8905e5`; Matrix Admin UI `ae8257631cda4fafa65bc102919dbd5e99da6acf`; Matrix action regression `af39709a99aa91e0037a9b9964284d6b19c8ce0b`.
+- All changes are confined to `completion-work`. No SQL migrations were applied, no Supabase database was modified, no Preview deployment or runtime testing was performed, and `main` remains untouched.
+- Development progress: source implementation advanced; overall percentage remains provisional until consolidated build/test/reconciliation and browser verification.
