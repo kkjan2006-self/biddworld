@@ -1,4 +1,4 @@
-import {useCallback,useEffect,useMemo,useState} from 'react';
+import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {ArrowDownToLine,RefreshCw,Search} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {csvDocument} from '../lib/csv';
@@ -33,7 +33,7 @@ function validRow(value:unknown):value is MatrixCommissionRow{
 export default function AdminMatrixCommissions(){
  const [rows,setRows]=useState<MatrixCommissionRow[]>([]);
  const [status,setStatus]=useState('all'),[level,setLevel]=useState('all'),[search,setSearch]=useState('');
- const [loading,setLoading]=useState(false),[more,setMore]=useState(false),[hasMore,setHasMore]=useState(false);
+ const [loading,setLoading]=useState(false),[more,setMore]=useState(false),[hasMore,setHasMore]=useState(false),[reloadToken,setReloadToken]=useState(0);\n const reportRequest=useRef(0),loadMoreBusy=useRef(false);
  const [message,setMessage]=useState(''),[exportBusy,setExportBusy]=useState(false);
  const [summary,setSummary]=useState<MatrixSummary>(emptySummary),[summaryLoading,setSummaryLoading]=useState(true),[summaryError,setSummaryError]=useState('');
  const loadSummary=useCallback(async()=>{if(!supabase){setSummaryError('Supabase is not configured.');setSummaryLoading(false);return;}setSummaryLoading(true);setSummaryError('');try{const {data,error}=await supabase.rpc('admin_get_matrix_commission_summary');if(error)throw error;if(!validSummary(data))throw new Error('The Matrix summary response was invalid.');setSummary(data);}catch(e){setSummaryError(e instanceof Error?e.message:'Could not load the overall Matrix summary.');}finally{setSummaryLoading(false);}},[]);
@@ -50,24 +50,40 @@ export default function AdminMatrixCommissions(){
   for(const row of data as MatrixCommissionRow[]){if(ids.has(row.commission_id))throw new Error('The Matrix report returned duplicate commission IDs.');ids.add(row.commission_id);}
   return data as MatrixCommissionRow[];
  },[]);
- const load=useCallback(async(reset=true)=>{
-  if(loading||more)return;
-  setLoading(reset);setMore(!reset);setMessage('');
-  try{
-   const offset=reset?0:rows.length;
-   const batch=await fetchPage(offset,status,level);
-   if(reset)setRows(batch);
-   else{
-    const known=new Set(rows.map(r=>r.commission_id));
-    if(batch.some(r=>known.has(r.commission_id)))throw new Error('The next Matrix report page overlaps records already loaded. Refresh the report.');
-    setRows(current=>[...current,...batch]);
-   }
+ useEffect(()=>{
+  const request=++reportRequest.current;
+  let active=true;
+  setRows([]);setHasMore(false);setLoading(true);setMore(false);setMessage('');
+  void fetchPage(0,status,level).then(batch=>{
+   if(!active||request!==reportRequest.current)return;
+   setRows(batch);
    setHasMore(batch.length===PAGE_SIZE&&batch[batch.length-1]?.has_more===true);
-  }catch(e){setMessage(e instanceof Error?e.message:'Could not load Matrix commission report.');}
-  finally{setLoading(false);setMore(false);}
- },[fetchPage,status,level,rows,loading,more]);
- useEffect(()=>{void load(true);},[status,level]);
- const filtered=useMemo(()=>{
+  }).catch(e=>{
+   if(active&&request===reportRequest.current)setMessage(e instanceof Error?e.message:'Could not load Matrix commission report.');
+  }).finally(()=>{
+   if(active&&request===reportRequest.current)setLoading(false);
+  });
+  return ()=>{active=false;};
+ },[fetchPage,status,level,reloadToken]);
+ async function loadMore(){
+  if(loadMoreBusy.current||loading||more||!hasMore)return;
+  loadMoreBusy.current=true;setMore(true);setMessage('');
+  const request=reportRequest.current;
+  try{
+   const batch=await fetchPage(rows.length,status,level);
+   if(request!==reportRequest.current)return;
+   const known=new Set(rows.map(r=>r.commission_id));
+   if(batch.some(r=>known.has(r.commission_id)))throw new Error('The next Matrix report page overlaps records already loaded. Refresh the report.');
+   setRows(current=>[...current,...batch]);
+   setHasMore(batch.length===PAGE_SIZE&&batch[batch.length-1]?.has_more===true);
+  }catch(e){
+   if(request===reportRequest.current)setMessage(e instanceof Error?e.message:'Could not load Matrix commission report.');
+  }finally{
+   loadMoreBusy.current=false;
+   if(request===reportRequest.current)setMore(false);
+  }
+ }
+const filtered=useMemo(()=>{
   const q=search.trim().toLowerCase();
   return rows.filter(r=>!q||[r.commission_id,r.activation_id,r.activated_member_code,r.source_member_code,r.source_id_type,r.credited_main_member_code,r.credited_main_name].filter(Boolean).join(' ').toLowerCase().includes(q));
  },[rows,search]);
@@ -98,7 +114,7 @@ export default function AdminMatrixCommissions(){
  const total=filtered.reduce((sum,row)=>sum+Number(row.amount),0);
  return <section className="sponsorAdmin" aria-label="Matrix commission report">
   <div className="memberReportHeading"><div><h3>Matrix Commission Register</h3><small>Independent Under ID placement-chain commissions. Duplicate IDs remain visible as source IDs; their linked Main ID receives the Income Wallet credit.</small></div>
-   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="outline small" disabled={loading||more} onClick={()=>{void load(true);void loadSummary();}}><RefreshCw size={14}/> Refresh</button><button type="button" className="outline small" disabled={exportBusy||loading||rows.length===0} onClick={()=>void exportAll()}><ArrowDownToLine size={14}/>{exportBusy?'Preparing…':'Export complete CSV'}</button></div>
+   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="outline small" disabled={loading||more} onClick={()=>{setReloadToken(value=>value+1);void loadSummary();}}><RefreshCw size={14}/> Refresh</button><button type="button" className="outline small" disabled={exportBusy||loading||rows.length===0} onClick={()=>void exportAll()}><ArrowDownToLine size={14}/>{exportBusy?'Preparing…':'Export complete CSV'}</button></div>
   </div>
   {message&&<div className="notice" role="status">{message}</div>}
   <div className="sponsorAdminForm">
@@ -117,7 +133,7 @@ export default function AdminMatrixCommissions(){
     <b>₹{Number(row.amount).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</b>
     <small>{new Date(row.created_at).toLocaleString('en-IN')} · Commission ID: {row.commission_id}</small>
    </article>)}</div>}
-  {hasMore&&<button type="button" className="outline small" disabled={more||loading} onClick={()=>void load(false)}>{more?'Loading…':'Load 100 more Matrix commissions'}</button>}
+  {hasMore&&<button type="button" className="outline small" disabled={more||loading} onClick={()=>void loadMore()}>{more?'Loading…':'Load 100 more Matrix commissions'}</button>}
   <small>Totals shown are for the currently loaded and filtered rows. Complete CSV export fetches every page from the server using the selected status and level filters.</small>
  </section>;
 }
