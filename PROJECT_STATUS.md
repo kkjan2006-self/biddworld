@@ -15,7 +15,7 @@
 - Latest verified source/documentation batch commits: `1bee5aa29697701bc714163bc84256b46dc4b70d` (source fix), `e0692f028bda716bf3b3b909a9bf1e1e44ffe244` (forward manifest), `ab9d485766c86d8b5e9a03a4bd9e40ee4a7e2d1d` (clean-install README), `864c2ae315e512e8b3921279375cdd6dfd290de0` (status), `98abc466b7a7e812ed965b7bff54c019d352474b` (completion register), `285fa062988ee44c39706d6cd174c3bfbbf55148` (concurrency audit).
 - Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`; verify branch HEAD on resume. Protected `main` remains exactly `415364b71534c7fc31d6c0928dd8395e10cbd94f` and was not modified.
 - Latest application-source correction: `dd34feece77d383979a2a60b2210def738e48064`
-- Last updated: 2026-11-18 — Member wallet statement and Support queue/export keyset pagination
+- Last updated: 2026-11-19 — Member auction submission preflight and duplicate-submit protection
 - Previous historical checkpoints below are retained as evidence; they are superseded by the latest verified HEAD above.
 - Protected `main` HEAD verified unchanged: `415364b71534c7fc31d6c0928dd8395e10cbd94f`.
 - Overall project completion estimate: **59%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
@@ -28,6 +28,7 @@
 The following source/UI/documentation work is present in the current branch and must not be recreated from scratch:
 
 - React + TypeScript + Vite responsive application, member and Admin portal foundations, Supabase Auth integration, environment-mode separation, PWA manifest/service worker/icon, and BiddWorld SEO/social metadata.
+- Member auction submission now validates trimmed title/description and every selected image's type/size before starting uploads, and uses a synchronous in-flight guard to prevent duplicate submits; the RPC receives normalized title/description. Source-contract test added, not executed.
 - Member profile/identity, Main ID and Duplicate ID views, member dashboard summaries, wallet balances/history, referral genealogy, placement tree, package catalogue/activation request, auction/Fixed Bid catalogues, withdrawal requests, support, notifications, account security, winner/delivery history and member exports.
 - Admin member/sponsor/duplicate-ID management, package/referral-plan drafts, product/media management UI, auction and Fixed Bid management, wallet ledger/adjustments, withdrawal review, winner/payment and delivery views, support queue, notification templates/send flow, Admin access/role management, platform health, audit logs, filters, pagination and CSV exports.
 - Source SQL includes wallet-first debit/idempotency patterns, referral draft versioning and commission calculation/post/reversal workflows, Duplicate ID placement and graph serialization, auction and Fixed Bid lifecycle/draw/refund/settlement workflows, withdrawal reservation/release/review, winner payment, support/notification idempotency, Admin wallet adjustment, receipt/media Storage policies, Admin role management and report RPCs.
