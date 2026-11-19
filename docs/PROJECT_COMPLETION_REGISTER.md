@@ -1,3 +1,8 @@
+- Restricted Payment Review Staff directory now enforces a bounded response, validates account identity/email/timestamps and unique allowed permissions, rejects malformed or duplicate permission drafts, and prevents overlapping role/permission mutations with a reliably released in-flight guard. Existing Primary Admin gating and server-side staff RPCs are preserved.
+- Added source-contract regression coverage in `tests/admin-payment-review-staff-integrity.test.ts` (not executed).
+- Commits: staff hardening `1c9940fb3cc2ec325a111379e443dacbfae9f0ba`; mutation-lock correction `a5d0c69cf8d6607ee92e412572dea8bffc774030`; regression source `32108e188b6ccdfabe6b4fa6abc9b9f141a3cadc`.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production database reads/writes/migrations, no Preview deployment, and no protected `main` changes.
+
 - Admin dashboard overview, member-structure report, notification templates and Admin account directory now validate bounded response shapes, numeric counters, unique identities, ID ownership, summary consistency, supported notification channels, required email subjects and timestamps before rendering. Invalid module data is isolated and surfaced without changing existing Admin role or notification mutation RPCs.
 - Added source-contract coverage in `tests/admin-overview-notification-role-directory-integrity.test.ts` (source only; not executed).
 - Commits: Admin parser hardening `bb3d0d40ee73f660f80af765a5933e3e1e27f0d0`; regression source `d310947620018601e8ffc946deaa4c7ab35c84ec`.
