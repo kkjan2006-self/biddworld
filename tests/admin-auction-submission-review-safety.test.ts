@@ -3,6 +3,14 @@ import {describe,it} from 'node:test';
 import assert from 'node:assert/strict';
 const review=readFileSync('src/components/AdminAuctionSubmissionReview.tsx','utf8');
 describe('Admin member-auction review safety',()=>{
+ it('uses bounded server-side keyset pages and rejects malformed or duplicate queue records',()=>{
+  assert.match(review,/admin_list_auction_submissions_page/);
+  assert.match(review,/p_limit:50/);
+  assert.match(review,/data\.has_more/);
+  assert.match(review,/malformed or duplicate submissions/);
+  assert.match(review,/Load More Submissions/);
+  assert.match(review,/pageLock\.current/);
+ });
  it('validates edited listing details before uploading public media',()=>{
   const validation=review.indexOf("if(title.length<3");
   const upload=review.indexOf("from('product-media').upload");
