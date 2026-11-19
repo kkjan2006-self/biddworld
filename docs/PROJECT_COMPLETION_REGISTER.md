@@ -1661,3 +1661,12 @@
 - Removed an unused captured profile value; the current load-generation guard remains the authority for response acceptance.
 - Commit: `f06f0bc3faa99fd03cae5ff109e224e348e77f4f`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+
+
+## Migration baseline schema audit — 2026-11-19
+
+- Identified a checked-in bootstrap mismatch: `0001_biddworld.sql` / `0002_place_bid_rpc.sql` define/use legacy user-scoped columns, while later migrations and current code assume owner/member-scoped columns and newer activation fields. `001_initial_schema.sql` is empty.
+- No proof was obtained about the live TEST or Production schema; neither was queried. No speculative migration was authored.
+- Full findings and safe resolution requirements: `docs/SCHEMA_BASELINE_AUDIT.md`.
+- Commit: `a76de56db1183a54ade8525a4278bd9be0450e69`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
