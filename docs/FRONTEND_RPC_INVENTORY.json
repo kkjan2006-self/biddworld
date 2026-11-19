@@ -1,8 +1,12 @@
 {
-  "generated_from": "completion-work frontend source inspection at commit 64ba191504fa00238c2975fad19d90f989dc39ad",
-  "snapshot_commit": "64ba191504fa00238c2975fad19d90f989dc39ad",
-  "note": "This inventory records all 74 unique literal frontend RPC call sites across the listed React surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
+  "generated_from": "completion-work frontend source inspection at commit 1ca9e6a95eebfccd73605ef90834934f58c03045",
+  "snapshot_commit": "1ca9e6a95eebfccd73605ef90834934f58c03045",
+  "note": "This inventory records all 105 unique literal frontend RPC call sites across App.tsx and all React component surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
+    {
+      "name": "admin_activate_matrix_plan",
+      "ui": "src/components/AdminMatrixPlans.tsx"
+    },
     {
       "name": "admin_activate_referral_plan",
       "ui": "src/components/Admin.tsx"
@@ -28,6 +32,10 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_get_matrix_commission_summary",
+      "ui": "src/components/AdminMatrixCommissions.tsx"
+    },
+    {
       "name": "admin_get_member_structure",
       "ui": "src/components/Admin.tsx"
     },
@@ -48,12 +56,16 @@
       "ui": "src/components/Admin.tsx"
     },
     {
-      "name": "admin_list_auction_bids_page",
+      "name": "admin_list_auction_bids_cursor_page",
       "ui": "src/components/AdminAuctionBidReport.tsx"
     },
     {
       "name": "admin_list_auction_products",
       "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_auction_submissions_page",
+      "ui": "src/components/AdminAuctionSubmissionReview.tsx"
     },
     {
       "name": "admin_list_auctions",
@@ -84,8 +96,20 @@
       "ui": "src/components/Admin.tsx"
     },
     {
-      "name": "admin_list_fixed_bid_entries_page",
+      "name": "admin_list_fixed_bid_entries_cursor_page",
       "ui": "src/components/AdminFixedBidEntryReport.tsx"
+    },
+    {
+      "name": "admin_list_matrix_commissions_page",
+      "ui": "src/components/AdminMatrixCommissions.tsx"
+    },
+    {
+      "name": "admin_list_matrix_plans",
+      "ui": "src/components/AdminMatrixPlans.tsx"
+    },
+    {
+      "name": "admin_list_member_notifications_keyset_page",
+      "ui": "src/components/Notifications.tsx"
     },
     {
       "name": "admin_list_members_sponsors_page",
@@ -104,8 +128,24 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_list_payment_review_staff",
+      "ui": "src/components/AdminPaymentReviewStaff.tsx"
+    },
+    {
       "name": "admin_list_pending_activations",
+      "ui": "src/components/AdminStaff.tsx"
+    },
+    {
+      "name": "admin_list_pending_activations_page",
       "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_list_pending_wallet_fund_requests_page",
+      "ui": "src/components/AdminWalletFundingReview.tsx"
+    },
+    {
+      "name": "admin_list_product_submissions_page",
+      "ui": "src/components/AdminProductSubmissionReview.tsx"
     },
     {
       "name": "admin_list_referral_commissions_page",
@@ -132,6 +172,14 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_lookup_notification_recipients",
+      "ui": "src/components/Notifications.tsx"
+    },
+    {
+      "name": "admin_post_matrix_commissions",
+      "ui": "src/components/AdminMatrixCommissions.tsx"
+    },
+    {
       "name": "admin_post_referral_commissions",
       "ui": "src/components/Admin.tsx"
     },
@@ -140,12 +188,32 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_reverse_matrix_commission",
+      "ui": "src/components/AdminMatrixCommissions.tsx"
+    },
+    {
       "name": "admin_reverse_referral_commission",
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_review_auction_submission",
+      "ui": "src/components/AdminAuctionSubmissionReview.tsx"
+    },
+    {
       "name": "admin_review_package_activation",
       "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_review_package_activation",
+      "ui": "src/components/AdminStaff.tsx"
+    },
+    {
+      "name": "admin_review_product_submission_with_images",
+      "ui": "src/components/AdminProductSubmissionReview.tsx"
+    },
+    {
+      "name": "admin_review_wallet_fund_request",
+      "ui": "src/components/AdminWalletFundingReview.tsx"
     },
     {
       "name": "admin_review_withdrawal_request",
@@ -162,6 +230,10 @@
     {
       "name": "admin_save_fixed_bid_campaign",
       "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_save_matrix_plan_draft",
+      "ui": "src/components/AdminMatrixPlans.tsx"
     },
     {
       "name": "admin_save_notification_template",
@@ -216,6 +288,10 @@
       "ui": "src/components/Admin.tsx"
     },
     {
+      "name": "admin_set_payment_review_staff",
+      "ui": "src/components/AdminPaymentReviewStaff.tsx"
+    },
+    {
       "name": "admin_set_product_active",
       "ui": "src/components/Admin.tsx"
     },
@@ -226,6 +302,10 @@
     {
       "name": "admin_update_member_profile",
       "ui": "src/components/Admin.tsx"
+    },
+    {
+      "name": "admin_update_payment_review_staff_permissions",
+      "ui": "src/components/AdminPaymentReviewStaff.tsx"
     },
     {
       "name": "admin_update_support_ticket",
@@ -252,6 +332,14 @@
       "ui": "src/components/Account.tsx"
     },
     {
+      "name": "member_get_my_matrix_commission_sources",
+      "ui": "src/components/WalletHistory.tsx"
+    },
+    {
+      "name": "member_get_my_matrix_commission_summary",
+      "ui": "src/components/Referrals.tsx"
+    },
+    {
       "name": "member_join_fixed_bid_campaign",
       "ui": "src/components/FixedBid.tsx"
     },
@@ -260,20 +348,56 @@
       "ui": "src/components/Account.tsx"
     },
     {
-      "name": "member_list_my_withdrawals",
+      "name": "member_list_my_matrix_commissions_page",
       "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_list_my_wallet_fund_requests_page",
+      "ui": "src/components/WalletFunding.tsx"
+    },
+    {
+      "name": "member_list_my_withdrawals_page",
+      "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_list_own_auction_submissions",
+      "ui": "src/components/MemberPlaceAuction.tsx"
+    },
+    {
+      "name": "member_list_own_product_submissions_page",
+      "ui": "src/components/MemberProductSubmission.tsx"
     },
     {
       "name": "member_pay_winning_item_payment",
       "ui": "src/components/Account.tsx"
     },
     {
+      "name": "member_submit_auction",
+      "ui": "src/components/MemberPlaceAuction.tsx"
+    },
+    {
+      "name": "member_submit_product_listing",
+      "ui": "src/components/MemberProductSubmission.tsx"
+    },
+    {
       "name": "member_submit_support_ticket",
       "ui": "src/components/Support.tsx"
     },
     {
+      "name": "member_submit_wallet_fund_request",
+      "ui": "src/components/WalletFunding.tsx"
+    },
+    {
       "name": "member_update_my_profile",
       "ui": "src/components/Account.tsx"
+    },
+    {
+      "name": "member_update_own_auction_submission",
+      "ui": "src/components/MemberPlaceAuction.tsx"
+    },
+    {
+      "name": "member_update_product_submission",
+      "ui": "src/components/MemberProductSubmission.tsx"
     },
     {
       "name": "place_bid",
