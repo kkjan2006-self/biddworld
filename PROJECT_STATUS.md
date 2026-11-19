@@ -1,6 +1,17 @@
 # Current development checkpoint — 2026-11-19
 
 - Active branch: `completion-work`; protected `main` unchanged.
+- Admin Auction Submission Review now loads 50 rows per page through a server-side keyset RPC, with a 100-row backend cap, stable `(created_at,id)` cursor and Admin/authorized Staff permission enforcement.
+- UI validates response shape, required IDs/timestamps/image paths, cursor completeness and duplicate IDs; it signs private image URLs only for the current page and supports Load More/refresh with stale-request protection.
+- Added migration `20261119400000_admin_auction_submission_keyset_pagination.sql` and registered it in the clean-install forward manifest. Existing approve/reject and image-publishing workflow is unchanged.
+- Previous batch: Admin Main Wallet funding queue pagination, backend cap, receipt checks and contract coverage.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production migrations/data writes, no Production reads, no deployment, and no protected `main` changes.
+- Next bulk focus: package activation review queue and remaining Admin operational workflows; final testing remains deferred.
+- Overall development completion: **71% provisional** (not runtime verified).
+
+# Current development checkpoint — 2026-11-19
+
+- Active branch: `completion-work`; protected `main` unchanged.
 - Admin Main Wallet funding review now uses a server-side keyset-paginated RPC (50 rows per UI page; backend hard cap 100), stable `(created_at,id)` cursor, duplicate/malformed page rejection and short-lived private receipt URLs.
 - The legacy no-argument pending-funding queue RPC is also capped at 100 rows, preserving its response shape and Admin/authorized Staff permission check.
 - Approval/rejection remains through the existing locked, audited RPC. Approval still requires a receipt URL to be available in the UI; no wallet posting logic was changed.
