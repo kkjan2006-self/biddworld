@@ -1627,3 +1627,12 @@
 - Added a SQL contract test that asserts immediate-parent progression and guards against the old skipped-level expression.
 - Commits: migration `b2c2a4a23eb9665d5706f2812c6e5ef5ce2279dd`; test `7ddea354897e0033c71d8f21ab54a2f329af9084`.
 - Source-only correction. No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied.
+
+
+## Admin Matrix report request lifecycle — 2026-11-19
+
+- Reworked the Admin Matrix commission register so changing status/level filters always starts a fresh first-page request, stale in-flight responses are ignored, and refresh reloads both report and global summary.
+- Load-more now has a synchronous in-flight guard and refuses results from an obsolete filter request; overlap checks remain in place.
+- Added source-level regression assertions for filter/refresh request lifecycle and load-more concurrency.
+- Commits: UI `f700d99528cf70374bd20d6869d60881c3736388`; test `bb0014685b74a4fa94d9c96d485637812688c824`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied.
