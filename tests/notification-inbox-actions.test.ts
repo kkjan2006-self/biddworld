@@ -10,7 +10,7 @@ describe('member notification inbox actions',()=>{
  });
  it('applies unread and category filters in both database queries before pagination',()=>{
   expect(source).toContain("if(unreadOnly)request=request.is('read_at',null)");
-  expect(source.match(/categoryFilter!=='all'/g)).toHaveLength(2);
+  expect(source).toContain("if(categoryFilter!=='all')request=request.eq('category',categoryFilter)");
   expect(source).toContain('[isAdmin,unreadOnly,categoryFilter]');
   expect(source).toContain('[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]');
  });
@@ -33,6 +33,15 @@ describe('member notification inbox actions',()=>{
  });
  it('keeps the bulk-read action out of Admin authoring mode',()=>{
   expect(source).toContain("!isAdmin&&<><button className=\"outline small\" type=\"button\" onClick={()=>setUnreadOnly");
+ });
+ it('subscribes to live member notification changes and updates the inbox without a manual refresh',()=>{
+  expect(source).toContain(".on('postgres_changes',config,(payload)=>");
+  expect(source).toContain("event:'*' as const,schema:'public',table:'member_notifications'");
+  expect(source).toContain("filter:'user_id=eq.'+user.id");
+  expect(source).toContain("payload.eventType==='INSERT'");
+  expect(source).toContain("payload.eventType==='UPDATE'");
+  expect(source).toContain("payload.eventType==='DELETE'");
+  expect(source).toContain('supabase.removeChannel(channel)');
  });
  it('rejects malformed and duplicate IDs in the initial inbox page',()=>{
   expect(source).toContain("typeof item.id!=='string'");
