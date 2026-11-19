@@ -1,3 +1,12 @@
+## Current Preview checkpoint — 2026-11-19
+
+- Preview workflow #12 failed closed at the TEST-secret validation; the Vite build and Pages deployment did not run. Add `BIDDWORLD_TEST_SUPABASE_URL` and `BIDDWORLD_TEST_SUPABASE_PUBLISHABLE_KEY` to the Preview repository Actions secrets before dispatching again.
+- Preview source files `src/components/MemberPlaceAuction.tsx` and `src/components/Admin.tsx` have now been synchronized from `completion-work` (Preview commits `c4a095f3d413e91b2a99c29c6520e36c6fdad3c9`, `e94ec10849a2641634c17098c426c1d82127f5b6`). Other compared key files already matched.
+- TEST Supabase migration state is 89 rows / 88 unique migration names due to the recorded duplicate. No more writes or rollback attempts until authorized final QA. Production remains read-only.
+- Overall development completion remains **60% provisional**. No tests or QA were run.
+
+---
+
 # Current continuation checkpoint — 2026-11-19
 
 - Live `completion-work` HEAD rechecked: `6648fd07033efdc904593bd60d20804adfeb0be3`; latest commit records the Preview/TEST migration-state checkpoint. Protected `main` remains `620d05b2d266d26dc70c5ff775ed45af9bb3b400` (read-only).
