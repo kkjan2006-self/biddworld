@@ -1027,3 +1027,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: Admin UI `68e1f8b2c7c5a3c1f56d8698512d1741fa6cc6c8`; regression test `c2eb956bad5e4bbb0e2b889b2151da788dadcd4b`.
 - Tests/build/type-check/browser/mobile QA were not run. No DB migrations/writes, TEST or Production access, Preview deployment or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** pending remaining modules and final integrated verification.
+
+
+## Latest bulk checkpoint — Admin member directory integrity
+
+- Added a shared strict parser for Admin member-directory responses and applied it to initial workspace loading, debounced search, explicit search and Load More. It rejects malformed envelopes, pages over 100 rows, blank/duplicate Main IDs, invalid display names/timestamps and invalid optional phone/sponsor field types.
+- Subsequent pages now reject overlap with already-loaded Main IDs instead of silently filtering duplicates, preventing an apparently successful but incomplete directory. Existing search debounce, request-generation guard and pagination UX are retained.
+- Added regression source contracts in `tests/admin-member-directory-integrity.test.ts`.
+- Commits: Admin UI `4a48732823972946ed8402073d6036bc98e159d2`; regression test `eb6c9f46c971b226804d1e1af345a3696866ca18`.
+- Tests/build/type-check/browser/mobile QA were not run. No DB migrations/writes, TEST or Production access, Preview deployment or protected `main` changes occurred.
+- Overall development completion remains **71% provisional** pending remaining modules and final integrated verification.
