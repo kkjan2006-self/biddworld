@@ -2243,3 +2243,12 @@
 - Added `tests/duplicate-auto-placement-control.test.ts` and `tests/auction-winner-control-contract.test.ts`. Tests/build/type-check not run.
 - Commits: Admin control cleanup `d90bdbe312fe9708cb6059cec67178b3f6b8ab04`; feature RPC alignment `ff3beb6b889a6c15859955086395fd06c4063039`; duplicate placement test `6358d848c8138a363689d912bf1a46fa35969198`; winner control cleanup `955280092167da63acdc679de93adab01f211e11`; feature RPC cleanup `f2bbcbae3d0941a261092e3414a6b3dc7ce4e22b`; winner contract test `8bf5a4b2e070fd72ba34ef0ff29aa16c7fa0decb`.
 - Forward migration inventory unchanged at 122 files. Source development estimate: **95% provisional**; final full RPC/security/feature integration review remains.
+
+
+## 2026-11-19 — Admin feature switch/RPC parity audit
+
+- Performed a source-level parity check across every visible Admin feature switch, the Admin settings RPC response, the server allowlist and the server enabled-key set. All 14 visible feature switches now appear exactly once and match all three SQL contracts; no hidden allowed/enabled keys remain.
+- Fixed a mismatch where Matrix Commissions was enabled in the Admin UI but omitted from `admin_get_feature_settings`, which would have caused refreshes to reset the switch state. The settings RPC now returns Matrix Commissions and the server allowlist excludes the removed Winner Selection Configured key.
+- Added `tests/admin-feature-setting-contract.test.ts` to prevent future drift. This was static source inspection only; tests/build/type-check were not executed.
+- Commits: feature RPC parity fix `c9e2d00527eb42edd466d29d65a0aab2da5258a8`; parity regression `bb132f1dfaaecedc012aa2a8fe923e008be7e02c`.
+- Forward migration inventory remains 122 unique candidates. Source development estimate: **96% provisional**; final RPC/source contract review and documentation consistency remain.
