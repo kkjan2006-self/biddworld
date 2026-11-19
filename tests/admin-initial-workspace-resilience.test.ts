@@ -12,6 +12,10 @@ describe('Admin initial workspace request resilience',()=>{
   expect(admin).toContain('Retry loading Admin data');
   expect(admin).toContain('onClick={()=>setRefresh(v=>v+1)}');
  });
+ it('surfaces delivery tracking RPC failures inside the delivery workspace',()=>{
+  expect(admin).toContain("else setDeliveryMessage('Delivery tracking could not be loaded: '+deliveryResult.error.message)");
+  expect(admin).toContain("{deliveryMessage&&<div className=\"notice\" role=\"status\">{deliveryMessage}</div>}");
+ });
  it('always releases the initial loading state while mounted',()=>{
   expect(admin).toContain('}finally{\n    if(active)setLoading(false);');
  });
