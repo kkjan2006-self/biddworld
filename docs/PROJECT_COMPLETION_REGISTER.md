@@ -1017,3 +1017,6 @@
 - Added unique normalized UTR protection, member-owned receipt upload paths, Admin-only receipt reads and locked pending-to-final review state transitions.
 - Renamed user-facing Income Wallet labels to Main Wallet across the member dashboard, wallet statement, Admin wallet controls and preview. Internal income type is retained for backward compatibility.
 - Added migration candidate #76 to the clean-install forward manifest. No migration was applied; no tests/build/QA, database writes or deployment were performed. The existing authorization model supports Admin only; a distinct Admin Staff role remains unimplemented. Overall estimate remains 55% (Provisional).
+
+
+- Inventory update after Main Wallet funding migration #76: 76 forward + 16 excluded timestamped + 3 legacy SQL files = 95 SQL files (92 timestamped). This is source inventory only; no replay was performed.
