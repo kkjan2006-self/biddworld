@@ -445,3 +445,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/admin-product-draft-image-preview.test.ts` as source-contract coverage; not executed.
 - Implementation commit: 14f51ad3c72eb3d2663601039efe07b71adff285; test-source commit: 68242c7ec242ed5cf4effb6ea8a473875a7150cd.
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
+
+
+## Latest Admin product catalogue batch — saved-product thumbnails
+
+- Admin Saved Products now shows a compact thumbnail for each product when an image is available. Absolute HTTP(S) image URLs remain unchanged; Storage object paths resolve through the existing `product-media` bucket. Thumbnails are lazy-loaded, have product-specific alternative text, and hide broken images without affecting product data.
+- Added `tests/admin-saved-product-thumbnails.test.ts` source-contract coverage; not executed.
+- Source commit: 8828d1b616c249b0eb06d90945031bba63b3db70; test-source commit: 0572ed0d6bd6bba74fe8133d362bbce4d158d7ac. Overall completion remains **60% Provisional**.
+- No test/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched.
