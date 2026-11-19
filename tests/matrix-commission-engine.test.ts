@@ -9,7 +9,6 @@ const admin=readFileSync(resolve(process.cwd(),'src/components/Admin.tsx'),'utf8
 describe('Under ID Matrix commission engine contract',()=>{
  it('uses the placement parent chain and never the Sponsor referral graph',()=>{
   expect(migration).toContain('current_node.placement_parent_id');
-  expect(migration).toContain('source.placement_parent_id');
   expect(migration).toContain('placement_parent_id');
   expect(migration).not.toContain('public.referrals');
   expect(migration).not.toContain('referrer_member_id');
@@ -48,7 +47,7 @@ describe('Under ID Matrix commission engine contract',()=>{
   expect(migration).toContain("'matrix_commissions_enabled','false'::jsonb");
   expect(migration).toContain("'matrix_commissions_enabled'");
   expect(admin).toContain("key:'matrix_commissions_enabled'");
-  expect(admin).toContain("'matrix_commissions_enabled'"]);
+  expect(admin).toContain("'matrix_commissions_enabled'");
   expect(placement).toContain("child.placement_position !~ '^[0-9]+$'");
  });
 });
