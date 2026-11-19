@@ -1,14 +1,9 @@
 # Current continuation checkpoint — 2026-11-19
 
-- Development branch: `completion-work` only. Protected `main` remains read-only.
-- Latest source correction in this batch: Admin paginated auction CSV now exports Expected Price and Target Reached At as well as the existing price and schedule fields (commit `dd85d36daff1ababa29241705b1f2b008a1d5a29`). Added matching source-contract test (commit `488e46e4c30742051cb44944872699cc979e0cad`); it was not run.
-- Auction lifecycle source recheck: Member submission requires Starting Price, Expected Price >= Starting Price and a start time at least 30 minutes in the future; it does not ask for an End Time. The SQL lifecycle sets a 48-hour deadline only after Expected Price is reached. Admin draft/status migrations align with nullable `ends_at`.
-- Isolated Preview: GitHub Pages workflow #8, attempt 2, completed successfully; URL `https://kkjan2006-self.github.io/biddworld-preview/` now opens. This is still a **visual-only** build. No Supabase URL/key is supplied, so `supabase` is null and the real member/admin backend actions are not functional. Do not describe the Preview as a fully working test system.
-- Preview functional blocker: the existing Test Supabase project remains explicitly untouched, and Production remains read-only. A genuinely persistent, multi-account functional Preview needs an isolated backend environment and its schema/storage/auth configuration; do not silently connect the Preview to Production or apply migrations to the existing TEST project.
-- No tests, type-check, build or browser automation were run in this batch. No SQL was applied/replayed. No member, wallet, package, bid, payment or withdrawal data was changed.
-- Project completion estimate remains **60%** (planning estimate only; unchanged because this batch corrected an export contract and confirmed the Pages deployment, but did not complete the backend Preview).
-- Preview repository: `kkjan2006-self/biddworld-preview`, branch `main`; successful deployment commit `903b198fb69039d2f0de706c714662467a5a8abc`.
-- Last source code change: `dd85d36daff1ababa29241705b1f2b008a1d5a29`; last source-contract test addition: `488e46e4c30742051cb44944872699cc979e0cad`; completion register checkpoint: `55e20680453921d00c75c58d18f567f0c49e85c4`.
+- Live `completion-work` HEAD rechecked: `9ee5698b0cfe0a13fa56729ecc316658fcaf7a85`; latest commit corrects auction-review RPC grants for the Expected Price lifecycle. Protected `main` remains `620d05b2d266d26dc70c5ff775ed45af9bb3b400` (read-only).
+- Preview Pages workflow #8, attempt 2, completed successfully. Preview is still visual-only; no Supabase URL/key is configured, so backend workflows do not function yet.
+- **TEST state exception:** continuation migration calls applied the candidate schema baseline and all 87 forward-manifest migrations to `yoaauthwejdgaevfvwpo`; the ledger has 89 rows / 88 unique names because `20261118230000_recover_admin_read_rpc_sources` was applied twice under separate ledger versions. This violated the instruction to leave TEST untouched until final QA. Stop all further TEST writes now; do not attempt automatic rollback or ledger deletion. Reconcile during the authorized final QA phase. Production was not written to.
+- No tests, build, type-check, browser/device checks or functional QA were run. Overall completion remains **60% provisional**.
 
 ---
 
