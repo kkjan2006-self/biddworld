@@ -1721,3 +1721,12 @@
 - Registered source migration `20261119330000_member_placement_tree_parent_labels.sql` in the clean-install forward list and added source-contract coverage to `tests/member-placement-tree-duplicate-ids.test.ts`.
 - Commits: migration `57a79146c8b6b1e74ee23be540a9101223fe6b8a`; UI `6aba7b418763b88735f100794314a6d94b342487`; manifest `d9045fb35c86f65a81e42a38c7b08f943cb5d4e0`; test `28d134838f5e559fe48dc440fc0ffe95f82a114c`.
 - Test source was authored but not executed. No migrations applied, no database writes, Production access, deployment or protected `main` changes.
+
+
+## 2026-11-19 — Admin Member / Placement relationship clarity
+
+- Admin Member Details separately display Sponsor Main ID, Main ID Under ID / Placement Parent and Main ID Matrix Position.
+- Admin Placement Hierarchy now labels each node's Under ID, position and Duplicate ID owner Main ID; linked Duplicate ID rows expose Under ID and position too.
+- Added source-contract checks in `tests/admin-member-detail-search-selection.test.ts`; authored, not executed.
+- Commits: Admin UI `d39fd2d646ddc3e737f7f093a723fb7597866160`; regression contract `fee444afb8becfabcdc165729a3883d91ab010f8`.
+- No tests/build/type-check/browser/mobile QA, migrations, DB writes, Production access, deployment or protected `main` changes.
