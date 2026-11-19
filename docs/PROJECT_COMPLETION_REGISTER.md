@@ -1695,3 +1695,12 @@
 - Added a regression source-contract assertion for the post-await active guard.
 - Commits: component `691ff9febaedda0284d868930af603fc2802f7a6`; test `190ed8a7e82063db9d654c43fee44f8101be4b5f`.
 - No tests/build/type-check/browser/mobile QA run; no TEST/Production migrations or data writes.
+
+
+## Member Sponsor ID / Under ID UI separation — 2026-11-19
+
+- Confirmed the Sponsor genealogy view is based on the Sponsor referral relationship, while the separate Placement Tree uses the placement parent graph and includes Main and Duplicate ID nodes. Matrix history is labelled Under ID Chain.
+- Improved Member Account summary and read-only Profile to show the Main ID's Under ID / Placement Parent separately from Sponsor Member ID. Root Main IDs are labelled `Root placement`; linked Duplicate IDs continue to show their own Under ID in Member IDs.
+- Added UI contract coverage for Sponsor/Under ID separation and Matrix chain labelling.
+- Commits: Account UI `d346f5153c6069e746dfa61d013359f284da6a21`; regression contract `26cf98006bd828a8b0a497759b697e0d2c91893d`.
+- No tests/build/type-check/browser/mobile QA run; no TEST/Production migrations or data writes.
