@@ -1679,3 +1679,11 @@
 - Updated `docs/SCHEMA_BASELINE_AUDIT.md` to supersede the initial legacy-baseline concern. No database writes or migrations were performed; Production was not queried.
 - Audit correction commit: `177916ef85ec82488dcdd6029c1b77d67e1bcfd3`.
 - No tests/build/type-check/browser/mobile QA run.
+
+
+## Automatic Duplicate Placement SQL syntax correction — 2026-11-19
+
+- Removed 91 orphaned duplicated SQL lines after the complete `admin_create_duplicate_member_id(text)` function and its authenticated-only EXECUTE grant. The original migration contained repeated trailing fragments that would cause SQL parsing failure.
+- Added a source-contract assertion that the migration has exactly one function definition, ends at its intended grant, and contains no orphaned closing/ORDER BY fragments.
+- Commits: SQL `f21762b707337b4dec2f8e95eeb3a2676b54e02d`; regression contract `ff1d50c12e0be9963c43688a0f18e4319d3d2064`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
