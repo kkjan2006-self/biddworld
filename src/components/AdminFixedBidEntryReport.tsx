@@ -59,6 +59,7 @@ export default function AdminFixedBidEntryReport(){
  },[]);
  async function exportAll(){
   if(!supabase||exporting)return;
+  if(applied.from&&applied.to&&applied.from>applied.to){setError('From date must be on or before To date. Apply a valid date range before exporting.');return;}
   setExporting(true);setError('');
   try{
    const all:FixedBidEntryRow[]=[];
@@ -96,7 +97,7 @@ export default function AdminFixedBidEntryReport(){
   }catch(e){setError(e instanceof Error?e.message:'Fixed Bid entry CSV export failed. Please retry.');}
   finally{setExporting(false);}
  }
- function applyFilters(){const filters={search:search.trim(),status,from,to};setApplied(filters);void loadPage(true,filters);}
+ function applyFilters(){if(from&&to&&from>to){setError('From date must be on or before To date.');return;}const filters={search:search.trim(),status,from,to};setApplied(filters);void loadPage(true,filters);}
  return <section className="sponsorAdmin">
   <h4>8. Fixed Bid Entries</h4>
   <p>Admin-only campaign participation history with server-side search, status/date filters, pagination and complete CSV export. Idempotency keys are never exposed.</p>
@@ -105,8 +106,8 @@ export default function AdminFixedBidEntryReport(){
    <select value={status} onChange={e=>setStatus(e.target.value)}><option value="all">All statuses</option><option value="submitted">Submitted</option><option value="accepted">Accepted</option><option value="voided">Voided</option><option value="cancelled">Cancelled</option></select>
    <label>From <input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label>
    <label>To <input type="date" value={to} onChange={e=>setTo(e.target.value)}/></label>
-   <button className="secondary small" onClick={applyFilters} disabled={loading}>Apply filters</button>
-   <button className="secondary small" onClick={()=>void exportAll()} disabled={exporting}>{exporting?'Preparing CSV…':'Export Complete Fixed Bid Entries CSV'}</button>
+   <button className="secondary small" onClick={applyFilters} disabled={loading||Boolean(from&&to&&from>to)}>Apply filters</button>
+   <button className="secondary small" onClick={()=>void exportAll()} disabled={exporting||Boolean(applied.from&&applied.to&&applied.from>applied.to)}>{exporting?'Preparing CSV…':'Export Complete Fixed Bid Entries CSV'}</button>
   </div>
   {error&&<p role="alert">{error} <button className="secondary small" onClick={()=>void loadPage(true,applied)}>Retry</button></p>}
   {loading?<p>Loading Fixed Bid entries…</p>:rows.length===0?<p>No Fixed Bid entries match these filters.</p>:
