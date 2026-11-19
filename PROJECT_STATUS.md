@@ -1,3 +1,15 @@
+## Latest source-development checkpoint — 2026-11-19 (Matrix Admin UI)
+
+- Rechecked `completion-work` at the beginning of this batch; starting HEAD was `8c2dd32372af9cb799bf2f47d56e89170032c123`. Protected `main` was not changed.
+- Added `src/components/AdminMatrixPlans.tsx` and connected it to the Admin navigation as a separate **Matrix Plans** module. It supports package selection, Matrix Width, independent Matrix Depth, per-level enable/disable, Fixed/Percentage rewards, eligibility JSON, versioned draft saves, and explicit activation for unpublished packages.
+- Hardened `20261119280000_matrix_plan_configuration.sql` by enabling RLS and revoking direct table access from `public`, `anon`, and `authenticated`; Admin operations use role-checked RPCs.
+- Added `tests/admin-matrix-plans-ui.test.ts` and `docs/MATRIX_PLAN_ADMIN_UI_2026-11-19.md`.
+- Commits: editor `82db81534acdd5512b267e7ea3ebd188ceacc076`; Admin integration `2f38bc773afe5d935b35b17b553443dcc369c0b5`; Matrix table security `86f4d37e1ad010673c4ed70e18e11b74a2bb6f1b`; contract test `c1fbe01ead1f7f31083c1c9bcdbddd2a951879c2`; documentation `a805b2829ec82e6980c57c9b0e3f4b2acdf618b9`.
+- TEST migration ledger is still 89 rows / 88 unique migration names and does not contain the latest Duplicate-ID OFF/ON or Matrix-plan migrations. Production migration history is materially behind the source migration set. Both databases were inspected read-only; no migrations, SQL writes, seed data, financial operations or deployments were performed.
+- No tests, type-check, build, browser/mobile QA or E2E were run. The new UI is source-complete only and still requires isolated TEST migration reconciliation.
+- Remaining core work: automatic next-empty placement, second-package activation prerequisite for Duplicate IDs, Under-ID Matrix commission engine, atomic Main-ID Income Wallet attribution, source-aware consolidated reports, and dashboard integration.
+- Completion remains **60% provisional** until a full source/database-contract reconciliation and final QA. Do not infer completion from this UI batch.
+
 ## Latest source-development checkpoint — 2026-11-19
 
 - Admin Platform Settings now routes existing referral commission, withdrawal, bidding, fixed-bid and winning-payment workflows through the existing server-side enablement condition instead of permanently blocking their switches in the UI. The new migration does not change current feature states or bypass the server condition; incomplete workflows (automatic placement and winner-selection configuration) remain disabled.
