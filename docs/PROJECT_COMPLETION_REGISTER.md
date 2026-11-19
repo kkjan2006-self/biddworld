@@ -1907,3 +1907,14 @@
 - Commits: Admin UI `a01ec4b7d91b18f2c37ec9ee740a5aff880c1f2c`; source-contract test `4d817c3bf007daa8c61478e9700bb0e69d8abc67`; status checkpoint `14b76794eb7f3266ec011c8f1058755deeaca81b`.
 - No tests/build/type-check/browser/mobile QA, DB reads/writes, migrations, Preview deployment or protected `main` changes were performed.
 - Development completion: **71% provisional**.
+
+
+## 2026-11-19 — Auction Bid and Fixed Bid Entry report integrity
+
+- Added strict shared-per-component row parsers for the Admin Auction Bid History and Fixed Bid Entry History reports. Each parser validates bounded page size, unique IDs, required auction/campaign/member identity and labels, currency, status, positive amounts, non-negative wallet debit splits, and valid timestamps before rows enter the UI.
+- Complete CSV export now uses the same strict parsers as the visible paginated lists, so malformed rows cannot bypass validation during export. Auction bid debit totals are also checked against the recorded bid amount.
+- Existing cursor RPCs, search/status/date filters, pagination, CSV columns and idempotency-key privacy remain unchanged.
+- Added `tests/admin-financial-activity-report-integrity.test.ts` (source authored only; not executed).
+- Commits: Auction Bid report `9c7c39752a929ebac6a391c1f4f4ab6932886bcf`; Fixed Bid Entry report `fe7fcd232df23534faab21860e9394be77c67a69`; regression source `c47c0e61dd7e58b9860d04ba223148f49bd79ced`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database access or writes, migrations, Preview deployment or protected `main` changes occurred.
+- Overall development completion remains **71% provisional**.
