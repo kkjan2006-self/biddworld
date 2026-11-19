@@ -4,7 +4,7 @@ import {QrCode,Upload,RefreshCw,Clock3} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {money} from '../lib/format';
 type RequestRow={id:string;amount:number;currency:string;payment_reference:string;status:string;review_note:string|null;created_at:string;reviewed_at:string|null};
-export default function WalletFunding({onApproved}:{onApproved?:()=>void}){
+export default function WalletFunding(){
  const [open,setOpen]=useState(false),[amount,setAmount]=useState(''),[utr,setUtr]=useState(''),[receipt,setReceipt]=useState<File|null>(null);
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(''),[rows,setRows]=useState<RequestRow[]>([]);
  const inFlight=useRef(false);
