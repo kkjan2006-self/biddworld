@@ -17,3 +17,19 @@ describe('Admin member detail selection follows directory search',()=>{
   expect(admin).toContain('selectedMemberCode&&(()=>{');
  });
 });
+
+describe('Admin member views distinguish Sponsor, owner Main ID and Under ID',()=>{
+ it('shows the Under ID and owner Main ID on each placement hierarchy node',()=>{
+  expect(admin).toContain('Under ID: {row.placement_parent_code||\'Root placement\'}');
+  expect(admin).toContain("' · Owner Main ID: '+row.main_member_code");
+  expect(admin).toContain('Matrix position: {row.placement_position}');
+ });
+ it('shows Main ID placement parent separately from its Matrix position in details',()=>{
+  expect(admin).toContain('Main ID Under ID / Placement Parent');
+  expect(admin).toContain('Main ID Matrix Position');
+  expect(admin).toContain('Sponsor Main ID');
+ });
+ it('shows placement parent and position for each linked Duplicate ID',()=>{
+  expect(admin).toContain('Under ID: {x.placement_parent_code||\'Not placed\'} · Position: {x.placement_position||\'Not assigned\'}');
+ });
+});
