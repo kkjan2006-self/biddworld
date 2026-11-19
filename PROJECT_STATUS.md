@@ -994,3 +994,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Extended `tests/admin-member-detail-search-selection.test.ts` with a source contract for these lifecycle explanations. Test source was authored but not executed.
 - Commits: Admin UI `2003879540dc9cec4686282895c6eaecf508ec68`; contract `cee39c50919f785276d5d806a98a7b5f163c5887`.
 - No tests/build/type-check/browser/mobile QA, DB migrations/writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
+
+
+## Latest checkpoint — Admin withdrawal queue pagination hardening
+
+- Hardened the Admin withdrawal queue's initial page validation: malformed rows, duplicate request IDs, missing member IDs and non-positive/non-finite amounts now fail closed instead of being rendered as trusted queue entries.
+- Added a single-flight guard and refresh-generation invalidation for Load More. Stale responses cannot append after a workspace refresh; page envelopes and row identities are validated before append, and repeated pages are detected.
+- Existing withdrawal review RPC, reserve/release workflow and complete paginated CSV export are preserved. Offset pagination remains; this is lifecycle/response hardening, not a keyset migration.
+- Added source-contract coverage in `tests/admin-withdrawal-pagination-hardening.test.ts`.
+- Commits: Admin UI `944a754b61c09c79ec5f3b5be9cd47a0ca64ba80`; test `960c3882b3d0d511acba19a64157df749b86064f`.
+- Tests/build/type-check/browser/mobile QA were not run. No database migration, TEST/Production data access or writes, Preview deployment or protected `main` changes occurred.
+- Overall development completion remains **71% provisional** pending remaining modules and final integrated verification.
