@@ -746,3 +746,11 @@ At every development batch/chat end, update this file with the actual verified b
 - No tests, typecheck, build, browser/mobile QA or E2E were executed. No TEST/Production migrations or database writes occurred. Protected `main` remains untouched.
 - Remaining: Matrix commission dashboard totals for members/Admin, backend source/schema contract reconciliation (including all activation and wallet columns), feature readiness integration, then the user's requested final QA batch.
 - Overall development completion remains **60% provisional**; UI source implementation is not runtime verification.
+
+
+## Latest source-development checkpoint — 2026-11-19
+
+- Added authenticated member Matrix commission summary RPC and separate member dashboard card. Sponsor Referral Income and Matrix Commission Income remain distinct; totals are scoped to the signed-in owner's linked Main ID.
+- Commits: migration `808f1e996d814df1a6296f8b1dd5260e0d0b27af`; member UI `9a9488c8ea59ea8e293cde912cdc9a73dcd2b25f`; forward manifest `1c6862dcdeca2647cb872fcb3424b382843c4ead`; source-contract test `06f21fc0b4bd8c97ad676e4e05f1e01843898ef1`; completion register `c155447690322ea1d69b1c6f541dc96432f9f30b`.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production migration applied. Protected `main` remains unchanged.
+- Matrix commission feature remains OFF. Full schema reconciliation and final QA are still pending. Overall completion remains **60% provisional**.
