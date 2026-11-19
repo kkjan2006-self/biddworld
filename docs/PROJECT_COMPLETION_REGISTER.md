@@ -1083,3 +1083,11 @@
 - Added allowlist validation, mandatory audit reason, audit event, per-user checkbox UI and Save Permissions action. At least one permission is retained; Revoke Staff Access remains the role-removal path. Staff must sign out and back in to refresh JWT app_metadata claims.
 - Corrected the previous Staff-grant RPC response to include all three permissions. Added source-contract test (not run) and registered migration #85.
 - No tests/build/QA, SQL replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall development estimate 59% provisional.
+
+
+## 2026-11-19 — Branch-head reconciliation and source feature inventory
+
+- Rechecked `completion-work` at `42e8855a8af1e36d7d247a4e26a85970b41f4b43`; the branch has advanced beyond the earlier #85 documentation checkpoint. The previously missing forward-migration manifest entries are now registered: `20261119060000` through `20261119080000`, and `20261119100000` through `20261119160000` (10 migrations; no `20261119090000` file exists in the source tree).
+- Verified existing source/UI workflows include Main Wallet Add Money (QR, UTR, private receipt upload, member history, Admin/Staff review and atomic Main Wallet ledger credit), cross-workflow payment-reference uniqueness, Registration Email Verification setting, and restricted Staff permission assignment. Also present: notification keyset pagination, auction submission/moderation, Staff auction-review grants, approved-image media delivery, Expected Price-triggered 48-hour auction lifecycle, and individual Staff permissions.
+- Added the ten existing migration paths to `supabase/clean-install/forward-migrations.txt`; this is a manifest correction, not a database change. Current inventory is 95 forward candidates + 16 excluded timestamped migrations + 3 legacy SQL files (114 total; 111 timestamped).
+- No source tests were executed; no build, QA, browser/device checks, migration replay, Supabase writes, or deployment were performed. Production remains read-only and TEST remains untouched. Earlier **59% Provisional** planning estimate is retained; the new inventory does not justify claiming additional implementation completeness.
