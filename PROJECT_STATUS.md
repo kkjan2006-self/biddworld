@@ -1262,3 +1262,17 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: SQL hardening `f0c47da6645795fa3f657fb6aff9374b785897ec`; catalogue regression `9d1334088f42469bf8408766ee30072e00a93712`; moderation UI `b3e9b298ed76ceee4f09a423a3526a3a972384e3`; pagination migration `19c508a3e94cda9c7b47ea368251abc8c29cf0c1`; pagination tests `b00b88496a2f344710208f9cfb9823b49a3b61fe`; forward manifest `50800ef11a558a6b36a2f6246c3a2b4722a04bd8`; UI validation `c21841e99bc4e5ce5233da91dcf6eb92fda2ff5b`; validation test `30952fcab947d364c72f8d822c6be6c1037dc6bb`.
 - Source-only on `completion-work`; no TEST/Production database changes, migration execution, Preview deployment, runtime QA or protected `main` changes.
 - Source development estimate: **80% provisional**; full baseline/RPC/security dependency reconciliation and remaining feature integration remain open.
+
+
+## 2026-11-19 — Product image gallery and final catalogue migration repair
+
+- Rebuilt `20261119460000_product_catalogue_details.sql` as one clean, non-duplicated migration after source inspection exposed malformed repeated SQL blocks. The current migration has one validation trigger, one compatible Admin review RPC and one public catalogue RPC; its price/image regexes are valid and catalogue search includes approved detail JSON.
+- Added explicit column-level SELECT grants for the published product details and gallery fields to the public catalogue reader roles; existing row-level policies still govern which product rows are visible.
+- Added `20261119480000_product_gallery_publication.sql`: preserves legacy `image_path`, backfills the new `image_paths` array, validates 1–8 unique public image objects server-side, and publishes all approved member images in the product record.
+- Admin review now copies every submitted image into the public product-media bucket, removes all newly uploaded objects if approval fails, and invokes the dedicated array-based server RPC. Public product cards now show a swipeable gallery with per-image alternative text.
+- Added regression source `tests/product-gallery-publication.test.ts`; repaired and expanded `tests/product-catalogue-details.test.ts`. Test/build/type-check were not executed.
+- Commits: clean migration rebuild `614998349d28a551c35893df723030c45714acb9`; moderation gallery UI `06a616b7faa37d5976870fa274fc224e5cc45510`; catalogue gallery UI `e34699a921671fb5b2803f5f98698baa21b101e3`; gallery styles `cd2cccd99a09d65b1635364e5160e7a716507691`; gallery migration `baee70cc6a9ad84a25b4012e419ffa647ac83324`; distinct path validation `38e23e8201c1fab198c6ba1740f5d794abd027e9`; gallery regression `6e46d4fcbcc799e2beb7516b5fff8c19dc127a29`.
+- Latest column grants: details `8a20ff020254b2452d5b571e3af4e8510680caa4`; gallery `c9e25e9a2a11ae77943e63979532181c698d272e`. Clean-install inventory refresh: `b24747f67d1998d153ef12d5d36a6564f90984d0`.
+- Source inventory: 117 forward + 16 excluded = 133 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest remains unique and sorted.
+- All changes remain on `completion-work`. No migrations applied, no TEST/Production database writes, no Preview publish/runtime QA, and protected `main` untouched.
+- Source development estimate: **82% provisional**; remaining baseline/RPC/security dependency reconciliation and feature integration are still open.
