@@ -911,3 +911,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: migration `9199443`; regression contract `e12ab87`; manifest `2faed2d`.
 - No tests/build/type-check/browser/mobile QA, migrations applied, database writes, Production access, deployment or protected `main` changes.
 - Development completion remains **69% provisional**.
+
+## Duplicate ID feature-toggle concurrency guard — 2026-11-19
+
+- Serialized Admin changes to `duplicate_ids_enabled` with the same transaction-scoped member-graph advisory lock used by automatic Duplicate-ID creation.
+- The database trigger now acquires that lock before checking the switch, so alternate/direct insert paths cannot race the Admin OFF operation. Existing Duplicate IDs, their statuses and history are unchanged; only new creation is gated.
+- Added source-contract coverage in `tests/duplicate-id-feature-toggle-serialization.test.ts` and registered migration `20261119350000_serialize_duplicate_id_feature_toggle.sql` in the clean-install forward manifest.
+- Commits: migration `02e193d`; contract test `4ab3dce`; manifest `bd5ab33`.
+- Source-only. No tests/build/type-check/browser/mobile QA, TEST/Production migration, database writes, deployment or protected `main` changes.
+- Overall development completion remains **69% provisional**.
