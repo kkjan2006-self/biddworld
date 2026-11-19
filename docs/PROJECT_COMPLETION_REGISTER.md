@@ -1770,3 +1770,10 @@
 - Added migration `20261119380000_close_all_linked_duplicate_ids.sql`, regression contract `tests/main-close-linked-duplicate-ids.test.ts`, and forward migration manifest registration.
 - Commits: migration `4aed942a9a09ee7d0936d02e86c0e108f931c928`; test `12587e9ed218ccbfb6f26efa2652442245ce9c1f`; manifest `c1cd577162ad6948300bbe2ae502cae1e8a3a918`.
 - No tests/build/type-check/browser/mobile QA were run. No TEST/Production migrations or data writes, deployment or protected `main` changes occurred.
+
+## 2026-11-19 — Admin lifecycle guidance alignment
+
+- Corrected stale Admin help text so it accurately describes Main-ID suspension, permanent closure of all non-closed linked Duplicate IDs, and conditional reactivation of Main-managed children based on placement-parent status.
+- Extended the existing Admin member detail source-contract test. It was authored but not run.
+- Commits: UI `2003879540dc9cec4686282895c6eaecf508ec68`; contract `cee39c50919f785276d5d806a98a7b5f163c5887`.
+- No database migrations/writes, tests/build/type-check/browser/mobile QA, deployment or protected `main` changes occurred.
