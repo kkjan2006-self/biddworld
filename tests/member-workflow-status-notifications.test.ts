@@ -5,6 +5,8 @@ describe('member workflow status notifications',()=>{
  it('uses one private trigger function with fixed search_path and no client execution',()=>{
   expect(sql).toContain('create or replace function private.notify_member_workflow_status_change()');
   expect(sql).toContain("set search_path = ''");
+  expect(sql).toContain("where setting_key='notifications_enabled'");
+  expect(sql).toContain('if not coalesce(v_notifications_enabled,false) then return new;end if;');
   expect(sql).toContain('revoke all on function private.notify_member_workflow_status_change() from public, anon, authenticated;');
  });
  it('notifies members for package, duplicate ID, auction submission, withdrawal and delivery changes',()=>{
