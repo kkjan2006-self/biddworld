@@ -1644,3 +1644,12 @@
 - Added a regression contract for the full-export query and attribution path.
 - Commits: UI `b1ab1516a7433bcd8b79d71f4c28c00912dc3ed9`; test `a2eb416e25e074c61d41b0a0dff5987f3b6890c6`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+
+
+## Member Matrix history pagination concurrency — 2026-11-19
+
+- Added a synchronous ref-based guard to prevent rapid repeated Load More clicks from issuing duplicate page requests.
+- Pagination now captures the current account load generation and linked Main ID; responses from a prior reload or unmounted account view are ignored.
+- Added regression contracts for duplicate-click serialization and stale-response suppression.
+- Commits: UI `574f21aa83b301953ceba62354b1ad9a2636a221`; test `2f01743305c5b57700a0cb0c6642749cb2776ef1`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
