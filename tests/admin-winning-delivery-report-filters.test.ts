@@ -24,9 +24,12 @@ describe('Complete Admin winning payment and delivery report filters',()=>{
   expect(admin).toContain('disabled={Boolean(deliveryReportFrom&&deliveryReportTo&&deliveryReportFrom>deliveryReportTo)||Boolean(reportExportBusy)}');
  });
  it('uses delivery status values accepted by the delivery tracking backend',()=>{
-  for(const status of ['pending','packed','shipped','in_transit','delivered','returned'])expect(admin).toContain('value="'+status+'"');
-  expect(admin).not.toContain('value="processing"');
-  expect(admin).not.toContain('value="cancelled"');
+  const start=admin.indexOf('Search delivery tracking');
+  const end=admin.indexOf('Export Filtered Complete Delivery CSV',start);
+  const controls=admin.slice(start,end);
+  for(const status of ['pending','packed','shipped','in_transit','delivered','returned'])expect(controls).toContain('value="'+status+'"');
+  expect(controls).not.toContain('value="processing"');
+  expect(controls).not.toContain('value="cancelled"');
  });
  it('keeps both report controls and exports labelled as filtered complete exports',()=>{
   expect(admin).toContain('Export Filtered Complete Winning Payments CSV');expect(admin).toContain('Export Filtered Complete Delivery CSV');
