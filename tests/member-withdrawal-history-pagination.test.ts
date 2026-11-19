@@ -7,7 +7,8 @@ describe('member withdrawal history pagination',()=>{
   expect(sql).toContain('select main_member_id into v_member from public.profiles where id=v_uid');
   expect(sql).toContain('where w.member_id=v_member');
  });
- it('uses bounded stable descending keyset pagination',()=>{
+ it('adds the member history index and uses bounded stable descending keyset pagination',()=>{
+  expect(sql).toContain('withdrawal_requests_member_history_idx');
   expect(sql).toContain('v_limit<1 or v_limit>100');
   expect(sql).toContain('(w.requested_at,w.id)<(p_before_requested_at,p_before_id)');
   expect(sql).toContain('count(*) over() as total_count');
