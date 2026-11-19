@@ -804,3 +804,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: UI `f700d99528cf70374bd20d6869d60881c3736388`, regression contract `bb0014685b74a4fa94d9c96d485637812688c824`, completion register `047e8ce6be3ccc0010310a78fb2ce138a33107ed`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied. Matrix feature remains OFF.
 - Overall development estimate: **66% provisional**.
+
+
+## Latest checkpoint — Wallet Matrix CSV attribution
+
+- Corrected full wallet CSV export to include commission reference fields so Duplicate/Main source ID and Matrix level metadata are preserved in exported transactions.
+- Commits: UI `b1ab1516a7433bcd8b79d71f4c28c00912dc3ed9`, contract `a2eb416e25e074c61d41b0a0dff5987f3b6890c6`, completion register `9c3c331ed246dd624e634115c0c694ada266e138`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+- Overall development estimate: **67% provisional**.
