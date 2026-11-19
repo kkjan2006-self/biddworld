@@ -28,6 +28,8 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     rows=(data??[]) as Notice[];
    }
    if(seq!==requestSeq.current)return;
+   if(!Array.isArray(rows))throw new Error('The notification inbox response was invalid. Please refresh.');
+   const ids=new Set<string>();for(const item of rows){if(!item||typeof item.id!=='string'||!item.id.trim()||ids.has(item.id))throw new Error('The notification inbox returned invalid or duplicate notification IDs. Refresh before continuing.');ids.add(item.id);}
    setItems(rows.slice(0,PAGE_SIZE));setHasMore(rows.length>PAGE_SIZE);
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
@@ -53,11 +55,13 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     rows=(data??[]) as Notice[];
    }
    if(seq!==requestSeq.current)return;
-   const known=new Set(items.map(item=>item.id));const pageIds=new Set<string>();const fresh:Notice[]=[];let duplicateFound=false;
-   for(const item of rows){if(known.has(item.id)||pageIds.has(item.id)){duplicateFound=true;continue;}pageIds.add(item.id);fresh.push(item);}
-   setItems(current=>[...current,...fresh.filter(item=>!current.some(existing=>existing.id===item.id)).slice(0,PAGE_SIZE)]);
-   if(duplicateFound){setHasMore(false);setError('The notification inbox returned duplicate notification IDs. Refresh the inbox before loading more.');}
-   else setHasMore(rows.length>PAGE_SIZE);
+   if(!Array.isArray(rows))throw new Error('The notification page response was invalid. Refresh the inbox.');
+   const known=new Set(items.map(item=>item.id));const pageIds=new Set<string>();const fresh:Notice[]=[];let duplicateFound=false,invalidFound=false;
+   for(const item of rows){if(!item||typeof item.id!=='string'||!item.id.trim()){invalidFound=true;continue;}if(known.has(item.id)||pageIds.has(item.id)){duplicateFound=true;continue;}pageIds.add(item.id);fresh.push(item);}
+   if(invalidFound||duplicateFound){setHasMore(false);setError('The notification inbox returned invalid or duplicate notification IDs. Refresh the inbox before loading more.');return;}
+   
+   setItems(current=>[...current,...fresh.slice(0,PAGE_SIZE)]);
+   setHasMore(rows.length>PAGE_SIZE);
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,items,isAdmin,unreadOnly,categoryFilter]);
