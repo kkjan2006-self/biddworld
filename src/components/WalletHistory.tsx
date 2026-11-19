@@ -61,7 +61,8 @@ export default function WalletHistory(){
     if(!Array.isArray(data??[]))throw new Error('The wallet history response was invalid. Refresh and retry.');
     const batch=(data??[]) as Tx[];
     const commissionIds=[...new Set(batch.filter(row=>row.reference_type==='matrix_commission'&&row.reference_id).map(row=>row.reference_id as string))];
-    if(commissionIds.length){const {data:sourceRows,error:sourceError}=await supabase.rpc('member_get_my_matrix_commission_sources',{p_commission_ids:commissionIds});if(sourceError)throw new Error('Matrix commission source details could not be verified. Refresh and retry.');const mapped:Record<string,MatrixSource>={};for(const item of (sourceRows??[]) as MatrixSource[]){if(!commissionIds.includes(item.commission_id))throw new Error('Matrix commission source response exceeded the requested transaction scope.');mapped[item.commission_id]=item;}if(active)setMatrixSources(current=>({...current,...mapped}));}
+    if(commissionIds.length){const {data:sourceRows,error:sourceError}=await supabase.rpc('member_get_my_matrix_commission_sources',{p_commission_ids:commissionIds});if(sourceError)throw new Error('Matrix commission source details could not be verified. Refresh and retry.');const mapped:Record<string,MatrixSource>={};for(const item of (sourceRows??[]) as MatrixSource[]){if(!commissionIds.includes(item.commission_id))throw new Error('Matrix commission source response exceeded the requested transaction scope.');mapped[item.commission_id]=item;}if(!active)return;setMatrixSources(current=>({...current,...mapped}));}
+    if(!active)return;
     const pageIds=new Set<string>(),knownIds=new Set(page===0?[]:rows.map(row=>row.id));
     for(const row of batch){
      if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('The wallet history contains an invalid transaction record. Refresh before continuing.');
