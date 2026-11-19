@@ -1177,3 +1177,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added source-contract regression coverage for INSERT/UPDATE/DELETE handling and channel cleanup. Test source only; not executed. Live Realtime publication/RLS behavior remains unverified until final QA.
 - Commits: UI `94b7afbb3ad5b2ef11df68df8e43658f07ec8890`; regression source `e23dda5aae6d4fc291c082907f1ec2aef58d8ff0`.
 - No tests/build/type-check/browser/mobile QA run. No TEST or Production database changes; protected `main` unchanged.
+
+
+## 2026-11-19 — Member auction submission editing and resubmission
+
+- Members can now reopen their own Pending or Rejected auction submissions, edit the listing details/prices/schedule, retain existing images or replace them, and resubmit for Admin review. Approved/published submissions are not editable through this path.
+- Added source migration 20261119430000_member_auction_submission_editing.sql: locks the owned row, enforces editable statuses, rechecks active Main ID ownership, validates image objects and expected-price rules, resets review metadata to Pending, and writes an audit event. Registered in the clean-install forward migration manifest; migration is source-only and has not been applied to TEST or Production.
+- Added tests/member-auction-submission-editing.test.ts as source-contract coverage; not executed under the development-first testing gate.
+- Commits: UI 9877925e96a83564d69ebce7be8b7a0bae927199, follow-up UI 658d955a0315d7d92d33e8eadabdbdd4c7ee0af8, migration 607eecceb05f11bfac3f9fb02f1d2e93261a9fa9, manifest 04f67481ae602ba8c6e61e0da5277e6ee5c6c0d4, UI controls 826332c36b14eff623be56a03b57f02e0386f24f, regression source 1522eb7d6f77dd5a2e45bdfc3e1e7c60fd067935.
+- No tests/type-check/browser/mobile QA run; no TEST/Production database access or migrations; protected main unchanged.
+- Overall development completion remains 72% provisional.
