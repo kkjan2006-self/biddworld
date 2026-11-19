@@ -75,6 +75,7 @@ export default function Admin(){
  const featureGroups=[
   {title:'1. Member Registration & Network',description:'Manage sign-ups, sponsor links, member IDs and network placement.',items:[
    {key:'registration_enabled',label:'Member Registration',description:'Let new members create an account.'},
+    {key:'email_verification_required',label:'Email Verification',description:'Require members to confirm their email address during registration. Keep Supabase Auth Confirm Email aligned with this setting.'},
    {key:'sponsor_referrals_enabled',label:'Sponsor Referral',description:'Let new members enter a Sponsor ID.'},
    {key:'duplicate_ids_enabled',label:'Duplicate IDs',description:'Allow one member to have extra IDs. Use only after the rules are approved and tested.'},
    {key:'automatic_placement_enabled',label:'Automatic Placement',description:'Place new IDs in the network automatically. Use only after placement rules are tested.'}
