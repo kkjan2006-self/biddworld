@@ -1807,3 +1807,12 @@
 - Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database migrations or data writes, Production reads, deployment or protected `main` changes occurred.
 - Overall development completion: **70% provisional**.
 
+## 2026-11-19 — Admin pending package activation queue pagination
+
+- Replaced the unbounded Admin pending package activation queue fetch with a new Admin-only keyset RPC. The page size is 50 in the UI and capped at 100 in SQL; stable descending `(submitted_at,id)` cursor pagination uses a look-ahead row and returns a continuation cursor.
+- The RPC preserves the pending-only filters, member/package details and private `receipt_path` field. Existing short-lived signed receipt links and the existing locked package-approval/rejection RPC remain unchanged.
+- Admin UI validates the page envelope, row identities and timestamps, paired continuation cursor and duplicate IDs before appending. Refresh generations suppress stale page responses.
+- Added migration `20261119410000_admin_pending_activation_keyset_pagination.sql`, registered it in the clean-install forward manifest, and added source-contract coverage in `tests/admin-package-activation-keyset-pagination.test.ts`.
+- Commits: Admin UI `81ae6d56f875e07c4a6ac2df4de39f6745842508`; migration `d2310039b33962feef9217efc125d75417326db6`; test source `dc43fda6db451b6b9f5af0a90a51d42c9ace77b8`; manifest `222de399808adfaa0529dd6751f325543050150a`.
+- Source-only batch. Tests/build/type-check/browser/mobile QA were not run. The migration has **not** been applied to TEST; Production was not accessed or modified. Preview was not updated because its TEST backend must receive the approved migration before this RPC-based UI can be published.
+- Overall development completion remains **71% provisional** pending broader development and final integrated verification.
