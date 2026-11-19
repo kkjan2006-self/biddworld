@@ -150,7 +150,7 @@ for each row execute function private.notify_member_workflow_status_change();
 drop trigger if exists notify_member_duplicate_id_status on public.member_ids;
 create trigger notify_member_duplicate_id_status
 after update of status on public.member_ids
-for each row when (old.status is distinct from new.status and new.id_type = 'duplicate')
+for each row when (old.status is distinct from new.status and new.id_type in ('main','duplicate'))
 execute function private.notify_member_workflow_status_change();
 
 drop trigger if exists notify_member_wallet_funding_status on public.wallet_fund_requests;
