@@ -154,7 +154,67 @@ begin
        select 1 from public.member_ids child
         where child.placement_parent_id=t.member_id
           and (child.placement_position=slot.position::text
-            or (slot.position=1 and (child.placement_position is null or child.placement_position !~ '^[0-9]+)
+            or (slot.position=1 and (child.placement_position is null or child.placement_position !~ '^[0-9]+
+     )
+     order by t.depth,t.path,slot.position
+     limit 1
+  )
+  select member_id,position into v_parent_id,v_position from available;
+  if v_parent_id is null then raise exception 'The configured Matrix placement tree is full; increase placement depth or width in the package plan' using errcode='54000'; end if;
+  select member_code into v_parent_code from public.member_ids where id=v_parent_id;
+
+  loop
+    v_code:='BWD'||upper(substr(replace(gen_random_uuid()::text,'-',''),1,9));
+    exit when not exists(select 1 from public.member_ids where member_code=v_code);
+  end loop;
+  insert into public.member_ids(owner_user_id,main_member_id,member_code,id_type,status,placement_parent_id,placement_position)
+  values(v_main.owner_user_id,v_main.id,v_code,'duplicate','pending',v_parent_id,v_position::text)
+  returning id into v_id;
+
+  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
+  values(v_uid,'duplicate_id_created','member_ids',v_id,jsonb_build_object(
+    'member_code',v_code,'main_member_id',v_main.id,'main_member_code',v_main.member_code,
+    'under_member_id',v_parent_id,'under_member_code',v_parent_code,'placement_position',v_position,
+    'matrix_plan_id',v_plan.id,'matrix_width',v_plan.matrix_width,'placement_depth',v_plan.placement_depth,
+    'second_activation_id',v_activation.id,'status','pending'));
+  return jsonb_build_object('id',v_id,'member_code',v_code,'main_member_code',v_main.member_code,
+    'under_member_code',v_parent_code,'placement_position',v_position,'status','pending');
+end;
+$function$;
+
+revoke all on function public.admin_create_duplicate_member_id(text) from public,anon;
+grant execute on function public.admin_create_duplicate_member_id(text) to authenticated;
+)))
+     )
+     order by t.depth,t.path,slot.position
+     limit 1
+  )
+  select member_id,position into v_parent_id,v_position from available;
+  if v_parent_id is null then raise exception 'The configured Matrix placement tree is full; increase placement depth or width in the package plan' using errcode='54000'; end if;
+  select member_code into v_parent_code from public.member_ids where id=v_parent_id;
+
+  loop
+    v_code:='BWD'||upper(substr(replace(gen_random_uuid()::text,'-',''),1,9));
+    exit when not exists(select 1 from public.member_ids where member_code=v_code);
+  end loop;
+  insert into public.member_ids(owner_user_id,main_member_id,member_code,id_type,status,placement_parent_id,placement_position)
+  values(v_main.owner_user_id,v_main.id,v_code,'duplicate','pending',v_parent_id,v_position::text)
+  returning id into v_id;
+
+  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
+  values(v_uid,'duplicate_id_created','member_ids',v_id,jsonb_build_object(
+    'member_code',v_code,'main_member_id',v_main.id,'main_member_code',v_main.member_code,
+    'under_member_id',v_parent_id,'under_member_code',v_parent_code,'placement_position',v_position,
+    'matrix_plan_id',v_plan.id,'matrix_width',v_plan.matrix_width,'placement_depth',v_plan.placement_depth,
+    'second_activation_id',v_activation.id,'status','pending'));
+  return jsonb_build_object('id',v_id,'member_code',v_code,'main_member_code',v_main.member_code,
+    'under_member_code',v_parent_code,'placement_position',v_position,'status','pending');
+end;
+$function$;
+
+revoke all on function public.admin_create_duplicate_member_id(text) from public,anon;
+grant execute on function public.admin_create_duplicate_member_id(text) to authenticated;
+)
      )
      order by t.depth,t.path,slot.position
      limit 1
