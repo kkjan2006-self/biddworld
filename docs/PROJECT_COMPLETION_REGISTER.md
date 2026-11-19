@@ -2311,3 +2311,15 @@
 - Development-only boundary respected for TEST/Production data: no migrations applied, no Supabase data changed, no tests/build/type-check, no Preview deployment, and no runtime/browser/mobile QA. These are verification-phase tasks, not completed claims.
 - **Operational correction:** two files for the email-verification removal were inadvertently created on `main` when the GitHub create-file action defaulted to the repository's default branch. Both files were immediately deleted from `main`; final checks confirm both paths are absent from `main`. No existing source files were edited on `main`. The cleanup create/delete commits remain in its history. All intended project source changes are on `completion-work`. Apologies for this branch-handling mistake.
 - Next phase requires explicit TEST migration approval and then the consolidated verification sequence documented in Section D. Production remains read-only.
+
+
+## 2026-11-19 — Frontend RPC inventory and regression contract reconciliation
+
+- Rebuilt `docs/FRONTEND_RPC_INVENTORY.json` from the current `completion-work` source: **105 unique literal RPC call sites** across `src/App.tsx` and every React component under `src/components`.
+- Updated `tests/frontend-rpc-inventory.test.ts` to discover every component dynamically, so newly added component RPCs cannot be silently omitted from the inventory.
+- Corrected stale contract tests: the team dashboard now points to its final pagination migration; Duplicate ID creation is asserted against the one-argument automatic-placement RPC (no client-supplied Under ID); Admin auction-bid and Fixed Bid entry reports now assert their current keyset RPC names and migrations.
+- Converted the Admin expected-price and open-ended auction contract suites from Node's `node:test` API to Vitest, matching the repository's `npm test` runner.
+- Source-only regression tests updated; **no tests, build or type-check were executed**.
+- Commits: RPC inventory `898acea3091235c621d807c628d64f5fe3fea7d6`; dynamic inventory test `b3de7980ebc960b4cb5474caddf0589ac86d6d46`; inventory import correction `72e45d1113d39ed0468425cb21936cc7536e01fe`; current RPC contract `6914274bfad9ce1d92d13a08aed325acba12be65`; source coverage migration update `a3e05fa5c197d438cf2391ea98e4e94a05e19b8a`; auction test conversions `45ed0a804f10467ed285eef576b92722c43d4c1c`, `4895543bd772c404be3eb7ecbb3f24ea0e979882`.
+- No Supabase migration execution or data changes; no Preview deployment; Production remains untouched; protected `main` remains unchanged.
+- Overall source development estimate remains **94% provisional** pending full source/RPC/RLS/Storage and canonical migration reconciliation.
