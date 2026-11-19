@@ -417,3 +417,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/marketplace-sample-preview-cards.test.ts` as source-contract coverage; not executed.
 - Commits: `5acf28e728e948721794ce5839a3dd4759f19f76` (Fixed Bid fixtures), `e466b3fbf4834466b3f240797bbf10e182797cc9` (Auction fixtures), `ca6e5cc9a2a6b0f773a11054239bc840a652d991` (sample card styling), `0289b0797fc445eda3301eb5025522daadb2086a` (demo-fixture labelling), `e231a8ec21dca8660b25f7c096290144db426e20` (test source).
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
+
+
+## Latest Frontend Batch — Product catalogue sample preview
+
+- Added three display-only product catalogue examples (Bluetooth headphones, fitness watch, home/kitchen essentials) so the Products page has visible cards before real catalogue records are published.
+- Product cards use the existing responsive marketplace card design and carry a clear SAMPLE PREVIEW label. Published product rows replace local samples automatically.
+- Search filters local sample cards while the preview fallback is shown. No product records, purchases or transactions are written to Supabase.
+- Added `tests/product-catalogue-sample-preview.test.ts` as source-contract coverage; not executed.
+- Commits: `011516e55ea49d33760fd0699c0c53f68100b6a5` (product preview data and rendering), `1e9a868d4bead476608667287f5adac14e757da3` (product card styling), `2becdfedfc712d9f40f53100761bb4aa79bbcf84` (test source).
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
