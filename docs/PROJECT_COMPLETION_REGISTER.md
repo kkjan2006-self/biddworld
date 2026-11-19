@@ -1687,3 +1687,11 @@
 - Added a source-contract assertion that the migration has exactly one function definition, ends at its intended grant, and contains no orphaned closing/ORDER BY fragments.
 - Commits: SQL `f21762b707337b4dec2f8e95eeb3a2676b54e02d`; regression contract `ff1d50c12e0be9963c43688a0f18e4319d3d2064`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+
+
+## Wallet history stale Matrix-attribution request guard — 2026-11-19
+
+- Fixed a request-lifecycle race in `WalletHistory.tsx`: when a page request becomes obsolete while the Matrix source-attribution RPC is pending (for example after refresh, page change, auth scope change, or unmount), it now exits before mutating source metadata, cursor, or transaction rows.
+- Added a regression source-contract assertion for the post-await active guard.
+- Commits: component `691ff9febaedda0284d868930af603fc2802f7a6`; test `190ed8a7e82063db9d654c43fee44f8101be4b5f`.
+- No tests/build/type-check/browser/mobile QA run; no TEST/Production migrations or data writes.
