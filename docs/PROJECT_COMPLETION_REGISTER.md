@@ -1738,3 +1738,11 @@
 - Added migration `20261119340000_exclude_owner_ids_from_duplicate_placement.sql`, forward-migration manifest entry, and source-contract regression test `tests/automatic-duplicate-placement-owner-guard.test.ts`.
 - Commits: migration `9199443`; regression contract `e12ab87`; manifest `2faed2d`.
 - Source-only change; no tests/build/type-check/browser/mobile QA, migration application, DB writes, Production access, deployment or protected `main` changes.
+
+## 2026-11-19 — Duplicate ID feature-toggle concurrency guard
+
+- Fixed a race between Admin disabling Duplicate IDs and a concurrent creation request. The Admin setting RPC and database insert trigger now serialize on the same transaction-scoped graph lock as automatic placement; a create already holding the lock finishes before OFF commits, while a create that follows OFF observes the disabled setting.
+- Existing Duplicate IDs, statuses, placement records and history are not modified by the toggle. The change only coordinates new creation with the OFF/ON setting.
+- Added migration `20261119350000_serialize_duplicate_id_feature_toggle.sql`, registered it in the clean-install forward manifest, and added `tests/duplicate-id-feature-toggle-serialization.test.ts`.
+- Commits: migration `02e193dfbd6ed83ffeb9cfacc00ef6561f9fdad3`; test `4ab3dce842ad1796baac0cd975dbcb2268e4d32d`; manifest `bd5ab33d0feca4b9df0c31dea907fe800ff79654`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST or Production migrations or data writes, deployment or protected `main` changes occurred.
