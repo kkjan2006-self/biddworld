@@ -788,3 +788,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: `78ea081e6145c06eae9c21c8c3e5ce5bf0b12df7`, `be486979909cf6d7635b93c9c0025fd27b414ccd`, completion register `9a93e439b7b8834616e810c37977a9afa91ff3a1`.
 - No tests/build/type-check/browser/mobile QA run. No TEST or Production migration applied. Protected `main` unchanged; Matrix feature OFF. Schema reconciliation and final QA remain pending.
 - Overall development estimate: **64% provisional**.
+
+
+## Latest checkpoint — Matrix upline traversal correction
+
+- Fixed recursive Matrix Under ID traversal so each level visits the immediate placement parent; intermediate uplines are no longer skipped. Added regression contract assertion.
+- Commits: `b2c2a4a23eb9665d5706f2812c6e5ef5ce2279dd`, `7ddea354897e0033c71d8f21ab54a2f329af9084`, completion register `2f2980533ebc8c22918e4652d64b8afb1db64354`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied. Matrix feature remains OFF; schema reconciliation and final QA remain pending.
+- Overall development estimate: **65% provisional**.
