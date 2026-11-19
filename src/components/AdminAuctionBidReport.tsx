@@ -85,6 +85,7 @@ export default function AdminAuctionBidReport(){
      p_limit:PAGE_SIZE,p_after_created_at:cursor?.created_at??null,p_after_id:cursor?.id??null
     });
     if(rpcError)throw rpcError;
+    if(!Array.isArray(data??[]))throw new Error('The report response was invalid. Export stopped. Please retry.');
     const batch=(data??[]) as AuctionBidReportRow[];
     if(batch.length===PAGE_SIZE){
      const fingerprint=JSON.stringify(batch.map(row=>row.bid_id));
