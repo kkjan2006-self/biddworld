@@ -33,3 +33,11 @@ describe('Admin member views distinguish Sponsor, owner Main ID and Under ID',()
   expect(admin).toContain('Under ID: {x.placement_parent_code||\'Not placed\'} · Position: {x.placement_position||\'Not assigned\'}');
  });
 });
+
+describe('Admin Main-ID lifecycle guidance matches linked Duplicate-ID behavior',()=>{
+ it('explains suspension, closure and conditional reactivation accurately',()=>{
+  expect(admin).toContain('Suspending a Main ID suspends its active linked Duplicate IDs.');
+  expect(admin).toContain('Closing a Main ID closes every linked non-closed Duplicate ID, including manually suspended IDs.');
+  expect(admin).toContain('Reactivating a suspended Main ID restores only Main-managed Duplicate IDs whose placement parent is active; unresolved IDs remain suspended until eligible.');
+ });
+});
