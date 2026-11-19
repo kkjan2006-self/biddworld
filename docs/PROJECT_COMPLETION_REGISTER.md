@@ -1075,3 +1075,11 @@
 - Added Starting Price + Expected Price flow; removed mandatory End Time. Auction runs until the current bid reaches/exceeds Expected Price, then a 48-hour close deadline is stored. Bid RPC supports open-ended auctions and blocks bids after the deadline.
 - Added scheduled-start/automatic-close `pg_cron` job, Admin/Staff expected-price editing, public expected-price/countdown fields and member countdown UI. Source-contract test added but not run.
 - Inventory: 84 forward + 16 excluded + 3 legacy SQL files (103 total; 100 timestamped). No tests, builds, QA, SQL replay, DB writes or deployment; cron remains unapplied/unverified. Overall development estimate 58% provisional.
+
+
+## 2026-11-19 — Individual restricted Staff permissions (#85)
+
+- Added a Primary-Admin-only RPC to update the three supported permissions independently for an existing restricted Staff account: Package Activation Payment Review, Main Wallet Add Money Review, and Member Auction Listing Review.
+- Added allowlist validation, mandatory audit reason, audit event, per-user checkbox UI and Save Permissions action. At least one permission is retained; Revoke Staff Access remains the role-removal path. Staff must sign out and back in to refresh JWT app_metadata claims.
+- Corrected the previous Staff-grant RPC response to include all three permissions. Added source-contract test (not run) and registered migration #85.
+- No tests/build/QA, SQL replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall development estimate 59% provisional.
