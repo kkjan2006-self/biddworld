@@ -17,7 +17,7 @@ describe('OLX-style auction classified fields and role boundaries',()=>{
   expect(review).toContain('p_optional_details:v.optional_details??r.optional_details');
  });
  it('keeps Fixed Bid campaign creation in the Admin workspace while member-facing auction submission remains separate',()=>{
-  expect(admin).toContain('Save Fixed Bid Campaign');
+  expect(admin).toContain('Save Fixed Bid Draft');
   expect(member).toContain('Place an Auction');
   expect(member).toContain('Pending Admin Approval');
  });
