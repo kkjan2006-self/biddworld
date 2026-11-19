@@ -1590,3 +1590,13 @@
 - Updated migration `20261119320000_member_matrix_commission_summary.sql` and added source-contract test `tests/member-matrix-commission-history.test.ts`.
 - Commits: Account UI `7e85ee8445a272f3a89965b5ea11601c84474858`; RPC migration `874ed1928aea683ba1308b87e72713a9dd71b8ec`; contract test `0d43c1c7bb25ee17fcc7ab773d5fbdedf156dc2d`.
 - The member history currently loads the first 100 Matrix rows; pagination for this section remains a follow-up. No tests/build/type-check/browser/mobile QA run. No database migrations applied.
+
+
+## Wallet Matrix source attribution — 2026-11-19
+
+- Wallet History now identifies Matrix commission ledger entries with their source member code, source ID type (Main/Duplicate), Matrix level, and states that the amount is credited to the member's Main ID.
+- Added a caller-scoped `member_get_my_matrix_commission_sources(uuid[])` RPC. It derives the authenticated member's linked Main ID and only returns requested commission rows credited to that Main ID. It limits each lookup to 200 IDs.
+- Wallet History CSV export now fetches source attribution for every exported page and includes Commission Source ID, Source ID Type and Matrix Level columns; the loaded-page search also checks source ID/type.
+- Migration update: `20261119320000_member_matrix_commission_summary.sql`. Tests authored: `tests/wallet-matrix-commission-source.test.ts`.
+- Commits: wallet UI `1d8751c32701c73a7e0a40422018be3dd661c5a9`; secure lookup RPC `e5d473302d23175d6a4e89f4a67059d1c59dcc82`; source contract test `5b65f1a60cda621f5e4f284869497821027ae9a5`; full-export source attribution `2f3e74ac915f4456848a3e2c60c1f3abcb430860`.
+- Source-only development. No tests, build, type-check, browser/mobile QA or database migrations were run/applied.
