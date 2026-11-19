@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
+import type {FormEvent} from 'react';
 import {QrCode,Upload,RefreshCw,Clock3} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {money} from '../lib/format';
@@ -9,7 +10,7 @@ export default function WalletFunding({onApproved}:{onApproved?:()=>void}){
  const inFlight=useRef(false);
  async function load(){if(!supabase)return;const{data,error}=await supabase.rpc('member_list_my_wallet_fund_requests');if(!error)setRows((data??[]) as RequestRow[]);}
  useEffect(()=>{void load();},[]);
- async function submit(e:React.FormEvent){
+ async function submit(e:FormEvent){
   e.preventDefault();if(!supabase||busy||inFlight.current)return;
   const value=Number(amount),reference=utr.trim();
   if(!Number.isFinite(value)||value<=0||value>10000000||!/^\d+(?:\.\d{1,2})?$/.test(amount.trim())){setMessage('Enter a valid amount with up to two decimal places.');return;}
