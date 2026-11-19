@@ -110,7 +110,7 @@ export default function Packages() {
 
   return <section className="packageWorkspace">
     <div className="packageIntro"><span className="workspaceIcon"><Gift /></span>
-      <div><h3>Membership packages</h3><p>Free member registration is available. Paid package activation is not currently open.</p></div>
+      <div><h3>Membership packages</h3><p>Free member registration is available. {activationEnabled?'Published packages are available for activation requests.':'Paid package activation is currently locked.'}</p></div>
     </div>
     {!configured && <div className="notice"><b>Database not connected:</b> Configure the intended Preview or separate Test environment to view package information. Do not connect Production for testing.</div>}
     {!activationEnabled && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.</div>}
@@ -122,7 +122,7 @@ export default function Packages() {
         <strong className="packagePrice">{money(Number(item.price), item.currency || 'INR')}</strong>
         <p>{item.description || 'Package benefits will be published after the owner-approved rules are finalized.'}</p>
         <div className="packageCredit"><span>Proposed Bid Wallet credit (not issued)</span><b>{money(Number(item.bid_wallet_credit), item.currency || 'INR')}</b></div>
-        <div className="notice">View-only information. Package payments and activation are currently unavailable.</div>
+        <div className="notice">{activationEnabled?'Use the activation form above to submit payment details for Admin verification.':'View-only information. Package payments and activation are currently unavailable.'}</div>
       </article>)}</div>}
   </section>;
 }
