@@ -828,3 +828,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Commit: `f06f0bc3faa99fd03cae5ff109e224e348e77f4f`; completion register: `cc325e2897fb7984c91e637b22b75f1fd726505b`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
 - Overall development estimate remains **68% provisional**.
+
+
+## Latest checkpoint — Migration baseline audit
+
+- Documented a source migration-chain mismatch between the legacy bootstrap schema and later/current schema assumptions. No speculative schema migration was created.
+- Audit commit: `a76de56db1183a54ade8525a4278bd9be0450e69`; register: `cd5eae810424ff9fe48ce25c731ebf8f8bea661e`.
+- Next blocker: authoritative TEST schema-only snapshot and applied migration history, then compare before authoring any forward-only reconciliation.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+- Overall development estimate remains **68% provisional** pending schema baseline resolution.
