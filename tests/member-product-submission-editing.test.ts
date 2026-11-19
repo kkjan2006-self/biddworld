@@ -22,5 +22,8 @@ describe('member product submission editing contract',()=>{
   expect(ui).toContain('member_update_product_submission');
   expect(ui).toContain('Edit & Resubmit');
   expect(ui).toContain('const imagePaths=files.length?uploaded:(current?.image_paths??[])');
+  expect(ui).toContain('required={!editingId}');
+  expect(ui).toContain('Enter a valid product price greater than zero.');
+  expect(ui).toContain('Warranty:warranty,Ownership:ownership');
  });
 });
