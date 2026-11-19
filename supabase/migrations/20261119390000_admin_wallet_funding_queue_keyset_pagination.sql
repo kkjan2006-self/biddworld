@@ -65,3 +65,41 @@ $function$;
 
 revoke all on function public.admin_list_pending_wallet_fund_requests_page(integer,timestamptz,uuid) from public,anon;
 grant execute on function public.admin_list_pending_wallet_fund_requests_page(integer,timestamptz,uuid) to authenticated;
+
+-- Keep the legacy no-argument RPC bounded as well for older clients.
+-- The paginated UI uses the cursor RPC above; compatibility callers receive
+-- only the first 100 pending requests instead of an unbounded aggregate.
+create or replace function public.admin_list_pending_wallet_fund_requests()
+returns jsonb language plpgsql stable security definer set search_path=''
+as $function$
+declare
+ v_result jsonb;
+ v_role text:=coalesce(auth.jwt()->'app_metadata'->>'role','');
+begin
+ if auth.uid() is null or not (
+  v_role='admin'
+  or (v_role='admin_staff' and coalesce(auth.jwt()->'app_metadata'->'permissions','[]'::jsonb) ? 'wallet_funding_review')
+ ) then
+  raise exception 'Wallet funding review permission required' using errcode='42501';
+ end if;
+ select coalesce(jsonb_agg(jsonb_build_object(
+  'id',q.id,'member_code',q.member_code,'member_name',q.member_name,
+  'amount',q.amount,'currency',q.currency,'payment_reference',q.payment_reference,
+  'receipt_path',q.receipt_path,'created_at',q.created_at
+ ) order by q.created_at asc,q.id asc),'[]'::jsonb)
+ into v_result
+ from (
+  select r.id,r.created_at,m.member_code,p.display_name as member_name,r.amount,r.currency,
+   r.payment_reference,r.receipt_path
+  from public.wallet_fund_requests r
+  join public.member_ids m on m.id=r.member_id
+  left join public.profiles p on p.id=r.submitted_by
+  where r.status='pending'
+  order by r.created_at asc,r.id asc
+  limit 100
+ ) q;
+ return v_result;
+end;
+$function$;
+revoke all on function public.admin_list_pending_wallet_fund_requests() from public,anon;
+grant execute on function public.admin_list_pending_wallet_fund_requests() to authenticated;
