@@ -9,6 +9,11 @@ describe('Admin complete withdrawal report filters',()=>{
   for(const key of ['withdrawalReportSearch','withdrawalReportStatus','withdrawalReportFrom','withdrawalReportTo'])expect(fn).toContain(key);
   expect(fn).toContain('x.requested_at.slice(0,10)');
  });
+ it('rejects reversed date ranges before starting a complete CSV retrieval',()=>{
+  const fn=admin.slice(admin.indexOf('function exportWithdrawalsCsv'),admin.indexOf('function exportWinningPaymentsCsv'));
+  expect(fn).toContain('withdrawalReportFrom>withdrawalReportTo');
+  expect(fn).toContain('Withdrawal request start date must be on or before end date.');
+ });
  it('labels the export as filtered and complete and guards reversed dates',()=>{
   expect(admin).toContain('Export Filtered Complete Withdrawals CSV');
   expect(admin).toContain('disabled={Boolean(withdrawalReportFrom&&withdrawalReportTo&&withdrawalReportFrom>withdrawalReportTo)}');
