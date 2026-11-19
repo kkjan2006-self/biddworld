@@ -1160,3 +1160,10 @@
 - Added source-contract coverage. Tests not executed; migration not applied. No build/QA/browser/device checks, Supabase writes or deployment. Production remains read-only and TEST remains untouched.
 - Commits: `4c4ee4421509927bac9fbf903ca089deaefde742` (forward migration), `bae13b91738234446744759a0b0b3576210ffea3` (test source), `575959255a2d01d9f41f133e3239edff6476ee03` and `3b51f703fdd08dcfb9f16fdf032edad32d403e96` (migration refinements), `410b52965b8ce295d116de7b19cc03c7ff590fd6` (test refinement).
 - Overall development estimate remains **60% Provisional**; broader modules and source/database contract reconciliation remain.
+
+
+## 2026-11-19 — Fixed Bid product image delivery
+
+- Corrected the member Fixed Bid campaign cards to resolve product-media Storage object paths through Supabase's public URL helper instead of assigning raw storage paths to `<img src>`. Existing absolute HTTP(S) URLs remain supported; missing image paths use the visual fallback. Images are lazy-loaded.
+- Added a source-contract test; not executed. No build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched.
+- Commits: `758aef3c942ffe45091ab010c0ddaa1523a2f441` (media URL resolution), `2c3c44be230d63e1c8fb904c69cab70ad76644e5` (JSX fallback correction), test commit recorded separately.
