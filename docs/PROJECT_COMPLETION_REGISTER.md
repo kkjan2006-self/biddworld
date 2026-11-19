@@ -1139,3 +1139,6 @@
 - Corrected the classified form's category-to-fields markup separator. Added source-contract assertions for price validation and complete form reset; test file not executed.
 - Commits: `2b703301857bcf9d5fc561b67dde883ccb574a7c` (implementation), `71c980e26f54e51d2a5a1ed324c4302e783f25cc` (test source). No tests/build/QA/browser checks, SQL replay, Supabase writes or deployment.
 - Further development remains: bring the Admin's direct Auction draft form into parity with the expected-price/open-ended schedule rules and complete the wider project work. Development estimate remains **60% Provisional**.
+
+
+- 2026-11-19 — Admin direct Auction draft workflow aligned with Expected Price lifecycle: Expected Price is mandatory and cannot be below Starting Price; fixed Planned End input removed; `ends_at` remains null until target price is reached and the existing 48-hour trigger derives the deadline. Added forward-only RPC migration and source-contract test. Not applied; no tests/build/QA run; production and TEST Supabase untouched.
