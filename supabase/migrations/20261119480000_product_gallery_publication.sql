@@ -28,7 +28,7 @@ begin
   return jsonb_build_object('success',true,'status','rejected');
  end if;
  if p_public_image_paths is null or cardinality(p_public_image_paths)<1 or cardinality(p_public_image_paths)>8
-    or (select count(distinct path) from unnest(p_public_image_paths) path)<>cardinality(p_public_image_paths) then
+    or (select count(distinct image_path) from unnest(p_public_image_paths) as paths(image_path))<>cardinality(p_public_image_paths) then
   raise exception 'Provide 1–8 unique approved public product images' using errcode='22023';
  end if;
  foreach v_path in array p_public_image_paths loop
