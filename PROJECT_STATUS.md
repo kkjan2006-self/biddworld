@@ -1240,3 +1240,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added regression source `tests/product-catalogue-details.test.ts` and registered the migration in the ordered clean-install forward manifest.
 - Commits: catalogue UI `acc9cafc1efde10fad003379192acb817f3e0a9b`; migration `a2e41f1f4320ff3217d8b5b44ac74c498e454d82`; test `77eb7fd0cbb56cefc554819023c0868be74bbef5`; search UI `291465a826b8fdf6ec9d8ec96d9b464c86480f5e`; manifest `d75d3e4662542e3f014331a83e07a8d4ecb29c5c`; manifest regression `4320e6dd2b3d5d25398908d1c2d038ddf421b086`.
 - Source-only work on `completion-work`. No tests/build/type-check, migration execution, Supabase changes, Preview deployment or runtime QA performed. Protected `main` untouched.
+
+
+## Latest development checkpoint — 2026-11-19 (source-only bulk continuation)
+
+- Re-read the current branch source and historical checkpoints rather than assuming the supplied master prompt was the latest state. Continued from the actual `completion-work` contents.
+- Completed the product submission edit validation correction, explicit price/warranty/ownership fields, accurate package activation UI state, Admin Matrix commission posting/reversal controls, full approved product detail persistence/public display/search, and migration inventory/documentation refresh.
+- Current source inventory: 115 forward + 16 excluded = 131 timestamped migration files, plus 3 legacy SQL files. The forward manifest is unique, non-overlapping with the excluded list and strictly sorted.
+- Latest documentation commits: `PROJECT_STATUS.md` `7581520c14f759df2ae1ceac0ef7287af5ffcb23`; clean-install README `1abdae80656bbb2bed654b66b38fec012f883774`; completion register `25b0ed3e70dee71295018418d122125f1decd4fe`.
+- Development-only boundary maintained: no tests, build, type-check, database reads/writes, migration replay, Preview publish, runtime QA or Production deployment. Protected `main` unchanged.
+- Overall source development estimate: **78% provisional**. This is not a runtime or release-completion claim; canonical baseline/RPC dependency review and remaining source integration work are still open.
