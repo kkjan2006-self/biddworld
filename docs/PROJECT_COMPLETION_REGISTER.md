@@ -1562,3 +1562,13 @@
 - Test source was authored but not executed. No typecheck/build/browser QA, TEST migration or Production change occurred.
 
 - Follow-up source hardening completed: corrected the placement regex/parentheses (`9cb927379b0cf1def8e9d703e3cf9086f9b63b51`) and verified the original credit ledger identity during reversal replay (`3a075d54da9204e1129ecf2243328997123c4d49`).
+
+
+## 2026-11-19 — Admin Matrix Commission Report UI
+
+- Added a dedicated Matrix Commissions Admin section separate from Sponsor Referral commissions.
+- Server-side status/level filtering, bounded pagination, source ID/type versus credited Main ID display, loaded-row totals, and complete paginated CSV export are implemented.
+- The report validates server page structure, timestamps and duplicate IDs before accepting data.
+- Added `tests/admin-matrix-commissions-ui.test.ts` and `docs/ADMIN_MATRIX_COMMISSION_REPORT_2026-11-19.md`.
+- Commits: UI `456895b5f206999f2c10f25e2352dd8081839e83`; Admin integration `2eede7258443c3299e0226ce680d16224514c488`; tests `af3e1c44fb6c2ba5fa58d52da87018b57e91eac2`; docs `53b3bfc503dee1fa171aa511ce52a0fd0bfc6216`.
+- No tests/build/typecheck/browser QA or database migrations/writes were run.
