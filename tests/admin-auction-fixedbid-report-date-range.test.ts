@@ -17,4 +17,19 @@ describe('Admin auction and Fixed Bid report date filters', () => {
       expect(source).toContain('disabled={loading||Boolean(from&&to&&from>to)}');
     });
   }
+  for (const path of [
+    'src/components/AdminAuctionBidReport.tsx',
+    'src/components/AdminFixedBidEntryReport.tsx',
+  ]) {
+    it(`${path} rejects malformed or duplicate report rows in pages and CSV exports`, () => {
+      const source = read(path);
+      expect(source).toContain('if(!Array.isArray(data??[]))');
+      expect(source).toContain("typeof row.created_at!=='string'");
+      expect(source).toContain('pageIds.has(row.');
+      expect(source).toContain('knownIds.has(row.');
+      expect(source).toContain('The report contains an invalid record. Export stopped');
+      expect(source).toContain('seenIds.has(row.');
+    });
+  }
+
 });
