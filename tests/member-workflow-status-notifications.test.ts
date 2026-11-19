@@ -8,8 +8,10 @@ describe('member workflow status notifications',()=>{
   expect(sql).toContain('revoke all on function private.notify_member_workflow_status_change() from public, anon, authenticated;');
  });
  it('notifies members for package, duplicate ID, auction submission, withdrawal and delivery changes',()=>{
-  for(const name of ['notify_member_package_activation_status','notify_member_duplicate_id_status','notify_member_auction_submission_status','notify_member_withdrawal_status','notify_member_delivery_status']) expect(sql).toContain(name);
+  for(const name of ['notify_member_package_activation_status','notify_member_duplicate_id_status','notify_member_wallet_funding_status','notify_member_auction_submission_status','notify_member_withdrawal_status','notify_member_delivery_status']) expect(sql).toContain(name);
   expect(sql).toContain("new.payment_status = 'approved' and new.activation_status = 'active'");
+  expect(sql).toContain("elsif new.id_type = 'main' then");
+  expect(sql).toContain("new.status = 'approved'");
   expect(sql).toContain("new.status = 'rejected'");
   expect(sql).toContain("v_status = 'paid'");
  });
