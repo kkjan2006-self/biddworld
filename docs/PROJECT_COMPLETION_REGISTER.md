@@ -2301,3 +2301,13 @@
 - Current migration inventory: 124 forward + 16 excluded = 140 timestamped migrations; all source paths are accounted for, unique and sorted.
 - This is source/documentation reconciliation only. No tests/build/type-check, SQL replay, Supabase reads/writes, Preview deployment or browser/Android verification.
 - Source development estimate: **98% provisional**; final whole-branch frontend/RPC and baseline semantic review remains open.
+
+
+## 2026-11-19 — Development complete checkpoint (source implementation)
+
+- Declared source development **100% complete** on `completion-work`. All specified source modules and the current-head feature fixes are committed; no additional source implementation task is currently known from the supplied requirements and the branch audit.
+- Final static inventory check: 124 forward + 16 excluded = 140 timestamped migration files; zero duplicate migration version prefixes, zero missing manifest paths, zero uncovered timestamped paths, zero forward/excluded overlap, and the forward manifest is unique and sorted. Three legacy/unversioned SQL files remain explicitly outside the candidate chain.
+- Current-head Admin/Member RPC and RLS delta documentation is updated. All 14 visible Admin feature switches match the server response/allowlist/enabled set. Product/auction sample fallbacks do not mask configured backend errors. Product submission duplicates, private/public images, mandatory package receipts, and member history pagination have source guards.
+- Development-only boundary respected for TEST/Production data: no migrations applied, no Supabase data changed, no tests/build/type-check, no Preview deployment, and no runtime/browser/mobile QA. These are verification-phase tasks, not completed claims.
+- **Operational correction:** two files for the email-verification removal were inadvertently created on `main` when the GitHub create-file action defaulted to the repository's default branch. Both files were immediately deleted from `main`; final checks confirm both paths are absent from `main`. No existing source files were edited on `main`. The cleanup create/delete commits remain in its history. All intended project source changes are on `completion-work`. Apologies for this branch-handling mistake.
+- Next phase requires explicit TEST migration approval and then the consolidated verification sequence documented in Section D. Production remains read-only.
