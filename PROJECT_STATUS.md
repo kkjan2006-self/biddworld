@@ -265,3 +265,10 @@ At every development batch/chat end, update this file with the actual verified b
 - Updated package and Main Wallet queue/review RPCs and private receipt Storage read policies to require the corresponding explicit staff permission. Approvals remain server-side, atomic, and ledger/audit recorded; the reviewer is recorded.
 - Added migration #79 `20261119100000_restricted_payment_review_staff.sql` and source-contract test `tests/restricted-payment-review-staff.test.ts` (not executed). Inventory: 79 forward + 16 excluded + 3 legacy SQL files = 98 total (95 timestamped).
 - No tests/build/CI/QA, SQL replay, DB writes, Production access or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 55% Provisional.
+
+
+## Latest development checkpoint — Notification inbox pagination (#80)
+
+- Updated both Member and Admin notification inboxes to bounded keyset pagination using descending `(created_at,id)` cursors; 100 visible rows plus one look-ahead row. Member queries remain user-scoped and retain unread/category filters. Admin history uses a new Admin-only cursor RPC.
+- Existing Admin offset RPC is preserved for compatibility. Added migration #80 and source-contract test (not executed). Inventory: 80 forward + 16 excluded + 3 legacy SQL files = 99 total (96 timestamped).
+- No tests/build/CI/QA, migration replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 55% Provisional.
