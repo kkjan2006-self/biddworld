@@ -236,3 +236,11 @@ At every development batch/chat end, update this file with the actual verified b
 
 
 - Inventory update after Main Wallet funding migration #76: 76 forward + 16 excluded timestamped + 3 legacy SQL files = 95 SQL files (92 timestamped). This is source inventory only; no replay was performed.
+
+
+## Latest development checkpoint — shared UTR protection (#77)
+
+- Added a database trigger-level cross-workflow payment reference guard for package activation and Main Wallet top-ups. Both insert paths use one normalized-reference advisory transaction lock and reject cross-use, preventing concurrent submissions from reusing the same UTR between these two workflows.
+- Added source-contract test file `tests/cross-workflow-payment-reference-uniqueness.test.ts` (not run).
+- Forward migration candidate #77 added. Inventory: 77 forward + 16 excluded timestamped + 3 legacy SQL files = 96 SQL files (93 timestamped).
+- Source-only development; no tests/build/CI/QA, SQL replay, database writes, Production access or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 55% (Provisional).
