@@ -113,8 +113,8 @@ begin
  values(v_uid,'auction.submission_approved','auction_submission',v_s.id,jsonb_build_object('auction_id',v_auction,'product_id',v_product,'seller_member_id',v_s.member_id,'starting_price',p_starting_price,'expected_price',p_expected_price,'reviewer_role',v_role));
  return jsonb_build_object('success',true,'status','approved','auction_id',v_auction,'expected_price',p_expected_price,'ends_at',v_deadline);
 end;$function$;
-revoke all on function public.admin_review_auction_submission(uuid,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text) from public,anon;
-grant execute on function public.admin_review_auction_submission(uuid,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text) to authenticated;
+revoke all on function public.admin_review_auction_submission(uuid,text,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text) from public,anon;
+grant execute on function public.admin_review_auction_submission(uuid,text,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text) to authenticated;
 
 -- Public catalogue includes target price and an open-ended running state.
 drop function if exists public.public_list_active_auctions_page(integer,integer);
