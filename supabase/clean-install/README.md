@@ -21,7 +21,7 @@ Schema-only baseline candidate reconstructed from read-only Production PostgreSQ
 ## Forward migration manifest
 The baseline represents the current Production schema at capture time. Do not replay historical migrations at/before `20261115163218` on top of it. The source migration `20261115180000_admin_audit_log_pagination.sql` is excluded because its effect is already represented in the captured state.
 
-Ordered forward candidates are listed in `forward-migrations.txt` (**78 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **91 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
+Ordered forward candidates are listed in `forward-migrations.txt` (**79 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **95 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
 
 ## Remaining work before canonical status
 1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive. Public function EXECUTE counts align with the Production inventory (43 authenticated, anon only public.lookup_sponsor(text)); read-only Production evidence confirms service_role EXECUTE on all 43 public functions. The candidate intentionally narrows audit_logs_id_seq to service_role USAGE only; effective permissions still require final TEST replay. See docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md.
@@ -50,7 +50,7 @@ The support-ticket and member-notification frontend write paths were reconciled 
 
 ## Notification column privilege follow-up (#69)
 
-The original member-notification migration separately granted column-level INSERT on (user_id, title, message, category). Candidate #67 revoked table-level INSERT only; the Admin-only RLS insert policy still allowed an Admin to bypass the audited/idempotent delivery RPC if the column grant survived. Candidate #69 explicitly revokes both table-level and column-level INSERT from authenticated. Owner-scoped UPDATE(read_at) remains intentionally available for members marking notifications as read. See [the notification column privilege follow-up](../../docs/MEMBER_NOTIFICATION_COLUMN_PRIVILEGE_FOLLOWUP_2026-11-18.md). The ordered forward manifest now contains 78 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 97 SQL files. Source-only; no replay or database verification has occurred.
+The original member-notification migration separately granted column-level INSERT on (user_id, title, message, category). Candidate #67 revoked table-level INSERT only; the Admin-only RLS insert policy still allowed an Admin to bypass the audited/idempotent delivery RPC if the column grant survived. Candidate #69 explicitly revokes both table-level and column-level INSERT from authenticated. Owner-scoped UPDATE(read_at) remains intentionally available for members marking notifications as read. See [the notification column privilege follow-up](../../docs/MEMBER_NOTIFICATION_COLUMN_PRIVILEGE_FOLLOWUP_2026-11-18.md). The ordered forward manifest now contains 79 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 98 SQL files. Source-only; no replay or database verification has occurred.
 
 
 ## Fixed Bid public rules projection (#70)
@@ -78,7 +78,7 @@ The original member-notification migration separately granted column-level INSER
 - Added cursor-specific Admin-only RPCs for auction bids and Fixed Bid entries. Both use stable descending `(created_at,id)` ordering and validate paired cursor values and page bounds.
 - Updated the two report components to use the cursor RPCs for both interactive pagination and complete CSV export. The prior offset RPCs remain available for compatibility with any legacy caller.
 - Added source-contract tests for both UI/RPC contracts. Tests have not been executed.
-- Forward migration inventory: 75 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 94 SQL files (91 timestamped). No migration replay, tests/build/QA or database writes were performed.
+- Forward migration inventory: 79 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 98 SQL files (95 timestamped). No migration replay, tests/build/QA or database writes were performed.
 
 
 ## 2026-11-19 — Main Wallet funding workflow (#76)
@@ -113,3 +113,13 @@ The original member-notification migration separately granted column-level INSER
 
 
 - Package Activation payment screen now reuses the KRFSI UPI payment QR presentation and shows Payee KRFSI / UPI ID krindia@bpunity before UTR and receipt submission. The same QR is used by Main Wallet Add Money. This is source integration only; the actual QR asset and UPI payment flow still require final isolated Test validation before any Live release.
+
+
+## 2026-11-19 — Restricted payment-review Admin Staff (#79)
+
+- Added a restricted `admin_staff` role, granted/revoked only by the designated Primary Admin for an existing account. The role receives exactly two permissions: `package_activation_review` and `wallet_funding_review`; changes are audited and require sign-out/sign-in to refresh JWT claims.
+- Added a dedicated staff portal containing only Package Activation payment review and Main Wallet Add Money review. It does not render the full Admin dashboard, wallet adjustment, settings, reports, member management or role management.
+- Updated the package activation and Main Wallet funding queue/review RPCs to accept Admin or the matching explicit staff permission. Approval still uses the existing atomic server-side wallet/package transactions and writes the reviewer ID into the audit/verification records.
+- Updated private receipt Storage read policies to allow staff only for the workflow they are assigned to. Member-owned receipt upload/read behavior is retained.
+- Added migration candidate #79 and source-contract test `tests/restricted-payment-review-staff.test.ts` (not run). Inventory: 79 forward + 16 excluded timestamped + 3 legacy SQL files = 98 SQL files (95 timestamped).
+- No tests/build/CI/QA, migration replay, DB writes, Production access or deployment. Production remains read-only; TEST remains untouched.
