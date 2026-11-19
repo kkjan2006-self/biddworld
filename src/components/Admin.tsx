@@ -95,13 +95,13 @@ export default function Admin(){
    {key:'delivery_tracking_enabled',label:'Product Delivery Tracking',description:'Save courier details, tracking numbers and delivery updates.'}
   ]},
   {title:'4. Notifications',description:'Manage messages sent to members.',items:[
-   {key:'notifications_enabled',label:'Notifications',description:'Send app, email or SMS messages. Use only when message delivery is set up.'}
+   {key:'notifications_enabled',label:'Notifications',description:'Enable in-app member notifications. Email and SMS delivery are not connected by this setting.'}
   ]}
  ];
  const featureLabels:Record<string,string>=Object.fromEntries(featureGroups.flatMap(group=>group.items.map(item=>[item.key,item.label])));
- const backendPendingFeatureKeys=new Set(['automatic_placement_enabled','referral_commissions_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winner_selection_configured','winning_payment_enabled','notifications_enabled']);
+ const backendPendingFeatureKeys=new Set(['automatic_placement_enabled','referral_commissions_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winner_selection_configured','winning_payment_enabled']);
  const serverConditionFeatureKeys=new Set(['duplicate_ids_enabled','package_activations_enabled','bid_wallet_enabled','income_wallet_enabled']);
- const featureEnableReadyKeys=new Set(['registration_enabled','email_verification_required','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','bid_wallet_enabled','income_wallet_enabled','delivery_tracking_enabled']);
+ const featureEnableReadyKeys=new Set(['registration_enabled','email_verification_required','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','bid_wallet_enabled','income_wallet_enabled','delivery_tracking_enabled','notifications_enabled']);
  const [featureSettings,setFeatureSettings]=useState<Record<string,boolean>>({}),[featureSettingsLoaded,setFeatureSettingsLoaded]=useState(false),[featureSettingsLoadError,setFeatureSettingsLoadError]=useState('');
  const [packages,setPackages]=useState<AdminPackage[]>([]),[packageName,setPackageName]=useState(''),[packageDescription,setPackageDescription]=useState(''),[packagePrice,setPackagePrice]=useState('3000'),[packageCredit,setPackageCredit]=useState('3500'),[editingPackage,setEditingPackage]=useState(''),[packageMessage,setPackageMessage]=useState(''),[packageBusy,setPackageBusy]=useState(false);
  const [referralPlans,setReferralPlans]=useState<ReferralPlan[]>([]),[selectedPlanPackage,setSelectedPlanPackage]=useState(''),[levelValues,setLevelValues]=useState(['200','200','200','200','200']),[levelTypes,setLevelTypes]=useState(['fixed','fixed','fixed','fixed','fixed']),[planMessage,setPlanMessage]=useState(''),[planBusy,setPlanBusy]=useState(false);
