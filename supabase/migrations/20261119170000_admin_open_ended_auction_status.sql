@@ -26,11 +26,12 @@ begin
   if v_auction.starts_at is null or (v_auction.ends_at is not null and v_auction.ends_at<=v_auction.starts_at) then
    raise exception 'Auction schedule is incomplete' using errcode='22023';
   end if;
-  if p_status='scheduled' and v_auction.starts_at<=now() then
-   raise exception 'A scheduled auction must start in the future' using errcode='22023';
+  if p_status='scheduled' and (v_auction.starts_at is null or v_auction.starts_at<=now()) then
+   raise exception 'A scheduled auction must have a future start time' using errcode='22023';
   end if;
   if p_status='live' then
-   if not (now()>=v_auction.starts_at and (v_auction.ends_at is null or now()<v_auction.ends_at)) then
+   if (v_auction.starts_at is not null and now()<v_auction.starts_at)
+      or (v_auction.ends_at is not null and now()>=v_auction.ends_at) then
     raise exception 'Auction can be opened only within its configured time window' using errcode='55000';
    end if;
    select coalesce((setting_value#>>'{}')::boolean,false) into v_enabled
