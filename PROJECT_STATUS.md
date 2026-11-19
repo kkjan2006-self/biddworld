@@ -1229,3 +1229,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member listing UI `cefbee175e59c5e5ac8b6cfc7e378753b0ad0621`; member edit regression `1dd778b613cef2c30da1a68e9eaf092619c140f5`; package UI `24b873cbbe505b43fbfe550c09ce90655b8905e5`; Matrix Admin UI `ae8257631cda4fafa65bc102919dbd5e99da6acf`; Matrix action regression `af39709a99aa91e0037a9b9964284d6b19c8ce0b`.
 - All changes are confined to `completion-work`. No SQL migrations were applied, no Supabase database was modified, no Preview deployment or runtime testing was performed, and `main` remains untouched.
 - Development progress: source implementation advanced; overall percentage remains provisional until consolidated build/test/reconciliation and browser verification.
+
+
+## 2026-11-19 — Persist complete approved product catalogue details
+
+- Added forward migration `20261119460000_product_catalogue_details.sql`: published products now retain the member submission's full optional-details JSON, including validated asking price, Brand, Model, Condition, Year/Age, Warranty, Ownership, Location and Features.
+- Added a database trigger enforcing a positive, bounded asking price for every new or edited product submission, independent of client-side validation.
+- Updated Admin approval to copy the full submission details into the published product record. Updated the public product pagination RPC to return details only for published records.
+- Updated the public catalogue cards to display the asking price and available attributes, and included those attributes in catalogue search.
+- Added regression source `tests/product-catalogue-details.test.ts` and registered the migration in the ordered clean-install forward manifest.
+- Commits: catalogue UI `acc9cafc1efde10fad003379192acb817f3e0a9b`; migration `a2e41f1f4320ff3217d8b5b44ac74c498e454d82`; test `77eb7fd0cbb56cefc554819023c0868be74bbef5`; search UI `291465a826b8fdf6ec9d8ec96d9b464c86480f5e`; manifest `d75d3e4662542e3f014331a83e07a8d4ecb29c5c`; manifest regression `4320e6dd2b3d5d25398908d1c2d038ddf421b086`.
+- Source-only work on `completion-work`. No tests/build/type-check, migration execution, Supabase changes, Preview deployment or runtime QA performed. Protected `main` untouched.
