@@ -487,3 +487,31 @@ footer{background:#2c1048;color:#f4e9ff}
 .walletFundingHistory article small{color:#6b7b90;overflow-wrap:anywhere}
 .walletFundingHistory article strong{font-size:11px;color:#52647c}
 @media(max-width:560px){.walletFundingPanel{padding:12px}.walletFundingQr{width:100%;box-sizing:border-box}.walletFundingQr img{width:min(100%,230px)}}
+
+
+/* Homepage marketplace: separate horizontal rows for Fixed Bids and Auctions. */
+.homeMarketplace{width:100%;display:flex;flex-direction:column;gap:28px}
+.homeMarketSection{width:100%;min-width:0}
+.homeMarketHeading{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px}
+.homeMarketHeading h3{font:800 22px Manrope;margin:0;color:#17253a}
+.homeMarketHeading p{margin:5px 0 0;color:#7d8796;font-size:12px}
+.fixedBidCompact{max-width:none;margin:0}
+.fixedBidCompact .packageIntro{margin-bottom:12px}
+.fixedBidCompact .packageIntro .workspaceIcon{margin:0;width:44px;height:44px;flex:0 0 44px}
+.fixedBidCompact .packageIntro h3{font:800 22px Manrope;color:#17253a;margin:0}
+.fixedBidCompact .fixedBidGrid{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:16px;margin-top:0;padding:2px 2px 14px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.fixedBidCompact .fixedBidCard{flex:0 0 clamp(230px,27vw,300px);scroll-snap-align:start}
+.fixedBidCompact .fixedBidVisual{height:145px}
+.fixedBidCompact .fixedBidVisual img{width:100%;height:100%;object-fit:cover}
+.homeAuctionGrid{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:18px;padding:2px 2px 14px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.homeAuctionGrid .auction{flex:0 0 clamp(250px,29vw,320px);scroll-snap-align:start}
+.homeAuctionGrid .productVisual{height:165px}
+.homeAuctionGrid .auctionBody{padding:15px}
+.homeAuctionGrid .auction h3{font-size:15px}
+.homeAuctionGrid .priceRow{gap:8px}
+@media(max-width:700px){
+ .homeMarketplace{gap:22px}
+ .fixedBidCompact .fixedBidCard{flex-basis:78vw;max-width:310px}
+ .homeAuctionGrid .auction{flex-basis:78vw;max-width:320px}
+ .fixedBidCompact .packageIntro h3,.homeMarketHeading h3{font-size:19px}
+}
