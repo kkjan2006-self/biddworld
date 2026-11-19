@@ -154,7 +154,7 @@ begin
        select 1 from public.member_ids child
         where child.placement_parent_id=t.member_id
           and (child.placement_position=slot.position::text
-            or (slot.position=1 and (child.placement_position is null or child.placement_position !~ '^[0-9]+
+            or (slot.position=1 and (child.placement_position is null or child.placement_position !~ '^[0-9]+$')))
      )
      order by t.depth,t.path,slot.position
      limit 1
