@@ -287,3 +287,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Pending member-auction images remain private. During approval, Admin/authorized Staff copy images into public `product-media`; the approval RPC publishes the product/auction with those paths. Catalogue cards and auction detail views resolve media paths to public URLs.
 - Added migration #83 and source-contract test (not run). Inventory: 83 forward + 16 excluded + 3 legacy SQL files = 102 total (99 timestamped).
 - Image copy and database approval are separate operations; an unsuccessful approval after a successful upload may leave an unreferenced public object for cleanup. No tests/build/QA, SQL replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 57% Provisional.
+
+
+## Latest development checkpoint — Expected-price auction lifecycle (#84)
+
+- Member auction submission now collects Starting Price and Expected Price (Expected Price must be >= Starting Price); End Time is no longer compulsory or shown. Bidding stays open until current bid reaches/exceeds Expected Price; then DB sets a 48-hour deadline.
+- Bid RPC accepts null `ends_at` while target is pending and rejects bids after deadline. `pg_cron` job starts scheduled auctions and marks expired auctions ended. Public catalogue exposes expected price, target-reached timestamp, start time, and nullable end time; UI displays live countdown or Waiting for expected price.
+- Admin/authorized Staff review can edit Expected Price. Added migration #84 and source-contract test (not run). Inventory: 84 forward + 16 excluded + 3 legacy SQL files = 103 total (100 timestamped).
+- No tests/build/QA, migration replay, DB writes or deployment. Cron is source-defined only and not verified/applied. Overall estimate: 58% Provisional.
