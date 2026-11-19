@@ -1,3 +1,11 @@
+## 2026-11-19 — Member auction submission history resilience
+
+- Added explicit loading, error and genuinely-empty states to the member's own auction submission list, including a retry action.
+- Protected the list against stale asynchronous responses and rejects malformed or duplicate submission IDs rather than rendering ambiguous records.
+- Added source-contract coverage in `tests/member-auction-submission-preflight.test.ts`.
+- Commits: source `5198cd2d7f5e9717398ece04d96c5fbf6ec843a1`; test source `95012bfc63cbe302985a27949d81972b1a842181`.
+- Tests/build/type-check/browser QA were not run. No Supabase access or database changes occurred.
+
 ## 2026-11-19 — Member complete-report duplicate-row guard
 
 - Hardened the paginated personal CSV export helper: all returned records must carry a non-empty ID, and duplicate IDs are rejected within a page or across pages instead of being silently exported.
