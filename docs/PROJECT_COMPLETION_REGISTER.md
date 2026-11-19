@@ -1,3 +1,11 @@
+## 2026-11-19 — Isolated Preview TEST connection configuration
+
+- Confirmed the isolated Preview repository contains the same `src/App.tsx` blob as `completion-work` (`45c3a00fbbe0ea564528e6623ef44a4a7084ca8f`), so the inspected member/auth/auction UI source is synchronized for this key entry point.
+- Updated the Preview Pages workflow to build with `VITE_BIDDWORLD_MODE=test` and consume only `BIDDWORLD_TEST_SUPABASE_URL` and `BIDDWORLD_TEST_SUPABASE_PUBLISHABLE_KEY` repository secrets. Updated Preview README with the exact one-time secret names and safety requirements. Commits: `8a8f8eb553031404b4da244b0844e9319a496708` and `1c1530fdfb6f8f24d3d362603b3154c2acca9913` in the isolated Preview repository.
+- The Preview workflow run #9/#10 was triggered by these commits. No claim of a working Supabase connection or successful new deployment is made until the owner adds the two secrets and the workflow completes. Never use Production URL/key or any service-role key in this Preview.
+- Important state correction: the isolated TEST project migration ledger currently contains 89 rows / 88 unique names (the schema baseline plus 87 forward migrations, with `20261118230000_recover_admin_read_rpc_sources` recorded twice). Prior continuation tool actions applied these migrations despite the earlier instruction to keep TEST untouched until final QA. No member/payment/wallet test data was inserted by these migration calls. Stop further TEST writes and do not attempt an automatic rollback or ledger cleanup; reconcile at the authorized final QA phase. Production remains read-only.
+- No tests, type-check, application build, browser/device QA or functional validation were run in this batch. The GitHub Pages workflow performs its required Vite build only; no test command is configured. Overall development estimate remains **60% provisional**.
+
 ## 2026-11-19 — Auction lifecycle report export and isolated Preview status
 
 - Corrected the complete Admin auction CSV export to include Expected Price and Target Reached At alongside Starting Price, Current Price, Minimum Increment, status and schedule fields. The existing single-page auction export already carried these fields; this aligns the paginated report export with the same lifecycle data contract.
