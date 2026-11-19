@@ -32,8 +32,8 @@ export default function FixedBid({compact=false}:{compact?:boolean}){
  const [rows,setRows]=useState<Campaign[]>([]),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[error,setError]=useState('');
  const [search,setSearch]=useState(''),[statusFilter,setStatusFilter]=useState<CampaignStatus>('all');
  const [message,setMessage]=useState(''),[joining,setJoining]=useState('');
- const displayRows=rows.length?rows:sampleFixedCampaigns;
- const showingSamples=rows.length===0;
+ const showingSamples=rows.length===0&&!error;
+ const displayRows=rows.length?rows:showingSamples?sampleFixedCampaigns:[];
  const mounted=useRef(true),requestId=useRef(0),requestInFlight=useRef(false),entryKeys=useRef(new Map<string,string>());
  async function load(reset=true,searchTerm=search,status=statusFilter){
   if(!reset&&(requestInFlight.current||loadingMore||!hasMore))return;
@@ -46,9 +46,16 @@ export default function FixedBid({compact=false}:{compact?:boolean}){
    const {data,error}=await supabase.rpc('public_list_fixed_bid_campaigns_page',{p_search:searchTerm.trim()||null,p_status:status,p_limit:PAGE_SIZE,p_offset:offset});
    if(error)throw error;
    if(!mounted.current||request!==requestId.current)return;
+   if(!Array.isArray(data??[]))throw new Error('The campaign catalogue response was invalid. Please refresh.');
    const batch=(data??[]) as unknown as Campaign[];
+   const pageIds=new Set<string>(),knownIds=new Set(reset?[]:rows.map(row=>row.id));
+   for(const campaign of batch){
+    if(!campaign||typeof campaign.id!=='string'||!campaign.id.trim()||typeof campaign.title!=='string'||!campaign.title.trim()||!campaign.configuration||typeof campaign.configuration!=='object')throw new Error('The campaign catalogue contains an incomplete record. Refresh before continuing.');
+    if(pageIds.has(campaign.id)||knownIds.has(campaign.id))throw new Error('The campaign catalogue returned duplicate campaign IDs. Refresh before loading more.');
+    pageIds.add(campaign.id);
+   }
    let added=batch.length;
-   setRows(current=>{if(reset)return batch;const known=new Set(current.map(row=>row.id));const fresh=batch.filter(row=>!known.has(row.id));added=fresh.length;return [...current,...fresh];});
+   setRows(current=>{if(reset)return batch;added=batch.length;return [...current,...batch];});
    setHasMore(batch.length===PAGE_SIZE&&(reset||added>0));
   } catch {
    if(mounted.current&&request===requestId.current)setError(reset?'Fixed Bid campaigns could not be loaded. Please retry.':'More campaigns could not be loaded. Please retry.');
