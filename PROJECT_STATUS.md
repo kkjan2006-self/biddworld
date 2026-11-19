@@ -771,3 +771,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: wallet UI `1d8751c32701c73a7e0a40422018be3dd661c5a9`; RPC `e5d473302d23175d6a4e89f4a67059d1c59dcc82`; test `5b65f1a60cda621f5e4f284869497821027ae9a5`; export fix `2f3e74ac915f4456848a3e2c60c1f3abcb430860`; completion register `d1fcd405ed1e4c720193edf6967e421ffabd4ec2`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied. Protected `main` unchanged. Matrix feature remains OFF. Full schema reconciliation and final QA remain pending.
 - Overall development estimate: **62% provisional**.
+
+
+## Latest checkpoint — Admin Matrix global summary
+
+- Admin Matrix Commission Register now shows global totals and amounts for all/pending/credited/reversed commissions, independent of pagination and filters; current filtered-page subtotal is labelled separately.
+- Admin-only summary RPC added to `20261119310000_matrix_commission_engine.sql`; test contract added.
+- Commits: `1e2765350b77bbdc2821c0a94acd2f516cafc30e`, `2d4d75cc0bd1ce3f8b256a0c4e55411708ab9349`, `8010e4dbc57fffd7f2017ddc90d833b0729402c4`, completion register `cd6f34e9e3239c9fc9a4f010a11f68a7ff3aa6a6`.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production migration applied. Protected `main` unchanged; Matrix feature OFF. Schema reconciliation and final QA remain pending.
+- Overall development estimate: **63% provisional**.
