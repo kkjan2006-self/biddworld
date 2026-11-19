@@ -1,6 +1,7 @@
 -- Persist and safely publish the complete member-submitted product details.
 alter table public.products
   add column if not exists product_details jsonb not null default '{}'::jsonb;
+grant select (product_details) on public.products to anon,authenticated;
 
 create or replace function private.validate_product_submission_details()
 returns trigger
