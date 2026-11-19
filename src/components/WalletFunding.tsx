@@ -17,20 +17,20 @@ export default function WalletFunding(){
   if(!/^[A-Za-z0-9./_-]{6,80}$/.test(reference)){setMessage('Enter a valid UTR / payment reference (6–80 characters).');return;}
   if(!receipt){setMessage('Upload your payment screenshot or receipt.');return;}
   if(!['image/jpeg','image/png','application/pdf'].includes(receipt.type)||receipt.size>5*1024*1024){setMessage('Choose a JPG, PNG or PDF file up to 5 MB.');return;}
-  inFlight.current=true;setBusy(true);setMessage('');
+  inFlight.current=true;setBusy(true);setMessage('');let uploadedReceiptPath:string|null=null;let rpcAttempted=false;let rpcDefinitelyRejected=false;
   try{
    const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again.');
    const safe=receipt.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').slice(-80)||'receipt';
    const path=user.id+'/wallet-funding/'+crypto.randomUUID()+'-'+safe;
    const{error:uploadError}=await supabase.storage.from('wallet-funding-receipts').upload(path,receipt,{contentType:receipt.type,upsert:false});
-   if(uploadError)throw uploadError;
-   const{error}=await supabase.rpc('member_submit_wallet_fund_request',{p_amount:value,p_payment_reference:reference,p_receipt_path:path});
-   if(error)throw error;
+   if(uploadError)throw uploadError;uploadedReceiptPath=path;
+   rpcAttempted=true;const{error}=await supabase.rpc('member_submit_wallet_fund_request',{p_amount:value,p_payment_reference:reference,p_receipt_path:path});
+   if(error){rpcDefinitelyRejected=typeof (error as {code?:unknown}).code==='string';throw error;}
    setAmount('');setUtr('');setReceipt(null);
    const input=document.getElementById('wallet-funding-receipt') as HTMLInputElement|null;if(input)input.value='';
    setMessage('Request submitted. Your Main Wallet will be credited after Admin verifies the payment.');
    await load();
-  }catch(err){setMessage(err instanceof Error?err.message:'Your request could not be submitted. Please retry.');}
+  }catch(err){const message=err instanceof Error?err.message:'Your request could not be submitted. Please retry.';if(uploadedReceiptPath&&rpcAttempted&&rpcDefinitelyRejected){try{const{error:cleanupError}=await supabase.storage.from('wallet-funding-receipts').remove([uploadedReceiptPath]);setMessage(cleanupError?message+' The uploaded receipt could not be removed automatically; please contact support.':message)}catch{setMessage(message+' The uploaded receipt could not be removed automatically; please contact support.')}}else setMessage(message);}
   finally{inFlight.current=false;setBusy(false);}
  }
  return <section className="walletFunding">
