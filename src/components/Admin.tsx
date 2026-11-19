@@ -210,7 +210,6 @@ export default function Admin(){
   {title:'3. Auctions & Winner Process',description:'Manage auctions, winner payments and product delivery.',items:[
    {key:'bidding_enabled',label:'Live Auctions & Bidding',description:'Allow members to place bids in live auctions. Use only after wallet and bidding controls are checked.'},
    {key:'fixed_bid_enabled',label:'Fixed Bid Campaigns',description:'Allow members to join campaigns with a fixed entry fee.'},
-   {key:'winner_selection_configured',label:'Winner Selection Configured',description:'Shows whether the winner rules are ready. This setting does not choose a winner.'},
    {key:'winning_payment_enabled',label:'Winner Payment',description:'Record and verify payments from auction winners.'},
    {key:'delivery_tracking_enabled',label:'Product Delivery Tracking',description:'Save courier details, tracking numbers and delivery updates.'}
   ]},
@@ -219,7 +218,7 @@ export default function Admin(){
   ]}
  ];
  const featureLabels:Record<string,string>=Object.fromEntries(featureGroups.flatMap(group=>group.items.map(item=>[item.key,item.label])));
- const backendPendingFeatureKeys=new Set(['winner_selection_configured']);
+ const backendPendingFeatureKeys=new Set<string>();
  const serverConditionFeatureKeys=new Set(['package_activations_enabled','referral_commissions_enabled','matrix_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled']);
  const featureEnableReadyKeys=new Set(['registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled','matrix_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled','delivery_tracking_enabled','notifications_enabled']);
  const [featureSettings,setFeatureSettings]=useState<Record<string,boolean>>({}),[featureSettingsLoaded,setFeatureSettingsLoaded]=useState(false),[featureSettingsLoadError,setFeatureSettingsLoadError]=useState('');
