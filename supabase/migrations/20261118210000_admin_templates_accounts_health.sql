@@ -48,6 +48,8 @@ begin
 end;
 $function$;
 
+drop function if exists public.admin_save_notification_template(uuid,text,text,text,text);
+
 create or replace function public.admin_save_notification_template(
  p_id uuid,p_name text,p_channel text,p_subject text,p_body text
 )
