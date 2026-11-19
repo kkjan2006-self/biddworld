@@ -1,3 +1,11 @@
+## 2026-11-19 — Admin auction submission queue pagination
+
+- Added `admin_list_auction_submissions_page`, an Admin/authorized Staff-only keyset pagination RPC with stable `(created_at,id)` ordering, 50-row UI pages and a 100-row server cap.
+- Updated Admin Auction Submission Review to validate each page and cursor, reject malformed/duplicate records, sign private image URLs per page, and load more without fetching the entire pending queue.
+- Existing approve/reject RPC, media transfer and review permissions remain unchanged.
+- Migration: `20261119400000_admin_auction_submission_keyset_pagination.sql`. Registered in the clean-install forward manifest.
+- Tests/build/type-check/browser/mobile QA were not run. No Supabase migrations/data writes or Production reads occurred.
+
 ## 2026-11-19 — Admin feature workflow switch enablement
 
 - Updated the Admin feature-setting allowlist so existing referral commission, withdrawal, bidding, fixed-bid and winning-payment workflows can reach the existing server-side condition check. Incomplete automatic placement and winner-selection configuration remain blocked.
