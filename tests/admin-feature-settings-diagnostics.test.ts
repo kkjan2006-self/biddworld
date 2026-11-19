@@ -32,4 +32,16 @@ describe('Admin feature settings diagnostics and enablement', () => {
     expect(admin).toMatch(/if\(data\?\.success!==true\)throw new Error/);
     expect(admin).toMatch(/setFeatureSettings\(current=>\(\{\.\.\.current,\[key\]:enabled\}\)\)/);
   });
+
+  it('gates in-app notification delivery behind the Admin feature switch', () => {
+    const notificationMigration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20261119250000_enable_in_app_notifications_feature.sql'), 'utf8');
+    expect(admin).toMatch(/Enable in-app member notifications/);
+    expect(admin).toMatch(/backendPendingFeatureKeys=new Set\(\['automatic_placement_enabled','referral_commissions_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winner_selection_configured','winning_payment_enabled'\]\)/);
+    expect(notificationMigration).toMatch(/'delivery_tracking_enabled','notifications_enabled'/);
+    expect(notificationMigration).toMatch(/In-app notifications are disabled in Platform Settings/);
+    expect(notificationMigration).toMatch(/notify_member_on_support_ticket_update/);
+    expect(notificationMigration).toMatch(/if not coalesce\(v_notifications_enabled,false\) then\s+return new;/);
+    expect(notificationMigration).toMatch(/notification.sent/);
+  });
+
 });
