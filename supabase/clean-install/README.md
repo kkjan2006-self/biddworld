@@ -79,3 +79,14 @@ The original member-notification migration separately granted column-level INSER
 - Updated the two report components to use the cursor RPCs for both interactive pagination and complete CSV export. The prior offset RPCs remain available for compatibility with any legacy caller.
 - Added source-contract tests for both UI/RPC contracts. Tests have not been executed.
 - Forward migration inventory: 75 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 94 SQL files (91 timestamped). No migration replay, tests/build/QA or database writes were performed.
+
+
+## 2026-11-19 — Main Wallet funding workflow (#76)
+
+- Added the member Add Money flow: verified KRFSI UPI QR (krindia@bpunity), amount, UTR/payment reference and private receipt upload (JPG/PNG/PDF, max 5 MB).
+- Added a private wallet-funding-receipts Storage bucket with member-owned upload paths and Admin-only receipt reads.
+- Added wallet_fund_requests with unique normalized UTR, pending/approved/rejected states, member-scoped history, Admin pending queue and an Admin review RPC.
+- Approval locks the request and Main Wallet row, credits the internal income wallet account atomically, writes one immutable wallet_transactions credit with a deterministic idempotency key, and records an audit event. Rejection makes no wallet credit.
+- Member-facing labels now call the former Income Wallet the Main Wallet; internal wallet type remains income to preserve existing ledger and settlement contracts. Bid Wallet remains unchanged.
+- Admin review currently uses the repository's existing authenticated Admin role. A distinct Admin Staff role is not present in the current authorization model and has not been invented or granted.
+- Added forward migration candidate #76. Source-only; migration not applied. Tests not run. No build, QA, DB replay/write, Production access or deployment.
