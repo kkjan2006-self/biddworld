@@ -28,4 +28,21 @@ describe('member workflow retry and response guards', () => {
     expect(text).toContain("error&&<div className=\"notice\" role=\"status\">{error}");
     expect(text).not.toContain('{error&&<div className="notice">{error}</div>}');
   });
+  it('rejects malformed and duplicate wallet transaction rows before advancing the page cursor', () => {
+    const text = source('src/components/WalletHistory.tsx');
+    expect(text).toContain("if(!Array.isArray(data??[]))");
+    expect(text).toContain("typeof row.id!=='string'");
+    expect(text).toContain("typeof row.created_at!=='string'");
+    expect(text).toContain('pageIds.has(row.id)||knownIds.has(row.id)');
+    expect(text).toContain('The wallet history returned duplicate transaction IDs.');
+  });
+
+  it('does not replace a failed Fixed Bid catalogue with sample preview cards', () => {
+    const text = source('src/components/FixedBid.tsx');
+    expect(text).toContain('const showingSamples=rows.length===0&&!error');
+    expect(text).toContain('const displayRows=rows.length?rows:showingSamples?sampleFixedCampaigns:[]');
+    expect(text).toContain('The campaign catalogue returned duplicate campaign IDs.');
+    expect(text).toContain('The campaign catalogue contains an incomplete record.');
+  });
+
 });
