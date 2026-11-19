@@ -303,3 +303,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added Primary-Admin-only RPC `admin_update_payment_review_staff_permissions`, allowlisted permission validation, audit logging, per-user checkbox UI and source-contract test (not run). Existing role-grant response now accurately lists all three permissions.
 - Migration #85: `20261119160000_individual_payment_staff_permissions.sql`. Registered in forward manifest. All work is on `completion-work`; no test/build/QA, SQL replay, database writes or deployment. Production remains read-only; Test Supabase untouched.
 - Overall development estimate: **59% Provisional**; this is a planning estimate, not verified live completion.
+
+
+## 2026-11-19 — Verified branch-head reconciliation
+
+- Latest `completion-work` HEAD inspected: `42e8855a8af1e36d7d247a4e26a85970b41f4b43` (supersedes the earlier `1577a433` recovery reference and the older #85 documentation checkpoint). Protected `main` was not changed in this batch.
+- Source review confirms Main Wallet Add Money QR/UTR/private receipt workflow, Admin/Staff approval with Main Wallet ledger credit, cross-workflow UTR uniqueness, Registration Email Verification setting, restricted Staff review, individual Staff permissions, notification keyset pagination, member auction moderation, approved auction image delivery, and Expected Price/48-hour auction lifecycle are already represented in source.
+- Reconciled the clean-install forward manifest with ten additional existing migrations (`20261119060000`–`20261119080000`, `20261119100000`–`20261119160000`). Inventory: 95 forward + 16 excluded timestamped + 3 legacy SQL files = 114 total (111 timestamped). This is a file inventory, not proof of replayability.
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes, or deployment. Production remains read-only; TEST Supabase remains untouched.
+- Remaining major work: complete baseline/function and all-forward-migration semantic dependency review; reconcile remaining frontend/RPC/RLS/Storage contracts; finish remaining Fixed Bid, referral, withdrawal, reporting and notification integrations; complete security/operational review. Consolidated testing is still deferred until the owner authorizes it.
+- Overall development estimate remains **59% Provisional**. This is a planning estimate, not a verified live/deployment completion percentage.
