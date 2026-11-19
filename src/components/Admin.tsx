@@ -77,7 +77,7 @@ export default function Admin(){
    {key:'registration_enabled',label:'Member Registration',description:'Let new members create an account.'},
     {key:'email_verification_required',label:'Email Verification',description:'Require members to confirm their email address during registration. Keep Supabase Auth Confirm Email aligned with this setting.'},
    {key:'sponsor_referrals_enabled',label:'Sponsor Referral',description:'Let new members enter a Sponsor ID.'},
-   {key:'duplicate_ids_enabled',label:'Duplicate IDs',description:'Allow one member to have extra IDs. Use only after the rules are approved and tested.'},
+   {key:'duplicate_ids_enabled',label:'Duplicate IDs',description:'Disable new Duplicate ID creation; existing IDs and their history remain unchanged.'},
    {key:'automatic_placement_enabled',label:'Automatic Placement',description:'Place new IDs in the network automatically. Use only after placement rules are tested.'}
   ]},
   {title:'2. Packages & Wallets',description:'Manage packages, wallet balances and payment settings.',items:[
