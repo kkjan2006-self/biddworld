@@ -39,4 +39,19 @@ describe('member auction submission preflight', () => {
     expect(source).not.toContain('</select></label>\\n <div');
   });
 
+  it('distinguishes loading, empty and failed submission history and supports retry', () => {
+    expect(source).toContain('const[queueLoading,setQueueLoading]=useState(true)');
+    expect(source).toContain('const[queueError,setQueueError]=useState(\'\')');
+    expect(source).toContain('Loading your auction submissions…');
+    expect(source).toContain('You have not submitted any auctions yet.');
+    expect(source).toContain('Retry submissions');
+    expect(source).toContain('loadSequence.current++');
+  });
+
+  it('rejects malformed or duplicate submission history rows', () => {
+    expect(source).toContain('typeof row.id!==\'string\'');
+    expect(source).toContain('ids.has(row.id)');
+    expect(source).toContain('invalid or duplicate records');
+  });
+
 });
