@@ -1099,3 +1099,10 @@
 - The image picker no longer silently truncates selections above eight; the submission validation now reports the actual selected count against the 1–8 image contract.
 - Added `tests/member-auction-upload-cleanup.test.ts` as source-contract coverage (not run).
 - Implementation commit: `4640e3ce46d471cd8f2a677c5400ae75f1a35700`; test-source commit: `7014af25690d906d4e3717f3bc0c4762861dbb2d`. No tests/build/QA, migration replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
+
+
+## 2026-11-19 — Wallet funding receipt cleanup
+
+- Main Wallet Add Money now removes its uploaded private receipt only when the request RPC returns a definite database error. Ambiguous transport failures preserve the object to avoid deleting a receipt potentially referenced by a committed request.
+- Added `tests/member-wallet-funding-upload-cleanup.test.ts` source-contract coverage (not run).
+- Implementation commit: `c010a7b1e72f06670191c0b74c789c7f015909a8`; test-source commit: `1e64fa623a40842ffb796df8dba0c52877030dd1`. No tests/build/QA, migration replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
