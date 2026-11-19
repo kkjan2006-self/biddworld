@@ -51,3 +51,8 @@ describe('Under ID Matrix commission engine contract',()=>{
   expect(placement).toContain("child.placement_position !~ '^[0-9]+$'");
  });
 });
+
+
+describe('Matrix placement upline traversal',()=>{
+ it('advances to the immediate parent node at each level without skipping ancestors',()=>{expect(sql).toContain('select parent.id,u.depth+1,u.path||parent.id');expect(sql).toContain('join public.member_ids parent on parent.id=current_node.placement_parent_id');expect(sql).toContain('and not parent.id=any(u.path)');expect(sql).not.toContain('select parent.placement_parent_id,u.depth+1,u.path||parent.placement_parent_id');});
+});
