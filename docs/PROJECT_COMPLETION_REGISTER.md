@@ -1008,3 +1008,12 @@
 - Added forward migrations #74 and #75. Both RPCs enforce Admin authorization, bounded page size, paired cursor validation, empty search_path and explicit authenticated EXECUTE grants. Existing offset RPCs remain unchanged for compatibility.
 - Added source-contract tests for both report components and SQL contracts. The tests were not executed.
 - Updated the clean-install forward manifest to 75 forward + 16 excluded timestamped + 3 legacy SQL files (94 total). No tests/build/CI, database replay or database writes were performed. Production remains read-only and TEST remains untouched. Overall estimate remains 55% (Provisional).
+
+
+### 2026-11-19 — Member Main Wallet Add Money workflow
+
+- Added a member Add Money panel with the KRFSI UPI QR, amount, UTR/payment reference, receipt upload and request history.
+- Added Admin review queue with private receipt access and approve/reject actions. Approval updates the internal income wallet account (displayed as Main Wallet), writes a single deterministic-key ledger credit and an audit record in one database transaction.
+- Added unique normalized UTR protection, member-owned receipt upload paths, Admin-only receipt reads and locked pending-to-final review state transitions.
+- Renamed user-facing Income Wallet labels to Main Wallet across the member dashboard, wallet statement, Admin wallet controls and preview. Internal income type is retained for backward compatibility.
+- Added migration candidate #76 to the clean-install forward manifest. No migration was applied; no tests/build/QA, database writes or deployment were performed. The existing authorization model supports Admin only; a distinct Admin Staff role remains unimplemented. Overall estimate remains 55% (Provisional).
