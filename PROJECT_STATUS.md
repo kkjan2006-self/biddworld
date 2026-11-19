@@ -883,3 +883,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Source commit: Account UI `324c34572a43064aee56c64796648e08d5c65049`; contract test `92d011b138f247d19012c77f226f660df7587394`.
 - No tests/build/type-check/browser/mobile QA were run. No Supabase migrations, database writes, Production access, deployments or protected `main` changes occurred.
 - Overall development completion remains **69% provisional**.
+
+
+## Placement Tree Under ID labels — 2026-11-19
+
+- The member Placement Tree now returns and displays the actual placement-parent Member ID for every node, labelled **Under ID**; the Main ID root is labelled **Root placement**. This makes the automatic Duplicate-ID placement destination and every downstream placement relationship directly visible.
+- Added migration `20261119330000_member_placement_tree_parent_labels.sql`, updated the component, registered the migration in the clean-install forward list, and added source-contract coverage to `tests/member-placement-tree-duplicate-ids.test.ts`.
+- Commits: migration `57a79146c8b6b1e74ee23be540a9101223fe6b8a`; UI `6aba7b418763b88735f100794314a6d94b342487`; manifest `d9045fb35c86f65a81e42a38c7b08f943cb5d4e0`; contract `28d134838f5e559fe48dc440fc0ffe95f82a114c`.
+- Migration is source-only and has not been applied. No tests/build/type-check/browser/mobile QA, database writes, Production access, deployments or protected `main` changes occurred.
+- Overall development completion remains **69% provisional**.
