@@ -1027,3 +1027,11 @@
 - Added a trigger-level shared UTR guard between package payment submissions and Main Wallet top-ups. A normalized UTR is serialized through one transaction-scoped advisory lock before cross-table lookup; duplicate references across either workflow are rejected.
 - Added source-contract coverage; not executed. Migration #77 added to the forward manifest, bringing source inventory to 77 forward + 16 excluded + 3 legacy SQL files (96 total; 93 timestamped).
 - No migration replay, DB write, tests/build/QA or deployment. Overall estimate remains 55% (Provisional).
+
+
+### 2026-11-19 — Registration Email Verification Setting
+
+- Added an Admin-controlled Email Verification ON/OFF switch under Member Registration, default ON, with audit logging and a narrow public read RPC for the signup screen.
+- Signup redirect and messaging now follow the saved policy. The Supabase Auth project-level Confirm Email option remains a separate provider setting and must be aligned manually; if it remains ON while the app switch is OFF, the signup UI reports that mismatch rather than pretending confirmation was bypassed.
+- Added forward migration #78 and source-contract test (not run). Migration inventory: 78 forward + 16 excluded + 3 legacy SQL files (97 total; 94 timestamped).
+- Removed the client hardcoded financial approval gate so Admin controls call through to server-side guards; database interlocks remain in place and Production remains locked. No testing, migration replay, DB writes or deployment.
