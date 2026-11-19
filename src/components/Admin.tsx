@@ -138,7 +138,7 @@ export default function Admin(){
   const memberRequestAtStart=memberSearchRequest.current;
   const duplicateRequestAtStart=++duplicateSearchRequest.current;
   duplicatePageInFlight.current=false;setDuplicateMoreBusy(false);
-  setCounts(empty);setError('');setLoading(true);setWithdrawalQueueLoading(true);
+  setCounts(empty);setError('');setLoading(true);setWithdrawalQueueLoading(true);setFeatureSettingsLoaded(false);setFeatureSettingsLoadError('');
   async function load(){
    if(!supabase||role!=='admin'){if(active)setLoading(false);return;}
    try{
@@ -200,7 +200,7 @@ export default function Admin(){
     campaigns:!fixedCampaignResult.error&&Array.isArray(fixedCampaignResult.data)?fixedCampaignResult.data.length:current.campaigns
    }));
    }catch(loadError){
-    if(active){setWithdrawalQueueLoading(false);setError(loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.');}
+    if(active){setWithdrawalQueueLoading(false);setFeatureSettingsLoaded(false);setFeatureSettingsLoadError('Feature settings could not be loaded: '+(loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.'));setError(loadError instanceof Error?loadError.message:'Admin workspace could not be loaded. Please retry.');}
    }finally{
     if(active)setLoading(false);
    }
