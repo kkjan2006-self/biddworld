@@ -280,3 +280,10 @@ At every development batch/chat end, update this file with the actual verified b
 - Submissions remain private and pending until Admin or restricted Staff with `auction_submission_review` edits and approves/rejects. Approval creates the published product and scheduled/live auction transactionally; member and reviewer actions are audited.
 - Added migrations #81–#82, member form, editable review queue, and source-contract test (not run). Inventory: 82 forward + 16 excluded + 3 legacy SQL files = 101 total (98 timestamped).
 - Private image storage is in place, but public delivery of approved images needs a dedicated publishing/media delivery step before live rollout. No tests/build/QA, SQL replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 56% Provisional.
+
+
+## Latest development checkpoint — Approved auction image delivery (#83)
+
+- Pending member-auction images remain private. During approval, Admin/authorized Staff copy images into public `product-media`; the approval RPC publishes the product/auction with those paths. Catalogue cards and auction detail views resolve media paths to public URLs.
+- Added migration #83 and source-contract test (not run). Inventory: 83 forward + 16 excluded + 3 legacy SQL files = 102 total (99 timestamped).
+- Image copy and database approval are separate operations; an unsuccessful approval after a successful upload may leave an unreferenced public object for cleanup. No tests/build/QA, SQL replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 57% Provisional.
