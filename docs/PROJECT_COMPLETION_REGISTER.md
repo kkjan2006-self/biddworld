@@ -1968,3 +1968,13 @@
 - Commits: UI `f5fc6d51bd9abfad6229d173b927ee9e3ff3fd1b`; regression source `c59c674af07ce68d11ebad4df8ba0c5c9e445818`.
 - Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database access or migrations; no protected main-branch changes. Preview deployment trigger and status are recorded separately.
 - Overall development completion remains **71% provisional**.
+
+
+## 2026-11-19 — Admin workspace Preview build syntax correction
+
+- Inspected the failed Preview workflow logs for run `44537705150`: Vite reported an unexpected `catch` at `src/components/Admin.tsx:327`.
+- Root cause: the Admin delivery-tracking generation guard was missing its closing brace, leaving the outer workspace `try/catch/finally` structurally unbalanced. Added the missing terminator before wallet-account loading.
+- Added `tests/admin-delivery-queue-block-structure.test.ts` as source-only regression coverage. It was not executed.
+- Commits: Admin source `df4e7eb459bdd97aa03a97e24011cd14f191b064`; regression source `2a100bfe83712f8cc65dbd82ee5af436dc69522b`.
+- No TEST/Production database access or migrations and no protected `main` changes. Preview trigger and deployment result will be tracked separately. Tests/type-check/QA remain deferred; the Preview pipeline's required build is not a QA sign-off.
+- Overall development completion remains **71% provisional**.
