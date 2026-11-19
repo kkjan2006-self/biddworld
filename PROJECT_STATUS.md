@@ -1300,7 +1300,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member history UI `4b586721e1842d5bbb125bc4b7f528d7666fedc7`; member history migration `8bd890f7e54e34e1394107cffa6d528c462b1f73`; member history test `0fc47e89e0be629882a4b4af31456fc26124b445`; anon catalogue RLS/column grants `460182be64d3dda0ba17e7424d4697c1f494d902`; gallery column grant `8721d20970b8972987a6b2245c6ee24d9a2b9216`; updated tests `82e7d9e0bbce28a820dee7d5ebc296602d0626d1`, `07b6bdb632e77143fc74e517fb30af1e7d426172`.
 - Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
 - Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
-- Source development estimate: **88% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
+- Source development estimate: **90% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
 
 
 ## 2026-11-19 — Mandatory package receipt and current migration inventory
@@ -1311,4 +1311,16 @@ At every development batch/chat end, update this file with the actual verified b
 - Commit IDs: package UI `74879c7a8a57adbb3773e5f65b930b1b9d8fa205`; server migration `fd65888f274068e5df887d51947bbd24ac56497e`; test `8ac852f3bf93c285dc6fa54fd32cec9f3304c425`; manifest `be178fe8c75b82c2d1317a954d542b6f2f5ed9d2`.
 - Current source inventory: 119 forward + 16 excluded = 135 timestamped migrations, plus 3 legacy/unversioned SQL files. The forward manifest remains sorted and unique.
 - Development-only: no SQL executed, no Supabase data changed, no Preview deployment/runtime tests, no protected `main` changes.
-- Overall source development estimate: **88% provisional**. Remaining baseline/forward migration semantic reconciliation and other outstanding module integration are still open.
+- Overall source development estimate: **90% provisional**. Remaining baseline/forward migration semantic reconciliation and other outstanding module integration are still open.
+
+
+## 2026-11-19 — Member wallet funding and withdrawal history pagination
+
+- Added owner-scoped keyset pagination for the member Add Money request history; the Member Wallet Funding module now loads 50 requests at a time, validates every row and rejects duplicate/overlapping cursors.
+- Added owner-scoped keyset pagination for withdrawal history in the Member Account portal. The first 50 requests load with the account; subsequent requests use the stable `requested_at,id` cursor and a guarded Load More action. Existing withdrawal submission and review data remain unchanged.
+- Updated account refresh to invalidate stale withdrawal-page requests and reset the page state safely.
+- Added `tests/member-wallet-funding-history-pagination.test.ts` and `tests/member-withdrawal-history-pagination.test.ts`; registered migrations `20261119510000_member_wallet_funding_history_pagination.sql` and `20261119520000_member_withdrawal_history_pagination.sql`.
+- Commits: wallet-funding UI `f93d6502ae118f52605bf3915e7cdb54ffb96160`; wallet-funding migration `fbb938dd91d3d461f16682f2664e7c4351622c09`; wallet-funding test `bea838ed75696d3794d91f21e6cfee82dad29557`; withdrawal UI `001cda93afe90d25fe14333b8f4ded0af6dd0701`; withdrawal migration `54e61b73952d475b43bddf78269dc154150fa9af`; withdrawal test `ae82e6f47a5f0d497817afd95cbe23f026b20247`; account refresh guard `d9cdf3fbbeff29e187e9cf49c21772d6d4c95e9f`.
+- Current inventory: 121 forward + 16 excluded = 137 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest is unique and strictly sorted.
+- Source-only: no tests/build/type-check, no TEST/Production migration execution or data changes, no Preview publishing/runtime QA, and no protected `main` changes.
+- Overall source development estimate: **90% provisional**; canonical baseline/forward migration semantic dependency review and final source integration remain open.
