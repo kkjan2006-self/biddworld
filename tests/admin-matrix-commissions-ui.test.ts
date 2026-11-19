@@ -46,3 +46,9 @@ describe('Admin Matrix commission register UI contract',()=>{
   expect(migration).toContain('has_more');
  });
 });
+
+
+describe('Admin Matrix global summary contract',()=>{
+ it('loads a server summary independent of report pagination and filters',()=>{expect(component).toContain('admin_get_matrix_commission_summary');expect(component).toContain('All Matrix commissions');expect(component).toContain('Overall totals cover all Matrix commission records');});
+ it('returns all-status counts and amounts under Admin authorization',()=>{expect(migration).toContain('admin_get_matrix_commission_summary');expect(migration).toContain("'pending_count',count(*) filter(where status='pending')");expect(migration).toContain("'credited_amount',coalesce(sum(amount) filter(where status='credited'),0)");expect(migration).toContain("'reversed_count',count(*) filter(where status='reversed')");expect(migration).toContain("auth.jwt()->'app_metadata'->>'role','')<>'admin'");});
+});
