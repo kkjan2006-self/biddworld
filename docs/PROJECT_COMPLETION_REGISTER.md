@@ -1777,3 +1777,14 @@
 - Extended the existing Admin member detail source-contract test. It was authored but not run.
 - Commits: UI `2003879540dc9cec4686282895c6eaecf508ec68`; contract `cee39c50919f785276d5d806a98a7b5f163c5887`.
 - No database migrations/writes, tests/build/type-check/browser/mobile QA, deployment or protected `main` changes occurred.
+## 2026-11-19 — Bulk source reconciliation checkpoint
+
+- Reviewed current Main/Duplicate lifecycle, duplicate feature-switch serialization, automatic Matrix placement, Matrix commission source/credit attribution, Sponsor-vs-Under ID separation, member placement tree, Admin hierarchy, Wallet Funding/History, Account, Referrals, Packages, Auction, Fixed Bid, Notifications, Support and Admin report integrations.
+- Reconciled the clean-install manifests against the complete repository tree: 123 timestamped migration files are accounted for exactly once as 107 ordered forward candidates and 16 excluded historical migrations. No timestamped migration is missing, stale or duplicated.
+- Updated the clean-install README's current migration inventory and added `docs/BULK_SOURCE_RECONCILIATION_2026-11-19.md`.
+- Existing placement logic counts all child records—including pending, suspended and closed IDs—as occupying their historical Matrix slot. No slot-reuse change was guessed or introduced because silently reassigning a historical position would alter tree semantics.
+- Admin lifecycle guidance and its source-contract test were also aligned in this batch (UI commit `2003879540dc9cec4686282895c6eaecf508ec68`; test commit `cee39c50919f785276d5d806a98a7b5f163c5887`).
+- Inventory/doc commits: README `8aefc974fe5ba3b58434f88e96f81f10b7405e72`; reconciliation note `78f85da0f387ae89c5b25a90a0ca96edd577383d`; current status `status update follows`.
+- No tests/build/type-check/browser/mobile QA were run. No TEST/Production migrations or data writes, Production reads, deployment or protected `main` changes occurred.
+- Overall development completion remains **69% provisional** pending development completion and final integrated verification.
+
