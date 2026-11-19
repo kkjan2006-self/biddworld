@@ -194,3 +194,12 @@ The forward migration `20261119230000_registration_email_verification_off_by_def
 - Matrix configuration is separate from Sponsor Referral plan tables. This migration does not create placements, calculate commissions, or credit wallets; those workflows remain separate follow-up development.
 - Added source-contract test `tests/matrix-plan-configuration.test.ts` (not run). No tests/build/QA or database replay/writes were performed.
 - Inventory: 89 forward + 16 excluded timestamped migrations = 105 timestamped migration files, plus 3 legacy SQL files.
+## 2026-11-19 — Matrix plan configuration foundation
+
+- Added `20261119280000_matrix_plan_configuration.sql` with package-specific versioned Matrix plans. Matrix Width (2–100) and Matrix Depth (1–50) are separate values; this accommodates the predefined 1:3–1:7 widths and custom widths such as 1:8/1:10.
+- Added independent per-level enabled state, Fixed Amount / Percentage reward configuration, eligibility JSON, Admin save/list/activate RPCs and audit records. Sponsor Referral plan tables remain separate.
+- This is configuration groundwork only. Matrix placement, next-gap auto-placement, Under-ID-based Matrix commission calculation, Main Wallet credit attribution and the Admin editor UI are still pending. No wallet credits or placements were created.
+- Added source-contract test `tests/matrix-plan-configuration.test.ts`; not run. Added migration to clean-install forward manifest.
+- Inventory: 89 forward + 16 excluded timestamped migrations = 105 timestamped migrations, plus 3 legacy SQL files.
+- No tests/build/type-check/browser QA, SQL replay, Supabase writes or deployment. Production and TEST remain untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional** pending full source reconciliation and final verification.
