@@ -16,7 +16,7 @@ begin
   'registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled',
   'package_activations_enabled','referral_commissions_enabled',
   'bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled',
-  'fixed_bid_enabled','winner_selection_configured','winning_payment_enabled',
+  'fixed_bid_enabled','winning_payment_enabled',
   'delivery_tracking_enabled','notifications_enabled'
  ]);
  return v_result;
