@@ -25,4 +25,13 @@ describe('Member placement tree includes Duplicate ID nodes',()=>{
   expect(current).toContain("'main_member_code', main.member_code");
   expect(current).toContain('grant execute on function public.get_my_placement_tree() to authenticated, service_role');
  });
+it('returns and displays each node\'s actual Under ID parent code',()=>{
+ const parentLabels=readFileSync(resolve(process.cwd(),'supabase/migrations/20261119330000_member_placement_tree_parent_labels.sql'),'utf8');
+ const component=readFileSync(resolve(process.cwd(),'src/components/PlacementTree.tsx'),'utf8');
+ expect(parentLabels).toContain("'placement_parent_code', placement_parent.member_code");
+ expect(parentLabels).toContain('placement_parent.id = mi.placement_parent_id');
+ expect(component).toContain('placement_parent_code:string|null');
+ expect(component).toContain('Under ID: {m.placement_parent_code||\'Root placement\'}');
+});
+
 });
