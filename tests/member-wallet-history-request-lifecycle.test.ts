@@ -20,4 +20,9 @@ describe('member wallet history request lifecycle',()=>{
   expect(wallet).toContain('Export Full CSV');
   expect(wallet).not.toMatch(/\.update\(|\.insert\(|\.upsert\(/);
  });
+ it('ignores obsolete requests after asynchronous Matrix source attribution lookup',()=>{
+  expect(wallet).toContain("if(commissionIds.length){const {data:sourceRows,error:sourceError}=await supabase.rpc('member_get_my_matrix_commission_sources'");
+  expect(wallet).toContain('if(!active)return;setMatrixSources(current=>({...current,...mapped}));');
+  expect(wallet).toContain('if(!active)return;\n    const pageIds');
+ });
 });
