@@ -2,24 +2,23 @@
 
 ## Implemented on completion-work
 
-- Added a dedicated **Matrix Plans** entry under Admin → Money & Packages, separate from Sponsor Referral Commissions.
-- Added package selection and package-specific Matrix plan history.
-- Added Matrix Width input with predefined 1:3–1:7 guidance and any custom whole-number width from 2–100, independently from Matrix Depth (1–50).
-- Added per-level enable/disable, Fixed Amount / Percentage reward values, and JSON eligibility-rule input.
-- Saving creates a new inactive version through `admin_save_matrix_plan_draft`; activation requires an explicit confirmation and calls `admin_activate_matrix_plan`.
-- Published packages are read-only in this editor, matching the current database contract.
-- Enabled RLS and revoked direct anon/authenticated table privileges on `matrix_plan_versions` and `matrix_level_rules`. Admin access is through the existing role-checked RPCs only.
-- Added source-contract coverage in `tests/admin-matrix-plans-ui.test.ts`. The test has not been run.
+- Dedicated **Matrix Plans** entry under Admin → Money & Packages, separate from Sponsor Referral Commissions.
+- Package selection and package-specific version history.
+- Matrix Width (2–100), Placement Depth (1–50) and Commission Depth (1–50) are separate controls; custom widths are supported.
+- Per-level enable/disable, Fixed Amount / Percentage reward values and eligibility-rule JSON.
+- Saving creates an inactive version through `admin_save_matrix_plan_draft`; activation requires explicit Admin confirmation and calls `admin_activate_matrix_plan`.
+- Published packages are read-only in the editor, matching the database contract.
+- Automatic Duplicate ID placement uses the selected package's active Matrix plan and does not accept a client-supplied Under ID. It requires the second approved/active package activation and fills the next available slot breadth-first within the owner's placement tree.
+- Duplicate ID creation and the feature switch are serialized using the same graph advisory lock.
+- Matrix commissions use the Under ID chain independently from Sponsor Referrals. Admin can review, post and reverse Matrix commissions; member dashboards show a separate Matrix commission summary.
+- Direct anon/authenticated access to Matrix plan tables is revoked; Admin access uses role-checked RPCs.
+- Regression sources include `tests/admin-matrix-plans-ui.test.ts`, `tests/automatic-duplicate-placement-owner-guard.test.ts`, `tests/matrix-commission-engine.test.ts` and Matrix report/dashboard tests. Not executed in this development-only phase.
 
-## Still pending
+## Remaining work
 
-- Automatic width × depth next-empty placement; duplicate placement must be automatic under the owner's Main ID team and must never use a manually selected Under ID.
-- Enforce the second-approved-package-activation prerequisite for Duplicate ID creation.
-- Matrix commission calculation over the Under ID chain, independent of Sponsor Referral commissions.
-- Atomic idempotent Matrix commission ledger posting to the credited Main ID Income Wallet, preserving source Duplicate ID attribution.
-- Main/Duplicate/consolidated Matrix commission reports and dashboard integration.
-- Isolated TEST migration reconciliation and final test/QA phase.
+- Canonical clean-install migration dependency review and isolated TEST replay remain pending.
+- Full tests, type-check, production build, browser/mobile and end-to-end QA are deferred until the development phase is complete.
 
 ## Environment safety
 
-No Supabase migrations or SQL were applied. TEST and Production databases were inspected read-only. Production remains read-only; no Production or TEST data was changed. No test suite, type-check, build, browser QA, or deployment was run in this development batch.
+No Supabase migrations or SQL were applied. TEST and Production databases were not changed. No deployment was performed; protected `main` remains unchanged.
