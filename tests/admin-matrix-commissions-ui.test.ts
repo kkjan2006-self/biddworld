@@ -52,3 +52,9 @@ describe('Admin Matrix global summary contract',()=>{
  it('loads a server summary independent of report pagination and filters',()=>{expect(component).toContain('admin_get_matrix_commission_summary');expect(component).toContain('All Matrix commissions');expect(component).toContain('Overall totals cover all Matrix commission records');});
  it('returns all-status counts and amounts under Admin authorization',()=>{expect(migration).toContain('admin_get_matrix_commission_summary');expect(migration).toContain("'pending_count',count(*) filter(where status='pending')");expect(migration).toContain("'credited_amount',coalesce(sum(amount) filter(where status='credited'),0)");expect(migration).toContain("'reversed_count',count(*) filter(where status='reversed')");expect(migration).toContain("auth.jwt()->'app_metadata'->>'role','')<>'admin'");});
 });
+
+
+describe('Admin Matrix report request lifecycle',()=>{
+ it('reloads the first page when filters or refresh token change and ignores stale requests',()=>{expect(component).toContain('const reportRequest=useRef(0)');expect(component).toContain('fetchPage(0,status,level)');expect(component).toContain('[fetchPage,status,level,reloadToken]');expect(component).toContain('request!==reportRequest.current');});
+ it('serializes load-more requests and refuses results from an outdated filter request',()=>{expect(component).toContain('loadMoreBusy=useRef(false)');expect(component).toContain('async function loadMore()');expect(component).toContain('fetchPage(rows.length,status,level)');expect(component).toContain('loadMoreBusy.current=false');});
+});
