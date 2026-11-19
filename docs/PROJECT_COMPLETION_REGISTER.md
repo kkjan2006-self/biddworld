@@ -1,3 +1,11 @@
+## 2026-11-19 — Member auction submission preflight hardening
+
+- Added a synchronous in-flight guard so rapid repeated taps cannot start concurrent member auction submissions.
+- Trimmed and validated the title and description before any media upload; the normalized values are passed to the submission RPC.
+- Preflight-validates every selected image's allowed MIME type and 5 MB per-file limit before uploading the first file, avoiding unnecessary partial uploads when a later selected file is invalid.
+- Added `tests/member-auction-submission-preflight.test.ts` as source-contract coverage. It was authored but not executed, in keeping with the development-first testing gate.
+- No SQL was applied, no Supabase project was modified, and no production/member/wallet data was touched.
+
 # Project Completion Register
 
 ## 2026-11-17 — Bulk continuation CI verification
