@@ -2093,3 +2093,13 @@
 - Product-detail migration trigger additionally requires all optional-detail JSON values to be plain text, keeping the public catalogue's typed rendering contract safe. Regression source extended accordingly.
 - Follow-up commits: migration hardening `49a9b14738447a56201a096ea928de78588868a9`; regression update `f12b149facdfbd173c1c232bbb5fae578a5a213f`.
 - No tests/build/type-check, database migration, Supabase write, Preview deployment or runtime QA performed. All changes remain on `completion-work`; protected `main` unchanged.
+
+
+## Latest development checkpoint — 2026-11-19 (source-only bulk continuation)
+
+- Re-read the current branch source and historical checkpoints rather than assuming the supplied master prompt was the latest state. Continued from the actual `completion-work` contents.
+- Completed the product submission edit validation correction, explicit price/warranty/ownership fields, accurate package activation UI state, Admin Matrix commission posting/reversal controls, full approved product detail persistence/public display/search, and migration inventory/documentation refresh.
+- Current source inventory: 115 forward + 16 excluded = 131 timestamped migration files, plus 3 legacy SQL files. The forward manifest is unique, non-overlapping with the excluded list and strictly sorted.
+- Latest documentation commits: `PROJECT_STATUS.md` `7581520c14f759df2ae1ceac0ef7287af5ffcb23`; clean-install README `1abdae80656bbb2bed654b66b38fec012f883774`; completion register `25b0ed3e70dee71295018418d122125f1decd4fe`.
+- Development-only boundary maintained: no tests, build, type-check, database reads/writes, migration replay, Preview publish, runtime QA or Production deployment. Protected `main` unchanged.
+- Overall source development estimate: **78% provisional**. This is not a runtime or release-completion claim; canonical baseline/RPC dependency review and remaining source integration work are still open.
