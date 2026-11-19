@@ -1,3 +1,17 @@
+# Current development checkpoint — 2026-11-19
+
+- Active branch: `completion-work`; protected `main` remains unchanged.
+- Bulk source reconciliation reviewed the current Admin/Member workflows, Main/Duplicate lifecycle, feature-switch locking, automatic Matrix placement, Matrix commissions, Sponsor-vs-Under ID separation, wallet history/funding, auctions, Fixed Bid, notifications and Support.
+- Clean-install inventory is now reconciled exactly: **123 timestamped migrations = 107 forward candidates + 16 excluded historical migrations**; no timestamped migration is missing, stale or duplicated in the manifests.
+- Admin Main-ID lifecycle help text now accurately explains suspension, closure of all non-closed Duplicate IDs and conditional reactivation; source-contract test expanded.
+- Updated `supabase/clean-install/README.md` inventory and added `docs/BULK_SOURCE_RECONCILIATION_2026-11-19.md`.
+- Latest batch commits: README `8aefc974fe5ba3b58434f88e96f81f10b7405e72`; reconciliation note `78f85da0f387ae89c5b25a90a0ca96edd577383d`.
+- Tests/build/type-check/browser/mobile QA intentionally not run. No TEST/Production migrations or data writes, no deployment, no Production reads, and no protected `main` changes.
+- Next: continue bulk source hardening across cross-module workflow contracts; final integrated testing remains deferred until development is complete.
+- Overall development completion: **69% provisional** (not a runtime-verified percentage).
+
+---
+
 ## Automatic Matrix placement checkpoint — 2026-11-19
 
 - Added `20261119300000_automatic_duplicate_matrix_placement.sql`: separate placement depth, second approved active package activation gate, active package Matrix plan requirement, breadth-first next-empty slot placement, graph lock, Duplicate-ID feature switch and audit attribution.
