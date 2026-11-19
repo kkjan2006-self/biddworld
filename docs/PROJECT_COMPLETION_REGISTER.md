@@ -1996,3 +1996,12 @@
 - Registered the migration in the clean-install forward manifest and added source-contract coverage in `tests/member-workflow-status-notifications.test.ts` (not executed).
 - Commits: migration `e4a48795d1a23dce3f247bc1aff89b4d410ba6c4`; test source `f454b21108c11d3f7d37f3f85e943f28e69bd972`; manifest `19a37d802f3fe382224b56007846b856a56db738`.
 - Migration is source-only and has not been applied to TEST or Production. No tests/QA/type-check were run. Preview deploy build will be tracked separately.
+
+
+## 2026-11-19 — Expanded member lifecycle notification coverage
+
+- Extended the in-app workflow notification migration to cover Main ID status changes and wallet funding approval/rejection, in addition to Duplicate ID, package activation, auction submission, withdrawal and delivery status changes.
+- Each event is emitted only for a real status transition and delivered to the account owning the affected Main ID/request. The existing in-app inbox is reused; no paid delivery provider was added.
+- Updated source-contract coverage. Test remains unexecuted under the development-first testing gate.
+- Commits: migration `5bb7aba954e76b128c84a8440b33908ef8e718d3`; test source `1c710e4918d147ff2a98407a90b8d301b827962b`.
+- The migration remains source-only; no TEST/Production migration or data change. No QA/test/type-check run.
