@@ -1048,3 +1048,8 @@ At every development batch/chat end, update this file with the actual verified b
 - Added source-contract coverage in `tests/admin-matrix-plan-directory-integrity.test.ts`. Commits: Matrix Plans component `4f82989cce55b824d1be762b34f93c919c0693c0`; contract test `a3b0496266d1edd5a8e325ebb7abeb3883110e7d`.
 - Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database reads or writes, migrations, Preview deployment, or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** (not runtime verified).
+
+- Admin Package and Sponsor Referral Plan list responses now receive strict runtime validation: unique package IDs, names, descriptions, non-negative prices/credits, currency and publication state; referral package identity, plan metadata consistency, supported reward types/ranges and sequential levels. Invalid responses now surface a module-specific error rather than being cast directly into UI state.
+- Added source-contract coverage in `tests/admin-package-referral-directory-integrity.test.ts`. Commits: Admin source `7e778c4602163866222fc0fe26b62077a2872395`; contract test `e50e3e11d05fce1646add8d94c62e1d72f338709`.
+- Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database reads or writes, migrations, Preview deployment, or protected `main` changes occurred.
+- Overall development completion remains **71% provisional** (not runtime verified).
