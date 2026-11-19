@@ -520,3 +520,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/admin-wallet-funding-review-diagnostics.test.ts` as source-contract coverage; not executed.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment were performed. Production remains read-only; TEST untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional**; this targeted Admin workflow fix does not establish end-to-end wallet funding readiness.
+
+
+## 2026-11-19 — Admin withdrawal queue diagnostics
+
+- Admin withdrawal management now distinguishes queue loading, a genuine empty result, and a failed queue RPC. A failed queue request displays its error and a Retry queue action rather than leaving a blank list that could be mistaken for no requests.
+- Queue loading is cleared for both resolved RPC responses and workspace-load exceptions.
+- Added a synchronous in-flight guard for approve/reject/mark-paid actions so rapid repeated taps cannot submit duplicate review calls before React state updates.
+- Added `tests/admin-withdrawal-queue-diagnostics.test.ts` as source-contract coverage only; it has not been executed.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
+- Overall development completion remains **60% provisional**; this focused Admin workflow improvement does not establish end-to-end withdrawal readiness.
