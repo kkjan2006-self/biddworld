@@ -2190,3 +2190,15 @@
 - Current inventory: 121 forward + 16 excluded = 137 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest is unique and sorted.
 - Development-only boundary maintained: no SQL applied, no Supabase data changed, no Preview deployment/runtime QA, and protected `main` unchanged.
 - Source development estimate: **92% provisional**; remaining source contract reconciliation and final module integration are open.
+
+
+## 2026-11-19 — Remove BiddWorld email verification feature
+
+- Removed the Email Verification feature toggle from the Admin feature settings and removed the client-side lookup of `public_get_registration_email_verification`.
+- Registration no longer requests email-confirmation redirect behavior, displays confirmation/resend-email instructions, or exposes a resend-confirmation action. A successful immediate Auth session closes the registration modal; if Supabase Auth returns no session, the UI reports that the authentication service did not issue an active session without directing members through an email-verification workflow.
+- Added migration `20261119530000_remove_email_verification_switch.sql`: set the legacy BiddWorld setting false, remove it from Admin settings RPC allowlists, and drop the public registration email-verification RPC. The migration deliberately does not mutate Supabase Auth's provider-level Confirm Email configuration, which is an environment setting outside SQL.
+- Added `tests/registration-email-verification-removed.test.ts`; registered the migration in the clean-install forward manifest. Tests/build/type-check and migration execution were not performed.
+- Commits: App `802bde3282785ec8ba378b90e59a4c1abc883042`; Admin settings `37858c9232ebf3a0195912416a38570efd85f2cb`; migration `c4ab323f9e6fdb2428d3b98cc24cc88f8be21bb1`; regression test `89d6b14d31e14a755c5e98afe4d9a5142b9cf983`; manifest `eda367086f94c796ffd79859435ec8a65d19e98b`; test assertion correction `8ccda85679178a3554754510b0db254050422a99`.
+- Current inventory: 123 forward + 16 excluded = 139 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest remains unique and sorted.
+- All intended source changes are on `completion-work`; no Supabase data/migrations were applied and no Preview deployment/runtime QA was performed.
+- Source development estimate: **93% provisional**; final module/contract reconciliation remains open.
