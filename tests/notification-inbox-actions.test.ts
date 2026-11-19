@@ -21,10 +21,15 @@ describe('member notification inbox actions',()=>{
   expect(source).toContain('setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}))');
  });
  it('loads Admin history through the Admin-only recipient projection and shows member identity rather than Auth UUIDs',()=>{
-  expect(source).toContain('admin_list_member_notifications_page');
+  expect(source).toContain('admin_list_member_notifications_keyset_page');
   expect(source).toContain('recipient_member_code');
   expect(source).toContain('recipient_name');
   expect(source).not.toContain('{item.user_id}');
+ });
+ it('distinguishes an initial inbox load failure from a genuinely empty inbox and offers retry',()=>{
+  expect(source).toContain('error&&items.length===0');
+  expect(source).toContain('Retry loading notifications');
+  expect(source).toContain('admin_list_member_notifications_keyset_page');
  });
  it('keeps the bulk-read action out of Admin authoring mode',()=>{
   expect(source).toContain("!isAdmin&&<><button className=\"outline small\" type=\"button\" onClick={()=>setUnreadOnly");
