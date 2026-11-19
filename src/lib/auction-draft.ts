@@ -2,9 +2,9 @@ export type AuctionDraftInput = {
   productId: string;
   title: string;
   startingPrice: string;
+  expectedPrice: string;
   minimumIncrement: string;
   startsAt: string;
-  endsAt: string;
 };
 
 function parseLocalDateTime(value:string):number|null{
@@ -25,18 +25,14 @@ export function validateAuctionDraftInput(input: AuctionDraftInput): string {
     return 'Auction title must be between 3 and 180 characters.';
   }
   const startingPrice = Number(input.startingPrice);
+  const expectedPrice = Number(input.expectedPrice);
   const minimumIncrement = Number(input.minimumIncrement);
-  if (!input.startingPrice.trim() || !Number.isFinite(startingPrice) || startingPrice < 0 ||
+  if (!input.startingPrice.trim() || !Number.isFinite(startingPrice) || startingPrice <= 0 ||
+      !input.expectedPrice.trim() || !Number.isFinite(expectedPrice) || expectedPrice < startingPrice ||
       !input.minimumIncrement.trim() || !Number.isFinite(minimumIncrement) || minimumIncrement <= 0) {
-    return 'Starting price must be zero or more and minimum increment must be greater than zero.';
+    return 'Starting Price must be positive, Expected Price must be at least Starting Price, and increment must be positive.';
   }
   const startsAt = input.startsAt ? parseLocalDateTime(input.startsAt) : null;
-  const endsAt = input.endsAt ? parseLocalDateTime(input.endsAt) : null;
-  if ((input.startsAt && startsAt === null) || (input.endsAt && endsAt === null)) {
-    return 'Enter valid auction start and end dates.';
-  }
-  if (startsAt !== null && endsAt !== null && endsAt <= startsAt) {
-    return 'Auction end time must be after its start time.';
-  }
+  if (input.startsAt && startsAt === null) return 'Enter a valid auction start date.';
   return '';
 }
