@@ -21,7 +21,7 @@ Schema-only baseline candidate reconstructed from read-only Production PostgreSQ
 ## Forward migration manifest
 The baseline represents the current Production schema at capture time. Do not replay historical migrations at/before `20261115163218` on top of it. The source migration `20261115180000_admin_audit_log_pagination.sql` is excluded because its effect is already represented in the captured state.
 
-Ordered forward candidates are listed in `forward-migrations.txt` (**79 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **95 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
+Ordered forward candidates are listed in `forward-migrations.txt` (**80 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **95 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
 
 ## Remaining work before canonical status
 1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive. Public function EXECUTE counts align with the Production inventory (43 authenticated, anon only public.lookup_sponsor(text)); read-only Production evidence confirms service_role EXECUTE on all 43 public functions. The candidate intentionally narrows audit_logs_id_seq to service_role USAGE only; effective permissions still require final TEST replay. See docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md.
@@ -78,7 +78,7 @@ The original member-notification migration separately granted column-level INSER
 - Added cursor-specific Admin-only RPCs for auction bids and Fixed Bid entries. Both use stable descending `(created_at,id)` ordering and validate paired cursor values and page bounds.
 - Updated the two report components to use the cursor RPCs for both interactive pagination and complete CSV export. The prior offset RPCs remain available for compatibility with any legacy caller.
 - Added source-contract tests for both UI/RPC contracts. Tests have not been executed.
-- Forward migration inventory: 79 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 98 SQL files (95 timestamped). No migration replay, tests/build/QA or database writes were performed.
+- Forward migration inventory: 80 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 99 SQL files (96 timestamped). No migration replay, tests/build/QA or database writes were performed.
 
 
 ## 2026-11-19 — Main Wallet funding workflow (#76)
@@ -123,3 +123,11 @@ The original member-notification migration separately granted column-level INSER
 - Updated private receipt Storage read policies to allow staff only for the workflow they are assigned to. Member-owned receipt upload/read behavior is retained.
 - Added migration candidate #79 and source-contract test `tests/restricted-payment-review-staff.test.ts` (not run). Inventory: 79 forward + 16 excluded timestamped + 3 legacy SQL files = 98 SQL files (95 timestamped).
 - No tests/build/CI/QA, migration replay, DB writes, Production access or deployment. Production remains read-only; TEST remains untouched.
+
+
+## 2026-11-19 — Notification inbox keyset pagination (#80)
+
+- Member and Admin inboxes now load bounded 100-row pages using a stable descending `(created_at,id)` cursor and one extra row to determine whether another page exists. The Admin inbox uses a dedicated Admin-only cursor RPC; member inbox queries remain scoped to the authenticated member and preserve unread/category filters.
+- The previous Admin offset RPC remains available for compatibility. Added source-contract test `tests/notification-inbox-keyset-pagination.test.ts` (not run).
+- Added forward migration #80. Inventory: 80 forward + 16 excluded timestamped + 3 legacy SQL files = 99 total (96 timestamped).
+- No tests/build/CI/QA, migration replay, DB writes, Production access or deployment.
