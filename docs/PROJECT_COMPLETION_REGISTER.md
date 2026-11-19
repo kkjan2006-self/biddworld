@@ -1539,3 +1539,13 @@
 - No tests, type-check, build, browser/mobile QA or E2E were run. The new UI is source-complete only and still requires isolated TEST migration reconciliation.
 - Remaining core work: automatic next-empty placement, second-package activation prerequisite for Duplicate IDs, Under-ID Matrix commission engine, atomic Main-ID Income Wallet attribution, source-aware consolidated reports, and dashboard integration.
 - Completion remains **60% provisional** until a full source/database-contract reconciliation and final QA. Do not infer completion from this UI batch.
+
+
+## Automatic Matrix placement checkpoint — 2026-11-19
+
+- Matrix Width, Placement Depth and Commission Depth are now independent package-plan settings.
+- Admin Duplicate ID creation no longer accepts a manual Under ID. The server enforces the second approved active package activation, requires its package's active Matrix plan, and performs breadth-first next-empty-slot placement using the configured width and placement depth.
+- Creation remains Pending, respects the Duplicate ID OFF/ON feature switch, uses the shared graph mutation lock and records an audit event.
+- Source migration `20261119300000_automatic_duplicate_matrix_placement.sql` is registered in the forward migration manifest.
+- No database migration or tests/build/typecheck/browser QA were executed. No database data was changed.
+- Remaining: Under ID Matrix commission calculation, atomic Main-ID Income Wallet credit with Duplicate source attribution, reports/dashboard integration, then final QA.
