@@ -341,3 +341,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Source commits: `bf4242f2a8b2435e8ad1d532bbf65b75eb786357` (Wallet navigation integration), `158faafdbe48b4585e2f49e90a44cc036edca052` (test source).
 - Together with the prior auction and wallet-funding receipt cleanup commits, this batch improves orphaned private upload handling without risking cleanup after ambiguous RPC outcomes.
 - No tests/build/QA, browser/device checks, SQL replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
+
+
+## Latest source-development batch — Wallet funding session isolation
+
+- Main Wallet Add Money request history now follows the active Supabase auth session. It clears the previous member's request rows on sign-out/account switch, invalidates stale in-flight responses, reloads for the new session and displays loading/retrieval errors instead of silently presenting an empty history.
+- Added `tests/member-wallet-funding-session-scope.test.ts` source-contract coverage (not executed).
+- Implementation commit: `b9c294035bd71bb9e192240bc370fe9d530980da`; test-source commit: `491e0960fbc3472264d875b212ecef77e64988e9`.
+- No tests/build/QA, browser/device checks, SQL replay, Supabase writes or deployment. Development planning estimate: **60% Provisional**; remaining cross-module contracts, clean-install semantic review and other source integrations are substantial.
