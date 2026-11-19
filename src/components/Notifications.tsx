@@ -66,6 +66,42 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
  },[busy,hasMore,items,isAdmin,unreadOnly,categoryFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
+ useEffect(()=>{
+  if(!supabase)return;
+  let active=true;
+  let channel:ReturnType<typeof supabase.channel>|null=null;
+  void (async()=>{
+   try{
+    const{data:{user},error:userError}=await supabase.auth.getUser();
+    if(userError||!user)throw new Error('Please sign in again to receive live notifications.');
+    if(!active)return;
+    const config={event:'*' as const,schema:'public',table:'member_notifications',...(isAdmin?{}:{filter:'user_id=eq.'+user.id})};
+    channel=supabase.channel('member-notifications-live-'+(isAdmin?'admin':user.id))
+     .on('postgres_changes',config,(payload)=>{
+      if(!active)return;
+      if(payload.eventType==='INSERT'){
+       const row=payload.new as Notice;
+       if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||typeof row.title!=='string'||typeof row.message!=='string'||typeof row.category!=='string'||typeof row.created_at!=='string')return;
+       if(categoryFilter!=='all'&&row.category!==categoryFilter)return;
+       if(unreadOnly&&row.read_at)return;
+       setItems(current=>[row,...current.filter(item=>item.id!==row.id)].slice(0,PAGE_SIZE));
+       setNotice('A new notification has arrived.');
+      }else if(payload.eventType==='UPDATE'){
+       const row=payload.new as Notice;
+       if(!row||typeof row.id!=='string'||!row.id.trim())return;
+       setItems(current=>unreadOnly&&row.read_at?current.filter(item=>item.id!==row.id):current.map(item=>item.id===row.id?{...item,...row}:item));
+      }else if(payload.eventType==='DELETE'){
+       const row=payload.old as Partial<Notice>;
+       if(typeof row.id==='string')setItems(current=>current.filter(item=>item.id!==row.id));
+      }
+     }).subscribe((status)=>{
+      if(active&&status==='CHANNEL_ERROR')setError('Live notifications are temporarily unavailable. Use Refresh to check for updates.');
+     });
+   }catch(e){if(active)setError(e instanceof Error?e.message:'Live notifications could not be started. Use Refresh to check for updates.');}
+  })();
+  return()=>{active=false;if(channel)void supabase.removeChannel(channel);};
+ },[isAdmin,categoryFilter,unreadOnly]);
+
  async function lookupRecipients(){
   if(!supabase||!isAdmin||recipientLookupBusy)return;const term=recipientSearch.trim();if(term.length<2){setError('Enter at least 2 characters to search members.');return;}const seq=++recipientLookupSeq.current;setRecipientLookupBusy(true);setError('');setNotice('');setRecipientOptions([]);setUserId('');
   try{const{data,error:lookupError}=await supabase.rpc('admin_lookup_notification_recipients',{p_search:term});if(seq!==recipientLookupSeq.current)return;if(lookupError)throw lookupError;const rows=(data??[]) as {user_id:string;member_code:string;display_name:string;phone:string}[];setRecipientOptions(rows);if(rows.length===0)setNotice('No matching Main ID members were found.');}
