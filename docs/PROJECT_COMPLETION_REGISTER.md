@@ -1869,3 +1869,12 @@
 - Commits: Admin UI `4a48732823972946ed8402073d6036bc98e159d2`; regression test `eb6c9f46c971b226804d1e1af345a3696866ca18`.
 - Tests/build/type-check/browser/mobile QA were not run. No DB migrations/writes, TEST or Production access, Preview deployment or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** pending remaining modules and final integrated verification.
+
+
+## 2026-11-19 — Admin Duplicate ID directory integrity
+
+- Added strict validation for the initial and subsequent Duplicate ID directory pages: unique record IDs, supported statuses, timestamps, linked Main ID fields, total counts and consistent `has_more` metadata.
+- Load More now rejects overlaps with already-loaded records and stops pagination on malformed responses rather than silently dropping duplicate rows. Existing search, automatic placement, Admin approval/status actions and Duplicate-ID feature switch are unchanged.
+- Added source-contract coverage in `tests/admin-duplicate-id-directory-integrity.test.ts`.
+- Commits: Admin source `729351bfad962ba09e11296fae4d490a70077820`; contract test `b4c348f96facae029b868903a9396f36eba968c5`; checkpoint `2a2cc30418a3ff3df39fc6b3405de416e2871c57`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database reads or writes, migrations, Preview deployment or protected `main` changes occurred.
