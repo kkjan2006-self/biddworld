@@ -2291,3 +2291,13 @@
 - Commit: workflow `75063753211ce5a32e8c615f2049b9ba849b5c52`; regression source `b04898dcb5becb4383dfaa615811b8881741cf0c0`.
 - No deployment was triggered; no TEST/Production database change; `main` remains untouched.
 - Overall source development estimate remains **94% provisional**; final integration reconciliation remains open.
+
+
+## 2026-11-19 — Current-head RPC and RLS source contract delta
+
+- Updated the Admin and Member RPC/RLS audit documents with the current source-only contracts for paged product moderation/history, paged wallet-funding and withdrawal histories, complete product galleries, duplicate pending-product prevention, mandatory package receipts, Matrix commission actions and current feature settings.
+- Documented the published-product anon RLS/column grant correction, private product-image ownership, public image publication, and the separate Supabase Auth Confirm Email environment boundary.
+- Statically compared the 14 visible Admin feature keys against the settings response, server allowlist and enabled-key set; no mismatch remains in that contract.
+- Current migration inventory: 124 forward + 16 excluded = 140 timestamped migrations; all source paths are accounted for, unique and sorted.
+- This is source/documentation reconciliation only. No tests/build/type-check, SQL replay, Supabase reads/writes, Preview deployment or browser/Android verification.
+- Source development estimate: **98% provisional**; final whole-branch frontend/RPC and baseline semantic review remains open.
