@@ -110,3 +110,6 @@ The original member-notification migration separately granted column-level INSER
 - Supabase Auth's project-level Email Confirm option is provider configuration and cannot be securely changed by a browser-side app setting. The Admin description explicitly requires that provider option to match; when the app switch is OFF but the provider still requires confirmation, the registration flow explains the mismatch instead of claiming verification was disabled.
 - Added a source-contract test (not run). Forward migration candidate #78 added. Inventory: 78 forward + 16 excluded timestamped + 3 legacy SQL files = 97 total (94 timestamped).
 - Admin financial actions now defer to the connected database's safeguards instead of a hardcoded client-side lock. Database interlocks remain intact; Production is not unlocked. No tests/build/QA or DB replay/write performed.
+
+
+- Package Activation payment screen now reuses the KRFSI UPI payment QR presentation and shows Payee KRFSI / UPI ID krindia@bpunity before UTR and receipt submission. The same QR is used by Main Wallet Add Money. This is source integration only; the actual QR asset and UPI payment flow still require final isolated Test validation before any Live release.
