@@ -21,7 +21,7 @@ Schema-only baseline candidate reconstructed from read-only Production PostgreSQ
 ## Forward migration manifest
 The baseline represents the current Production schema at capture time. Do not replay historical migrations at/before `20261115163218` on top of it. The source migration `20261115180000_admin_audit_log_pagination.sql` is excluded because its effect is already represented in the captured state.
 
-Ordered forward candidates are listed in `forward-migrations.txt` (**80 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **96 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
+Ordered forward candidates are listed in `forward-migrations.txt` (**82 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **96 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
 
 ## Remaining work before canonical status
 1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive. Public function EXECUTE counts align with the Production inventory (43 authenticated, anon only public.lookup_sponsor(text)); read-only Production evidence confirms service_role EXECUTE on all 43 public functions. The candidate intentionally narrows audit_logs_id_seq to service_role USAGE only; effective permissions still require final TEST replay. See docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md.
@@ -78,7 +78,7 @@ The original member-notification migration separately granted column-level INSER
 - Added cursor-specific Admin-only RPCs for auction bids and Fixed Bid entries. Both use stable descending `(created_at,id)` ordering and validate paired cursor values and page bounds.
 - Updated the two report components to use the cursor RPCs for both interactive pagination and complete CSV export. The prior offset RPCs remain available for compatibility with any legacy caller.
 - Added source-contract tests for both UI/RPC contracts. Tests have not been executed.
-- Forward migration inventory: 80 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 99 SQL files (96 timestamped). No migration replay, tests/build/QA or database writes were performed.
+- Forward migration inventory: 82 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 101 SQL files (98 timestamped). No migration replay, tests/build/QA or database writes were performed.
 
 
 ## 2026-11-19 — Main Wallet funding workflow (#76)
@@ -131,3 +131,13 @@ The original member-notification migration separately granted column-level INSER
 - The previous Admin offset RPC remains available for compatibility. Added source-contract test `tests/notification-inbox-keyset-pagination.test.ts` (not run).
 - Added forward migration #80. Inventory: 80 forward + 16 excluded timestamped + 3 legacy SQL files = 99 total (96 timestamped).
 - No tests/build/CI/QA, migration replay, DB writes, Production access or deployment.
+
+
+## 2026-11-19 — Member auction submissions and moderation (#81–#82)
+
+- Added an authenticated member Place an Auction form, image uploads (1–8 JPG/PNG/WebP files, 5 MB each), title, description, category, starting price, bid increment, start/end schedule and optional key/value details. Server submission requires an active Main ID and active profile.
+- All submissions are private and Pending Admin Approval; they do not enter the public catalogue. Admin or restricted Admin Staff with `auction_submission_review` can inspect images, edit listing details, approve/publish or reject. Approval creates the published product and scheduled/live auction in one database transaction; review actions are audited. Members can view their own submission statuses.
+- Added migrations #81–#82; existing restricted staff are granted the additional auction review permission while retaining only the fixed review scope. Added member and staff UI plus source-contract test (not run).
+- Inventory: 82 forward + 16 excluded timestamped + 3 legacy SQL files = 101 total (98 timestamped).
+- Media is stored in a private bucket. Public delivery of approved images still needs a dedicated publish/copy or signed-media delivery step before live rollout; do not treat the image pipeline as production-ready yet.
+- No tests/build/CI/QA, SQL replay, DB writes or deployment.
