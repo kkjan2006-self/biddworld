@@ -200,6 +200,6 @@ The forward migration `20261119230000_registration_email_verification_off_by_def
 - Added independent per-level enabled state, Fixed Amount / Percentage reward configuration, eligibility JSON, Admin save/list/activate RPCs and audit records. Sponsor Referral plan tables remain separate.
 - This is configuration groundwork only. Matrix placement, next-gap auto-placement, Under-ID-based Matrix commission calculation, Main Wallet credit attribution and the Admin editor UI are still pending. No wallet credits or placements were created.
 - Added source-contract test `tests/matrix-plan-configuration.test.ts`; not run. Added migration to clean-install forward manifest.
-- Inventory: 89 forward + 16 excluded timestamped migrations = 105 timestamped migrations, plus 3 legacy SQL files.
+- Inventory: 98 forward + 16 excluded timestamped migrations = 114 timestamped migrations, plus 3 legacy SQL files.
 - No tests/build/type-check/browser QA, SQL replay, Supabase writes or deployment. Production and TEST remain untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional** pending full source reconciliation and final verification.
