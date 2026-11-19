@@ -1,6 +1,7 @@
 -- Expected-price auction lifecycle: no fixed end date until target price is reached.
 alter table public.auction_submissions add column if not exists expected_price numeric(14,2);
 alter table public.auction_submissions alter column ends_at drop not null;
+update public.auction_submissions set expected_price=starting_price where expected_price is null and status='pending';
 alter table public.auctions add column if not exists expected_price numeric(14,2);
 alter table public.auctions add column if not exists target_reached_at timestamptz;
 alter table public.auctions alter column ends_at drop not null;
@@ -328,3 +329,28 @@ $function$;
 
 
 revoke all on function private.place_bid(uuid,text) from public,anon,authenticated;
+
+-- Move scheduled listings to live at their start time and close them when the 48-hour
+-- deadline is reached. The bid RPC independently enforces ends_at, so a delayed cron
+-- tick cannot accept bids after the deadline.
+create extension if not exists pg_cron;
+do $schedule$
+declare v_job_id bigint;
+begin
+ for v_job_id in select jobid from cron.job where jobname='biddworld-auction-expected-price-lifecycle' loop
+  perform cron.unschedule(v_job_id);
+ end loop;
+ perform cron.schedule(
+  'biddworld-auction-expected-price-lifecycle',
+  '* * * * *',
+  $job$update public.auctions
+       set status=case when ends_at is not null and ends_at<=now() then 'ended'::public.auction_status
+                       when starts_at<=now() then 'live'::public.auction_status
+                       else status end,
+           updated_at=now()
+       where status in ('scheduled','live')
+         and ((status='scheduled' and starts_at<=now())
+           or (status='live' and ends_at is not null and ends_at<=now()));$job$
+ );
+end;
+$schedule$;
