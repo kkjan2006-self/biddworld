@@ -186,3 +186,11 @@ The forward migration `20261119230000_registration_email_verification_off_by_def
 - The Admin switch can be turned OFF/ON independently of unrelated feature locks. Existing Duplicate IDs, status management, balances, reports, transactions and history are not deleted or changed by the creation switch.
 - Added `tests/duplicate-id-feature-switch.test.ts` source-contract coverage. No tests/build/QA or migration replay were run; no Supabase database was changed.
 - Inventory: 88 forward + 16 excluded timestamped migrations = 104 timestamped migration files, plus 3 legacy SQL files. The forward manifest includes the new migration.
+
+## Matrix plan configuration foundation (#95)
+
+- Added package-specific, versioned Matrix plan storage with independent Matrix Width (2–100) and Matrix Depth (1–50). Predefined widths such as 1:3 through 1:7 are supported, and custom widths such as 1:8 or 1:10 can be stored without a schema change.
+- Added per-level enable/disable, Fixed Amount / Percentage reward type, reward value and eligibility JSON configuration, plus Admin save/list/activate RPCs and audit records.
+- Matrix configuration is separate from Sponsor Referral plan tables. This migration does not create placements, calculate commissions, or credit wallets; those workflows remain separate follow-up development.
+- Added source-contract test `tests/matrix-plan-configuration.test.ts` (not run). No tests/build/QA or database replay/writes were performed.
+- Inventory: 89 forward + 16 excluded timestamped migrations = 105 timestamped migration files, plus 3 legacy SQL files.
