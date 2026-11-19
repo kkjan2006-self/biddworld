@@ -1,5 +1,15 @@
 ## Latest source-development checkpoint — 2026-11-19
 
+- Admin Platform Settings now routes existing referral commission, withdrawal, bidding, fixed-bid and winning-payment workflows through the existing server-side enablement condition instead of permanently blocking their switches in the UI. The new migration does not change current feature states or bypass the server condition; incomplete workflows (automatic placement and winner-selection configuration) remain disabled.
+- Added source-contract coverage for the allowlist, server condition, audit logging and frontend switch readiness. The clean-install forward manifest now includes migration `20261119260000`.
+- Source migration commit: `e44223bc3ac2bbdf35672be23302ab396eaf7367`.
+- No tests/build/type-check/browser QA were run. No Supabase access, SQL application, deployment or protected `main` changes occurred.
+- Overall development completion remains **60% provisional**.
+
+---
+
+## Latest source-development checkpoint — 2026-11-19
+
 - Current `completion-work` HEAD before checkpoint refresh: `21a5f9e46b7424b86ef80fc28312e80b104b8092`.
 - Member Wallet History validates transaction page arrays, non-empty IDs and valid timestamps; rejects duplicate IDs within a page or across pages before advancing the cursor.
 - Fixed Bid catalogue no longer disguises a failed/invalid fetch as sample campaigns; sample cards appear only for a genuine empty result. Catalogue rows are checked for required identity/title and duplicate IDs; optional campaign configuration remains optional.
