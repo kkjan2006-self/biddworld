@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
-import {ArrowDownToLine,RefreshCw,Search} from 'lucide-react';
+import {ArrowDownToLine,CheckCircle,RefreshCw,RotateCcw,Search} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {csvDocument} from '../lib/csv';
 
@@ -35,7 +35,7 @@ export default function AdminMatrixCommissions(){
  const [status,setStatus]=useState('all'),[level,setLevel]=useState('all'),[search,setSearch]=useState('');
  const [loading,setLoading]=useState(false),[more,setMore]=useState(false),[hasMore,setHasMore]=useState(false),[reloadToken,setReloadToken]=useState(0);
   const reportRequest=useRef(0),loadMoreBusy=useRef(false);
- const [message,setMessage]=useState(''),[exportBusy,setExportBusy]=useState(false);
+ const [message,setMessage]=useState(''),[exportBusy,setExportBusy]=useState(false),[actionBusy,setActionBusy]=useState('');
  const [summary,setSummary]=useState<MatrixSummary>(emptySummary),[summaryLoading,setSummaryLoading]=useState(true),[summaryError,setSummaryError]=useState('');
  const loadSummary=useCallback(async()=>{if(!supabase){setSummaryError('Supabase is not configured.');setSummaryLoading(false);return;}setSummaryLoading(true);setSummaryError('');try{const {data,error}=await supabase.rpc('admin_get_matrix_commission_summary');if(error)throw error;if(!validSummary(data))throw new Error('The Matrix summary response was invalid.');setSummary(data);}catch(e){setSummaryError(e instanceof Error?e.message:'Could not load the overall Matrix summary.');}finally{setSummaryLoading(false);}},[]);
  useEffect(()=>{void loadSummary();},[loadSummary]);
@@ -112,6 +112,25 @@ const filtered=useMemo(()=>{
   }catch(e){setMessage(e instanceof Error?e.message:'Could not export Matrix commissions.');}
   finally{setExportBusy(false);}
  }
+ async function postActivation(activationId:string){
+  if(!supabase||actionBusy)return;
+  if(!window.confirm('Post all pending Matrix commissions for this package activation to eligible Main ID Income Wallets?'))return;
+  setActionBusy(activationId);setMessage('');
+  try{const{data,error}=await supabase.rpc('admin_post_matrix_commissions',{p_activation_id:activationId});if(error)throw error;if(data?.success!==true)throw new Error('The server did not confirm Matrix commission posting.');setMessage('Posted '+Number(data.posted_count??0)+' Matrix commission(s).');setReloadToken(value=>value+1);await loadSummary();}
+  catch(e){setMessage(e instanceof Error?e.message:'Matrix commissions could not be posted.');}
+  finally{setActionBusy('');}
+ }
+ async function reverseCommission(commissionId:string){
+  if(!supabase||actionBusy)return;
+  const reason=window.prompt('Enter the reason for reversing this Matrix commission (at least 5 characters):');
+  if(reason===null)return;
+  if(reason.trim().length<5){setMessage('Enter a reversal reason of at least 5 characters.');return;}
+  if(!window.confirm('Reverse this Matrix commission and its matching Income Wallet ledger credit?'))return;
+  setActionBusy(commissionId);setMessage('');
+  try{const{data,error}=await supabase.rpc('admin_reverse_matrix_commission',{p_commission_id:commissionId,p_reason:reason.trim()});if(error)throw error;if(data?.success!==true)throw new Error('The server did not confirm the reversal.');setMessage('Matrix commission reversed.');setReloadToken(value=>value+1);await loadSummary();}
+  catch(e){setMessage(e instanceof Error?e.message:'Matrix commission could not be reversed.');}
+  finally{setActionBusy('');}
+ }
  const total=filtered.reduce((sum,row)=>sum+Number(row.amount),0);
  return <section className="sponsorAdmin" aria-label="Matrix commission report">
   <div className="memberReportHeading"><div><h3>Matrix Commission Register</h3><small>Independent Under ID placement-chain commissions. Duplicate IDs remain visible as source IDs; their linked Main ID receives the Income Wallet credit.</small></div>
@@ -133,6 +152,7 @@ const filtered=useMemo(()=>{
     <small>Credited Main ID: <b>{row.credited_main_member_code}</b> · {row.credited_main_name||'Member'}</small>
     <b>₹{Number(row.amount).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</b>
     <small>{new Date(row.created_at).toLocaleString('en-IN')} · Commission ID: {row.commission_id}</small>
+    <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{row.status==='pending'&&<button type="button" className="primary small" disabled={actionBusy!==''||loading} onClick={()=>void postActivation(row.activation_id)}><CheckCircle size={14}/>{actionBusy===row.activation_id?'Posting…':'Post activation commissions'}</button>}{row.status==='credited'&&<button type="button" className="outline small" disabled={actionBusy!==''||loading} onClick={()=>void reverseCommission(row.commission_id)}><RotateCcw size={14}/>{actionBusy===row.commission_id?'Reversing…':'Reverse commission'}</button>}</div>
    </article>)}</div>}
   {hasMore&&<button type="button" className="outline small" disabled={more||loading} onClick={()=>void loadMore()}>{more?'Loading…':'Load 100 more Matrix commissions'}</button>}
   <small>Totals shown are for the currently loaded and filtered rows. Complete CSV export fetches every page from the server using the selected status and level filters.</small>
