@@ -496,7 +496,7 @@ begin
  end if;
  if v_key is not null then select coalesce((setting_value #>> '{}')::boolean,false) into v_enabled from public.app_settings where setting_key=v_key; if not coalesce(v_enabled,false) then raise exception 'This action is disabled by the BiddWorld administrator (%)',v_key using errcode='42501'; end if; end if;
  return new;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION private.handle_new_auth_user()
  RETURNS trigger
@@ -523,7 +523,7 @@ begin
  if v_member_id is null then select id into v_member_id from public.member_ids where owner_user_id=new.id and id_type='main' limit 1; end if;
  if v_member_id is not null then update public.profiles set main_member_id=v_member_id where id=new.id; insert into public.wallet_accounts(member_id,wallet_type,balance) values(v_member_id,'bid',0),(v_member_id,'income',0) on conflict(member_id,wallet_type) do nothing; if v_sponsor_id is not null then insert into public.referrals(referred_member_id,referrer_member_id,source_member_id) values(v_member_id,v_sponsor_id,v_sponsor_id) on conflict(referred_member_id) do nothing; end if; end if;
  return new;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION private.place_bid(p_auction_id uuid)
  RETURNS jsonb
@@ -601,7 +601,7 @@ begin
 
   return jsonb_build_object('success',true,'bid_amount',v_amount,'bid_idempotency_key',v_key);
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION private.submit_package_activation(p_package_id uuid, p_payment_reference text)
  RETURNS jsonb
@@ -661,7 +661,7 @@ begin
     'activation_number', v_activation_number, 'payment_status', 'pending',
     'activation_status', 'pending');
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_create_duplicate_member_id(p_main_member_code text)
  RETURNS jsonb
@@ -698,7 +698,7 @@ begin
     jsonb_build_object('member_code',v_code,'main_member_id',v_main.id,'main_member_code',v_main.member_code,'status','pending'));
   return jsonb_build_object('id',v_id,'member_code',v_code,'main_member_code',v_main.member_code,'status','pending');
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_get_feature_settings()
  RETURNS jsonb
@@ -726,7 +726,7 @@ begin
    ]);
   return v_result;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_get_member_structure()
  RETURNS jsonb
@@ -781,7 +781,7 @@ begin
   ) into v_result;
   return v_result;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_get_mlm_overview()
  RETURNS jsonb
@@ -808,7 +808,7 @@ begin
       where m.id_type='main' limit 500)
   );
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_get_platform_health()
  RETURNS jsonb
@@ -829,7 +829,7 @@ begin
  select count(*)::int into v_settings from public.app_settings;
  return jsonb_build_object('public_tables',v_tables,'rls_enabled_tables',v_rls_enabled,'tables_without_rls',v_rls_missing,'settings_count',v_settings,'last_audit_at',v_last_audit,'checked_at',now());
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_admin_accounts()
  RETURNS TABLE(user_id uuid, email text, created_at timestamp with time zone, last_sign_in_at timestamp with time zone, app_role text)
@@ -848,7 +848,7 @@ begin
  and u.deleted_at is null
  order by u.created_at;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_auction_products()
  RETURNS TABLE(product_id uuid, name text, description text, image_path text, category text, status text)
@@ -859,7 +859,7 @@ AS $function$
 begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then raise exception 'Administrator access required' using errcode='42501'; end if;
  return query select p.id,p.name,p.description,p.image_path,p.category,p.status from public.products p order by p.created_at desc;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_auctions()
  RETURNS TABLE(auction_id uuid, product_id uuid, title text, description text, image_url text, category text, currency text, starting_price numeric, current_price numeric, minimum_increment numeric, starts_at timestamp with time zone, ends_at timestamp with time zone, status text, product_name text)
@@ -870,7 +870,7 @@ AS $function$
 begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then raise exception 'Administrator access required' using errcode='42501'; end if;
  return query select a.id,a.product_id,a.title,a.description,a.image_url,a.category,a.currency::text,a.starting_price,a.current_price,a.minimum_increment,a.starts_at,a.ends_at,a.status,p.name from public.auctions a join public.products p on p.id=a.product_id order by a.created_at desc;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_audit_logs(p_limit integer DEFAULT 100)
  RETURNS TABLE(id bigint, actor_user_id uuid, actor_name text, action text, entity_type text, entity_id uuid, details jsonb, created_at timestamp with time zone)
@@ -890,7 +890,7 @@ begin
  order by a.created_at desc,a.id desc
  limit greatest(1,least(coalesce(p_limit,100),200));
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_audit_logs_page(p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)
  RETURNS TABLE(id bigint, actor_user_id uuid, actor_name text, action text, entity_type text, entity_id uuid, details jsonb, created_at timestamp with time zone)
@@ -911,7 +911,7 @@ begin
  limit greatest(1,least(coalesce(p_limit,100),200))
  offset greatest(0,coalesce(p_offset,0));
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_delivery_tracking(p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)
  RETURNS TABLE(tracking_id uuid, payment_id uuid, member_code text, winner_name text, item_title text, amount numeric, payment_status text, carrier text, tracking_number text, status text, shipped_at timestamp with time zone, delivered_at timestamp with time zone, updated_at timestamp with time zone)
@@ -928,7 +928,7 @@ begin
  join public.member_ids m on m.id=w.winner_member_id left join public.profiles p on p.id=m.owner_user_id
  left join public.auctions a on a.id=w.auction_id left join public.fixed_bid_campaigns fc on fc.id=w.fixed_bid_campaign_id
  order by d.updated_at desc,d.id desc limit p_limit offset p_offset;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_duplicate_ids()
  RETURNS jsonb
@@ -953,7 +953,7 @@ begin
   where d.id_type='duplicate';
   return v_result;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_fixed_bid_campaigns()
  RETURNS TABLE(campaign_id uuid, product_id uuid, product_name text, title text, description text, status text, configuration jsonb, created_at timestamp with time zone, updated_at timestamp with time zone)
@@ -965,7 +965,7 @@ begin
  if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then raise exception 'Administrator access required' using errcode='42501'; end if;
  return query select c.id,c.product_id,p.name,c.title,c.description,c.status,c.configuration,c.created_at,c.updated_at
  from public.fixed_bid_campaigns c join public.products p on p.id=c.product_id order by c.created_at desc;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_members_sponsors()
  RETURNS TABLE(member_code text, display_name text, phone text, sponsor_code text, created_at timestamp with time zone)
@@ -984,7 +984,7 @@ AS $function$
     and coalesce(auth.jwt()->'app_metadata'->>'role','')='admin'
   order by m.created_at desc
   limit 500;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_notification_templates()
  RETURNS TABLE(id uuid, name text, channel text, subject text, body text, is_active boolean, created_at timestamp with time zone, updated_at timestamp with time zone)
@@ -999,7 +999,7 @@ begin
  return query select t.id,t.name,t.channel,t.subject,t.body,t.is_active,t.created_at,t.updated_at
  from public.notification_templates t order by t.updated_at desc;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_packages()
  RETURNS jsonb
@@ -1020,7 +1020,7 @@ begin
   into v_result from public.packages p;
   return v_result;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_pending_activations()
  RETURNS jsonb
@@ -1056,7 +1056,7 @@ begin
 
   return v_result;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_referral_plans()
  RETURNS jsonb
@@ -1074,7 +1074,7 @@ begin
  ) order by p.created_at desc,v.version_number desc),'[]'::jsonb)
  into v_result from public.packages p left join public.referral_plan_versions v on v.package_id=p.id;
  return v_result;
-end;$function$
+end;$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_wallet_accounts()
  RETURNS TABLE(wallet_account_id uuid, member_id uuid, member_code text, id_type text, display_name text, wallet_type text, balance numeric, currency text, updated_at timestamp with time zone)
@@ -1095,7 +1095,7 @@ begin
   left join public.profiles p on p.id = m.owner_user_id
   order by m.member_code, w.wallet_type;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_wallet_accounts(p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)
  RETURNS TABLE(wallet_account_id uuid, member_id uuid, member_code text, wallet_type text, balance numeric, currency text, updated_at timestamp with time zone)
@@ -1116,7 +1116,7 @@ begin
  limit greatest(1,least(coalesce(p_limit,100),500))
  offset greatest(coalesce(p_offset,0),0);
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_wallet_transactions(p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)
  RETURNS TABLE(transaction_id uuid, member_id uuid, member_code text, wallet_type text, transaction_type text, direction text, amount numeric, balance_after numeric, reference_type text, reference_id uuid, description text, created_at timestamp with time zone)
@@ -1138,7 +1138,7 @@ begin
  limit greatest(1,least(coalesce(p_limit,100),500))
  offset greatest(coalesce(p_offset,0),0);
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_wallet_transactions(p_wallet_account_id uuid DEFAULT NULL::uuid, p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)
  RETURNS TABLE(transaction_id uuid, wallet_account_id uuid, member_code text, wallet_type text, transaction_type text, direction text, amount numeric, balance_after numeric, description text, reference_type text, reference_id uuid, created_at timestamp with time zone)
@@ -1165,7 +1165,7 @@ begin
   order by t.created_at desc, t.id desc
   limit p_limit offset p_offset;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_winning_item_payments(p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)
  RETURNS TABLE(payment_id uuid, winner_member_code text, winner_name text, auction_title text, fixed_bid_title text, amount numeric, status text, paid_at timestamp with time zone, created_at timestamp with time zone)
@@ -1184,7 +1184,7 @@ begin
  left join public.auctions a on a.id=w.auction_id
  left join public.fixed_bid_campaigns fc on fc.id=w.fixed_bid_campaign_id
  order by w.created_at desc,w.id desc limit p_limit offset p_offset;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_list_withdrawal_requests(p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)
  RETURNS TABLE(request_id uuid, member_code text, display_name text, amount numeric, currency text, status text, payout_details jsonb, requested_at timestamp with time zone, reviewed_at timestamp with time zone, reviewed_by uuid, rejection_reason text)
@@ -1208,7 +1208,7 @@ begin
  order by r.requested_at desc,r.id desc
  limit p_limit offset p_offset;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_review_package_activation(p_activation_id uuid, p_approve boolean)
  RETURNS jsonb
@@ -1283,7 +1283,7 @@ begin
     return jsonb_build_object('success', true, 'status', 'rejected');
   end if;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_save_auction_draft(p_auction_id uuid, p_product_id uuid, p_title text, p_description text, p_image_url text, p_category text, p_starting_price numeric, p_minimum_increment numeric, p_starts_at timestamp with time zone, p_ends_at timestamp with time zone)
  RETURNS uuid
@@ -1308,7 +1308,7 @@ begin
  end if;
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details) values(auth.uid(),case when p_auction_id is null then 'auction.draft_created' else 'auction.draft_updated' end,'auction',v_id,jsonb_build_object('title',trim(p_title),'status','draft'));
  return v_id;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_save_delivery_tracking(p_tracking_id uuid, p_payment_id uuid, p_carrier text, p_tracking_number text, p_status text)
  RETURNS uuid
@@ -1336,7 +1336,7 @@ begin
  end if;
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details) values(auth.uid(),'delivery.tracking_saved','delivery_tracking',v_id,jsonb_build_object('status',p_status,'carrier',nullif(trim(coalesce(p_carrier,'')),''),'tracking_number',nullif(trim(coalesce(p_tracking_number,'')),'')));
  return v_id;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_save_fixed_bid_campaign_draft(p_campaign_id uuid, p_product_id uuid, p_title text, p_description text)
  RETURNS uuid
@@ -1361,7 +1361,7 @@ begin
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
  values(auth.uid(),case when p_campaign_id is null then 'fixed_bid_campaign.draft_created' else 'fixed_bid_campaign.draft_updated' end,'fixed_bid_campaign',v_id,jsonb_build_object('title',trim(p_title),'status','draft'));
  return v_id;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_save_notification_template(p_id uuid, p_name text, p_channel text, p_subject text, p_body text)
  RETURNS uuid
@@ -1395,7 +1395,7 @@ begin
  jsonb_build_object('name',btrim(p_name),'channel',p_channel,'is_active',false));
  return v_id;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_save_package_draft(p_package_id uuid, p_name text, p_description text, p_price numeric, p_bid_wallet_credit numeric)
  RETURNS jsonb
@@ -1434,7 +1434,7 @@ begin
   end if;
   return (select jsonb_build_object('id',p.id,'name',p.name,'description',p.description,'price',p.price,'currency',p.currency,'bid_wallet_credit',p.bid_wallet_credit,'is_active',p.is_active) from public.packages p where p.id=v_id);
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_save_product_draft(p_product_id uuid, p_name text, p_description text, p_image_path text, p_category text)
  RETURNS uuid
@@ -1455,7 +1455,7 @@ begin
  end if;
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details) values(auth.uid(),case when p_product_id is null then 'product.draft_created' else 'product.draft_updated' end,'product',v_id,jsonb_build_object('name',trim(p_name)));
  return v_id;
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_save_referral_plan_draft(p_package_id uuid, p_rules jsonb)
  RETURNS jsonb
@@ -1483,7 +1483,7 @@ begin
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
  values(v_uid,'referral_plan_draft_created','referral_plan_versions',v_plan_id,jsonb_build_object('package_id',p_package_id,'version_number',v_version,'rules',p_rules));
  return jsonb_build_object('plan_id',v_plan_id,'version_number',v_version,'is_active',false);
-end;$function$
+end;$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_set_default_sponsor(p_member_code text)
  RETURNS void
@@ -1507,7 +1507,7 @@ begin
   insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
   values(v_uid,'default_sponsor_changed','app_settings',v_member_id,jsonb_build_object('member_code',v_code));
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_set_duplicate_id_status(p_duplicate_id uuid, p_status text)
  RETURNS jsonb
@@ -1540,7 +1540,7 @@ begin
     jsonb_build_object('member_code',v_row.member_code,'main_member_id',v_row.main_member_id,'old_status',v_old_status,'new_status',p_status));
   return jsonb_build_object('id',p_duplicate_id,'member_code',v_row.member_code,'old_status',v_old_status,'status',p_status);
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.admin_set_feature_setting(p_setting_key text, p_enabled boolean)
  RETURNS jsonb
@@ -1557,7 +1557,7 @@ begin
  insert into public.app_settings(setting_key,setting_value,updated_at) values(p_setting_key,to_jsonb(p_enabled),now()) on conflict(setting_key) do update set setting_value=excluded.setting_value,updated_at=now();
  insert into public.audit_logs(actor_user_id,action,entity_type,details) values(v_uid,'feature_setting_changed','app_settings',jsonb_build_object('setting_key',p_setting_key,'enabled',p_enabled));
  return jsonb_build_object('success',true,'setting_key',p_setting_key,'enabled',p_enabled);
-end; $function$
+end; $function$;
 
 CREATE OR REPLACE FUNCTION public.admin_set_member_sponsor(p_member_code text, p_sponsor_code text)
  RETURNS void
@@ -1607,7 +1607,7 @@ begin
   values(v_uid,'member_sponsor_changed','member_ids',v_member_id,
     jsonb_build_object('old_sponsor_member_id',v_old_sponsor,'new_sponsor_member_id',v_sponsor_id,'new_sponsor_code',v_code));
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.get_my_mlm_dashboard()
  RETURNS jsonb
@@ -1659,7 +1659,7 @@ begin
   ) into v_result;
   return v_result;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.get_my_placement_tree()
  RETURNS jsonb
@@ -1707,7 +1707,7 @@ begin
   ) into v_result;
   return v_result;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.lookup_sponsor(p_member_code text)
  RETURNS TABLE(member_code text, display_name text)
@@ -1721,7 +1721,7 @@ AS $function$
   where upper(m.member_code) = upper(trim(p_member_code))
     and m.id_type = 'main' and m.status = 'active'
   limit 1;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.member_create_withdrawal_request(p_amount numeric, p_payout_details jsonb)
  RETURNS jsonb
@@ -1743,7 +1743,7 @@ begin
  insert into public.withdrawal_requests(member_id,amount,currency,status,payout_details) values(v_member,p_amount,'INR','pending',p_payout_details) returning id into v_id;
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details) values(v_uid,'member_withdrawal_requested','withdrawal_requests',v_id,jsonb_build_object('amount',p_amount));
  return jsonb_build_object('success',true,'request_id',v_id,'status','pending');
-end $function$
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.member_list_my_withdrawals()
  RETURNS TABLE(request_id uuid, amount numeric, currency character, status text, payout_details jsonb, requested_at timestamp with time zone, reviewed_at timestamp with time zone, rejection_reason text)
@@ -1757,7 +1757,7 @@ begin
  select main_member_id into v_member from public.profiles where id=v_uid;
  if v_member is null then return; end if;
  return query select w.id,w.amount,w.currency,w.status,w.payout_details,w.requested_at,w.reviewed_at,w.rejection_reason from public.withdrawal_requests w where w.member_id=v_member order by w.requested_at desc limit 100;
-end $function$
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.place_bid(p_auction_id uuid)
  RETURNS jsonb
@@ -1766,7 +1766,7 @@ CREATE OR REPLACE FUNCTION public.place_bid(p_auction_id uuid)
  SET search_path TO 'pg_catalog', 'public', 'private'
 AS $function$
   select private.place_bid(p_auction_id);
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.submit_package_activation(p_package_id uuid, p_payment_reference text)
  RETURNS jsonb
@@ -1775,7 +1775,7 @@ CREATE OR REPLACE FUNCTION public.submit_package_activation(p_package_id uuid, p
  SET search_path TO ''
 AS $function$
   select private.submit_package_activation(p_package_id, p_payment_reference);
-$function$
+$function$;
 
 -- App-owned triggers (public tables and auth.users)
 CREATE TRIGGER on_biddworld_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION private.handle_new_auth_user();
