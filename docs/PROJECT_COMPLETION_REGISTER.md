@@ -1184,3 +1184,13 @@
 - Added source-contract coverage in `tests/homepage-auction-discovery-controls.test.ts`; test not run.
 - Commits: `6e3ee90f2289bdf523b9fef4b3f1e27d544cb45b`, `03af6f2bf428a900734d5bf14fa3c4a11f3d86ae`, `0e4d5cbccde0d0fc68c29f89031567ffda924d5e`, `198c9af0e8a398277b30ee08adb658077635b6ce`, `2d89fe5aa7771e0bfef783c0e7de6309bff47cce`.
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Completion estimate remains **60% Provisional**.
+
+
+## Latest Frontend Batch — Marketplace sample preview cards
+
+- Added three clearly labelled, display-only Fixed Bid sample cards (smartphone, home appliances, smartwatch) with example entry amount, winner payment, winner count, entry limits and schedule fields.
+- Homepage Auctions now reliably shows the existing sample auction cards whenever the live auction list is empty or only local demo fixtures are present. Sample cards are visibly marked and cannot trigger real bidding or Fixed Bid entry actions.
+- Real published listings take precedence and replace the sample cards automatically. Sample data exists only in frontend source; no database records, wallet credits, payments or user accounts were created.
+- Added `tests/marketplace-sample-preview-cards.test.ts` as source-contract coverage; not executed.
+- Commits: `5acf28e728e948721794ce5839a3dd4759f19f76` (Fixed Bid fixtures), `e466b3fbf4834466b3f240797bbf10e182797cc9` (Auction fixtures), `ca6e5cc9a2a6b0f773a11054239bc840a652d991` (sample card styling), `0289b0797fc445eda3301eb5025522daadb2086a` (demo-fixture labelling), `e231a8ec21dca8660b25f7c096290144db426e20` (test source).
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
