@@ -1142,3 +1142,12 @@
 
 
 - 2026-11-19 — Admin direct Auction draft workflow aligned with Expected Price lifecycle: Expected Price is mandatory and cannot be below Starting Price; fixed Planned End input removed; `ends_at` remains null until target price is reached and the existing 48-hour trigger derives the deadline. Added forward-only RPC migration and source-contract test. Not applied; no tests/build/QA run; production and TEST Supabase untouched.
+
+
+## 2026-11-19 — Admin Auction Expected Price lifecycle parity (bulk batch)
+
+- Completed the Admin direct Auction draft workflow parity: Expected Price is mandatory, must be at least Starting Price, is sent to the secured RPC, and appears in the Admin auction list. The fixed Planned End field and obsolete client state were removed; the database derives `ends_at` only after the Expected Price is reached, then starts the 48-hour countdown.
+- Added a forward-only migration replacing the Admin save/list RPC contracts and extending the lifecycle trigger to start the 48-hour timer when an immediate or scheduled Admin auction becomes live already at its target price.
+- Updated shared Admin draft validation and its existing validation tests; corrected and extended the Admin lifecycle source-contract test. Test sources only; none executed.
+- Commits: `ff8bcc7b45fdb60890ccb116b85e681e0984d0ee` (Admin UI), `6744e49d7c55d3899fbd82738c8297bb580c3071` (migration), `a1ac4d638e91e2d54794ae57c860296b22993c42` (shared validation), `d42e34cffc1d5a0788c32e3796078c1bf4cb6a5c` (validation tests), `cc0d99460340eb561259c41234535468c1166912` (lifecycle test), `26aaa50be1600878345c05dcb2bb54906c0c21b2` (immediate-start lifecycle fix). Documentation updates follow.
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Development estimate remains **60% Provisional**.
