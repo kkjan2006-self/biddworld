@@ -2154,3 +2154,14 @@
 - Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
 - Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
 - Source development estimate: **86% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
+
+
+## 2026-11-19 — Mandatory package receipt and current migration inventory
+
+- Made package payment receipt mandatory in the Member UI and the authoritative `submit_package_activation_with_receipt` SECURITY DEFINER RPC. The server verifies the uploaded object exists in the private package-receipts bucket and belongs to the signed-in user before creating the activation; it then links the receipt atomically. Missing/invalid receipt paths are rejected server-side.
+- Added a browser in-flight guard to prevent double activation submission and clears the native file input after success. Existing cleanup behavior removes uploaded receipts when the RPC definitely rejects the request.
+- Added regression source `tests/package-activation-receipt-required.test.ts` and registered migration `20261119500000_require_package_activation_receipt.sql`.
+- Commit IDs: package UI `74879c7a8a57adbb3773e5f65b930b1b9d8fa205`; server migration `fd65888f274068e5df887d51947bbd24ac56497e`; test `8ac852f3bf93c285dc6fa54fd32cec9f3304c425`; manifest `be178fe8c75b82c2d1317a954d542b6f2f5ed9d2`.
+- Current source inventory: 119 forward + 16 excluded = 135 timestamped migrations, plus 3 legacy/unversioned SQL files. The forward manifest remains sorted and unique.
+- Development-only: no SQL executed, no Supabase data changed, no Preview deployment/runtime tests, no protected `main` changes.
+- Overall source development estimate: **88% provisional**. Remaining baseline/forward migration semantic reconciliation and other outstanding module integration are still open.
