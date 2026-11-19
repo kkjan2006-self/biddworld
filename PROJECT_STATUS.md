@@ -1168,3 +1168,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Updated the source-contract test to assert both ID types are included in the trigger condition. Test source only; not executed.
 - Commits: migration correction `56e2d95f0cb5c7cba4664fdf2cfad6f46c680556`; regression source `6c81f6ac756e9b36c33629c774fcc437b8d76000`.
 - Migration remains source-only and is not applied to TEST or Production. No test/QA/type-check executed.
+
+
+## 2026-11-19 — Live in-app notification delivery
+
+- Member and Admin notification inboxes now subscribe to Supabase Realtime changes for `member_notifications`. Member subscriptions are scoped to the signed-in user's ID; Admin subscriptions rely on the existing database read policy.
+- New notices are inserted into the current inbox immediately; read-state updates and deletions are reflected without a manual refresh. Current category/unread filters are respected, malformed events are ignored, and the channel is removed when the view unmounts or its subscription context changes.
+- Added source-contract regression coverage for INSERT/UPDATE/DELETE handling and channel cleanup. Test source only; not executed. Live Realtime publication/RLS behavior remains unverified until final QA.
+- Commits: UI `94b7afbb3ad5b2ef11df68df8e43658f07ec8890`; regression source `e23dda5aae6d4fc291c082907f1ec2aef58d8ff0`.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production database changes; protected `main` unchanged.
