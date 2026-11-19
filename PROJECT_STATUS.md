@@ -233,3 +233,6 @@ At every development batch/chat end, update this file with the actual verified b
 - The existing authorization model currently defines Admin, not a distinct Admin Staff role; no new staff role was fabricated. Admin-only approval remains enforced.
 - QR payload was regenerated from the supplied UPI payment data: upi://pay?pa=krindia@bpunity&pn=KRFSI&cu=INR. No payment was made or verified.
 - No tests/build/CI/QA, SQL replay, database writes, Production access or deployment. Production remains read-only; TEST untouched. Overall estimate remains 55% (Provisional).
+
+
+- Inventory update after Main Wallet funding migration #76: 76 forward + 16 excluded timestamped + 3 legacy SQL files = 95 SQL files (92 timestamped). This is source inventory only; no replay was performed.
