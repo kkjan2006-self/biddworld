@@ -436,3 +436,28 @@ revoke all on function public.admin_get_feature_settings() from public,anon;
 grant execute on function public.admin_get_feature_settings() to authenticated;
 revoke all on function public.admin_set_feature_setting(text,boolean) from public,anon;
 grant execute on function public.admin_set_feature_setting(text,boolean) to authenticated;
+
+
+-- Global Admin Matrix commission summary, independent of report pagination and filters.
+create or replace function public.admin_get_matrix_commission_summary()
+returns jsonb language plpgsql stable security definer set search_path=''
+as $function$
+declare v_result jsonb;
+begin
+ if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
+  raise exception 'Administrator access required' using errcode='42501';
+ end if;
+ select jsonb_build_object(
+  'total_count',count(*),'total_amount',coalesce(sum(amount),0),
+  'pending_count',count(*) filter(where status='pending'),
+  'pending_amount',coalesce(sum(amount) filter(where status='pending'),0),
+  'credited_count',count(*) filter(where status='credited'),
+  'credited_amount',coalesce(sum(amount) filter(where status='credited'),0),
+  'reversed_count',count(*) filter(where status='reversed'),
+  'reversed_amount',coalesce(sum(amount) filter(where status='reversed'),0)
+ ) into v_result from public.matrix_commissions;
+ return coalesce(v_result,'{"total_count":0,"total_amount":0,"pending_count":0,"pending_amount":0,"credited_count":0,"credited_amount":0,"reversed_count":0,"reversed_amount":0}'::jsonb);
+end;
+$function$;
+revoke all on function public.admin_get_matrix_commission_summary() from public,anon;
+grant execute on function public.admin_get_matrix_commission_summary() to authenticated;
