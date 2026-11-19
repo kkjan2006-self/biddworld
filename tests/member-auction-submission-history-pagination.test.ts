@@ -18,5 +18,7 @@ describe('Member auction submission history pagination',()=>{
   expect(ui).toContain('function validSubmission(value:unknown)');
   expect(ui).toContain('duplicate or overlapping records');
   expect(ui).toContain('Load more submissions');
+  expect(ui).toContain('onClick={()=>void load(rows.length>0)}');
+  expect(ui).toContain('{rows.map(row=><article');
  });
 });
