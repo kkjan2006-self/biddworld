@@ -1600,3 +1600,12 @@
 - Migration update: `20261119320000_member_matrix_commission_summary.sql`. Tests authored: `tests/wallet-matrix-commission-source.test.ts`.
 - Commits: wallet UI `1d8751c32701c73a7e0a40422018be3dd661c5a9`; secure lookup RPC `e5d473302d23175d6a4e89f4a67059d1c59dcc82`; source contract test `5b65f1a60cda621f5e4f284869497821027ae9a5`; full-export source attribution `2f3e74ac915f4456848a3e2c60c1f3abcb430860`.
 - Source-only development. No tests, build, type-check, browser/mobile QA or database migrations were run/applied.
+
+
+## Admin Matrix commission global summary — 2026-11-19
+
+- Added Admin-only `admin_get_matrix_commission_summary()` returning all-time count and amount totals for pending, credited, reversed and all Matrix commissions. The RPC is independent of the report's current page, status/level filters and client-side search.
+- Admin Matrix Commission Register now displays these global totals, with separate amounts, and clearly labels the current filtered-page subtotal separately.
+- Added contract coverage to `tests/admin-matrix-commissions-ui.test.ts`.
+- Commits: SQL `1e2765350b77bbdc2821c0a94acd2f516cafc30e`; Admin UI `2d4d75cc0bd1ce3f8b256a0c4e55411708ab9349`; test `8010e4dbc57fffd7f2017ddc90d833b0729402c4`.
+- Source-only change. No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied. Matrix commission feature remains OFF.
