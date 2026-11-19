@@ -733,3 +733,16 @@ At every development batch/chat end, update this file with the actual verified b
 - No tests, typecheck, build, browser/mobile QA or E2E were run. No TEST or Production migration was applied; no database data was changed. Protected `main` remains untouched.
 - Remaining: Admin Matrix commission report UI and exports, member/Admin Matrix income dashboard totals, full source/schema reconciliation, then final QA.
 - Overall development completion remains **60% provisional**; this backend batch does not establish runtime correctness.
+
+
+## Admin Matrix Commission Report UI checkpoint — 2026-11-19
+
+- Added `src/components/AdminMatrixCommissions.tsx` and a separate **Matrix Commissions** navigation section in `src/components/Admin.tsx`. Sponsor Referral commission reporting remains a separate module.
+- The report loads `admin_list_matrix_commissions_page` with server-side status/level filters, client-side ID/name search and bounded 100-row pagination.
+- The UI explicitly displays the placement-chain source ID and source ID type separately from the credited Main ID/name. Duplicate ID source attribution is therefore visible without suggesting a separate Duplicate wallet.
+- Added loaded-row counts/totals and pending/credited counts. Complete CSV export fetches all server pages (100,000-row safety limit) and exports activation, level, source ID/type, credited Main ID, amount, status and timestamp.
+- Each page is validated for required fields, valid timestamps and duplicate/overlapping commission IDs. Added `tests/admin-matrix-commissions-ui.test.ts` and `docs/ADMIN_MATRIX_COMMISSION_REPORT_2026-11-19.md`.
+- Commits: report component `456895b5f206999f2c10f25e2352dd8081839e83`; Admin integration `2eede7258443c3299e0226ce680d16224514c488`; UI contract test `af3e1c44fb6c2ba5fa58d52da87018b57e91eac2`; docs `53b3bfc503dee1fa171aa511ce52a0fd0bfc6216`.
+- No tests, typecheck, build, browser/mobile QA or E2E were executed. No TEST/Production migrations or database writes occurred. Protected `main` remains untouched.
+- Remaining: Matrix commission dashboard totals for members/Admin, backend source/schema contract reconciliation (including all activation and wallet columns), feature readiness integration, then the user's requested final QA batch.
+- Overall development completion remains **60% provisional**; UI source implementation is not runtime verification.
