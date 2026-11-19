@@ -1035,3 +1035,6 @@
 - Signup redirect and messaging now follow the saved policy. The Supabase Auth project-level Confirm Email option remains a separate provider setting and must be aligned manually; if it remains ON while the app switch is OFF, the signup UI reports that mismatch rather than pretending confirmation was bypassed.
 - Added forward migration #78 and source-contract test (not run). Migration inventory: 78 forward + 16 excluded + 3 legacy SQL files (97 total; 94 timestamped).
 - Removed the client hardcoded financial approval gate so Admin controls call through to server-side guards; database interlocks remain in place and Production remains locked. No testing, migration replay, DB writes or deployment.
+
+
+- Package Activation now displays the same KRFSI UPI payment QR and verified payee/UPI text as Main Wallet Add Money, before the package UTR and receipt submission fields. No test or deployment has been performed.
