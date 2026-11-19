@@ -1499,3 +1499,13 @@
 - Added the migration to the clean-install forward manifest; inventory is now 95 forward + 16 excluded = 111 timestamped migrations.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional** pending full source reconciliation and final end-to-end verification.
+
+## 2026-11-19 — Existing feature workflow switch alignment
+
+- Updated the Admin feature switch classification: Referral Commissions, Withdrawals, Live Bidding, Fixed Bid and Winner Payment are no longer hard-disabled in the frontend. Their existing database workflows already enforce the corresponding feature flags, so Admin enable attempts now reach the authoritative server-side condition.
+- Added forward migration `20261119260000_enable_existing_feature_workflow_switches.sql`. It expands the server RPC's supported enable list for those implemented workflows while preserving the existing server-side condition check, admin authorization, allowlist validation and audit log. It does not change any feature's stored value or bypass the condition.
+- Automatic Placement and Winner Selection Configuration remain visibly marked as backend workflow pending; their switches cannot be enabled until the missing workflow/configuration contract is completed.
+- Updated source-contract tests for the frontend classifications and server-side enablement condition. Tests were not executed.
+- Added migration to clean-install manifest; inventory is now 96 forward + 16 excluded = 112 timestamped migrations.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional** pending full source reconciliation and final end-to-end verification.
