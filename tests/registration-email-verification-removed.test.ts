@@ -17,6 +17,7 @@ describe('registration without BiddWorld email verification',()=>{
  it('keeps the database feature list free of the removed switch',()=>{
   expect(sql).toContain("where setting_key='email_verification_required'");
   expect(sql).toContain('drop function if exists public.public_get_registration_email_verification()');
-  expect(sql).not.toContain("'email_verification_required'");
+  expect(sql).not.toContain("'registration_enabled','email_verification_required'");
+  expect(sql).not.toContain("'registration_enabled', 'email_verification_required'");
  });
 });
