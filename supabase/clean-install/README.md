@@ -93,3 +93,11 @@ The original member-notification migration separately granted column-level INSER
 
 
 - Inventory update after Main Wallet funding migration #76: 76 forward + 16 excluded timestamped + 3 legacy SQL files = 95 SQL files (92 timestamped). This is source inventory only; no replay was performed.
+
+
+## 2026-11-19 — Shared payment reference protection (#77)
+
+- Added a private trigger guard for package activation and Main Wallet top-up inserts.
+- Both paths normalize the UTR/reference, acquire the same transaction-scoped advisory lock, and reject a reference already used by the other payment workflow. Existing per-table unique protection remains in place.
+- Added source-contract coverage. No tests were executed and no database migration was applied.
+- Updated forward candidate inventory: 77 forward + 16 excluded timestamped + 3 legacy SQL files = 96 total (93 timestamped).
