@@ -1,3 +1,14 @@
+## Latest source-development checkpoint — 2026-11-19
+
+- Current `completion-work` HEAD at the start of this documentation update: `85216cea2b065c3f72c0a02595d4d3494f1cb254`.
+- Latest PWA batch: `src/components/PWAInstallButton.tsx` now provides a manual Android Chrome install-help fallback when the browser does not expose `beforeinstallprompt`, detects standalone installation, and hides the control once installed. The PWA source-contract test now checks these paths and the existing service-worker cache v4.
+- Batch commits: component `6781a79dbc34ce0238288b2a881ff66b5c1e0e18`; PWA test `935f42a0605d3bfb9b60514414f65c3573178a2a`; focused note `85216cea2b065c3f72c0a02595d4d3494f1cb254`.
+- No tests, build, type-check, browser or Android QA were run. No Supabase reads/writes, SQL application, deployment, or changes to protected `main` occurred in this batch.
+- Continue at the latest branch HEAD; preserve the development-first testing gate and the recorded TEST/Production boundaries.
+- Overall development completion remains **60% provisional**.
+
+---
+
 ## Current Preview checkpoint — 2026-11-19
 
 - Preview workflow #12 failed closed at the TEST-secret validation; the Vite build and Pages deployment did not run. Add `BIDDWORLD_TEST_SUPABASE_URL` and `BIDDWORLD_TEST_SUPABASE_PUBLISHABLE_KEY` to the Preview repository Actions secrets before dispatching again.
