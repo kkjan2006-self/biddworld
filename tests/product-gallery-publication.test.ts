@@ -15,6 +15,7 @@ describe('complete approved product image galleries',()=>{
   expect(ui).toContain("'admin_review_product_submission_with_images'");
   expect(ui).toContain("remove(publicPaths)");
   expect(sql).toContain('cardinality(p_public_image_paths)>8');
+  expect(sql).toContain('count(distinct image_path)');
  });
  it('renders an accessible swipeable public image gallery',()=>{
   expect(app).toContain('productImageStrip');
