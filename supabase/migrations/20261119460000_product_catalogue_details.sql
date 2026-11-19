@@ -12,7 +12,10 @@ begin
      or pg_catalog.octet_length(new.optional_details::text)>12000 then
     raise exception 'Product details must be a small JSON object' using errcode='22023';
   end if;
-  v_price:=new.optional_details->>'Price';
+  if exists(select 1 from jsonb_each(new.optional_details) detail where jsonb_typeof(detail.value)<>'string') then
+    raise exception 'Every product detail value must be plain text' using errcode='22023';
+  end if;
+    v_price:=new.optional_details->>'Price';
   if v_price is null or v_price !~ '^[0-9]{1,9}(\\.[0-9]{1,2})?$'
      or v_price::numeric<=0 or v_price::numeric>999999999.99 then
     raise exception 'A valid product asking price is required' using errcode='22023';
