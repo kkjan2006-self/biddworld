@@ -796,3 +796,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: `b2c2a4a23eb9665d5706f2812c6e5ef5ce2279dd`, `7ddea354897e0033c71d8f21ab54a2f329af9084`, completion register `2f2980533ebc8c22918e4652d64b8afb1db64354`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied. Matrix feature remains OFF; schema reconciliation and final QA remain pending.
 - Overall development estimate: **65% provisional**.
+
+
+## Latest checkpoint — Admin Matrix report lifecycle
+
+- Fixed filter-change/refresh race conditions in the Admin Matrix commission report; obsolete requests cannot overwrite the currently selected report, and load-more calls are serialized.
+- Commits: UI `f700d99528cf70374bd20d6869d60881c3736388`, regression contract `bb0014685b74a4fa94d9c96d485637812688c824`, completion register `047e8ce6be3ccc0010310a78fb2ce138a33107ed`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied. Matrix feature remains OFF.
+- Overall development estimate: **66% provisional**.
