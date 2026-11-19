@@ -1,3 +1,11 @@
+## 2026-11-19 — Android PWA install fallback
+
+- The header install control no longer disappears when a browser does not dispatch `beforeinstallprompt`; it offers a concise Android Chrome manual-install guide instead.
+- Native install prompt remains preferred when available. Standalone display mode and the Apple standalone flag are detected, and the control hides after installation.
+- Updated the PWA source-contract test to cover the manual fallback and align its expected worker cache version with the current v4 implementation.
+- Source commits: `6781a79dbc34ce0238288b2a881ff66b5c1e0e18`, `935f42a0605d3bfb9b60514414f65c3573178a2a`; focused note `docs/PWA_INSTALL_EXPERIENCE_2026-11-19.md`.
+- Test source was authored but not executed. No build, type-check, browser/Android QA, Supabase access, SQL application, deployment or protected-branch changes occurred.
+
 ## 2026-11-19 — Preview source synchronization and connection gate
 
 - Rechecked Preview workflow #12: failed at the isolated TEST secret preflight; the Supabase URL/key secrets are still absent or unavailable to Actions. The build/deploy steps were skipped. No live Supabase connection or new deployment is claimed.
