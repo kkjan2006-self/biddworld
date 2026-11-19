@@ -34,7 +34,7 @@ begin
  if p_enabled then
   update auth.users set raw_app_meta_data=jsonb_set(
    jsonb_set(coalesce(raw_app_meta_data,'{}'::jsonb),'{role}','"admin_staff"'::jsonb,true),
-   '{permissions}','["package_activation_review","wallet_funding_review"]'::jsonb,true)
+   '{permissions}','["package_activation_review","wallet_funding_review","auction_submission_review"]'::jsonb,true)
   where id=v_target_id;
  else
   update auth.users set raw_app_meta_data=coalesce(raw_app_meta_data,'{}'::jsonb)-'role'-'permissions'
@@ -44,7 +44,7 @@ begin
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
  values(v_uid,case when p_enabled then 'payment_review_staff.granted' else 'payment_review_staff.revoked' end,
   'auth.users',v_target_id,jsonb_build_object('target_email',v_target_email,
-   'permissions',case when p_enabled then jsonb_build_array('package_activation_review','wallet_funding_review') else '[]'::jsonb end,
+   'permissions',case when p_enabled then jsonb_build_array('package_activation_review','wallet_funding_review','auction_submission_review') else '[]'::jsonb end,
    'reason',trim(p_reason)));
  return jsonb_build_object('success',true,'email',v_target_email,
   'app_role',case when p_enabled then 'admin_staff' else 'member' end,
