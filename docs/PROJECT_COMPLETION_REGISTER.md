@@ -1,3 +1,11 @@
+## 2026-11-19 — Staff directory and notification page integrity
+
+- Hardened the restricted payment-review Staff directory with explicit configuration/authentication errors, stale-request protection, and validation of account IDs and permission values.
+- Hardened notification inbox initial and keyset pages against malformed or duplicate IDs; invalid pages stop safely and display a retryable error.
+- Added source-contract coverage in `tests/admin-payment-review-staff-directory-guards.test.ts` and expanded `tests/notification-inbox-actions.test.ts`.
+- Commits: Staff source `d35fe0dee0a4a5d9afc7d79879c8a9d1d98e31de`; notification source `72ec7a0644f1e5d2689342f68db621417acaa692`; notification tests `5778b8806360cc5198a17f804bf38fb9d4870664`; Staff tests `e6964462245ad298640649120755e9f21896ee26`.
+- Tests/build/type-check/browser QA were not run. No Supabase access or database changes occurred.
+
 ## 2026-11-19 — Member auction submission history resilience
 
 - Added explicit loading, error and genuinely-empty states to the member's own auction submission list, including a retry action.
