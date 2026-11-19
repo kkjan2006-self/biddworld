@@ -1,3 +1,11 @@
+## 2026-11-19 — Admin feature workflow switch enablement
+
+- Updated the Admin feature-setting allowlist so existing referral commission, withdrawal, bidding, fixed-bid and winning-payment workflows can reach the existing server-side condition check. Incomplete automatic placement and winner-selection configuration remain blocked.
+- The migration preserves Admin authorization, supported-key validation, server-side condition enforcement and audit logging; it does not change current setting values or apply any database changes.
+- Added source-contract coverage in `tests/admin-feature-settings-diagnostics.test.ts` and included the migration in the clean-install forward manifest.
+- Migration commit: `e44223bc3ac2bbdf35672be23302ab396eaf7367`.
+- Tests/build/type-check/browser QA were not run. No Supabase access or database changes occurred.
+
 ## 2026-11-19 — Wallet, Fixed Bid and Admin report integrity
 
 - Member wallet transaction pagination now rejects malformed records, invalid timestamps, and duplicate IDs before moving its keyset cursor.
