@@ -2142,3 +2142,15 @@
 - Inventory currently: 117 forward + 16 excluded = 133 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is unique and sorted.
 - All work remains on `completion-work`; no migration was applied, no TEST/Production database was changed, no Preview deployment/runtime QA was run, and protected `main` remains untouched.
 - Source development estimate: **84% provisional**; full database baseline/RPC dependency reconciliation and remaining module integration still need source completion.
+
+
+## 2026-11-19 — Member history paging and public catalogue access reconciliation
+
+- Added owner-scoped `member_list_own_product_submissions_page` RPC with bounded 50-row descending keyset pagination. Member history now signs private image URLs page-by-page, validates every returned row and rejects duplicate/overlapping pages instead of signing an unbounded history in one request.
+- Updated Member Product Submission UI with a Load More control while retaining existing editing, resubmission, preview and image-preservation behavior.
+- Cross-checked the canonical schema candidate and found the published-products RLS policy was authenticated-only while the public catalogue RPC is SECURITY INVOKER and grants anon execution. Corrected the forward migration to grant only required product columns to anon and allow anon/authenticated to SELECT only rows with status='published'. Added the gallery column grant in the image-gallery migration. Existing RLS continues to block draft/unapproved products.
+- Added regression source `tests/member-product-submission-pagination.test.ts`; extended gallery and public catalogue tests. No tests/build/type-check or SQL replay executed.
+- Commits: member history UI `4b586721e1842d5bbb125bc4b7f528d7666fedc7`; member history migration `8bd890f7e54e34e1394107cffa6d528c462b1f73`; member history test `0fc47e89e0be629882a4b4af31456fc26124b445`; anon catalogue RLS/column grants `460182be64d3dda0ba17e7424d4697c1f494d902`; gallery column grant `8721d20970b8972987a6b2245c6ee24d9a2b9216`; updated tests `82e7d9e0bbce28a820dee7d5ebc296602d0626d1`, `07b6bdb632e77143fc74e517fb30af1e7d426172`.
+- Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
+- Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
+- Source development estimate: **86% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
