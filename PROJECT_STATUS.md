@@ -1160,3 +1160,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Updated source-contract coverage. Test remains unexecuted under the development-first testing gate.
 - Commits: migration `5bb7aba954e76b128c84a8440b33908ef8e718d3`; test source `1c710e4918d147ff2a98407a90b8d301b827962b`.
 - The migration remains source-only; no TEST/Production migration or data change. No QA/test/type-check run.
+
+
+## 2026-11-19 — Main ID notification trigger wiring completion
+
+- Completed the Main ID notification path end-to-end: the shared member_ids status trigger now fires for both `main` and `duplicate` ID types. The trigger previously filtered only Duplicate IDs, which meant the Main ID branch in the notification function could never execute.
+- Updated the source-contract test to assert both ID types are included in the trigger condition. Test source only; not executed.
+- Commits: migration correction `56e2d95f0cb5c7cba4664fdf2cfad6f46c680556`; regression source `6c81f6ac756e9b36c33629c774fcc437b8d76000`.
+- Migration remains source-only and is not applied to TEST or Production. No test/QA/type-check executed.
