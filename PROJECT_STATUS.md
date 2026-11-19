@@ -1198,3 +1198,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Key commits: migration e1592c9b03f992e4df81ebc7aab8d38f5198a08f; member UI 4f8259ffcc09fe7dc68dd3464ca47acc5b1343e7; Admin UI b60f81c251905966eb3d76090122de6dbaf7a6ef; App integration 31298afb947876ae708c4da178bb086613bb5ddf; Admin integration 68fd52e6f5e2c2bd970aa07f35496b80a96d3e55; manifest 7b36476f84fac70e71688af540c9de7f09c31294; regression source e85ee5adcc2dcb60bb45d982d80d1d91bf514d3c.
 - Migration remains source-only; not applied to TEST or Production. No tests/type-check/browser/mobile QA run. Protected main unchanged.
 - Overall development completion remains **74% provisional**.
+
+
+# Development checkpoint — 2026-11-19 (Member product editing)
+
+- Added owner-scoped editing and resubmission for member product listings in Pending or Rejected state. Members can correct the product name, description, category and optional details, keep existing private images or replace them, then return the listing to Admin review.
+- Added forward-only source migration `20261119450000_member_product_submission_editing.sql`; RPC locks the row, checks owner and active Main ID, validates private image ownership, resets review metadata and records an audit event. Registered in the clean-install forward manifest.
+- Updated the member product submission UI with Edit & Resubmit controls and preserved existing images when no replacement is selected. Added source-only regression contract test.
+- Commits: migration `88b28f955eb3021f339f72c8a1a36671518fec47`; migration cleanup `528ee6a863dcb4a02595c280dd275316eb29a48a`; member UI `dd0448a0213eb6bf1f124d17be29c241cca13b53`; manifest `700343a79339b0293db5bc024451f65f26d28630`; regression source `2377b59610ff1ec85409c760b27d67dd10bc5240`.
+- Migration is source-only; NOT applied to TEST or Production. Tests/build/type-check/browser/mobile QA remain deferred. Protected `main` unchanged.
+- Overall development completion: **75% provisional** (not runtime verified).
