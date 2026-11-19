@@ -3,13 +3,14 @@ import {supabase} from '../lib/supabase';
 
 type PackageOption={id:string;name:string;is_active:boolean};
 type MatrixRule={level:number;enabled:boolean;reward_type:'fixed'|'percentage';reward_value:string;eligibility_rule:string};
-type MatrixPlan={id:string;package_id:string;version_number:number;matrix_width:number;matrix_depth:number;is_active:boolean;created_at:string;levels:{level:number;enabled:boolean;reward_type:'fixed'|'percentage';reward_value:number;eligibility_rule:Record<string,unknown>}[]};
+type MatrixPlan={id:string;package_id:string;version_number:number;matrix_width:number;placement_depth:number;matrix_depth:number;is_active:boolean;created_at:string;levels:{level:number;enabled:boolean;reward_type:'fixed'|'percentage';reward_value:number;eligibility_rule:Record<string,unknown>}[]};
 
 const makeRules=(depth:number):MatrixRule[]=>Array.from({length:depth},(_,i)=>({level:i+1,enabled:false,reward_type:'fixed',reward_value:'0',eligibility_rule:'{}'}));
 
 export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
  const [packageId,setPackageId]=useState('');
  const [width,setWidth]=useState('5');
+ const [placementDepth,setPlacementDepth]=useState('5');
  const [depth,setDepth]=useState('5');
  const [rules,setRules]=useState<MatrixRule[]>(makeRules(5));
  const [plans,setPlans]=useState<MatrixPlan[]>([]);
@@ -38,10 +39,11 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
  }
  async function saveDraft(){
   if(!supabase||busy)return;
-  const w=Number(width),d=Number(depth);
+  const w=Number(width),pd=Number(placementDepth),d=Number(depth);
   if(!packageId){setMessage('Select a package first.');return;}
   if(!Number.isInteger(w)||w<2||w>100){setMessage('Matrix width must be a whole number from 2 to 100.');return;}
-  if(!Number.isInteger(d)||d<1||d>50){setMessage('Matrix depth must be a whole number from 1 to 50.');return;}
+  if(!Number.isInteger(pd)||pd<1||pd>50){setMessage('Placement depth must be a whole number from 1 to 50.');return;}
+  if(!Number.isInteger(d)||d<1||d>50){setMessage('Commission depth must be a whole number from 1 to 50.');return;}
   if(rules.length!==d){setMessage('The level rules do not match the configured depth.');return;}
   const payload=[];
   try{
@@ -54,7 +56,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
    }
   }catch(e){setMessage(e instanceof Error?e.message:'Invalid Matrix level configuration.');return;}
   setBusy(true);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_save_matrix_plan_draft',{p_package_id:packageId,p_matrix_width:w,p_matrix_depth:d,p_rules:payload});if(error)throw error;if(!data?.plan_id)throw new Error('The server did not confirm a saved draft.');setMessage('Matrix plan draft v'+data.version_number+' saved. It is not active.');await loadPlans(packageId);}
+  try{const{data,error}=await supabase.rpc('admin_save_matrix_plan_draft',{p_package_id:packageId,p_matrix_width:w,p_placement_depth:Number(placementDepth),p_matrix_depth:d,p_rules:payload});if(error)throw error;if(!data?.plan_id)throw new Error('The server did not confirm a saved draft.');setMessage('Matrix plan draft v'+data.version_number+' saved. It is not active.');await loadPlans(packageId);}
   catch(e){setMessage(e instanceof Error?e.message:'Matrix plan draft could not be saved.');}
   finally{setBusy(false);}
  }
@@ -76,7 +78,8 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
    {selectedPackage?.is_active&&<div className="notice">This package is published. Existing Matrix plan history is read-only.</div>}
    <div className="sponsorAdminForm">
     <label>Matrix Width (1:X)<input type="number" min="2" max="100" step="1" value={width} onChange={e=>setWidth(e.target.value)}/><small>Predefined widths: 1:3, 1:4, 1:5, 1:6, 1:7. Custom width: any whole number from 2 to 100.</small></label>
-    <label>Matrix Depth (commission levels)<input type="number" min="1" max="50" step="1" value={depth} onChange={e=>setDepth(e.target.value)}/></label>
+    <label>Placement Depth<input type="number" min="1" max="50" step="1" value={placementDepth} onChange={e=>setPlacementDepth(e.target.value)}/><small>Maximum levels for automatic Matrix placement.</small></label>
+    <label>Commission Depth (levels)<input type="number" min="1" max="50" step="1" value={depth} onChange={e=>setDepth(e.target.value)}/><small>Number of Matrix commission levels; independent of placement depth.</small></label>
    </div>
    <h4>Level-wise Matrix Commission Rules</h4>
    {rules.slice(0,depthNumber).map((rule,index)=><article className="adminModuleDetail" key={rule.level}>
@@ -94,11 +97,11 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
    <div className="memberReportHeading"><h4>Saved Plan Versions</h4><button type="button" className="outline small" disabled={loading||!packageId} onClick={()=>void loadPlans()}>{loading?'Loading…':'Refresh'}</button></div>
    {!packageId?<div className="empty">Select a package to view its Matrix plan versions.</div>:loading?<div className="packageState">Loading Matrix plans…</div>:plans.length===0?<div className="empty">No Matrix plan versions found for this package.</div>:<div className="referralList">{plans.map(plan=><article key={plan.id}>
     <div className="memberReportHeading"><b>Version {plan.version_number}</b><span>{plan.is_active?'Active':'Draft'}</span></div>
-    <small>Width 1:{plan.matrix_width} · Depth {plan.matrix_depth} · Created {new Date(plan.created_at).toLocaleString('en-IN')}</small>
+    <small>Width 1:{plan.matrix_width} · Placement depth {plan.placement_depth} · Commission depth {plan.matrix_depth} · Created {new Date(plan.created_at).toLocaleString('en-IN')}</small>
     <small>{plan.levels.filter(level=>level.enabled).length} of {plan.matrix_depth} commission levels enabled</small>
     {!plan.is_active&&<button type="button" className="outline small" disabled={busy||selectedPackage?.is_active} onClick={()=>void activate(plan)}>Activate this plan</button>}
    </article>)}</div>}
-   {activePlan&&<small>Current active plan: v{activePlan.version_number} · Width 1:{activePlan.matrix_width} · Depth {activePlan.matrix_depth}</small>}
+   {activePlan&&<small>Current active plan: v{activePlan.version_number} · Width 1:{activePlan.matrix_width} · Placement depth {activePlan.placement_depth} · Commission depth {activePlan.matrix_depth}</small>}
   </div>
  </section>;
 }
