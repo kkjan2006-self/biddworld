@@ -2084,3 +2084,12 @@
 - Added regression source `tests/product-catalogue-details.test.ts` and registered the migration in the ordered clean-install forward manifest.
 - Commits: catalogue UI `acc9cafc1efde10fad003379192acb817f3e0a9b`; migration `a2e41f1f4320ff3217d8b5b44ac74c498e454d82`; test `77eb7fd0cbb56cefc554819023c0868be74bbef5`; search UI `291465a826b8fdf6ec9d8ec96d9b464c86480f5e`; manifest `d75d3e4662542e3f014331a83e07a8d4ecb29c5c`; manifest regression `4320e6dd2b3d5d25398908d1c2d038ddf421b086`.
 - Source-only work on `completion-work`. No tests/build/type-check, migration execution, Supabase changes, Preview deployment or runtime QA performed. Protected `main` untouched.
+
+
+## 2026-11-19 — Current source inventory and development checkpoint refresh
+
+- Reconciled the current forward manifest after adding the approved product-detail migration: 115 unique, strictly ordered forward candidates + 16 unique excluded historical timestamped migrations = 131 timestamped migration files. No overlap or duplicate forward path was found. Three legacy/unversioned SQL files remain outside this candidate chain.
+- Updated the clean-install README and current PROJECT_STATUS development/pending sections to remove stale 87/103 and 110/126 inventory counts. Historical checkpoint notes remain intact as dated history.
+- Product-detail migration trigger additionally requires all optional-detail JSON values to be plain text, keeping the public catalogue's typed rendering contract safe. Regression source extended accordingly.
+- Follow-up commits: migration hardening `49a9b14738447a56201a096ea928de78588868a9`; regression update `f12b149facdfbd173c1c232bbb5fae578a5a213f`.
+- No tests/build/type-check, database migration, Supabase write, Preview deployment or runtime QA performed. All changes remain on `completion-work`; protected `main` unchanged.
