@@ -1878,3 +1878,12 @@
 - Added source-contract coverage in `tests/admin-duplicate-id-directory-integrity.test.ts`.
 - Commits: Admin source `729351bfad962ba09e11296fae4d490a70077820`; contract test `b4c348f96facae029b868903a9396f36eba968c5`; checkpoint `2a2cc30418a3ff3df39fc6b3405de416e2871c57`.
 - Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database reads or writes, migrations, Preview deployment or protected `main` changes occurred.
+
+
+## 2026-11-19 — Admin Matrix Plan directory integrity
+
+- Added strict validation for Matrix plan list responses: package ownership, unique plan IDs, positive versions, bounded matrix/placement/commission dimensions, timestamps, complete sequential levels, supported reward types and values, and object-shaped eligibility rules.
+- Added request-generation invalidation and stale-response suppression when switching packages, preventing late responses from showing another package's plans.
+- Added source-contract coverage in `tests/admin-matrix-plan-directory-integrity.test.ts`.
+- Commits: Matrix Plans component `4f82989cce55b824d1be762b34f93c919c0693c0`; contract test `a3b0496266d1edd5a8e325ebb7abeb3883110e7d`; checkpoint `fda900b8e9ae0833f5e697e149cc749b73d37337`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database reads or writes, migrations, Preview deployment or protected `main` changes occurred.
