@@ -3,10 +3,11 @@ import {ShieldCheck,UserPlus,UserMinus,RefreshCw} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 type Staff={user_id:string;email:string|null;created_at:string;last_sign_in_at:string|null;permissions:string[]};
 export default function AdminPaymentReviewStaff(){
- const[rows,setRows]=useState<Staff[]>([]),[email,setEmail]=useState(''),[reason,setReason]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
+ const[rows,setRows]=useState<Staff[]>([]),[email,setEmail]=useState(''),[reason,setReason]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[primary,setPrimary]=useState(false);
  async function load(){if(!supabase)return;const{data,error}=await supabase.rpc('admin_list_payment_review_staff');if(error){setMessage(error.message);return;}setRows((data??[]) as Staff[]);}
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{let active=true;void (async()=>{const{data}=await supabase?.auth.getUser()??{data:null};if(!active)return;const isPrimary=data?.user?.email?.toLowerCase()==='kkjan2006@gmail.com';setPrimary(isPrimary);if(isPrimary)await load();})();return()=>{active=false};},[]);
  async function change(target:string,enabled:boolean,why:string){if(!supabase||busy)return;if(!window.confirm((enabled?'Grant restricted payment-review staff access to ':'Revoke staff access from ')+target+'?'))return;setBusy(true);setMessage('');try{const{error}=await supabase.rpc('admin_set_payment_review_staff',{p_email:target,p_enabled:enabled,p_reason:why});if(error)throw error;setMessage('Staff role updated. The user must sign out and sign in again.');setEmail('');setReason('');await load();}catch(e){setMessage(e instanceof Error?e.message:'Staff role could not be updated.');}finally{setBusy(false);}}
+ if(!primary)return null;
  return <section style={{display:'flex',flexDirection:'column',gap:10,marginTop:18,padding:12,border:'1px solid var(--border,#ddd)',borderRadius:10}}>
   <h5>Restricted Payment Review Staff</h5><p>Staff can only view and approve/reject Package Activation payments and Main Wallet Add Money requests. They cannot access other Admin modules, adjust balances, manage roles or change settings.</p>
   {message&&<div className="notice" role="status">{message}</div>}
