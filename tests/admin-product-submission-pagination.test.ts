@@ -17,5 +17,7 @@ describe('Admin product submission keyset pagination',()=>{
   expect(ui).toContain("'admin_list_product_submissions_page'");
   expect(ui).toContain('setRows(previous=>reset?items:[...previous,...items])');
   expect(ui).toContain('Load more pending submissions');
+  expect(ui).toContain('function validSubmission(value:unknown)');
+  expect(ui).toContain('duplicate or overlapping records');
  });
 });
