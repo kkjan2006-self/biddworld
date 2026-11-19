@@ -1,3 +1,11 @@
+## 2026-11-19 — Public auction preview clarity and tablet navigation
+
+- The public auction catalogue loader now distinguishes an unavailable/missing catalogue RPC from a genuinely empty search result. When the RPC is unavailable, the page explains that the database update is not installed and that any sample cards are preview-only; it does not represent samples as live auctions.
+- The responsive header now switches to its compact mobile navigation at widths up to 760px, avoiding the compressed full navigation seen on narrower tablet-sized screens.
+- Added `tests/public-auction-preview-fallback.test.ts` as source-contract coverage. It was authored but not executed, following the development-first testing gate.
+- This addresses source behavior only. The screenshot URL may be serving a different branch/build; these commits do not update or deploy the GitHub Pages site.
+- No tests/builds were run. No SQL was applied; Production Supabase remains read-only and TEST remains untouched. No member, wallet, package, bid, payment or withdrawal data was changed.
+
 ## 2026-11-19 — Member auction submission preflight hardening
 
 - Added a synchronous in-flight guard so rapid repeated taps cannot start concurrent member auction submissions.
