@@ -1653,3 +1653,11 @@
 - Added regression contracts for duplicate-click serialization and stale-response suppression.
 - Commits: UI `574f21aa83b301953ceba62354b1ad9a2636a221`; test `2f01743305c5b57700a0cb0c6642749cb2776ef1`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+
+
+## Matrix pagination stale-cleanup race guard — 2026-11-19
+
+- Tightened the previous pagination guard: a stale request's `finally` block may no longer clear the synchronous in-flight flag belonging to a newer account-load generation.
+- Removed an unused captured profile value; the current load-generation guard remains the authority for response acceptance.
+- Commit: `f06f0bc3faa99fd03cae5ff109e224e348e77f4f`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
