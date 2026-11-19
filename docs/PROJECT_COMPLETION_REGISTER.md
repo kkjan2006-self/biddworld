@@ -1,3 +1,12 @@
+## 2026-11-19 — Wallet, Fixed Bid and Admin report integrity
+
+- Member wallet transaction pagination now rejects malformed records, invalid timestamps, and duplicate IDs before moving its keyset cursor.
+- Fixed Bid sample preview cards are shown only for a genuinely empty catalogue; a failed catalogue request now remains an error instead of appearing as a successful sample result. Campaign response records and IDs are validated.
+- Admin Auction Bid and Fixed Bid Entry report pages and CSV exports validate array responses, IDs, timestamps, and duplicates before presenting or exporting records.
+- Added source-contract coverage in `tests/member-wallet-and-inbox-retry-guards.test.ts` and `tests/admin-auction-fixedbid-report-date-range.test.ts`.
+- Commits: Wallet History `f6e88b7fd7c0de2c369cac337a7a659b1eb324a9`; Fixed Bid `2893de804389345bb2ae081d0bbf45d6244c2c0c`; Auction report `ea793c09115f09b22fdd3afafbfd59edde362eb0`; Fixed Bid report `20ec70355e098dc8264ad7e56390bde9c3a55ca9`; tests `2b8b626dc3e186550e74e6e6b4ef5528f00265be` and `21a5f9e46b7424b86ef80fc28312e80b104b8092`.
+- Tests/build/type-check/browser QA were not run. No Supabase access or database changes occurred.
+
 ## 2026-11-19 — Staff directory and notification page integrity
 
 - Hardened the restricted payment-review Staff directory with explicit configuration/authentication errors, stale-request protection, and validation of account IDs and permission values.
