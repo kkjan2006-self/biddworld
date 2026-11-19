@@ -102,3 +102,19 @@ revoke all on function public.admin_list_pending_wallet_fund_requests() from pub
 grant execute on function public.admin_list_pending_wallet_fund_requests() to authenticated;
 revoke all on function public.admin_review_wallet_fund_request(uuid,boolean,text) from public,anon;
 grant execute on function public.admin_review_wallet_fund_request(uuid,boolean,text) to authenticated;
+
+-- Package activation Staff must also be able to view the private receipt
+-- for requests they are authorized to review.
+drop policy if exists "Admins read package receipts" on storage.objects;
+create policy "Admins read package receipts"
+on storage.objects for select to authenticated
+using(
+ bucket_id='package-receipts'
+ and (
+  coalesce(auth.jwt()->'app_metadata'->>'role','')='admin'
+  or (
+   coalesce(auth.jwt()->'app_metadata'->>'role','')='admin_staff'
+   and coalesce(auth.jwt()->'app_metadata'->'permissions','[]'::jsonb) ? 'package_activation_review'
+  )
+ )
+);
