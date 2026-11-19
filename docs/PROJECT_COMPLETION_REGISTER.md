@@ -1204,3 +1204,13 @@
 - Added `tests/product-catalogue-sample-preview.test.ts` as source-contract coverage; not executed.
 - Commits: `011516e55ea49d33760fd0699c0c53f68100b6a5` (product preview data and rendering), `1e9a868d4bead476608667287f5adac14e757da3` (product card styling), `2becdfedfc712d9f40f53100761bb4aa79bbcf84` (test source).
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
+
+
+## Latest Admin Frontend Batch — Product draft editing controls
+
+- Admin product form now clearly switches between new-product and edit-product modes, with matching Save/Update button text.
+- Added Cancel Edit to clear the unsaved form state and return to new-product mode; if an unattached temporary image exists, its existing cleanup flow is invoked.
+- Product draft save is disabled while an image upload is in progress, preventing a premature save before the selected image upload finishes.
+- Added `tests/admin-product-draft-edit-controls.test.ts` source-contract coverage; not executed.
+- Commits: `c08491dff55286de474175b3830b08c71b5aa5bb` (Admin form controls), `450e46c6308c9ed1debdc4aa8bbd047ae3783b3a` (test source).
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
