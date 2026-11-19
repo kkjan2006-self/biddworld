@@ -10,6 +10,7 @@ describe('Admin feature settings diagnostics and enablement', () => {
     expect(admin).toMatch(/Feature settings response is incomplete/);
     expect(admin).toContain("typeof record[key]!=='boolean'");
     expect(admin).toMatch(/Retry Settings/);
+    expect(admin).toMatch(/setFeatureSettingsLoaded\(false\);setFeatureSettingsLoadError\(''\)/);
   });
 
   it('allows only implemented or server-condition-checked settings in the frontend', () => {
