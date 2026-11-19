@@ -15,7 +15,9 @@ describe('Admin package Matrix plan editor contract',()=>{
  it('supports independent width/depth and per-level fixed/percentage rules',()=>{
   expect(editor).toContain('Matrix Width (1:X)');
   expect(editor).toContain('any whole number from 2 to 100');
-  expect(editor).toContain('Matrix Depth');
+  expect(editor).toContain('Placement Depth');
+  expect(editor).toContain('Commission Depth (levels)');
+  expect(editor).toContain('p_placement_depth');
   expect(editor).toContain("value=\"fixed\"");
   expect(editor).toContain("value=\"percentage\"");
   expect(editor).toContain('eligibility_rule:eligibility');
