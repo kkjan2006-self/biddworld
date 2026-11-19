@@ -1746,3 +1746,11 @@
 - Added migration `20261119350000_serialize_duplicate_id_feature_toggle.sql`, registered it in the clean-install forward manifest, and added `tests/duplicate-id-feature-toggle-serialization.test.ts`.
 - Commits: migration `02e193dfbd6ed83ffeb9cfacc00ef6561f9fdad3`; test `4ab3dce842ad1796baac0cd975dbcb2268e4d32d`; manifest `bd5ab33d0feca4b9df0c31dea907fe800ff79654`.
 - Tests/build/type-check/browser/mobile QA were not run. No TEST or Production migrations or data writes, deployment or protected `main` changes occurred.
+
+## 2026-11-19 — Duplicate ID insert-trigger OLD-record safety
+
+- Reworked the Duplicate-ID creation trigger to branch explicitly on `TG_OP` before accessing `OLD`. This avoids relying on boolean short-circuit evaluation for an unassigned trigger record during INSERT.
+- New Duplicate-ID INSERTs and ID-type transitions into `duplicate` retain the shared graph lock and fail-closed `duplicate_ids_enabled` check. Existing Duplicate IDs and unrelated updates are unaffected.
+- Added migration `20261119360000_fix_duplicate_toggle_trigger_insert_record.sql`, regression source contract `tests/duplicate-id-toggle-trigger-old-record.test.ts`, and forward-migration manifest entry.
+- Commits: migration `d936ad3eb1224f1ab6bdf10f3519b1e06e223c53`; test `b5c9a4b0daa69a17f7c23532a47e850027fc6a3a`; manifest `01376a49c7a3e040ca059f797a0c792ead512536`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production migrations or data writes, deployment or protected `main` changes occurred.
