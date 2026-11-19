@@ -1704,3 +1704,12 @@
 - Added UI contract coverage for Sponsor/Under ID separation and Matrix chain labelling.
 - Commits: Account UI `d346f5153c6069e746dfa61d013359f284da6a21`; regression contract `26cf98006bd828a8b0a497759b697e0d2c91893d`.
 - No tests/build/type-check/browser/mobile QA run; no TEST/Production migrations or data writes.
+
+
+## 2026-11-19 — Member Sponsor / Under ID clarity
+
+- Added a separate read-only Main ID Under ID / placement-parent field to the Member Account dashboard and profile; Sponsor Member ID remains independently displayed.
+- Reconfirmed Sponsor identity is derived from the referral relationship while Under ID is derived from the placement-parent relationship. Sponsor genealogy and Placement Tree remain distinct.
+- Added source-contract coverage in `tests/member-sponsor-under-id-separation.test.ts`; authored but not executed under the final-testing gate.
+- Commits: Account UI `324c34572a43064aee56c64796648e08d5c65049`; contract test `92d011b138f247d19012c77f226f660df7587394`.
+- No tests/build/type-check/browser/mobile QA, Supabase migrations/writes, Production access, deployment or protected `main` changes.
