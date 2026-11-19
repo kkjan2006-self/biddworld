@@ -1275,3 +1275,14 @@
 - Updated the clean-install README and authoritative project status to reflect the current inventory and verified source HEAD. The existing manifest-integrity test source covers exact accounting and ordering; it has not been run.
 - No tests, build, QA, browser/device checks, migration replay, Supabase writes or deployment were performed. Production remains read-only; TEST remains untouched.
 - Overall development estimate remains **60% Provisional**; the correction repairs source-manifest integrity and does not imply successful database replay or runtime verification.
+
+
+## 2026-11-19 — Isolated Preview Pages workflow permission hardening
+
+- Updated the separate `biddworld-preview` repository's `main` branch at commit `903b198fb69039d2f0de706c714662467a5a8abc`.
+- Removed `enablement: true` from `actions/configure-pages`; the workflow no longer attempts a repository-settings operation through its limited workflow token, addressing the observed `Resource not accessible by integration` permission failure.
+- Updated the Preview README with the one-time owner action: GitHub repository Settings → Pages → Build and deployment → Source → GitHub Actions → Save. The owner must then manually dispatch the deployment workflow or push a new Preview commit.
+- The workflow remains isolated and visual-only: `npx vite build`, `VITE_BIDDWORLD_MODE=preview`, no Supabase URL/key secrets, no tests, and no Production database connection. The Vite base path remains `/biddworld-preview/`.
+- The deployment URL has not been verified live. The GitHub workflow-run lookup did not surface a run for the latest pre-fix commit; do not claim the site is published until a successful Pages deployment is visible.
+- The primary `biddworld` repository's protected `main` currently points to `620d05b2d266d26dc70c5ff775ed45af9bb3b400`; it was not modified. All application development remains on `completion-work`.
+- No tests/build/QA, Supabase writes, migration replay or deployment were performed by this documentation/workflow configuration change.
