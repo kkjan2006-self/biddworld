@@ -34,4 +34,15 @@ describe('member notification inbox actions',()=>{
  it('keeps the bulk-read action out of Admin authoring mode',()=>{
   expect(source).toContain("!isAdmin&&<><button className=\"outline small\" type=\"button\" onClick={()=>setUnreadOnly");
  });
+ it('rejects malformed and duplicate IDs in the initial inbox page',()=>{
+  expect(source).toContain("typeof item.id!=='string'");
+  expect(source).toContain("ids.has(item.id)");
+  expect(source).toContain('invalid or duplicate notification IDs');
+ });
+ it('stops pagination instead of appending malformed or duplicate notification rows',()=>{
+  expect(source).toContain('let duplicateFound=false,invalidFound=false');
+  expect(source).toContain('if(invalidFound||duplicateFound){setHasMore(false)');
+  expect(source).toContain('setItems(current=>[...current,...fresh.slice(0,PAGE_SIZE)])');
+ });
+
 });
