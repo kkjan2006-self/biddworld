@@ -1581,3 +1581,12 @@
 - Migration: `20261119320000_member_matrix_commission_summary.sql`; registered in the clean-install forward manifest. Added source-contract coverage in `tests/member-matrix-commission-summary.test.ts`.
 - Commits: migration `808f1e996d814df1a6296f8b1dd5260e0d0b27af`; member UI `9a9488c8ea59ea8e293cde912cdc9a73dcd2b25f`; manifest `1c6862dcdeca2647cb872fcb3424b382843c4ead`; contract test `06f21fc0b4bd8c97ad676e4e05f1e01843898ef1`.
 - This is source-only. No tests, type-check, build, browser/mobile QA or database migrations were run/applied. The previously recorded TEST migration-state exception remains untouched; Production remains untouched.
+
+
+## Member Commission History expansion — 2026-11-19
+
+- Extended the Member Account > Commission History page to show Sponsor Referral Commissions and Matrix Commissions in separate sections. Matrix rows include level, source member code, source ID type (Main/Duplicate), amount, status and date. The credited destination remains the authenticated member's Main ID.
+- Added `member_list_my_matrix_commissions_page(p_limit,p_offset)`, which derives the caller's linked Main ID from `auth.uid()`, validates pagination, returns only rows credited to that Main ID, and exposes source ID attribution without direct table access.
+- Updated migration `20261119320000_member_matrix_commission_summary.sql` and added source-contract test `tests/member-matrix-commission-history.test.ts`.
+- Commits: Account UI `7e85ee8445a272f3a89965b5ea11601c84474858`; RPC migration `874ed1928aea683ba1308b87e72713a9dd71b8ec`; contract test `0d43c1c7bb25ee17fcc7ab773d5fbdedf156dc2d`.
+- The member history currently loads the first 100 Matrix rows; pagination for this section remains a follow-up. No tests/build/type-check/browser/mobile QA run. No database migrations applied.
