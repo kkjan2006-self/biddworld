@@ -179,3 +179,10 @@ The verified `completion-work` source inventory contains 103 timestamped migrati
 ## Registration email verification default (#93)
 
 The forward migration `20261119230000_registration_email_verification_off_by_default.sql` sets the BiddWorld application setting `email_verification_required` to false on both clean installs and upgrades, and changes the public policy RPC's missing-row fallback to false. The Admin override remains available. Supabase Auth's project-level Confirm Email option is separate and must also be OFF in the isolated TEST/Preview environment for immediate login. This migration is source-only and has not been applied.
+
+## Duplicate ID feature switch enforcement (#94)
+
+- Added `20261119270000_block_duplicate_creation_when_disabled.sql`. The database now rejects every new Duplicate ID row (including Pending rows and direct insert paths) while `duplicate_ids_enabled` is OFF. Turning it ON again restores new creation.
+- The Admin switch can be turned OFF/ON independently of unrelated feature locks. Existing Duplicate IDs, status management, balances, reports, transactions and history are not deleted or changed by the creation switch.
+- Added `tests/duplicate-id-feature-switch.test.ts` source-contract coverage. No tests/build/QA or migration replay were run; no Supabase database was changed.
+- Inventory: 88 forward + 16 excluded timestamped migrations = 104 timestamped migration files, plus 3 legacy SQL files. The forward manifest includes the new migration.
