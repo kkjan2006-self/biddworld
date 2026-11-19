@@ -493,11 +493,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: `a6cd717cd4fe82d330004acaf5930cb6a1c44b2c` (UI), `d5d1753f37733b12295abea9281f66400f3ffe0e` (test source).
 
 
-## 2026-11-19 — Registration email verification default (#88)
+## 2026-11-19 — Registration email verification default (#93)
 
 - The current source default contradicted the owner's explicit requirement that email verification is not required: the app initialized the policy to true and migration #78 seeded true.
 - Updated the Member signup client fallback to false, so a temporarily unavailable policy RPC does not reintroduce mandatory confirmation behavior.
-- Added forward migration #88 to set `email_verification_required=false` for existing and clean-install environments and change the public policy RPC's missing-setting fallback to false. The Admin override remains available; provider-level Supabase Auth Confirm Email must independently remain OFF.
+- Added forward migration #93 to set `email_verification_required=false` for existing and clean-install environments and change the public policy RPC's missing-setting fallback to false. The Admin override remains available; provider-level Supabase Auth Confirm Email must independently remain OFF.
 - Added `tests/registration-email-verification-default.test.ts` as source-contract coverage; not executed.
 - Updated the forward manifest and clean-install README. No tests, build, type-check, browser/device QA, migration replay, Supabase writes or deployment were performed. Production remains read-only; no TEST writes were performed. Protected `main` remains untouched.
 - Overall development completion remains **60% Provisional**; this source correction does not establish migration replay or runtime verification.
