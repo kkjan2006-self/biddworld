@@ -22,6 +22,10 @@ describe('Admin member-auction review safety',()=>{
   assert.match(review,/publishedPaths\.length>0&&\(!rpcAttempted\|\|rpcDefinitelyRejected\)/);
   assert.match(review,/from\('product-media'\)\.remove\(publishedPaths\)/);
  });
+ it('clears per-submission edits after a successful review and safely handles an empty start time',()=>{
+  assert.match(review,/delete next\[r\.id\]/);
+  assert.match(review,/e\.target\.value&&Number\.isFinite\(new Date\(e\.target\.value\)\.getTime\(\)\)/);
+ });
  it('preserves published images when the RPC outcome is ambiguous',()=>{
   assert.match(review,/publishedPaths\.length>0&&\(!rpcAttempted\|\|rpcDefinitelyRejected\)/);
  });
