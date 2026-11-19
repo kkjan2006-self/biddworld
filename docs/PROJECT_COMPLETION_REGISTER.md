@@ -1928,3 +1928,13 @@
 - Commits: Auction Bid report `9c7c39752a929ebac6a391c1f4f4ab6932886bcf`; Fixed Bid Entry report `fe7fcd232df23534faab21860e9394be77c67a69`; regression source `c47c0e61dd7e58b9860d04ba223148f49bd79ced`.
 - Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database access or writes, migrations, Preview deployment or protected `main` changes occurred.
 - Overall development completion remains **71% provisional**.
+
+
+## 2026-11-19 — Main ID status mutation hardening
+
+- Main ID status changes now use a synchronous in-flight ref to prevent duplicate submissions before React state updates, validate the supported status values, and capture the selected member code at submission time.
+- The Admin UI now validates the RPC result envelope and the linked Duplicate ID count instead of coercing malformed or missing values to zero. Existing status choices, confirmation, RPC and audit behavior remain unchanged.
+- Added source-contract coverage in `tests/admin-main-member-status-mutation-safety.test.ts` (authored only; not executed).
+- Commits: Admin source `078db788085696f9b2c9f455ccd90fd75e28c198`; regression source `c035b0458bdd7760bc3c6fef2d9af1068e655409`.
+- Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database access or migrations, and no protected `main` changes.
+- Overall development completion remains **71% provisional**.
