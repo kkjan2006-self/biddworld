@@ -90,3 +90,6 @@ The original member-notification migration separately granted column-level INSER
 - Member-facing labels now call the former Income Wallet the Main Wallet; internal wallet type remains income to preserve existing ledger and settlement contracts. Bid Wallet remains unchanged.
 - Admin review currently uses the repository's existing authenticated Admin role. A distinct Admin Staff role is not present in the current authorization model and has not been invented or granted.
 - Added forward migration candidate #76. Source-only; migration not applied. Tests not run. No build, QA, DB replay/write, Production access or deployment.
+
+
+- Inventory update after Main Wallet funding migration #76: 76 forward + 16 excluded timestamped + 3 legacy SQL files = 95 SQL files (92 timestamped). This is source inventory only; no replay was performed.
