@@ -23,7 +23,7 @@ type CampaignStatus='all'|'scheduled'|'live'|'ended';
 function productImageUrl(path:string|null|undefined){if(!path)return '';if(/^https?:\\/\\//i.test(path))return path;return supabase?.storage.from('product-media').getPublicUrl(path).data.publicUrl??'';}
 function requestKey(){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
 
-export default function FixedBid(){
+export default function FixedBid({compact=false}:{compact?:boolean}){
  const [rows,setRows]=useState<Campaign[]>([]),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[error,setError]=useState('');
  const [search,setSearch]=useState(''),[statusFilter,setStatusFilter]=useState<CampaignStatus>('all');
  const [message,setMessage]=useState(''),[joining,setJoining]=useState('');
@@ -73,12 +73,12 @@ export default function FixedBid(){
   }catch(e){setMessage(e instanceof Error?e.message:'Campaign entry could not be confirmed. Retry safely; the same request key will be reused.');}
   finally{setJoining('');}
  }
- return <section className="fixedBidList">
-  <div className="packageIntro"><span className="workspaceIcon"><Gavel/></span><div><h3>Fixed Bid campaigns</h3><p>Review campaign rules, entry limits and schedules before participating. Entries are recorded by the secure server workflow.</p></div><button className="outline small" onClick={()=>void load(true)} disabled={loading||loadingMore}><RefreshCw size={14}/> Refresh</button></div>
+ return <section className={`fixedBidList${compact?" fixedBidCompact":""}`}>
+  <div className="packageIntro"><span className="workspaceIcon"><Gavel/></span><div><h3>Fixed Bids</h3>{!compact&&<p>Review campaign rules, entry limits and schedules before participating. Entries are recorded by the secure server workflow.</p>}</div><button className="outline small" onClick={()=>void load(true)} disabled={loading||loadingMore}><RefreshCw size={14}/> Refresh</button></div>
   {message&&<div className="notice" role="status" aria-live="polite">{message}</div>}
-  <div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:14}}><label>Search campaign title<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Enter campaign title"/></label><label>Campaign status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as CampaignStatus)}><option value="all">All statuses</option><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="ended">Ended</option></select></label></div>
+  {!compact&&<div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:14}}><label>Search campaign title<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Enter campaign title"/></label><label>Campaign status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as CampaignStatus)}><option value="all">All statuses</option><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="ended">Ended</option></select></label></div>}
   {loading?<p className="packageState">Loading campaigns…</p>:error&&rows.length===0?<div className="notice">{error} <button className="outline small" onClick={()=>void load(true)}>Retry</button></div>:rows.length===0?<div className="empty">{search.trim()||statusFilter!=='all'?'No campaigns match these filters.':'No scheduled, live or ended Fixed Bid campaigns are available.'}</div>:
-  <><div className="memberModuleHint">{rows.length} matching campaigns loaded{hasMore?' · more results are available':''}.</div><button className="outline small" type="button" onClick={()=>{setSearch('');setStatusFilter('all');}}>Clear filters</button>
+  <>{!compact&&<><div className="memberModuleHint">{rows.length} matching campaigns loaded{hasMore?' · more results are available':''}.</div><button className="outline small" type="button" onClick={()=>{setSearch('');setStatusFilter('all');}}>Clear filters</button></>}
   <div className="fixedBidGrid">{rows.map(r=>{const config=r.configuration??{};const canJoin=r.status==='live'&&Number(config.entry_amount)>0&&Boolean(config.starts_at)&&Boolean(config.ends_at);return <article className="fixedBidCard" key={r.id}>
    <div className="fixedBidVisual">{productImageUrl(r.product?.image_path)?<img src={productImageUrl(r.product?.image_path)} alt={r.product?.name||'Campaign product'} loading="lazy"/>:<Package size={34}/>}<span>{r.product?.category??'FIXED BID'}</span></div>
    <div className="fixedBidBody"><span className="status">{r.status.toUpperCase()}</span><h3>{r.title}</h3>{r.product?.name&&<b>{r.product.name}</b>}<p>{r.description||r.product?.description||'Campaign details will be published by the administrator.'}</p>
@@ -93,6 +93,6 @@ export default function FixedBid(){
    </div></article>;})}</div>
   {error&&<div className="notice">{error}</div>}
   {hasMore&&<div className="marketPagination"><button className="outline darkOutline" disabled={loadingMore} onClick={()=>void load(false)}>{loadingMore?'Loading…':'Load more campaigns'}</button><span>{rows.length} campaigns loaded</span></div>}</>}
-  <p className="memberModuleHint"><ShieldCheck size={14}/> Each entry uses a unique retry key and is processed with server-side limits and wallet-ledger checks.</p>
+  {!compact&&<p className="memberModuleHint"><ShieldCheck size={14}/> Each entry uses a unique retry key and is processed with server-side limits and wallet-ledger checks.</p>}
  </section>;
 }
