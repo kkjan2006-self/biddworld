@@ -323,3 +323,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added source-contract coverage in `tests/member-auction-upload-cleanup.test.ts`. Test source written only; not executed. No build, QA, browser/device checks, SQL replay, Supabase writes or deployment.
 - Source commits: `4640e3ce46d471cd8f2a677c5400ae75f1a35700` (implementation), `7014af25690d906d4e3717f3bc0c4762861dbb2d` (test source).
 - Development estimate remains **59% Provisional** pending broader RPC/RLS, baseline and integration work.
+
+
+## Latest source-development batch — Wallet funding receipt cleanup
+
+- Added safe cleanup for Main Wallet Add Money receipts when the submission RPC returns a definite database error. This prevents rejected requests from leaving unnecessary private receipt objects in Storage.
+- Ambiguous RPC/network failures retain the uploaded receipt because the request may have committed despite a lost response; the UI does not risk deleting a receipt referenced by a successfully created request.
+- Added `tests/member-wallet-funding-upload-cleanup.test.ts` source-contract coverage (not executed).
+- Source commits: `c010a7b1e72f06670191c0b74c789c7f015909a8` (implementation), `1e64fa623a40842ffb796df8dba0c52877030dd1` (test source).
+- No tests/build/QA, browser/device checks, SQL replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
