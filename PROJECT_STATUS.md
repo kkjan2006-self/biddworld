@@ -1300,7 +1300,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member history UI `4b586721e1842d5bbb125bc4b7f528d7666fedc7`; member history migration `8bd890f7e54e34e1394107cffa6d528c462b1f73`; member history test `0fc47e89e0be629882a4b4af31456fc26124b445`; anon catalogue RLS/column grants `460182be64d3dda0ba17e7424d4697c1f494d902`; gallery column grant `8721d20970b8972987a6b2245c6ee24d9a2b9216`; updated tests `82e7d9e0bbce28a820dee7d5ebc296602d0626d1`, `07b6bdb632e77143fc74e517fb30af1e7d426172`.
 - Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
 - Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
-- Source development estimate: **94% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
+- Source development estimate: **95% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
 
 
 ## 2026-11-19 — Mandatory package receipt and current migration inventory
@@ -1380,3 +1380,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Migration manifest audit: **122 forward + 16 excluded = 138 timestamped SQL files**, all accounted for exactly once; forward entries are unique and strictly sorted. Three legacy/unversioned SQL files remain excluded from clean installation.
 - Development-only boundary: no tests/build/type-check/browser QA, no Supabase migration execution or data changes, no Preview deployment, and no protected `main` changes.
 - Overall source development estimate: **94% provisional**. Remaining work is full frontend/RPC/RLS/Storage integration reconciliation and closure of the remaining source-level workflow gaps.
+
+
+## 2026-11-19 — Remove unused placement and winner readiness switches
+
+- Removed the non-functional Automatic Placement switch from Admin Settings. Duplicate-ID creation already performs server-side breadth-first placement using the active package Matrix width/depth, and the Admin Duplicate ID workflow clearly describes the automatic placement behavior. Duplicate-ID creation itself remains independently controlled by the Duplicate IDs switch and its serialized server guard.
+- Removed the non-actionable Winner Selection Configured switch. Winner selection is performed by the protected `admin_finalize_auction` RPC after the auction ends, selecting the highest accepted bid with deterministic tie-breaking; it is not a manually toggleable setting.
+- Removed both unused keys from the consolidated feature-settings RPC response/allowlist so the Admin controls match actual supported workflows. Matrix commissions remain available through the ready switch and protected server condition.
+- Added `tests/duplicate-auto-placement-control.test.ts` and `tests/auction-winner-control-contract.test.ts`. Tests/build/type-check not run.
+- Commits: Admin control cleanup `d90bdbe312fe9708cb6059cec67178b3f6b8ab04`; feature RPC alignment `ff3beb6b889a6c15859955086395fd06c4063039`; duplicate placement test `6358d848c8138a363689d912bf1a46fa35969198`; winner control cleanup `955280092167da63acdc679de93adab01f211e11`; feature RPC cleanup `f2bbcbae3d0941a261092e3414a6b3dc7ce4e22b`; winner contract test `8bf5a4b2e070fd72ba34ef0ff29aa16c7fa0decb`.
+- Forward migration inventory unchanged at 122 files. Source development estimate: **95% provisional**; final full RPC/security/feature integration review remains.
