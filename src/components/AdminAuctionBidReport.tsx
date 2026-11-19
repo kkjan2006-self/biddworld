@@ -8,6 +8,13 @@ type AuctionBidReportRow={
  status:string;created_at:string;
 };
 type Filters={search:string;status:string;from:string;to:string};
+function parseAuctionBidRows(value:unknown):AuctionBidReportRow[]{
+ if(!Array.isArray(value)||value.length>100)throw new Error('Auction bid report page is invalid.');
+ const ids=new Set<string>();
+ return value.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Auction bid report row is malformed.');const row=raw as Record<string,unknown>;
+ if(typeof row.bid_id!=='string'||!row.bid_id.trim()||ids.has(row.bid_id)||typeof row.auction_id!=='string'||!row.auction_id.trim()||typeof row.auction_title!=='string'||!row.auction_title.trim()||typeof row.currency!=='string'||!row.currency.trim()||typeof row.member_code!=='string'||!row.member_code.trim()||(row.member_name!==null&&typeof row.member_name!=='string')||!Number.isFinite(Number(row.bid_amount))||Number(row.bid_amount)<=0||!Number.isFinite(Number(row.bid_wallet_debit))||Number(row.bid_wallet_debit)<0||!Number.isFinite(Number(row.income_wallet_debit))||Number(row.income_wallet_debit)<0||Number(row.bid_wallet_debit)+Number(row.income_wallet_debit)>Number(row.bid_amount)+0.000001||typeof row.status!=='string'||!row.status.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('Auction bid report contains malformed or duplicate records.');
+ ids.add(row.bid_id);return row as unknown as AuctionBidReportRow;});
+}
 const PAGE_SIZE=100;
 function boundary(date:string,end:boolean):string|null{
  if(!date)return null;
@@ -44,10 +51,10 @@ export default function AdminAuctionBidReport(){
    if(rpcError)throw rpcError;
    if(requestId!==request.current)return;
    if(!Array.isArray(data??[]))throw new Error('The auction bid report response was invalid. Refresh and retry.');
-   const fetched=(data??[]) as AuctionBidReportRow[];
+   const fetched=parseAuctionBidRows(data??[]);
    const batch=fetched.slice(0,PAGE_SIZE),pageIds=new Set<string>(),knownIds=new Set(reset?[]:rows.map(row=>row.bid_id));
    for(const row of batch){
-    if(!row||typeof row.bid_id!=='string'||!row.bid_id.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('The auction bid report contains an invalid record. Refresh before continuing.');
+
     if(pageIds.has(row.bid_id)||knownIds.has(row.bid_id))throw new Error('The auction bid report returned duplicate record IDs. Refresh before loading more.');
     pageIds.add(row.bid_id);
    }
@@ -86,14 +93,14 @@ export default function AdminAuctionBidReport(){
     });
     if(rpcError)throw rpcError;
     if(!Array.isArray(data??[]))throw new Error('The report response was invalid. Export stopped. Please retry.');
-    const batch=(data??[]) as AuctionBidReportRow[];
+    const batch=parseAuctionBidRows(data??[]);
     if(batch.length===PAGE_SIZE){
      const fingerprint=JSON.stringify(batch.map(row=>row.bid_id));
      if(seenPages.has(fingerprint))throw new Error('The report repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');
      seenPages.add(fingerprint);
     }
     for(const row of batch){
-     if(!row||typeof row.bid_id!=='string'||!row.bid_id.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('The report contains an invalid record. Export stopped to avoid an inaccurate CSV. Please retry.');
+
      if(seenIds.has(row.bid_id))throw new Error('The report returned duplicate records. Export stopped to avoid an inaccurate CSV. Please retry.');
      seenIds.add(row.bid_id);all.push(row);
     }
