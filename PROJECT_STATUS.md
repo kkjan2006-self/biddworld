@@ -2,11 +2,12 @@
 
 - Active branch: `completion-work`; protected `main` unchanged.
 - Admin Auction Submission Review now loads 50 rows per page through a server-side keyset RPC, with a 100-row backend cap, stable `(created_at,id)` cursor and Admin/authorized Staff permission enforcement.
+- Admin pending package activation review now loads 50 rows per page through a new Admin-only keyset RPC (100-row backend cap), stable descending `(submitted_at,id)` cursor, strict page/identity/cursor validation and stale-request protection; private receipt links and the existing approval workflow are preserved.
 - UI validates response shape, required IDs/timestamps/image paths, cursor completeness and duplicate IDs; it signs private image URLs only for the current page and supports Load More/refresh with stale-request protection.
 - Added migration `20261119400000_admin_auction_submission_keyset_pagination.sql` and registered it in the clean-install forward manifest. Existing approve/reject and image-publishing workflow is unchanged.
 - Previous batch: Admin Main Wallet funding queue pagination, backend cap, receipt checks and contract coverage.
 - No tests/build/type-check/browser/mobile QA run. No TEST or Production migrations/data writes, no Production reads, no deployment, and no protected `main` changes.
-- Next bulk focus: package activation review queue and remaining Admin operational workflows; final testing remains deferred.
+- Next bulk focus: remaining Admin operational workflows, complete Preview source synchronization after the required TEST migration is explicitly approved/applied, and continue baseline/RPC/RLS/Storage integration review; final testing remains deferred.
 - Overall development completion: **71% provisional** (not runtime verified).
 
 # Current development checkpoint — 2026-11-19
