@@ -1,48 +1,50 @@
-# BiddWorld migration baseline audit
+# BiddWorld migration baseline audit — corrected with TEST snapshot
 
 Date: 2026-11-19
 Branch: `completion-work`
-Scope: source-only inspection; no database connection or migration execution.
 
-## Finding: checked-in bootstrap schema does not match the schema assumed by later migrations
+## Correction to the initial source-only finding
 
-The checked-in `supabase/migrations/0001_biddworld.sql` defines legacy columns including:
+The initial source-only observation that the legacy `0001_biddworld.sql` shape might be the effective database baseline was incomplete. A read-only inspection of the intended TEST Supabase project (`yoaauthwejdgaevfvwpo`) has now established that TEST uses the dedicated clean-install baseline path, not a raw replay beginning at `0001_biddworld.sql`.
 
-- `member_ids.user_id` and `member_ids.parent_member_id`
-- `package_activations.user_id`, `activation_no`, `amount`, and `status`
-- `wallet_accounts.user_id`
-- `wallet_transactions.user_id` and no `direction` column
-- `audit_logs.metadata`
+TEST migration history reports 89 applied migrations. Its first entry is `20261119062230 biddworld_clean_install_schema_baseline`, followed by the ordered forward migrations, and the latest applied migration is `20261119063113 20261119170000_admin_open_ended_auction_status`.
 
-The next checked-in `0002_place_bid_rpc.sql` also queries wallets by `user_id` and writes legacy wallet transaction columns.
+The live TEST schema confirms the current column model for the core tables:
 
-By contrast, later migrations and current application source assume:
+- `member_ids`: `owner_user_id`, `main_member_id`, `placement_parent_id`, `placement_position`
+- `package_activations`: `member_id`, `activation_number`, `amount_paid`, `payment_status`, `activation_status`
+- `wallet_accounts`: `member_id`
+- `wallet_transactions`: `member_id`, `direction`, `reference_type`, `reference_id`
+- `audit_logs`: `actor_user_id`, `details`
+- `profiles`: `main_member_id`
 
-- `member_ids.owner_user_id`, `main_member_id`, `placement_parent_id`, and `placement_position`
-- `package_activations.member_id`, `activation_number`, `payment_status`, `activation_status`, `amount_paid`, and `submitted_at`
-- `wallet_accounts.member_id`
-- `wallet_transactions.member_id` and `direction`
-- `audit_logs.details`
+Therefore, the earlier statement that the TEST baseline might still be using the legacy schema is **not supported** and is superseded by this read-only evidence. The legacy `0001_biddworld.sql` and `0002_place_bid_rpc.sql` are not the baseline path used by this TEST environment.
 
-For example, `20261114161950_secure_bid_rpc_and_signup_provisioning.sql` already assumes the newer member and wallet columns. `20261115010000_submit_package_activation_request.sql` assumes the newer activation fields. The checked-in `001_initial_schema.sql` is an empty one-byte file.
+## Remaining unapplied branch migrations
 
-## What this means
+The repository's `supabase/clean-install/forward-migrations.txt` already includes the newer migrations. TEST currently stops at `20261119170000_admin_open_ended_auction_status`; the later branch migrations are not yet present in TEST:
 
-A clean database replay beginning with the checked-in `0001_biddworld.sql` cannot be assumed to reach the schema required by the later migrations. The source tree does not currently provide a clearly identified, complete legacy-to-current schema reconciliation migration.
+- `20261119180000_fix_auction_image_path_regex.sql`
+- `20261119190000_wallet_funding_staff_permission.sql`
+- `20261119200000_seed_signup_feature_defaults.sql`
+- `20261119210000_allow_signup_when_feature_setting_missing.sql`
+- `20261119220000_signup_status_and_public_product_select.sql`
+- `20261119230000_registration_email_verification_off_by_default.sql`
+- `20261119240000_admin_email_verification_feature_setting.sql`
+- `20261119250000_enable_in_app_notifications_feature.sql`
+- `20261119260000_enable_existing_feature_workflow_switches.sql`
+- `20261119270000_block_duplicate_creation_when_disabled.sql`
+- `20261119280000_matrix_plan_configuration.sql`
+- `20261119300000_automatic_duplicate_matrix_placement.sql`
+- `20261119310000_matrix_commission_engine.sql`
+- `20261119320000_member_matrix_commission_summary.sql`
 
-This is a repository migration-chain finding, not proof that either hosted TEST or Production currently has the legacy schema. Those live schemas were not inspected.
+The TEST schema currently has no `matrix_plan_versions` or `matrix_commissions` tables, consistent with the Matrix migrations not yet being applied. This is an unapplied-feature state, not evidence of a legacy core-schema mismatch.
 
-## Safe next action
+## Safe boundary
 
-1. Preserve all existing migrations and production data.
-2. Obtain an authoritative schema-only snapshot or migration history from the intended TEST project, plus confirmation of which migration files were applied there.
-3. Compare that snapshot with the current application and Matrix migration column contracts.
-4. Only then author a forward-only, idempotent reconciliation migration if required, and rehearse it on TEST after explicit authorization.
-
-Do not edit `0001_biddworld.sql`, do not backfill or rename live columns based on inference, and do not apply any migration to TEST or Production as part of this audit.
-
-## Verification boundary
-
-- Inspected source files: `0001_biddworld.sql`, `0002_place_bid_rpc.sql`, `001_initial_schema.sql`, `20261114161950_secure_bid_rpc_and_signup_provisioning.sql`, `20261114200000_save_registration_phone.sql`, `20261114230000_mlm_dashboard_genealogy.sql`, `20261115010000_submit_package_activation_request.sql`, `20261115020000_admin_package_activation_review.sql`, `20261115190000_member_profile_self_service.sql`, `20261115203000_member_identity_summary.sql`, `20261115230000_duplicate_under_id_placement_attribution.sql`, `20261119300000_automatic_duplicate_matrix_placement.sql`, and `20261119310000_matrix_commission_engine.sql`.
-- No tests, build, type-check, browser/mobile QA run.
-- No TEST or Production database was queried or modified.
+- This was read-only inspection of TEST migration history and public table metadata. No application/member/financial rows were queried.
+- No SQL writes, schema changes, migration applications, tests, builds, type-checks, or browser/mobile QA were performed.
+- Production was not queried or modified.
+- Do not replay `0001_biddworld.sql` or `0002_place_bid_rpc.sql` on the current TEST environment.
+- Keep Matrix feature switches OFF until its migrations are separately reviewed and the final QA phase is authorized.
