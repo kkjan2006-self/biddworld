@@ -7,10 +7,10 @@ export function money(value: number, currency = 'INR'): string {
   }).format(Number.isFinite(value) ? value : 0);
 }
 
-export function left(endsAt: string): string {
+export function left(endsAt: string, nowMs = Date.now()): string {
   const endTime = new Date(endsAt).getTime();
   if (!Number.isFinite(endTime)) return 'Unavailable';
-  const remaining = endTime - Date.now();
+  const remaining = endTime - nowMs;
   if (remaining <= 0) return 'Ended';
   const totalMinutes = Math.floor(remaining / 60_000);
   const days = Math.floor(totalMinutes / 1_440);
