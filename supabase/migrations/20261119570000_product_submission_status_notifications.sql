@@ -8,7 +8,11 @@ as $function$
 declare
  v_title text;
  v_message text;
+ v_notifications_enabled boolean:=false;
 begin
+ select coalesce((setting_value#>>'{}')::boolean,false) into v_notifications_enabled
+ from public.app_settings where setting_key='notifications_enabled';
+ if not coalesce(v_notifications_enabled,false) then return new;end if;
  if old.status is not distinct from new.status then return new;end if;
  if new.status='approved' then
   v_title:='Product listing approved';
