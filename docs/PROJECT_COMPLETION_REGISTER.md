@@ -1,3 +1,11 @@
+## 2026-11-19 — Member complete-report duplicate-row guard
+
+- Hardened the paginated personal CSV export helper: all returned records must carry a non-empty ID, and duplicate IDs are rejected within a page or across pages instead of being silently exported.
+- Retained stable 500-row pagination and the existing repeated-page guard; no rows are silently discarded.
+- Added source-contract assertions in `tests/member-report-complete-export.test.ts`.
+- Commits: source `113be7d17c44be252b24a99acf7cdf9bd3fdd9f2`; test source `7929bc9fa35c5989ac42e44cd3e11aa5db56dfbd`.
+- Tests/build/type-check/browser QA were not run. No Supabase access or database changes occurred.
+
 ## 2026-11-19 — Android PWA install fallback
 
 - The header install control no longer disappears when a browser does not dispatch `beforeinstallprompt`; it offers a concise Android Chrome manual-install guide instead.
