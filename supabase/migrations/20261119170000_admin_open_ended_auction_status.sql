@@ -23,7 +23,7 @@ begin
   if not exists(select 1 from public.products where id=v_auction.product_id and status='published') then
    raise exception 'Publish the linked product before scheduling the auction' using errcode='55000';
   end if;
-  if v_auction.starts_at is null or (v_auction.ends_at is not null and v_auction.ends_at<=v_auction.starts_at) then
+  if v_auction.ends_at is not null and v_auction.starts_at is not null and v_auction.ends_at<=v_auction.starts_at then
    raise exception 'Auction schedule is incomplete' using errcode='22023';
   end if;
   if p_status='scheduled' and (v_auction.starts_at is null or v_auction.starts_at<=now()) then
