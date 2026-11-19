@@ -437,3 +437,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/admin-product-draft-edit-controls.test.ts` source-contract coverage; not executed.
 - Commits: `c08491dff55286de474175b3830b08c71b5aa5bb` (Admin form controls), `450e46c6308c9ed1debdc4aa8bbd047ae3783b3a` (test source).
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
+
+
+## Latest Admin Product UX batch — image preview
+
+- Added a live preview beneath the Admin product draft image field. It reflects the manually entered URL or newly uploaded image, uses descriptive alt text and lazy loading, and hides a broken image link while leaving the URL available for correction.
+- Added `tests/admin-product-draft-image-preview.test.ts` as source-contract coverage; not executed.
+- Implementation commit: 14f51ad3c72eb3d2663601039efe07b71adff285; test-source commit: 68242c7ec242ed5cf4effb6ea8a473875a7150cd.
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
