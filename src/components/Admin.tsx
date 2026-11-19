@@ -196,7 +196,6 @@ export default function Admin(){
  const featureGroups=[
   {title:'1. Member Registration & Network',description:'Manage sign-ups, sponsor links, member IDs and network placement.',items:[
    {key:'registration_enabled',label:'Member Registration',description:'Let new members create an account.'},
-    {key:'email_verification_required',label:'Email Verification',description:'Require members to confirm their email address during registration. Keep Supabase Auth Confirm Email aligned with this setting.'},
    {key:'sponsor_referrals_enabled',label:'Sponsor Referral',description:'Let new members enter a Sponsor ID.'},
    {key:'duplicate_ids_enabled',label:'Duplicate IDs',description:'Disable new Duplicate ID creation; existing IDs and their history remain unchanged.'},
    {key:'automatic_placement_enabled',label:'Automatic Placement',description:'Place new IDs in the network automatically. Use only after placement rules are tested.'}
@@ -223,7 +222,7 @@ export default function Admin(){
  const featureLabels:Record<string,string>=Object.fromEntries(featureGroups.flatMap(group=>group.items.map(item=>[item.key,item.label])));
  const backendPendingFeatureKeys=new Set(['automatic_placement_enabled','winner_selection_configured','matrix_commissions_enabled']);
  const serverConditionFeatureKeys=new Set(['duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled']);
- const featureEnableReadyKeys=new Set(['registration_enabled','email_verification_required','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled','delivery_tracking_enabled','notifications_enabled']);
+ const featureEnableReadyKeys=new Set(['registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled','delivery_tracking_enabled','notifications_enabled']);
  const [featureSettings,setFeatureSettings]=useState<Record<string,boolean>>({}),[featureSettingsLoaded,setFeatureSettingsLoaded]=useState(false),[featureSettingsLoadError,setFeatureSettingsLoadError]=useState('');
  const [packages,setPackages]=useState<AdminPackage[]>([]),[packageName,setPackageName]=useState(''),[packageDescription,setPackageDescription]=useState(''),[packagePrice,setPackagePrice]=useState('3000'),[packageCredit,setPackageCredit]=useState('3500'),[editingPackage,setEditingPackage]=useState(''),[packageMessage,setPackageMessage]=useState(''),[packageBusy,setPackageBusy]=useState(false);
  const [referralPlans,setReferralPlans]=useState<ReferralPlan[]>([]),[selectedPlanPackage,setSelectedPlanPackage]=useState(''),[levelValues,setLevelValues]=useState(['200','200','200','200','200']),[levelTypes,setLevelTypes]=useState(['fixed','fixed','fixed','fixed','fixed']),[planMessage,setPlanMessage]=useState(''),[planBusy,setPlanBusy]=useState(false);
