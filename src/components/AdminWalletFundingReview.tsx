@@ -11,17 +11,20 @@ function isRow(value:unknown):value is Row{
  return typeof row.id==='string'&&row.id.trim().length>0
   &&typeof row.member_code==='string'&&row.member_code.trim().length>0
   &&(row.member_name===null||typeof row.member_name==='string')
-  &&typeof row.receipt_path==='string'&&row.receipt_path.length>0
-  &&typeof row.payment_reference==='string'
-  &&Number.isFinite(Number(row.amount))&&Number(row.amount)>0
+  &&typeof row.receipt_path==='string'&&row.receipt_path.trim().length>0
+  &&typeof row.payment_reference==='string'&&row.payment_reference.trim().length>0
+  &&typeof row.currency==='string'&&/^[A-Z]{3}$/.test(row.currency)
+  &&typeof row.amount==='number'&&Number.isFinite(row.amount)&&row.amount>0
   &&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))
-  &&typeof row.currency==='string';
+  ;
 }
 export default function AdminWalletFundingReview(){
  const [rows,setRows]=useState<Row[]>([]),[urls,setUrls]=useState<Record<string,string>>({}),[receiptErrors,setReceiptErrors]=useState<Record<string,string>>({}),[note,setNote]=useState<Record<string,string>>({});
  const [busy,setBusy]=useState(''),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
- const requestSeq=useRef(0),reviewBusy=useRef(false),cursor=useRef<Cursor|null>(null),seenIds=useRef<Set<string>>(new Set());
+ const requestSeq=useRef(0),reviewBusy=useRef(false),pageBusy=useRef(false),cursor=useRef<Cursor|null>(null),seenIds=useRef<Set<string>>(new Set());
  const load=useCallback(async(append=false)=>{
+  if(append&&pageBusy.current)return;
+  if(append)pageBusy.current=true;
   const seq=++requestSeq.current;
   if(!supabase){setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);setLoadingMore(false);return;}
   if(append){setLoadingMore(true);}else{cursor.current=null;seenIds.current=new Set();setRows([]);setUrls({});setReceiptErrors({});setHasMore(false);setLoading(true);}
@@ -37,6 +40,8 @@ export default function AdminWalletFundingReview(){
    const pageIds=new Set<string>();
    for(const row of items){if(pageIds.has(row.id)||seenIds.current.has(row.id))throw new Error('Duplicate wallet funding request IDs were returned. Refresh the queue.');pageIds.add(row.id);}
    if(page.has_more&&(!items.length||typeof page.next_created_at!=='string'||!Number.isFinite(Date.parse(page.next_created_at))||typeof page.next_id!=='string'||!page.next_id.trim()))throw new Error('The wallet funding page cursor was invalid. Refresh and retry.');
+   if(page.has_more){const last=items[items.length-1];if(page.next_created_at!==last.created_at||page.next_id!==last.id)throw new Error('The wallet funding page cursor does not match its final row. Refresh and retry.');const previous=append?cursor.current:null;if(previous&&(page.next_created_at<previous.created_at||(page.next_created_at===previous.created_at&&page.next_id<=previous.id)))throw new Error('The wallet funding page cursor did not advance. Refresh and retry.');}
+   else if(page.next_created_at!==null||page.next_id!==null)throw new Error('The final wallet funding page unexpectedly included a continuation cursor. Refresh and retry.');
    if(seq!==requestSeq.current)return;
    const next:Record<string,string>={},failures:Record<string,string>={};
    await Promise.all(items.map(async row=>{
@@ -53,7 +58,7 @@ export default function AdminWalletFundingReview(){
    cursor.current=page.has_more?{created_at:page.next_created_at as string,id:page.next_id as string}:null;
    if(Object.keys(failures).length)setError('One or more receipts could not be opened. Refresh the queue before approving those requests.');
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Wallet funding requests could not be loaded. Please retry.');}
-  finally{if(seq===requestSeq.current){setLoading(false);setLoadingMore(false);}}
+  finally{if(seq===requestSeq.current){setLoading(false);setLoadingMore(false);}if(append)pageBusy.current=false;}
  },[]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;};},[load]);
  async function review(id:string,approve:boolean){
