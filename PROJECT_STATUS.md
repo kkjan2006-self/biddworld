@@ -349,3 +349,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/member-wallet-funding-session-scope.test.ts` source-contract coverage (not executed).
 - Implementation commit: `b9c294035bd71bb9e192240bc370fe9d530980da`; test-source commit: `491e0960fbc3472264d875b212ecef77e64988e9`.
 - No tests/build/QA, browser/device checks, SQL replay, Supabase writes or deployment. Development planning estimate: **60% Provisional**; remaining cross-module contracts, clean-install semantic review and other source integrations are substantial.
+
+
+## Latest source-development batch — OLX-style Auction Classified Upload
+
+- Expanded the member Auction submission form with structured classified fields: category, brand, model/variant, condition, age/year, warranty, ownership, area/locality, city, state and six-digit PIN code, alongside title, description, 1–8 images, Starting Price, Expected Price, bid increment and start date/time.
+- Classified attributes are passed through the existing optional_details payload; Admin/authorized Staff review now displays and can edit those attributes before approval. Existing pending-review and publish controls remain in force.
+- The Admin workspace already contains direct Auction product/auction draft creation and a separate Fixed Bid draft/campaign workflow; the member-facing Auction submission remains distinct. Fixed Bid creation remains in the Admin workspace only.
+- Added tests/olx-style-auction-classified-fields.test.ts as source-contract coverage; not executed. No tests/build/QA/browser checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST untouched.
+- Implementation commits: 0006ea751a11d343aad2e65df2e1e2e71cb6abdb (member classified form), cc2c3c3361468a45fb85ced579d6eb1473ce3f61 (Admin review fields); test source commit: 1ae04c0d3a665e9b24b6623823baec908175f07f.
+- Overall development estimate remains **60% Provisional**; this feature batch does not imply the broader project is complete.
