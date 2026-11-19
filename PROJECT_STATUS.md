@@ -272,3 +272,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Updated both Member and Admin notification inboxes to bounded keyset pagination using descending `(created_at,id)` cursors; 100 visible rows plus one look-ahead row. Member queries remain user-scoped and retain unread/category filters. Admin history uses a new Admin-only cursor RPC.
 - Existing Admin offset RPC is preserved for compatibility. Added migration #80 and source-contract test (not executed). Inventory: 80 forward + 16 excluded + 3 legacy SQL files = 99 total (96 timestamped).
 - No tests/build/CI/QA, migration replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 55% Provisional.
+
+
+## Latest development checkpoint — Member auction submissions (#81–#82)
+
+- Added Place an Auction member form and submission history; active Main ID and active profile are enforced server-side. Submission supports 1–8 images, title, description, optional category, starting price, bid increment, start/end times and optional additional details.
+- Submissions remain private and pending until Admin or restricted Staff with `auction_submission_review` edits and approves/rejects. Approval creates the published product and scheduled/live auction transactionally; member and reviewer actions are audited.
+- Added migrations #81–#82, member form, editable review queue, and source-contract test (not run). Inventory: 82 forward + 16 excluded + 3 legacy SQL files = 101 total (98 timestamped).
+- Private image storage is in place, but public delivery of approved images needs a dedicated publishing/media delivery step before live rollout. No tests/build/QA, SQL replay, DB writes or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 56% Provisional.
