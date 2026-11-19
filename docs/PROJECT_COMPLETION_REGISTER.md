@@ -1263,3 +1263,15 @@
 - Clearing the Starts At field no longer throws a client-side `RangeError`; invalid/empty input is retained as an empty value and blocked by the approval validation before any public image copy.
 - Extended source-contract coverage; tests remain unexecuted. No build, QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched. Overall development estimate remains **60% Provisional**.
 - Commits: `a6cd717cd4fe82d330004acaf5930cb6a1c44b2c` (UI), `d5d1753f37733b12295abea9281f66400f3ffe0e` (test source).
+
+
+## 2026-11-19 — Branch-head verification and clean-install manifest correction
+
+- Re-read `completion-work` at source HEAD `78bc8d5ebffc9c290f5a4d992fe0082468cb386d`. The latest source commits `207feaacc02cfa280c08f6493cc5f646db00766e` and `78bc8d5ebffc9c290f5a4d992fe0082468cb386d` correct the Admin product image preview conditional JSX and Auction image JSX nesting.
+- Confirmed the Member Auction submission preflight validates trimmed title/description, 1–8 JPG/PNG/WebP images (5 MB each), positive Starting Price, Expected Price not below Starting Price, positive increment and valid start time before upload. It uses an in-flight guard and cleans up definite pre-RPC/RPC-rejection upload failures; ambiguous RPC outcomes intentionally preserve media.
+- Confirmed Admin review validates edited fields before copying private images to public product media, serializes review actions, and removes copied images only on pre-RPC/definite RPC failure. Ambiguous outcomes preserve media to avoid broken published listings.
+- Full migration inventory found 103 timestamped migration files, while the prior forward/excluded manifests covered only 101. Two migrations were missing: the Admin Expected Price lifecycle migration and Admin open-ended auction status migration.
+- Corrected the duplicate `20261119160000` migration version by renaming the Admin Expected Price lifecycle file to `20261119160100_admin_auction_expected_price_lifecycle.sql`; added that file and `20261119170000_admin_open_ended_auction_status.sql` to the ordered forward manifest. The manifest now accounts for 87 forward + 16 excluded = 103 timestamped files, with unique version prefixes.
+- Updated the clean-install README and authoritative project status to reflect the current inventory and verified source HEAD. The existing manifest-integrity test source covers exact accounting and ordering; it has not been run.
+- No tests, build, QA, browser/device checks, migration replay, Supabase writes or deployment were performed. Production remains read-only; TEST remains untouched.
+- Overall development estimate remains **60% Provisional**; the correction repairs source-manifest integrity and does not imply successful database replay or runtime verification.
