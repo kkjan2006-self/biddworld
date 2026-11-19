@@ -1286,3 +1286,14 @@
 - The deployment URL has not been verified live. The GitHub workflow-run lookup did not surface a run for the latest pre-fix commit; do not claim the site is published until a successful Pages deployment is visible.
 - The primary `biddworld` repository's protected `main` currently points to `620d05b2d266d26dc70c5ff775ed45af9bb3b400`; it was not modified. All application development remains on `completion-work`.
 - No tests/build/QA, Supabase writes, migration replay or deployment were performed by this documentation/workflow configuration change.
+
+
+## 2026-11-19 — Member Auction start-time preflight alignment
+
+- Source review found that the member submission RPC requires `p_starts_at >= now() + interval '30 minutes'`, while the frontend only checked that the date parsed successfully. This allowed too-early submissions to upload all images before the server rejected the RPC.
+- Updated `src/components/MemberPlaceAuction.tsx` to validate the 30-minute lead time before any media upload, reuse the validated Date for the RPC ISO timestamp, and display the minimum-start-time hint.
+- Removed a literal escaped newline between the Category and classified-details JSX sections that could appear as stray text in the form.
+- Extended `tests/member-auction-submission-preflight.test.ts` with source assertions for the lead-time guard ordering and the escaped-newline regression. Test source only; not executed.
+- Implementation and source-test commit: `c1af82806e0abd6442de01b094752c6d92c8e776`.
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched.
+- Overall development estimate remains **60% Provisional**.
