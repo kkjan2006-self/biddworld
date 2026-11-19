@@ -1609,3 +1609,13 @@
 - Added contract coverage to `tests/admin-matrix-commissions-ui.test.ts`.
 - Commits: SQL `1e2765350b77bbdc2821c0a94acd2f516cafc30e`; Admin UI `2d4d75cc0bd1ce3f8b256a0c4e55411708ab9349`; test `8010e4dbc57fffd7f2017ddc90d833b0729402c4`.
 - Source-only change. No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied. Matrix commission feature remains OFF.
+
+
+## Member Matrix commission history pagination — 2026-11-19
+
+- Member Account > Commission History now loads Matrix commission records in 100-row pages instead of stopping permanently at the first 100.
+- Added guarded Load more control, current-record offset, runtime validation of every row, and duplicate-ID overlap detection before appending.
+- Initial load sets the has-more state when a full page is returned; empty/short next pages stop pagination. Existing Sponsor commission pagination remains separate.
+- Updated `tests/member-matrix-commission-history.test.ts` with pagination contracts.
+- Commits: Account UI `78ea081e6145c06eae9c21c8c3e5ce5bf0b12df7`; test `be486979909cf6d7635b93c9c0025fd27b414ccd`.
+- Source-only changes. No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied.
