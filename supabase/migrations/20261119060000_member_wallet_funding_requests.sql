@@ -51,7 +51,7 @@ create or replace function public.member_submit_wallet_fund_request(
 as $function$
 declare
  v_uid uuid:=auth.uid(); v_member public.member_ids%rowtype; v_request public.wallet_fund_requests%rowtype;
- v_reference text:=btrim(coalesce(p_payment_reference,''));
+ v_reference text:=btrim(coalesce(p_payment_reference,'')); v_wallet_enabled boolean:=false;
 begin
  if v_uid is null then raise exception 'Authentication required' using errcode='42501'; end if;
  if p_amount is null or p_amount<=0 or p_amount<>round(p_amount,2) or p_amount>10000000 then
@@ -67,6 +67,12 @@ begin
  end if;
  if not exists(select 1 from storage.objects where bucket_id='wallet-funding-receipts' and name=p_receipt_path) then
   raise exception 'The uploaded payment receipt could not be found' using errcode='22023';
+ end if;
+ select coalesce((setting_value #>> '{}')::boolean,false) into v_wallet_enabled
+ from public.app_settings where setting_key='income_wallet_enabled';
+ if not coalesce(v_wallet_enabled,false) then raise exception 'Main Wallet funding is currently unavailable' using errcode='55000'; end if;
+ if exists(select 1 from public.package_activations where upper(btrim(payment_reference))=upper(v_reference)) then
+  raise exception 'This UTR / payment reference has already been submitted' using errcode='23505';
  end if;
  select m.* into v_member
  from public.profiles p join public.member_ids m on m.id=p.main_member_id
@@ -131,7 +137,7 @@ as $function$
 declare
  v_uid uuid:=auth.uid(); v_request public.wallet_fund_requests%rowtype;
  v_wallet public.wallet_accounts%rowtype; v_balance numeric(14,2);
- v_key text;
+ v_key text; v_wallet_enabled boolean:=false;
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -142,6 +148,9 @@ begin
  if not found then raise exception 'Wallet funding request not found' using errcode='P0002'; end if;
  if v_request.status<>'pending' then raise exception 'This wallet funding request has already been reviewed' using errcode='55000'; end if;
  if p_approve then
+  select coalesce((setting_value #>> '{}')::boolean,false) into v_wallet_enabled
+  from public.app_settings where setting_key='income_wallet_enabled';
+  if not coalesce(v_wallet_enabled,false) then raise exception 'Main Wallet funding is currently unavailable' using errcode='55000'; end if;
   select * into v_wallet from public.wallet_accounts
   where member_id=v_request.member_id and wallet_type='income' for update;
   if not found then raise exception 'Main Wallet account is unavailable' using errcode='55000'; end if;
