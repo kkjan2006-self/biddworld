@@ -1572,3 +1572,12 @@
 - Added `tests/admin-matrix-commissions-ui.test.ts` and `docs/ADMIN_MATRIX_COMMISSION_REPORT_2026-11-19.md`.
 - Commits: UI `456895b5f206999f2c10f25e2352dd8081839e83`; Admin integration `2eede7258443c3299e0226ce680d16224514c488`; tests `af3e1c44fb6c2ba5fa58d52da87018b57e91eac2`; docs `53b3bfc503dee1fa171aa511ce52a0fd0bfc6216`.
 - No tests/build/typecheck/browser QA or database migrations/writes were run.
+
+
+## Member Matrix commission dashboard — 2026-11-19
+
+- Added `member_get_my_matrix_commission_summary()`, a SECURITY DEFINER RPC that resolves the caller's own linked Main ID and returns credited, pending and reversed Matrix totals/counts. It does not expose the Matrix commission table directly and does not mix Sponsor Referral totals with Matrix totals.
+- The member MLM dashboard now requests this summary separately and displays **Sponsor Referral Income** and **Matrix Commission Income** as distinct cards. If the new RPC is not yet deployed, the existing Sponsor dashboard still loads and the Matrix card is omitted rather than showing fabricated data.
+- Migration: `20261119320000_member_matrix_commission_summary.sql`; registered in the clean-install forward manifest. Added source-contract coverage in `tests/member-matrix-commission-summary.test.ts`.
+- Commits: migration `808f1e996d814df1a6296f8b1dd5260e0d0b27af`; member UI `9a9488c8ea59ea8e293cde912cdc9a73dcd2b25f`; manifest `1c6862dcdeca2647cb872fcb3424b382843c4ead`; contract test `06f21fc0b4bd8c97ad676e4e05f1e01843898ef1`.
+- This is source-only. No tests, type-check, build, browser/mobile QA or database migrations were run/applied. The previously recorded TEST migration-state exception remains untouched; Production remains untouched.
