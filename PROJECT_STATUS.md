@@ -1142,3 +1142,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: component `7531e99d5550b515298a2fd87e6f097618556748`; regression source `07b2bc2d69e4a5bb9abd54ff52d338b309f0b7f3`.
 - No database access/migrations, no protected `main` changes, and no QA/tests/type-check were run. Preview's required deployment build is tracked separately.
 - Overall development completion remains **71% provisional**.
+
+
+## 2026-11-19 — Member workflow event notifications (feature completion)
+
+- Added source migration `20261119420000_member_workflow_status_notifications.sql` to connect the existing in-app inbox to five member-owned workflow changes: package activation approval/rejection, Duplicate ID status changes, auction submission approval/rejection, withdrawal status changes, and delivery tracking status changes.
+- Notifications are generated only when a relevant status actually changes, resolve the recipient from the owning member/auth account, use the existing in-app notification table, and do not introduce email/SMS dependencies or client-callable trigger functions.
+- Registered the migration in the clean-install forward manifest and added source-contract coverage in `tests/member-workflow-status-notifications.test.ts` (not executed).
+- Commits: migration `e4a48795d1a23dce3f247bc1aff89b4d410ba6c4`; test source `f454b21108c11d3f7d37f3f85e943f28e69bd972`; manifest `19a37d802f3fe382224b56007846b856a56db738`.
+- Migration is source-only and has not been applied to TEST or Production. No tests/QA/type-check were run. Preview deploy build will be tracked separately.
