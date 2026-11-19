@@ -58,6 +58,17 @@ type WalletAccount={wallet_account_id:string;member_id:string;member_code:string
 type WalletTransaction={transaction_id:string;member_id:string;member_code:string;wallet_type:string|null;transaction_type:string;direction:string;amount:number;balance_after:number;reference_type:string|null;reference_id:string|null;description:string|null;created_at:string};
 type DeliveryRow={tracking_id:string;payment_id:string;member_code:string;winner_name:string|null;item_title:string|null;amount:number;payment_status:string;carrier:string|null;tracking_number:string|null;status:string;shipped_at:string|null;delivered_at:string|null;updated_at:string};
 
+function parseReferralCommissionPage(value:unknown):{items:ReferralCommissionRow[];hasMore:boolean}{
+ if(!Array.isArray(value))throw new Error('Commission register returned an invalid page.');
+ const items=value as ReferralCommissionRow[];const ids=new Set<string>();
+ for(const row of items){
+  if(!row||typeof row!=='object'||typeof row.commission_id!=='string'||!row.commission_id.trim()||ids.has(row.commission_id)||typeof row.activation_id!=='string'||!row.activation_id.trim()||!Number.isInteger(Number(row.level_number))||Number(row.level_number)<1||typeof row.beneficiary_member_code!=='string'||!row.beneficiary_member_code.trim()||!['main','duplicate'].includes(row.beneficiary_id_type)||typeof row.credited_main_member_code!=='string'||!row.credited_main_member_code.trim()||!Number.isFinite(Number(row.amount))||Number(row.amount)<=0||typeof row.status!=='string'||!row.status.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||typeof row.has_more!=='boolean')throw new Error('Commission register contains a malformed or duplicate record. Refresh the register before continuing.');
+  ids.add(row.commission_id);
+ }
+ const hasMore=items.length>0&&items[0].has_more===true;
+ if(items.some(row=>row.has_more!==hasMore))throw new Error('Commission register page metadata is inconsistent. Refresh the register.');
+ return {items,hasMore};
+}
 function PlacementBranch({row,all,path=[]}:{row:StructureId;all:StructureId[];path?:string[]}){
  const cycle=path.includes(row.member_code);
  const nextPath=[...path,row.member_code];
@@ -69,7 +80,7 @@ export default function Admin(){
  const [role,setRole]=useState(''),[counts,setCounts]=useState(empty),[loading,setLoading]=useState(true),[error,setError]=useState(''),[loadWarnings,setLoadWarnings]=useState<string[]>([]);
  const [refresh,setRefresh]=useState(0),[activeSection,setActiveSection]=useState('overview');
  const [overview,setOverview]=useState<MlmOverview|null>(null),[structure,setStructure]=useState<StructureReport|null>(null),[members,setMembers]=useState<SponsorMember[]>([]),[memberHasMore,setMemberHasMore]=useState(false),[memberMoreBusy,setMemberMoreBusy]=useState(false),[memberMessage,setMemberMessage]=useState(''),[memberSearch,setMemberSearch]=useState(''),[appliedMemberSearch,setAppliedMemberSearch]=useState(''),[memberSearchBusy,setMemberSearchBusy]=useState(false),[selectedMemberCode,setSelectedMemberCode]=useState(''),[defaultSponsor,setDefaultSponsor]=useState(''),[memberCode,setMemberCode]=useState(''),[sponsorCode,setSponsorCode]=useState(''),[sponsorMessage,setSponsorMessage]=useState(''),[savingSponsor,setSavingSponsor]=useState(false),[memberProfileName,setMemberProfileName]=useState(''),[memberProfilePhone,setMemberProfilePhone]=useState(''),[memberProfileBusy,setMemberProfileBusy]=useState(false),[memberProfileMessage,setMemberProfileMessage]=useState(''),[memberStatusValue,setMemberStatusValue]=useState('active'),[memberStatusReason,setMemberStatusReason]=useState(''),[memberStatusBusy,setMemberStatusBusy]=useState(false),[memberStatusMessage,setMemberStatusMessage]=useState('');
- const activationPageGeneration=useRef(0),activationPageInFlight=useRef(false),memberSearchRequest=useRef(0),duplicateSearchRequest=useRef(0),memberPageInFlight=useRef(false),duplicatePageInFlight=useRef(false),auctionSaveInFlight=useRef(false),auditPageInFlight=useRef(false),walletPageInFlight=useRef(false);
+ const activationPageGeneration=useRef(0),activationPageInFlight=useRef(false),commissionPageGeneration=useRef(0),commissionPageInFlight=useRef(false),memberSearchRequest=useRef(0),duplicateSearchRequest=useRef(0),memberPageInFlight=useRef(false),duplicatePageInFlight=useRef(false),auctionSaveInFlight=useRef(false),auditPageInFlight=useRef(false),walletPageInFlight=useRef(false);
  const memberProfileSaveInFlight=useRef(false),sponsorSaveInFlight=useRef(false),packageSaveInFlight=useRef(false),referralPlanSaveInFlight=useRef(false),withdrawalReviewInFlight=useRef(false);
  const templateSaveInFlight=useRef(false),deliverySaveInFlight=useRef(false),fixedBidSaveInFlight=useRef(false),productSaveInFlight=useRef(false),productPublishInFlight=useRef(false),featureSaveInFlight=useRef(false);
  const duplicateMutationInFlight=useRef(false),activationReviewInFlight=useRef(false);
@@ -163,6 +174,7 @@ export default function Admin(){
   setCounts(empty);setError('');setLoading(true);setWithdrawalQueueLoading(true);setFeatureSettingsLoaded(false);setFeatureSettingsLoadError('');
   async function load(){
    const activationGeneration=++activationPageGeneration.current;
+   commissionPageGeneration.current++;commissionPageInFlight.current=false;setCommissionBusy(false);
    activationPageInFlight.current=false;setPendingActivationMoreBusy(false);
    if(!supabase||role!=='admin'){if(active)setLoading(false);return;}
    try{
@@ -203,7 +215,7 @@ export default function Admin(){
    if(active&&duplicateRequestAtStart===duplicateSearchRequest.current){if(!duplicateResult.error){const batch=(duplicateResult.data??[]) as DuplicateId[];setDuplicateIds(batch);setDuplicateHasMore(batch[0]?.has_more===true);}else setDuplicateMessage('Duplicate ID directory could not be loaded: '+duplicateResult.error.message);}
    if(!packageResult.error)setPackages((packageResult.data??[]) as AdminPackage[]);
    if(!referralResult.error)setReferralPlans((referralResult.data??[]) as ReferralPlan[]);
-   if(!commissionResult.error){const batch=(commissionResult.data??[]) as ReferralCommissionRow[];setCommissionRows(batch);setCommissionHasMore(batch[0]?.has_more===true);}else setCommissionMessage('Commission register could not be loaded: '+commissionResult.error.message);
+   if(!commissionResult.error){const page=parseReferralCommissionPage(commissionResult.data??[]);setCommissionRows(page.items);setCommissionHasMore(page.hasMore);}else setCommissionMessage('Commission register could not be loaded: '+commissionResult.error.message);
    if(!withdrawalResult.error){const batch=(withdrawalResult.data??[]) as WithdrawalRequest[];setWithdrawalRequests(batch);setWithdrawalHasMore(batch.length===100);setWithdrawalMessage('');}else setWithdrawalMessage('Withdrawal queue could not be loaded: '+withdrawalResult.error.message);setWithdrawalQueueLoading(false);
    if(!minimumWithdrawalResult.error)setMinimumWithdrawalAmount(String(minimumWithdrawalResult.data??0));
    if(!auctionProductResult.error)setAuctionProducts((auctionProductResult.data??[]) as AuctionProduct[]);
@@ -375,18 +387,16 @@ async function postReferralCommissions(activationId:string){
  finally{setCommissionBusy(false);}
 }
 async function loadMoreReferralCommissions(){
- if(!supabase||commissionBusy||!commissionHasMore)return;
- setCommissionBusy(true);setCommissionMessage('');
+ if(!supabase||commissionBusy||commissionPageInFlight.current||!commissionHasMore)return;
+ commissionPageInFlight.current=true;const generation=commissionPageGeneration.current,offset=commissionRows.length;setCommissionBusy(true);setCommissionMessage('');
  try{
-  const{data,error}=await supabase.rpc('admin_list_referral_commissions_page',{p_limit:100,p_offset:commissionRows.length,p_status:null,p_level:null});
-  if(error)throw error;
-  const batch=(data??[]) as ReferralCommissionRow[];const known=new Set(commissionRows.map(row=>row.commission_id));const pageIds=new Set<string>();const fresh:ReferralCommissionRow[]=[];let duplicateFound=false;
-  for(const row of batch){if(known.has(row.commission_id)||pageIds.has(row.commission_id)){duplicateFound=true;continue;}pageIds.add(row.commission_id);fresh.push(row);}
-  setCommissionRows(current=>[...current,...fresh.filter(row=>!current.some(existing=>existing.commission_id===row.commission_id))]);
-  setCommissionHasMore(batch[0]?.has_more===true&&fresh.length>0&&!duplicateFound);
-  if(duplicateFound)setCommissionMessage('The commission register returned duplicate commission IDs. Refresh the register before loading more.');
- }catch(e){setCommissionMessage(e instanceof Error?e.message:'More commission records could not be loaded.');}
- finally{setCommissionBusy(false);}
+  const{data,error}=await supabase.rpc('admin_list_referral_commissions_page',{p_limit:100,p_offset:offset,p_status:null,p_level:null});
+  if(error)throw error;if(generation!==commissionPageGeneration.current)return;
+  const page=parseReferralCommissionPage(data??[]),known=new Set(commissionRows.map(row=>row.commission_id));
+  if(page.items.some(row=>known.has(row.commission_id)))throw new Error('The commission register returned records already loaded. Refresh the register before loading more.');
+  setCommissionRows(current=>[...current,...page.items]);setCommissionHasMore(page.hasMore);
+ }catch(e){if(generation===commissionPageGeneration.current)setCommissionMessage(e instanceof Error?e.message:'More commission records could not be loaded.');}
+ finally{if(generation===commissionPageGeneration.current){commissionPageInFlight.current=false;setCommissionBusy(false);}}
 }
 async function reverseReferralCommission(commissionId:string){
  if(!supabase||commissionBusy)return;
