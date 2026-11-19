@@ -510,3 +510,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/admin-staff-access-diagnostics.test.ts` as source-contract coverage; not executed.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment were performed. Production remains read-only; TEST untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional**; this targeted diagnostics fix does not establish end-to-end Staff workflow readiness.
+
+
+## 2026-11-19 — Admin wallet funding review diagnostics
+
+- Reworked `AdminWalletFundingReview` queue loading to distinguish a genuine empty queue from Supabase/RPC errors, show a loading state, and provide Retry.
+- Added per-request secure receipt-link error handling. Approval is disabled unless a signed receipt URL is available; rejection remains available. This prevents approving a payment request without being able to open its receipt from this screen.
+- Added a concurrency guard for review submissions and stale-load protection so older requests cannot overwrite newer queue state.
+- Added `tests/admin-wallet-funding-review-diagnostics.test.ts` as source-contract coverage; not executed.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment were performed. Production remains read-only; TEST untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional**; this targeted Admin workflow fix does not establish end-to-end wallet funding readiness.
