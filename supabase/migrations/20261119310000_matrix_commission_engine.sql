@@ -53,13 +53,12 @@ begin
       from public.member_ids m
       where m.id=new.member_id and m.placement_parent_id is not null
       union all
-      select parent.placement_parent_id,u.depth+1,u.path||parent.placement_parent_id
+      select parent.id,u.depth+1,u.path||parent.id
       from uplines u
       join public.member_ids current_node on current_node.id=u.member_id
       join public.member_ids parent on parent.id=current_node.placement_parent_id
-      where parent.placement_parent_id is not null
-        and u.depth<50
-        and not parent.placement_parent_id=any(u.path)
+      where u.depth<50
+        and not parent.id=any(u.path)
     )
     select u.member_id,u.depth,source.id_type as source_id_type,
       source.member_code as source_member_code,
