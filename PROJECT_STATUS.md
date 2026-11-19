@@ -762,3 +762,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: UI `7e85ee8445a272f3a89965b5ea11601c84474858`; RPC `874ed1928aea683ba1308b87e72713a9dd71b8ec`; source-contract test `0d43c1c7bb25ee17fcc7ab773d5fbdedf156dc2d`; completion register `dde38f7f30eedc4a8f8bc6ff0a1d0c3e03e1b2a7`.
 - No tests/build/type-check/browser/mobile QA run and no TEST/Production migrations applied. Protected `main` unchanged. Matrix commission feature remains OFF. Matrix history pagination and final QA remain pending.
 - Overall development estimate: **61% provisional**.
+
+
+## Latest checkpoint — Wallet Matrix source attribution
+
+- Wallet History displays Matrix commission source member code, Main/Duplicate ID type and Matrix level. CSV export includes the same fields for the complete exported statement.
+- Member-scoped source lookup RPC added to `20261119320000_member_matrix_commission_summary.sql`; source rows are only returned when credited to the authenticated user's linked Main ID.
+- Commits: wallet UI `1d8751c32701c73a7e0a40422018be3dd661c5a9`; RPC `e5d473302d23175d6a4e89f4a67059d1c59dcc82`; test `5b65f1a60cda621f5e4f284869497821027ae9a5`; export fix `2f3e74ac915f4456848a3e2c60c1f3abcb430860`; completion register `d1fcd405ed1e4c720193edf6967e421ffabd4ec2`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied. Protected `main` unchanged. Matrix feature remains OFF. Full schema reconciliation and final QA remain pending.
+- Overall development estimate: **62% provisional**.
