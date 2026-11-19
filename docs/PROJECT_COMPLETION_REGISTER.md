@@ -1305,3 +1305,12 @@
 - Implementation and source-test commit: `c1af82806e0abd6442de01b094752c6d92c8e776`.
 - No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched.
 - Overall development estimate remains **60% Provisional**.
+
+
+## 2026-11-19 — Continuation checkpoint and isolated TEST migration-state exception
+
+- Re-read the live `completion-work` branch. Current HEAD is `9ee5698b0cfe0a13fa56729ecc316658fcaf7a85`; its latest commit corrects the auction-review RPC grant alignment in `20261119150000_expected_price_48_hour_auction_lifecycle.sql`. Protected primary `main` remains `620d05b2d266d26dc70c5ff775ed45af9bb3b400` and was not changed.
+- The isolated Preview repository workflow #8, attempt 2, completed successfully at `903b198fb69039d2f0de706c714662467a5a8abc`; its build and Pages publish steps passed. It remains visual-only: no Supabase URL/key is configured, and real registration, wallet, package, auction, bidding and Admin backend operations are unavailable. The app already supports explicit environment URL/public-key configuration through `src/lib/supabase.ts`; do not add Production credentials to Preview.
+- **TEST database state exception:** during this continuation, migration application calls were made against `yoaauthwejdgaevfvwpo`, despite the recovery instruction to keep TEST untouched until final testing. The current Supabase migration ledger reports 89 entries: the schema baseline plus the 87 files in the forward manifest, with `20261118230000_recover_admin_read_rpc_sources` recorded twice under separate ledger versions (88 unique names). This was an unintended deviation from the stated process. No further TEST migrations or data changes are to be made during development. Do not delete ledger rows or attempt rollback automatically; reconcile the duplicate and verify the resulting schema deliberately during the authorized final QA phase.
+- Production project `hbqatszyzqobgtauyuzy` was not written to. No member, wallet, package, payment, bid, withdrawal or other application rows were intentionally created or changed by these migration calls.
+- No tests, type-check, app build, browser/device QA or functional test data checks were run as part of this checkpoint. Overall development estimate remains **60% provisional**; no completion increase is justified.
