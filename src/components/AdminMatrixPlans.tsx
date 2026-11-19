@@ -75,7 +75,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
    <label>Package<select value={packageId} onChange={e=>{setPackageId(e.target.value);setMessage('');}}><option value="">Select a package</option>{packages.map(p=><option key={p.id} value={p.id}>{p.name}{p.is_active?' · Published':''}</option>)}</select></label>
    {selectedPackage?.is_active&&<div className="notice">This package is published. Existing Matrix plan history is read-only.</div>}
    <div className="sponsorAdminForm">
-    <label>Matrix Width<select value={width} onChange={e=>setWidth(e.target.value)}>{[3,4,5,6,7].map(n=><option key={n} value={n}>1:{n}</option>)}<option value="8">Custom · 1:8</option><option value="10">Custom · 1:10</option><option value="12">Custom · 1:12</option><option value="20">Custom · 1:20</option><option value="50">Custom · 1:50</option><option value="100">Custom · 1:100</option></select></label>
+    <label>Matrix Width (1:X)<input type="number" min="2" max="100" step="1" value={width} onChange={e=>setWidth(e.target.value)}/><small>Predefined widths: 1:3, 1:4, 1:5, 1:6, 1:7. Custom width: any whole number from 2 to 100.</small></label>
     <label>Matrix Depth (commission levels)<input type="number" min="1" max="50" step="1" value={depth} onChange={e=>setDepth(e.target.value)}/></label>
    </div>
    <h4>Level-wise Matrix Commission Rules</h4>
