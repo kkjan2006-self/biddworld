@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {supabase} from '../lib/supabase';
 
 type PackageOption={id:string;name:string;is_active:boolean};
@@ -6,6 +6,24 @@ type MatrixRule={level:number;enabled:boolean;reward_type:'fixed'|'percentage';r
 type MatrixPlan={id:string;package_id:string;version_number:number;matrix_width:number;placement_depth:number;matrix_depth:number;is_active:boolean;created_at:string;levels:{level:number;enabled:boolean;reward_type:'fixed'|'percentage';reward_value:number;eligibility_rule:Record<string,unknown>}[]};
 
 const makeRules=(depth:number):MatrixRule[]=>Array.from({length:depth},(_,i)=>({level:i+1,enabled:false,reward_type:'fixed',reward_value:'0',eligibility_rule:'{}'}));
+function parseMatrixPlans(value:unknown,packageId:string):MatrixPlan[]{
+ if(!Array.isArray(value)||value.length>200)throw new Error('Matrix plan response is invalid or exceeds the safety limit.');
+ const ids=new Set<string>();
+ return value.map(raw=>{
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Matrix plan record is malformed.');
+  const row=raw as Record<string,unknown>;
+  if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||row.package_id!==packageId||!Number.isInteger(row.version_number)||Number(row.version_number)<1||!Number.isInteger(row.matrix_width)||Number(row.matrix_width)<2||Number(row.matrix_width)>100||!Number.isInteger(row.placement_depth)||Number(row.placement_depth)<1||Number(row.placement_depth)>50||!Number.isInteger(row.matrix_depth)||Number(row.matrix_depth)<1||Number(row.matrix_depth)>50||typeof row.is_active!=='boolean'||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||!Array.isArray(row.levels)||row.levels.length!==row.matrix_depth)throw new Error('Matrix plan record contains invalid fields.');
+  const levels=new Set<number>();
+  for(const rawLevel of row.levels){
+   if(!rawLevel||typeof rawLevel!=='object'||Array.isArray(rawLevel))throw new Error('Matrix plan level is malformed.');
+   const level=rawLevel as Record<string,unknown>;
+   if(!Number.isInteger(level.level)||Number(level.level)<1||Number(level.level)>Number(row.matrix_depth)||levels.has(Number(level.level))||typeof level.enabled!=='boolean'||!['fixed','percentage'].includes(String(level.reward_type))||!Number.isFinite(Number(level.reward_value))||Number(level.reward_value)<0||(level.reward_type==='percentage'&&Number(level.reward_value)>100)||!level.eligibility_rule||typeof level.eligibility_rule!=='object'||Array.isArray(level.eligibility_rule))throw new Error('Matrix plan level contains invalid fields.');
+   levels.add(Number(level.level));
+  }
+  if(levels.size!==Number(row.matrix_depth))throw new Error('Matrix plan levels are incomplete.');
+  ids.add(row.id);return row as unknown as MatrixPlan;
+ });
+}
 
 export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
  const [packageId,setPackageId]=useState('');
@@ -17,6 +35,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState('');
  const [loading,setLoading]=useState(false);
+ const requestGeneration=useRef(0);
  const selectedPackage=packages.find(p=>p.id===packageId);
  const depthNumber=Math.max(1,Math.min(50,Number(depth)||1));
  const activePlan=useMemo(()=>plans.find(p=>p.is_active),[plans]);
@@ -26,13 +45,14 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
  },[depthNumber]);
 
  async function loadPlans(id=packageId){
-  if(!supabase||!id){setPlans([]);return;}
+  const request=++requestGeneration.current;
+  if(!supabase||!id){setPlans([]);setLoading(false);return;}
   setLoading(true);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_list_matrix_plans',{p_package_id:id});if(error)throw error;if(!Array.isArray(data))throw new Error('Matrix plan response is invalid.');setPlans(data as MatrixPlan[]);}
-  catch(e){setPlans([]);setMessage(e instanceof Error?e.message:'Matrix plans could not be loaded. Apply the Matrix plan migration before using this module.');}
-  finally{setLoading(false);}
+  try{const{data,error}=await supabase.rpc('admin_list_matrix_plans',{p_package_id:id});if(error)throw error;const parsed=parseMatrixPlans(data,id);if(request!==requestGeneration.current)return;setPlans(parsed);}
+  catch(e){if(request===requestGeneration.current){setPlans([]);setMessage(e instanceof Error?e.message:'Matrix plans could not be loaded. Apply the Matrix plan migration before using this module.');}}
+  finally{if(request===requestGeneration.current)setLoading(false);}
  }
- useEffect(()=>{if(packageId)void loadPlans(packageId);else setPlans([]);},[packageId]);
+ useEffect(()=>{if(packageId){setPlans([]);void loadPlans(packageId);}else{requestGeneration.current++;setPlans([]);setLoading(false);}return()=>{requestGeneration.current++;};},[packageId]);
 
  function updateRule(index:number,patch:Partial<MatrixRule>){
   setRules(current=>current.map((rule,i)=>i===index?{...rule,...patch}:rule));
