@@ -9,6 +9,13 @@ describe('complete personal activity report', () => {
   expect(account).toContain(".order('id',{ascending:false}).range(from,to)");
   for (const table of ['package_activations','bids','fixed_bids','referral_commissions','winning_item_payments','delivery_tracking']) expect(account).toContain("from('"+table+"')");
  });
+ it('fails closed when a page repeats or any record ID is duplicated across pages', () => {
+  expect(account).toContain('const seenIds=new Set<string>();');
+  expect(account).toContain('const pageIds=new Set<string>();');
+  expect(account).toContain('duplicate record IDs across pages');
+  expect(account).toContain('without a valid ID');
+  expect(account).toContain('batch.map(row=>row.id)');
+ });
  it('re-verifies the signed-in Main ID and provides export feedback', () => {
   expect(account).toContain('client.auth.getUser()');
   expect(account).toContain('currentProfile?.main_member_id');
