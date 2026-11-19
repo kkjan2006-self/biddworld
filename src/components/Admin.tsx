@@ -169,7 +169,7 @@ export default function Admin(){
    if(!auctionResult.error)setAuctionRows((auctionResult.data??[]) as AuctionRow[]);
    if(!fixedCampaignResult.error)setFixedCampaigns((fixedCampaignResult.data??[]) as FixedBidCampaign[]);
    if(!winningPaymentResult.error)setWinningPayments((winningPaymentResult.data??[]) as WinningPayment[]);else setWinningMessage(winningPaymentResult.error.message);
-   if(!deliveryResult.error)setDeliveryRows((deliveryResult.data??[]) as DeliveryRow[]);
+   if(!deliveryResult.error){setDeliveryRows((deliveryResult.data??[]) as DeliveryRow[]);setDeliveryMessage('');}else setDeliveryMessage('Delivery tracking could not be loaded: '+deliveryResult.error.message);
    if(!walletAccountResult.error)setWalletAccounts((walletAccountResult.data??[]) as WalletAccount[]);else setWalletMessage('Wallet balances: '+walletAccountResult.error.message);
    if(!walletTransactionResult.error){const ledger=(walletTransactionResult.data??[]) as WalletTransaction[];setWalletTransactions(ledger);setWalletHasMore(ledger.length===100);}else setWalletMessage('Wallet ledger: '+walletTransactionResult.error.message);
    if(!notificationResult.error)setNotificationTemplates((notificationResult.data??[]) as NotificationTemplate[]);else setTemplateMessage(notificationResult.error.message);
