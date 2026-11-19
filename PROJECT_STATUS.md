@@ -560,3 +560,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Source-reviewed the auction finalization and Fixed Bid draw RPCs: both lock the parent auction/campaign row, persist a single winner/draw result, and return the existing result on replay. Reviewed cancellation/refund ledger checks and notification send idempotency; no SQL changes were made.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional** pending final end-to-end verification.
+
+
+## 2026-11-19 — Notification inbox and Support queue recovery clarity
+
+- Member notification inbox and Support request list now distinguish an initial load failure from a genuinely empty result. When no rows are available because loading failed, each module presents an explicit retry action rather than a misleading “no records” message; existing refresh actions remain available.
+- Reconciled the notification inbox source-contract test with the current Admin keyset pagination RPC name, replacing a stale assertion for the previous page RPC. Added source assertions for both empty-state retry paths.
+- Source review confirms notification history is fetched through the Admin keyset RPC, while member inbox reads remain user-scoped; support reads remain owner-scoped for members and policy-checked for Admin. No SQL changes were required.
+- Added/updated source-contract tests only; tests were not executed. No build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
+- Overall development estimate remains **60% Provisional** pending full contract reconciliation and final end-to-end verification.
