@@ -1113,3 +1113,13 @@ At every development batch/chat end, update this file with the actual verified b
 - The previous Preview run `44536912340` failed at Vite transformation due to this syntax error. A new Preview workflow run has been queued for the latest source; deployment outcome remains pending. No TEST/Production database access or migrations and no protected `main` changes.
 - Tests/build/type-check/browser/mobile QA remain deferred; the Preview pipeline's required Vite build is used only to publish the preview and is not a separate QA sign-off.
 - Overall development completion remains **71% provisional**.
+
+
+## 2026-11-19 — Admin Main Wallet funding page response integrity
+
+- Tightened wallet funding queue row validation: amount must be a positive finite numeric value; currency must be a three-letter uppercase code; receipt path and payment reference must be nonblank.
+- Keyset continuation metadata must now match the final returned row exactly; cursors must advance from the previous page; terminal pages must return null cursor fields. Added a synchronous Load More lock to avoid concurrent duplicate page requests.
+- Existing approval/rejection RPC, private signed receipt links, review notes, pagination and ledger posting are unchanged. Added `tests/admin-wallet-funding-page-contract.test.ts` as source-only regression coverage (not executed).
+- Commits: UI `f5fc6d51bd9abfad6229d173b927ee9e3ff3fd1b`; regression source `c59c674af07ce68d11ebad4df8ba0c5c9e445818`.
+- Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database access or migrations; no protected main-branch changes. Preview deployment trigger and status are recorded separately.
+- Overall development completion remains **71% provisional**.
