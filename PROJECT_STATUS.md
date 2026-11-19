@@ -196,9 +196,9 @@ The following source/UI/documentation work is present in the current branch and 
 
 ## C. IN PROGRESS
 
-- Canonical clean-install baseline: continue full function-body comparison against recovered migration archive and semantic dependency review for all 119 forward migration candidates. The candidate baseline is schema-only and remains unapproved until the isolated TEST replay phase.
+- Canonical clean-install baseline: continue full function-body comparison against recovered migration archive and semantic dependency review for all 122 forward migration candidates. The candidate baseline is schema-only and remains unapproved until the isolated TEST replay phase.
 - RPC and Data API contract reconciliation: continue across all remaining Admin/Member components, RPC overloads, direct table reads, column-level privileges, RLS predicates, Storage paths and role-specific permissions. Existing focused Admin/Member audit documents remain historical snapshots and need a current-head delta pass.
-- Migration compatibility: current manifest contains 119 ordered forward candidates and 16 excluded historical timestamped files (135 timestamped migrations total), plus three legacy/unversioned SQL files. Manifest accounting and sort order are source-reconciled; function replacement dependencies, object prerequisites and final-state policy semantics remain under source review.
+- Migration compatibility: current manifest contains 122 ordered forward candidates and 16 excluded historical timestamped files (138 timestamped migrations total), plus three legacy/unversioned SQL files. Manifest accounting and sort order are source-reconciled; function replacement dependencies, object prerequisites and final-state policy semantics remain under source review.
 - PWA/offline implementation: source registration, manifest, scope and service-worker cache isolation exist. Continue source-level cache/navigation hardening and align any stale test/documentation literals without executing tests in this development-only phase.
 - Current source-only batches include member product submission/edit/resubmission and paged history, private image previews, complete public product galleries, paged Admin moderation, public product detail search, Matrix configuration/placement/commission reporting and Admin posting/reversal controls. Member history and Admin moderation now use bounded keyset pagination; all approved member product images are published and visible in the catalogue. Package activation now requires a payment receipt in both UI and server RPC. Continue closing remaining feature and integration gaps before any verification phase.
 
@@ -1349,3 +1349,10 @@ At every development batch/chat end, update this file with the actual verified b
 - Current inventory: 123 forward + 16 excluded = 139 timestamped migrations, plus 3 legacy/unversioned SQL files. Forward manifest remains unique and sorted.
 - All intended source changes are on `completion-work`; no Supabase data/migrations were applied and no Preview deployment/runtime QA was performed.
 - Source development estimate: **93% provisional**; final module/contract reconciliation remains open.
+
+
+## 2026-11-19 — Final migration manifest de-duplication
+
+- Reconciled the clean-install manifest against the Git tree after the email-verification migration registration. Removed one duplicate entry and restored strict lexical order. Final inventory is 122 unique forward migrations + 16 unique excluded historical migrations = 138 timestamped migration files, plus three legacy SQL files. All paths exist; no overlap or uncovered timestamped migration remains.
+- Commit: `a91c7f949a15625b8135cb059ac160f50e2dbb19`.
+- No SQL execution, Supabase data changes, tests/build, Preview deployment or runtime QA. Work remains on `completion-work`.
