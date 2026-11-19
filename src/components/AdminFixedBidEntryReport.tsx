@@ -7,6 +7,13 @@ type FixedBidEntryRow={
  member_code:string;member_name:string|null;entry_amount:number;status:string;created_at:string;
 };
 type Filters={search:string;status:string;from:string;to:string};
+function parseFixedBidEntryRows(value:unknown):FixedBidEntryRow[]{
+ if(!Array.isArray(value)||value.length>100)throw new Error('Fixed Bid entry report page is invalid.');
+ const ids=new Set<string>();
+ return value.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Fixed Bid entry row is malformed.');const row=raw as Record<string,unknown>;
+ if(typeof row.entry_id!=='string'||!row.entry_id.trim()||ids.has(row.entry_id)||typeof row.campaign_id!=='string'||!row.campaign_id.trim()||typeof row.campaign_title!=='string'||!row.campaign_title.trim()||typeof row.campaign_status!=='string'||!row.campaign_status.trim()||typeof row.member_code!=='string'||!row.member_code.trim()||(row.member_name!==null&&typeof row.member_name!=='string')||!Number.isFinite(Number(row.entry_amount))||Number(row.entry_amount)<=0||typeof row.status!=='string'||!row.status.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('Fixed Bid entry report contains malformed or duplicate records.');
+ ids.add(row.entry_id);return row as unknown as FixedBidEntryRow;});
+}
 const PAGE_SIZE=100;
 function boundary(date:string,end:boolean):string|null{
  if(!date)return null;
@@ -39,10 +46,10 @@ export default function AdminFixedBidEntryReport(){
    if(rpcError)throw rpcError;
    if(requestId!==request.current)return;
    if(!Array.isArray(data??[]))throw new Error('The Fixed Bid entry report response was invalid. Refresh and retry.');
-   const fetched=(data??[]) as FixedBidEntryRow[];
+   const fetched=parseFixedBidEntryRows(data??[]);
    const batch=fetched.slice(0,PAGE_SIZE),pageIds=new Set<string>(),knownIds=new Set(reset?[]:rows.map(row=>row.entry_id));
    for(const row of batch){
-    if(!row||typeof row.entry_id!=='string'||!row.entry_id.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('The Fixed Bid entry report contains an invalid record. Refresh before continuing.');
+
     if(pageIds.has(row.entry_id)||knownIds.has(row.entry_id))throw new Error('The Fixed Bid entry report returned duplicate record IDs. Refresh before loading more.');
     pageIds.add(row.entry_id);
    }
@@ -81,14 +88,14 @@ export default function AdminFixedBidEntryReport(){
     });
     if(rpcError)throw rpcError;
     if(!Array.isArray(data??[]))throw new Error('The report response was invalid. Export stopped. Please retry.');
-    const batch=(data??[]) as FixedBidEntryRow[];
+    const batch=parseFixedBidEntryRows(data??[]);
     if(batch.length===PAGE_SIZE){
      const fingerprint=JSON.stringify(batch.map(row=>row.entry_id));
      if(seenPages.has(fingerprint))throw new Error('The report repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');
      seenPages.add(fingerprint);
     }
     for(const row of batch){
-     if(!row||typeof row.entry_id!=='string'||!row.entry_id.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('The report contains an invalid record. Export stopped to avoid an inaccurate CSV. Please retry.');
+
      if(seenIds.has(row.entry_id))throw new Error('The report returned duplicate records. Export stopped to avoid an inaccurate CSV. Please retry.');
      seenIds.add(row.entry_id);all.push(row);
     }
