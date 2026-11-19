@@ -1816,3 +1816,14 @@
 - Commits: Admin UI `81ae6d56f875e07c4a6ac2df4de39f6745842508`; migration `d2310039b33962feef9217efc125d75417326db6`; test source `dc43fda6db451b6b9f5af0a90a51d42c9ace77b8`; manifest `222de399808adfaa0529dd6751f325543050150a`.
 - Source-only batch. Tests/build/type-check/browser/mobile QA were not run. The migration has **not** been applied to TEST; Production was not accessed or modified. Preview was not updated because its TEST backend must receive the approved migration before this RPC-based UI can be published.
 - Overall development completion remains **71% provisional** pending broader development and final integrated verification.
+
+## 2026-11-19 — Admin referral commission register pagination hardening
+
+- Added strict validation for commission page arrays, unique commission IDs, activation/beneficiary/credited Main ID fields, beneficiary ID type, positive finite amount, status, timestamp and consistent per-page `has_more` metadata.
+- Added a single-flight guard and request-generation invalidation for Load More so a page requested before an Admin refresh cannot append stale rows afterward. A page overlapping already-loaded commission IDs now fails closed with a refresh message.
+- Isolated malformed commission responses from the main Admin workspace loader so a bad commission payload does not prevent unrelated Admin modules from rendering. Invalid commission data clears only the affected register and reports a local error.
+- Existing referral commission list, posting and reversal RPCs are unchanged. Offset pagination remains in place; this batch hardens client-side request/response handling and does not claim snapshot-stable keyset pagination.
+- Added source-contract coverage in `tests/admin-referral-commission-pagination.test.ts`.
+- Commits: UI validation/guard `0c0cb3d85892adf4ad18bdb573de6ae5a0911541`; test `483b7fb76f6c303a8c0370da6ade1b13d852b1b4`; Admin loader isolation `df4f7673faa3f22b9386220aff9215dd80e6e704`.
+- Tests/build/type-check/browser/mobile QA were not run. No database migration was needed or applied; no TEST or Production database access/write, Preview deployment or protected `main` changes occurred.
+- Overall development completion remains **71% provisional** pending broader development and integrated verification.
