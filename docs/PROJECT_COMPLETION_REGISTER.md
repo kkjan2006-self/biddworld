@@ -1762,3 +1762,11 @@
 - Added migration `20261119370000_retry_main_activation_duplicate_reconciliation.sql`, regression contract `tests/main-activation-duplicate-reconciliation-retry.test.ts`, and clean-install forward manifest registration.
 - Commits: migration `9ba91dad07c9721b98c4a26b2667f65976986ceb`; test `032888cfb5145f8582c8887e70986bcaf889b8eb`; manifest `cb26307be9dddf8d0ce2791b2e20d9abcad5ad58`.
 - Tests/build/type-check/browser/mobile QA were not run. No TEST/Production migrations or data writes, deployment or protected `main` changes occurred.
+
+## 2026-11-19 — Main-ID closure consistency
+
+- Main-ID closure now closes all linked Duplicate IDs that are not already closed, including manually suspended IDs. This prevents a manually suspended Duplicate ID from remaining in a non-closed state after its owner Main ID is permanently closed.
+- Existing closed IDs and their history are preserved; all transitioned children are marked Main-managed and included in the existing audit/count response. Main-ID closure remains irreversible.
+- Added migration `20261119380000_close_all_linked_duplicate_ids.sql`, regression contract `tests/main-close-linked-duplicate-ids.test.ts`, and forward migration manifest registration.
+- Commits: migration `4aed942a9a09ee7d0936d02e86c0e108f931c928`; test `12587e9ed218ccbfb6f26efa2652442245ce9c1f`; manifest `c1cd577162ad6948300bbe2ae502cae1e8a3a918`.
+- No tests/build/type-check/browser/mobile QA were run. No TEST/Production migrations or data writes, deployment or protected `main` changes occurred.
