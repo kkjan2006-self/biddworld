@@ -33,6 +33,13 @@ create table if not exists public.matrix_level_rules (
 create index if not exists matrix_level_rules_plan_level_idx
   on public.matrix_level_rules(plan_version_id, level_number);
 
+-- Configuration rows are exposed only through the Admin-authorized RPCs below.
+-- Direct Data API access is deliberately unavailable to anon/authenticated clients.
+alter table public.matrix_plan_versions enable row level security;
+alter table public.matrix_level_rules enable row level security;
+revoke all on table public.matrix_plan_versions from public, anon, authenticated;
+revoke all on table public.matrix_level_rules from public, anon, authenticated;
+
 create or replace function public.admin_save_matrix_plan_draft(
   p_package_id uuid,
   p_matrix_width integer,
