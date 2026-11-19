@@ -2262,3 +2262,14 @@
 - Commits: Support index migration `5b3f952185ea399c324a6ee42af3a65e9714d550`; test `d6d3674abc9e3b6937df918ca7974d4a3a1477b6`; manifest `e10307e9af94b1a8dc4aa21c8f0ddfc593c95655`; clean-install README `27307f0911f5f2d322cfbb3801e0d440d44c1223`.
 - Development-only boundary maintained: no tests/build/type-check/browser QA, no Supabase migrations/data changes, no Preview deployment, and no protected `main` changes.
 - Overall source development estimate remains **94% provisional**; remaining source-level frontend/RPC/RLS/Storage integration reconciliation is open.
+
+
+## 2026-11-19 — Server-side duplicate product submission prevention
+
+- Added a per-member transaction advisory lock to both new product submission and edit/resubmission paths. The database now rejects another pending submission with the same normalized product title for the same member, while allowing the owner to edit that existing row or submit again after the earlier request is no longer pending.
+- Added a partial lookup index for pending member/title pairs. This closes the race where rapid retries or concurrent requests could create duplicate pending listings even if the browser button was locked.
+- Added `tests/duplicate-pending-product-submission.test.ts` and registered `20261119540000_prevent_duplicate_pending_product_submissions.sql` in the ordered clean-install manifest.
+- Commit IDs: migration `c77f566940ef80801dd3feb8ea042ddc8ca69754`; regression source `4abc126a44d8c5c7184f7be3654801bc876aaab3`; manifest `8803ee53da2f395e7536f9f4eec14b0009831a36`.
+- Current inventory: 124 forward + 16 excluded = 140 timestamped migrations, plus three legacy SQL files. Forward manifest remains unique and sorted.
+- Development-only: no migration execution, no Supabase data changes, no tests/build/type-check or Preview deployment.
+- Source development estimate: **97% provisional**; remaining final frontend/RPC/security and release-documentation reconciliation.
