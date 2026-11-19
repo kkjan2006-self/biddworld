@@ -936,3 +936,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Added migration `20261119370000_retry_main_activation_duplicate_reconciliation.sql`, regression contract `tests/main-activation-duplicate-reconciliation-retry.test.ts`, and forward manifest registration.
 - Commits: migration `9ba91da`; test `032888c`; manifest `cb26307`.
 - Source-only. No tests/build/type-check/browser/mobile QA, DB migrations/writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
+
+## Main-ID closure consistency — 2026-11-19
+
+- Fixed a lifecycle inconsistency: closing a Main ID now closes every linked Duplicate ID that is not already closed, including Duplicate IDs that were manually suspended. Previously, manually suspended IDs could remain in `suspended` after their owner Main ID was permanently closed.
+- The change preserves existing closed IDs and history, marks the linked status as Main-managed, retains irreversible Main-ID closure, and uses the existing audit/count response path.
+- Added migration `20261119380000_close_all_linked_duplicate_ids.sql`, regression contract `tests/main-close-linked-duplicate-ids.test.ts`, and clean-install manifest registration.
+- Commits: migration `4aed942a9a09ee7d0936d02e86c0e108f931c928`; test `12587e9ed218ccbfb6f26efa2652442245ce9c1f`; manifest `c1cd577162ad6948300bbe2ae502cae1e8a3a918`.
+- Source-only. No tests/build/type-check/browser/mobile QA, DB migrations/writes, deployment or protected `main` changes. Overall development completion remains **69% provisional**.
