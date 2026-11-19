@@ -1113,3 +1113,10 @@
 - Found that `WalletFunding` and its QR/UTR/private receipt/request-history workflow existed in source but was not mounted in the authenticated member Wallet tab. Added a lazy import and rendered the component in the Wallet workspace above wallet transaction history.
 - Added `tests/member-wallet-funding-navigation.test.ts` source-contract coverage (not run).
 - Implementation commit: `bf4242f2a8b2435e8ad1d532bbf65b75eb786357`; test-source commit: `158faafdbe48b4585e2f49e90a44cc036edca052`. No tests/build/QA, migration replay, Supabase writes or deployment. Development estimate remains **59% Provisional**.
+
+
+## 2026-11-19 — Wallet funding request history session isolation
+
+- Wallet funding history now subscribes to Supabase auth changes, clears old-member rows, invalidates stale requests, reloads under the new authenticated user and reports load failures explicitly.
+- Added `tests/member-wallet-funding-session-scope.test.ts` source-contract coverage (not run).
+- Implementation commit: `b9c294035bd71bb9e192240bc370fe9d530980da`; test-source commit: `491e0960fbc3472264d875b212ecef77e64988e9`. No tests/build/QA, migration replay or database writes. Planning estimate: **60% Provisional**.
