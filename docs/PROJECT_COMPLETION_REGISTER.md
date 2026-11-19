@@ -1897,3 +1897,13 @@
 - Added source-contract coverage in `tests/admin-package-referral-directory-integrity.test.ts`.
 - Commits: Admin source `7e778c4602163866222fc0fe26b62077a2872395`; contract test `e50e3e11d05fce1646add8d94c62e1d72f338709`; checkpoint `70045f46dde55e347d0d53756651c5b13495a9ec`.
 - Tests/build/type-check/browser/mobile QA were not run. No TEST/Production database reads or writes, migrations, Preview deployment or protected `main` changes occurred.
+
+
+## 2026-11-19 — Admin Auction and Fixed Bid directory integrity
+
+- Admin Auction Products, Auctions and Fixed Bid campaign list responses now pass strict runtime parsers before entering UI state. Validation covers bounded arrays, unique IDs, required identifiers/names/statuses, nullable text, auction numeric values and lifecycle dates, Fixed Bid configuration shape, and campaign timestamps.
+- A malformed module response clears that module and adds a local warning without blocking unrelated Admin modules. Existing actions and RPC contracts remain unchanged.
+- Added `tests/admin-auction-fixed-bid-directory-integrity.test.ts` (authored only; not executed).
+- Commits: Admin UI `a01ec4b7d91b18f2c37ec9ee740a5aff880c1f2c`; source-contract test `4d817c3bf007daa8c61478e9700bb0e69d8abc67`; status checkpoint `14b76794eb7f3266ec011c8f1058755deeaca81b`.
+- No tests/build/type-check/browser/mobile QA, DB reads/writes, migrations, Preview deployment or protected `main` changes were performed.
+- Development completion: **71% provisional**.
