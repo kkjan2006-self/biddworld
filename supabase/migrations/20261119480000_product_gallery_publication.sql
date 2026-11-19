@@ -12,7 +12,7 @@ begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
  end if;
- if p_decision not in ('approve','reject') or length(coalesce(p_review_note,''))>500 then
+ if p_decision is null or p_decision not in ('approve','reject') or length(coalesce(p_review_note,''))>500 then
   raise exception 'Invalid review decision or note' using errcode='22023';
  end if;
  if p_decision='reject' and length(btrim(coalesce(p_review_note,'')))<5 then
