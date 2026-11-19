@@ -1428,3 +1428,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Re-sorted the clean-install manifest. It now contains 124 unique forward candidates and remains strictly ordered; together with 16 excluded historical migrations this accounts for all 140 timestamped SQL migration files.
 - Commits: new unique migration `c40fc5bf97dfcc0f191b4ce87c725124e7aaa11c`; removed colliding path `911b79df0f23fd521d3bc96c6b41133a3ebf4d21`; test path `97db7c483474bc7b1d548bebe7cbeb34927c6e87`; manifest `4e057b1bf681930e7387ba26ac4045a0c3c44c8a`.
 - No database migrations executed and no Supabase data changed.
+
+
+## 2026-11-19 — Production deployment approval gate
+
+- Removed automatic Production deployment on pushes to `main` from `.github/workflows/deploy-pages.yml`.
+- Production build/package and Pages deployment now require an explicit `confirm_production_deployment: true` manual dispatch from the protected `main` branch. Both build and deploy jobs enforce the same gate; overlapping Production runs are not cancelled mid-deployment.
+- Added source-contract regression test `tests/production-deployment-approval-gate.test.ts` (not executed).
+- Commit: workflow `75063753211ce5a32e8c615f2049b9ba849b5c52`; regression source `b04898dcb5becb4383dfaa615811b8881741cf0c0`.
+- No deployment was triggered; no TEST/Production database change; `main` remains untouched.
+- Overall source development estimate remains **94% provisional**; final integration reconciliation remains open.
