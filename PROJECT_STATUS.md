@@ -1037,3 +1037,9 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: Admin UI `4a48732823972946ed8402073d6036bc98e159d2`; regression test `eb6c9f46c971b226804d1e1af345a3696866ca18`.
 - Tests/build/type-check/browser/mobile QA were not run. No DB migrations/writes, TEST or Production access, Preview deployment or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** pending remaining modules and final integrated verification.
+
+
+- Admin Duplicate ID directory now validates initial and Load More responses (IDs, statuses, timestamps, linked Main ID fields, counts and consistent page metadata); malformed/overlapping rows stop pagination instead of being silently filtered. Existing search, automatic placement, approval/status actions and feature-switch behavior are unchanged.
+- Added source-contract coverage in `tests/admin-duplicate-id-directory-integrity.test.ts`. Commits: Admin source `729351bfad962ba09e11296fae4d490a70077820`; contract test `b4c348f96facae029b868903a9396f36eba968c5`.
+- Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database reads or writes, migrations, Preview deployment, or protected `main` changes occurred.
+- Overall development completion remains **71% provisional** (not runtime verified).
