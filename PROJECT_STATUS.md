@@ -396,3 +396,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Corrected the member Fixed Bid campaign cards to resolve product-media Storage object paths through Supabase's public URL helper instead of assigning raw storage paths to `<img src>`. Existing absolute HTTP(S) URLs remain supported; missing image paths use the visual fallback. Images are lazy-loaded.
 - Added a source-contract test; not executed. No build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched.
 - Commits: `758aef3c942ffe45091ab010c0ddaa1523a2f441` (media URL resolution), `2c3c44be230d63e1c8fb904c69cab70ad76644e5` (JSX fallback correction), test commit recorded separately.
+
+
+## Latest Frontend Batch — Homepage discovery and accessibility
+
+- Added visible Category and Sort controls to the homepage Auctions row, activating the existing category/sort state (All categories, ending soon, newest, low-to-high and high-to-low). The matching-auction count updates with the filters; the existing horizontal card row and separate Fixed Bids row are preserved.
+- Added explicit accessible labels for marketplace search and expanded/collapsed state plus control association for the mobile navigation menu.
+- Added keyboard-visible focus styling and reduced-motion support without changing marketplace or account workflows.
+- Added `tests/homepage-auction-discovery-controls.test.ts` as source-contract coverage. It was not executed.
+- Source commits: `6e3ee90f2289bdf523b9fef4b3f1e27d544cb45b` (auction filters), `03af6f2bf428a900734d5bf14fa3c4a11f3d86ae` (CSS accessibility), `0e4d5cbccde0d0fc68c29f89031567ffda924d5e` (test source), `198c9af0e8a398277b30ee08adb658077635b6ce` (search/navigation accessibility), `2d89fe5aa7771e0bfef783c0e7de6309bff47cce` (test update).
+- No tests, type-check, build, browser/device QA, database replay, Supabase writes or deployment were performed. Production remains read-only and TEST remains untouched.
+- Overall development estimate remains **60% Provisional**; this UI batch does not establish full frontend, database integration or release completion.
