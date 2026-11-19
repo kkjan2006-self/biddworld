@@ -26,4 +26,17 @@ describe('member auction submission preflight', () => {
     expect(preflight).toBeGreaterThan(-1);
     expect(firstUpload).toBeGreaterThan(preflight);
   });
+  it('matches the server 30-minute start-time lead requirement before uploading', () => {
+    const startValidation = source.indexOf('startsAt.getTime()<Date.now()+30*60*1000');
+    const firstUpload = source.indexOf("supabase.storage.from('auction-submission-media').upload");
+    expect(startValidation).toBeGreaterThan(-1);
+    expect(firstUpload).toBeGreaterThan(startValidation);
+    expect(source).toContain('at least 30 minutes in the future');
+    expect(source).toContain('p_starts_at:startsAt.toISOString()');
+  });
+
+  it('does not leave a literal escaped newline between form sections', () => {
+    expect(source).not.toContain('</select></label>\\n <div');
+  });
+
 });
