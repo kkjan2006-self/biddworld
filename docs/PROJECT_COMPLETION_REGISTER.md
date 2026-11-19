@@ -1619,3 +1619,11 @@
 - Updated `tests/member-matrix-commission-history.test.ts` with pagination contracts.
 - Commits: Account UI `78ea081e6145c06eae9c21c8c3e5ce5bf0b12df7`; test `be486979909cf6d7635b93c9c0025fd27b414ccd`.
 - Source-only changes. No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied.
+
+
+## Matrix upline traversal correction — 2026-11-19
+
+- Corrected the recursive Under ID traversal in `20261119310000_matrix_commission_engine.sql`: each recursive step now selects the immediate parent node itself, rather than that parent's parent. This prevents intermediate Matrix levels from being skipped.
+- Added a SQL contract test that asserts immediate-parent progression and guards against the old skipped-level expression.
+- Commits: migration `b2c2a4a23eb9665d5706f2812c6e5ef5ce2279dd`; test `7ddea354897e0033c71d8f21ab54a2f329af9084`.
+- Source-only correction. No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied.
