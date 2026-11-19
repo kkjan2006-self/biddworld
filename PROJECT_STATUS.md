@@ -1367,3 +1367,16 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: migration `8d34402b8c49489fe25141dfb17f2e40d601ec33`; Admin switch `81d6e89044ef7b7eba7e03675dd8f6821b62b50a`; regression source `ad2b351dad06bc50ec462085843aecee884d36bb`.
 - Inventory unchanged: 122 forward + 16 excluded = 138 timestamped migrations; manifest remains unique and sorted.
 - Source development estimate: **94% provisional**. Remaining final source/RPC reconciliation and security/documentation integration remain open.
+
+
+## 2026-11-19 — Environment isolation and member dashboard resilience
+
+- Hardened Supabase environment selection in `src/lib/supabase-environment.ts`: Test Mode now accepts only project `yoaauthwejdgaevfvwpo`; Preview Mode explicitly rejects Production project `hbqatszyzqobgtauyuzy`; Live Mode accepts only the Production project; malformed, non-HTTPS, credential-bearing and lookalike URLs are rejected. The shared Supabase client uses this guard before creating a connection.
+- Hardened Support ticket pagination: validates ticket identities/status/timestamps, fetches one extra row to determine `has_more` accurately, validates both first and subsequent pages, rejects overlapping IDs and fixes the stale `tickets` closure in the Load More callback.
+- Hardened the member Sponsor/Matrix dashboard: validates all dashboard counters and pagination metadata, validates unique team member rows and Matrix commission summary values, and applies the same parser to initial, export and Load More RPC responses.
+- Confirmed the latest Matrix feature-switch update is present: the Admin control and server allowlist include Matrix commissions, the switch uses the existing server-side condition, and the Duplicate-ID graph advisory lock remains in place. Automatic placement and winner-selection configuration remain blocked until their workflows are complete.
+- Added source-only regression tests: `tests/supabase-environment-guard.test.ts`, `tests/support-pagination-integrity.test.ts`, and `tests/member-referrals-dashboard-contract.test.ts`. Not executed in this development-only phase.
+- Commits: environment guard `f9a2081b70029827f66d07458c65ada25d1485cd`; guard helper `092d53fdc7d6626b89ee939dbbb3c5676a2862be`; environment test `3a6944063ce1eedfb7fb7afc903d2f771443c55b`; Support pagination `a8c418e8ca340212bf4e60797f31365b678ce484`; Support test `de3fafd5b50bc07bc7e44ba8b408b8f53d9405a0`; Referrals parser `c7f080540e97ed431ad74e5d59a1267beafe9b51`; Referrals test `ad116ea69f2ccc5de8d7d3fcf6124bd34685feff`.
+- Migration manifest audit: **122 forward + 16 excluded = 138 timestamped SQL files**, all accounted for exactly once; forward entries are unique and strictly sorted. Three legacy/unversioned SQL files remain excluded from clean installation.
+- Development-only boundary: no tests/build/type-check/browser QA, no Supabase migration execution or data changes, no Preview deployment, and no protected `main` changes.
+- Overall source development estimate: **94% provisional**. Remaining work is full frontend/RPC/RLS/Storage integration reconciliation and closure of the remaining source-level workflow gaps.
