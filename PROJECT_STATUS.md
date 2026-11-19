@@ -196,9 +196,9 @@ The following source/UI/documentation work is present in the current branch and 
 
 ## C. IN PROGRESS
 
-- Canonical clean-install baseline: continue full function-body comparison against recovered migration archive and semantic dependency review for all 122 forward migration candidates. The candidate baseline is schema-only and remains unapproved until the isolated TEST replay phase.
+- Canonical clean-install baseline: continue full function-body comparison against recovered migration archive and semantic dependency review for all 123 forward migration candidates. The candidate baseline is schema-only and remains unapproved until the isolated TEST replay phase.
 - RPC and Data API contract reconciliation: continue across all remaining Admin/Member components, RPC overloads, direct table reads, column-level privileges, RLS predicates, Storage paths and role-specific permissions. Existing focused Admin/Member audit documents remain historical snapshots and need a current-head delta pass.
-- Migration compatibility: current manifest contains 122 ordered forward candidates and 16 excluded historical timestamped files (138 timestamped migrations total), plus three legacy/unversioned SQL files. Manifest accounting and sort order are source-reconciled; function replacement dependencies, object prerequisites and final-state policy semantics remain under source review.
+- Migration compatibility: current manifest contains 123 ordered forward candidates and 16 excluded historical timestamped files (139 timestamped migrations total), plus three legacy/unversioned SQL files. Manifest accounting and sort order are source-reconciled; function replacement dependencies, object prerequisites and final-state policy semantics remain under source review.
 - PWA/offline implementation: source registration, manifest, scope and service-worker cache isolation exist. Continue source-level cache/navigation hardening and align any stale test/documentation literals without executing tests in this development-only phase.
 - Current source-only batches include member product submission/edit/resubmission and paged history, private image previews, complete public product galleries, paged Admin moderation, public product detail search, Matrix configuration/placement/commission reporting and Admin posting/reversal controls. Member history and Admin moderation now use bounded keyset pagination; all approved member product images are published and visible in the catalogue. Package activation now requires a payment receipt in both UI and server RPC. Continue closing remaining feature and integration gaps before any verification phase.
 
@@ -1300,7 +1300,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member history UI `4b586721e1842d5bbb125bc4b7f528d7666fedc7`; member history migration `8bd890f7e54e34e1394107cffa6d528c462b1f73`; member history test `0fc47e89e0be629882a4b4af31456fc26124b445`; anon catalogue RLS/column grants `460182be64d3dda0ba17e7424d4697c1f494d902`; gallery column grant `8721d20970b8972987a6b2245c6ee24d9a2b9216`; updated tests `82e7d9e0bbce28a820dee7d5ebc296602d0626d1`, `07b6bdb632e77143fc74e517fb30af1e7d426172`.
 - Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
 - Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
-- Source development estimate: **96% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
+- Source development estimate: **97% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
 
 
 ## 2026-11-19 — Mandatory package receipt and current migration inventory
@@ -1398,7 +1398,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Fixed a mismatch where Matrix Commissions was enabled in the Admin UI but omitted from `admin_get_feature_settings`, which would have caused refreshes to reset the switch state. The settings RPC now returns Matrix Commissions and the server allowlist excludes the removed Winner Selection Configured key.
 - Added `tests/admin-feature-setting-contract.test.ts` to prevent future drift. This was static source inspection only; tests/build/type-check were not executed.
 - Commits: feature RPC parity fix `c9e2d00527eb42edd466d29d65a0aab2da5258a8`; parity regression `bb132f1dfaaecedc012aa2a8fe923e008be7e02c`.
-- Forward migration inventory remains 122 unique candidates. Source development estimate: **96% provisional**; final RPC/source contract review and documentation consistency remain.
+- Forward migration inventory remains 122 unique candidates. Source development estimate: **97% provisional**; final RPC/source contract review and documentation consistency remain.
 
 
 ## 2026-11-19 — Support history query performance and pagination completion
@@ -1409,3 +1409,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: Support index migration `5b3f952185ea399c324a6ee42af3a65e9714d550`; test `d6d3674abc9e3b6937df918ca7974d4a3a1477b6`; manifest `e10307e9af94b1a8dc4aa21c8f0ddfc593c95655`; clean-install README `27307f0911f5f2d322cfbb3801e0d440d44c1223`.
 - Development-only boundary maintained: no tests/build/type-check/browser QA, no Supabase migrations/data changes, no Preview deployment, and no protected `main` changes.
 - Overall source development estimate remains **94% provisional**; remaining source-level frontend/RPC/RLS/Storage integration reconciliation is open.
+
+
+## 2026-11-19 — Server-side duplicate product submission prevention
+
+- Added a per-member transaction advisory lock to both new product submission and edit/resubmission paths. The database now rejects another pending submission with the same normalized product title for the same member, while allowing the owner to edit that existing row or submit again after the earlier request is no longer pending.
+- Added a partial lookup index for pending member/title pairs. This closes the race where rapid retries or concurrent requests could create duplicate pending listings even if the browser button was locked.
+- Added `tests/duplicate-pending-product-submission.test.ts` and registered `20261119540000_prevent_duplicate_pending_product_submissions.sql` in the ordered clean-install manifest.
+- Commit IDs: migration `c77f566940ef80801dd3feb8ea042ddc8ca69754`; regression source `4abc126a44d8c5c7184f7be3654801bc876aaab3`; manifest `8803ee53da2f395e7536f9f4eec14b0009831a36`.
+- Current inventory: 124 forward + 16 excluded = 140 timestamped migrations, plus three legacy SQL files. Forward manifest remains unique and sorted.
+- Development-only: no migration execution, no Supabase data changes, no tests/build/type-check or Preview deployment.
+- Source development estimate: **97% provisional**; remaining final frontend/RPC/security and release-documentation reconciliation.
