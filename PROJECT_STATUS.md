@@ -453,3 +453,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/admin-saved-product-thumbnails.test.ts` source-contract coverage; not executed.
 - Source commit: 8828d1b616c249b0eb06d90945031bba63b3db70; test-source commit: 0572ed0d6bd6bba74fe8133d362bbce4d158d7ac. Overall completion remains **60% Provisional**.
 - No test/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched.
+
+
+## 2026-11-19 — Member Auction review validation and media cleanup
+
+- Admin approval now validates the edited title, description, Starting Price, Expected Price, bid increment, start time and image count before copying any private submission images into the public product-media bucket.
+- Serialized review actions with an in-flight ref to prevent rapid duplicate approve/reject requests.
+- If image copying fails before the review RPC, or the RPC returns a definite database error, uploaded public copies are removed. If the RPC outcome is ambiguous (for example, a lost network response), public copies are deliberately preserved so a successfully published auction is not left with broken images.
+- Added source-contract test coverage only; it has not been executed. No build, QA, SQL replay, Supabase writes or deployment. Production remains read-only and TEST remains untouched. Overall development estimate remains **60% Provisional**.
+- Commits: `0d479c0e812b367603eaaac6c410a209cddb88af` (Admin review), `008fcc011212153295abb52315bf08ce6ea66c11` (test source).
