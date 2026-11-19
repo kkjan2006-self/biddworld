@@ -873,3 +873,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: UI `d346f515`, contract `26cf980`, register `9458ca4a82d40108ed4938a9aa1455fbdc5649b4`.
 - No tests/build/type-check/browser/mobile QA run; no TEST/Production data or migrations changed. Protected `main` unchanged.
 - Overall development estimate: **70% provisional**.
+
+
+## Member Sponsor / Under ID clarity — 2026-11-19
+
+- Member Account now displays the Main ID's Under ID / placement parent separately from the Sponsor Member ID, including a clear root-placement label when no parent exists. The profile section carries the same distinct read-only field.
+- Reconfirmed the data contract: Sponsor identity resolves through `referrals.referrer_member_id`; the member ID list resolves Under ID through `member_ids.placement_parent_id`; Sponsor genealogy and Placement Tree remain separate views.
+- Added `tests/member-sponsor-under-id-separation.test.ts` to guard the UI labels and the two independent database relationships. Test source was authored but not executed.
+- Source commit: Account UI `324c34572a43064aee56c64796648e08d5c65049`; contract test `92d011b138f247d19012c77f226f660df7587394`.
+- No tests/build/type-check/browser/mobile QA were run. No Supabase migrations, database writes, Production access, deployments or protected `main` changes occurred.
+- Overall development completion remains **69% provisional**.
