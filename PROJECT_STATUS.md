@@ -1,3 +1,13 @@
+## Automatic Matrix placement checkpoint — 2026-11-19
+
+- Added `20261119300000_automatic_duplicate_matrix_placement.sql`: separate placement depth, second approved active package activation gate, active package Matrix plan requirement, breadth-first next-empty slot placement, graph lock, Duplicate-ID feature switch and audit attribution.
+- Admin Matrix Plan UI now configures Matrix Width, Placement Depth and Commission Depth independently.
+- Admin Duplicate ID UI no longer asks for Under ID; it calls the one-argument server RPC and displays the automatically selected parent and position.
+- Added/updated contract tests and registered the migration in `supabase/clean-install/forward-migrations.txt`.
+- Commits in this batch: migration `d7640258790b5dbb664ae42eb60b46b96a4dd547`; Matrix editor `3f8ed0945be481ad58b4b8d55704755e7b17d4fe`; Admin duplicate UI `80f0573bec026e7639e6413ab8dbb0fa0a963ee2`; RPC contract test `12269da8e3a2aeb1f607fc67868f6eafc95a8733`; Matrix UI test `ac050ca38180d4a332748c638558080277668064`; Matrix migration test `e8cfc127d16c87064f4330a92a096b6c489fd8be`; depth boundary fix `ffd19c22afa9be89716bc738a3918b2f46573532`; manifest `5ebe449a596436cff6073a3f046920f78b85fc88`.
+- No TEST or Production migration was applied. No tests/build/typecheck/browser QA or E2E were executed.
+- Remaining: Under ID Matrix commission engine, atomic Main-ID Income Wallet credit with Duplicate source attribution, reports and dashboards, then final QA.
+
 ## Latest source-development checkpoint — 2026-11-19 (Matrix Admin UI)
 
 - Rechecked `completion-work` at the beginning of this batch; starting HEAD was `8c2dd32372af9cb799bf2f47d56e89170032c123`. Protected `main` was not changed.
