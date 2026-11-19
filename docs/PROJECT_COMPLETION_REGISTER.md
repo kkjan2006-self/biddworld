@@ -1560,3 +1560,5 @@
 - Added `tests/matrix-commission-engine.test.ts` and `docs/MATRIX_COMMISSION_ENGINE_2026-11-19.md`; registered the migration in the clean-install manifest.
 - Commits: migration `7c56bdaffbb5fa364f377a40d9b8d1e2e49ad624`; setting gate `3bde0d8a00d116becb764db80670eaf177318911`; UI locked state `56fca0fa28527917f55d11bf04e609ee05835b41`; manifest `8a7b01a8a7d4133e4ba41d3ebb501ee0560dddad`; tests `70af94aab1320e02b23836a27780744002a6e7f3`.
 - Test source was authored but not executed. No typecheck/build/browser QA, TEST migration or Production change occurred.
+
+- Follow-up source hardening completed: corrected the placement regex/parentheses (`9cb927379b0cf1def8e9d703e3cf9086f9b63b51`) and verified the original credit ledger identity during reversal replay (`3a075d54da9204e1129ecf2243328997123c4d49`).
