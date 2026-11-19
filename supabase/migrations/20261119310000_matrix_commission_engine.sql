@@ -229,6 +229,16 @@ begin
     end if;
     select * into v_wallet from public.wallet_accounts
     where member_id=v_commission.credited_main_member_id and wallet_type='income' for update;
+    if not found
+      or v_credit.wallet_account_id is distinct from v_wallet.id
+      or v_credit.member_id is distinct from v_commission.credited_main_member_id
+      or v_credit.transaction_type is distinct from 'matrix_commission'
+      or v_credit.direction is distinct from 'credit'
+      or v_credit.amount is distinct from v_commission.amount
+      or v_credit.reference_type is distinct from 'matrix_commission'
+      or v_credit.reference_id is distinct from p_commission_id then
+      raise exception 'Original Matrix credit is missing or inconsistent on reversal replay' using errcode='23514';
+    end if;
     select * into v_existing from public.wallet_transactions where idempotency_key=v_reverse_key;
     if not found or v_existing.wallet_account_id is distinct from v_wallet.id
       or v_existing.member_id is distinct from v_commission.credited_main_member_id
