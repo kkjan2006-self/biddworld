@@ -515,3 +515,13 @@ footer{background:#2c1048;color:#f4e9ff}
  .homeAuctionGrid .auction{flex-basis:78vw;max-width:320px}
  .fixedBidCompact .packageIntro h3,.homeMarketHeading h3{font-size:19px}
 }
+
+
+/* Homepage auction filters and keyboard accessibility. */
+.homeMarketFilters{margin:0 0 14px;align-items:center}
+.homeMarketFilters label{min-width:min(190px,100%)}
+.homeMarketFilters>span{margin-left:auto;padding:0 4px;color:#64748b;font-size:12px}
+:where(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
