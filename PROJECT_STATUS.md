@@ -1,7 +1,7 @@
 # Current continuation checkpoint — 2026-11-19
 
-- Live `completion-work` HEAD rechecked: `9ee5698b0cfe0a13fa56729ecc316658fcaf7a85`; latest commit corrects auction-review RPC grants for the Expected Price lifecycle. Protected `main` remains `620d05b2d266d26dc70c5ff775ed45af9bb3b400` (read-only).
-- Preview Pages workflow #8, attempt 2, completed successfully. Preview is still visual-only; no Supabase URL/key is configured, so backend workflows do not function yet.
+- Live `completion-work` HEAD rechecked: `6648fd07033efdc904593bd60d20804adfeb0be3`; latest commit records the Preview/TEST migration-state checkpoint. Protected `main` remains `620d05b2d266d26dc70c5ff775ed45af9bb3b400` (read-only).
+- Preview repository workflow was updated in commits `8a8f8eb553031404b4da244b0844e9319a496708` and `1c1530fdfb6f8f24d3d362603b3154c2acca9913` to build in `test` mode using repository secrets `BIDDWORLD_TEST_SUPABASE_URL` and `BIDDWORLD_TEST_SUPABASE_PUBLISHABLE_KEY`. The Preview source `src/App.tsx` matches `completion-work` by blob SHA. Workflow runs #9/#10 were triggered; connection/deployment is not confirmed until the owner adds the secrets and a run completes.
 - **TEST state exception:** continuation migration calls applied the candidate schema baseline and all 87 forward-manifest migrations to `yoaauthwejdgaevfvwpo`; the ledger has 89 rows / 88 unique names because `20261118230000_recover_admin_read_rpc_sources` was applied twice under separate ledger versions. This violated the instruction to leave TEST untouched until final QA. Stop all further TEST writes now; do not attempt automatic rollback or ledger deletion. Reconcile during the authorized final QA phase. Production was not written to.
 - No tests, build, type-check, browser/device checks or functional QA were run. Overall completion remains **60% provisional**.
 
@@ -24,15 +24,15 @@
 - Latest verified source/documentation batch commits: `1bee5aa29697701bc714163bc84256b46dc4b70d` (source fix), `e0692f028bda716bf3b3b909a9bf1e1e44ffe244` (forward manifest), `ab9d485766c86d8b5e9a03a4bd9e40ee4a7e2d1d` (clean-install README), `864c2ae315e512e8b3921279375cdd6dfd290de0` (status), `98abc466b7a7e812ed965b7bff54c019d352474b` (completion register), `285fa062988ee44c39706d6cd174c3bfbbf55148` (concurrency audit).
 - Previous verified `completion-work` checkpoint: `4d1b05c8e42071dc805cf39663a5bfb9033c0721`. The baseline function ACL and SECURITY DEFINER/trigger dependency source reviews are committed through `7a85cdd714146e3fc8474def3c642e0d724d6254`. The protected primary-repository `main` currently points to `620d05b2d266d26dc70c5ff775ed45af9bb3b400`; this batch did not modify it. The branches remain separate; do not merge automatically.
 - Latest application-source correction: `c1af82806e0abd6442de01b094752c6d92c8e776`
-- Last updated: 2026-11-19 — member Auction start-time preflight, migration manifest integrity and Preview Pages workflow hardening
+- Last updated: 2026-11-19 — isolated Preview TEST connection workflow configured; TEST migration-state exception recorded
 - Previous historical checkpoints below are retained as evidence; they are superseded by the latest verified HEAD above.
 - Protected primary-repository `main` current HEAD observed: `620d05b2d266d26dc70c5ff775ed45af9bb3b400` (read-only; no changes from this batch).
 - Overall project completion estimate: **60%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
-- Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
+- Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — migration ledger has 89 rows / 88 unique names (schema baseline + 87 forward-manifest migrations; one migration name duplicated). No more writes or rollback attempts; reconcile at authorized final QA.
 - Budget/hosting: free-tier only; no domain or hosting purchase during development
 
-- Isolated Preview repository: `https://github.com/kkjan2006-self/biddworld-preview`, branch `main`; latest workflow/documentation correction commit `903b198fb69039d2f0de706c714662467a5a8abc`. The workflow remains visual-only (`npx vite build`, no Supabase secrets) and no longer attempts Pages enablement through the workflow token. The repository owner must set Settings → Pages → Source → GitHub Actions once. Pages deployment itself is not yet verified.
+- Isolated Preview repository: `https://github.com/kkjan2006-self/biddworld-preview`, branch `main`; latest workflow/docs commits `8a8f8eb553031404b4da244b0844e9319a496708` and `1c1530fdfb6f8f24d3d362603b3154c2acca9913`. It is configured to consume only TEST URL/publishable-key secrets. Owner must add both secrets and ensure Settings → Pages → Source → GitHub Actions is selected. Do not add Production or service-role credentials.
 
 ## B. COMPLETED — Verified Source Work (not equivalent to deployed/live completion)
 
