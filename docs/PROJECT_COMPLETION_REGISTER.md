@@ -1827,3 +1827,13 @@
 - Commits: UI validation/guard `0c0cb3d85892adf4ad18bdb573de6ae5a0911541`; test `483b7fb76f6c303a8c0370da6ade1b13d852b1b4`; Admin loader isolation `df4f7673faa3f22b9386220aff9215dd80e6e704`.
 - Tests/build/type-check/browser/mobile QA were not run. No database migration was needed or applied; no TEST or Production database access/write, Preview deployment or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** pending broader development and integrated verification.
+
+
+## 2026-11-19 — Admin withdrawal queue pagination hardening
+
+- Added initial-page validation for unique request IDs, required member codes and positive finite amounts; malformed queue data fails closed.
+- Added a single-flight Load More guard, refresh-generation invalidation, page-envelope validation and repeated-page detection. Stale async responses cannot append after an Admin workspace refresh.
+- Existing withdrawal review/reservation/release actions and complete paginated CSV export are unchanged. Pagination remains offset-based; no keyset migration was introduced.
+- Added `tests/admin-withdrawal-pagination-hardening.test.ts`.
+- Commits: Admin UI `944a754b61c09c79ec5f3b5be9cd47a0ca64ba80`; regression test `960c3882b3d0d511acba19a64157df749b86064f`.
+- Tests/build/type-check/browser/mobile QA were not run. No database migrations/writes, TEST or Production access, Preview deployment or protected `main` changes occurred.
