@@ -6,7 +6,7 @@
 
 - Project: BiddWorld
 - Repository: https://github.com/kkjan2006-self/biddworld
-- Current development branch: `completion-work` — latest source batch: Admin Auction Bid and Fixed Bid Entry reports now use stable `(created_at, id)` keyset pagination for page loading and CSV export (2026-11-18).
+- Current development branch: `completion-work` — ongoing bulk source development; latest batch adds individual Admin-controlled permissions for restricted payment-review Staff (2026-11-19).
 - Latest verified source batch: Fixed Bid public catalogue projection includes `max_entries_total` and `refund_non_winners` (forward #70); Placement Tree verifies Main-ID root ownership (forward #71); Admin notification history displays recipient Main ID/name through a bounded Admin-only RPC (forward #72); Admin pending activation receipt links now track their five-minute expiry and can be refreshed without reloading the queue; Support-ticket Admin updates now write one audit record through the row trigger rather than duplicating it in the RPC; Member Support retries retain a key only for unchanged payloads; Admin notification fingerprints use an unambiguous JSON tuple; Support queue and CSV export use stable keyset pagination; Member wallet history and complete wallet CSV export now use stable `(created_at, id)` keyset pagination. Latest source commits: receipt viewer `d938fc397a19cac7737079236ed3f69d41d33380`; support audit dedup migration `2648cc6e6260d83494e6299290f0c211f757137a`.
 - Protected branch: `main` (do not modify)
 - Latest verified application/source work commit: `2648cc6e6260d83494e6299290f0c211f757137a` (single Audit Log writer for Admin support-ticket updates, preserving the existing `support.ticket_updated` action and `response_updated` detail contract).
@@ -18,7 +18,7 @@
 - Last updated: 2026-11-18 — Member wallet statement and Support queue/export keyset pagination
 - Previous historical checkpoints below are retained as evidence; they are superseded by the latest verified HEAD above.
 - Protected `main` HEAD verified unchanged: `415364b71534c7fc31d6c0928dd8395e10cbd94f`.
-- Overall project completion estimate: **55%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
+- Overall project completion estimate: **59%** (source modules and documentation are substantially present; canonical database bootstrap, remaining integrations, consolidated testing and release work are still pending). This is a planning estimate, not a verified deployment or test percentage.
 - Production Supabase: `hbqatszyzqobgtauyuzy` — READ-ONLY during development
 - Isolated TEST Supabase: `yoaauthwejdgaevfvwpo` — currently empty; do not replay until baseline review is complete
 - Budget/hosting: free-tier only; no domain or hosting purchase during development
@@ -295,3 +295,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Bid RPC accepts null `ends_at` while target is pending and rejects bids after deadline. `pg_cron` job starts scheduled auctions and marks expired auctions ended. Public catalogue exposes expected price, target-reached timestamp, start time, and nullable end time; UI displays live countdown or Waiting for expected price.
 - Admin/authorized Staff review can edit Expected Price. Added migration #84 and source-contract test (not run). Inventory: 84 forward + 16 excluded + 3 legacy SQL files = 103 total (100 timestamped).
 - No tests/build/QA, migration replay, DB writes or deployment. Cron is source-defined only and not verified/applied. Overall estimate: 58% Provisional.
+
+
+## Latest development checkpoint — Individual restricted Staff permissions (#85)
+
+- Primary Admin can independently grant/revoke each existing restricted Staff member's Package Activation Payment Review, Main Wallet Add Money Review, and Member Auction Listing Review permission. At least one permission is required; use Revoke Staff Access to remove the restricted Staff role entirely.
+- Added Primary-Admin-only RPC `admin_update_payment_review_staff_permissions`, allowlisted permission validation, audit logging, per-user checkbox UI and source-contract test (not run). Existing role-grant response now accurately lists all three permissions.
+- Migration #85: `20261119160000_individual_payment_staff_permissions.sql`. Registered in forward manifest. All work is on `completion-work`; no test/build/QA, SQL replay, database writes or deployment. Production remains read-only; Test Supabase untouched.
+- Overall development estimate: **59% Provisional**; this is a planning estimate, not verified live completion.
