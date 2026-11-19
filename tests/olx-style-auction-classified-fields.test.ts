@@ -11,6 +11,9 @@ describe('OLX-style auction classified fields and role boundaries',()=>{
   for(const field of ['Brand','Model','Condition','Age','Warranty','Ownership','Location','City','State','Pincode']) expect(member).toContain(field);
   expect(member).toContain("p_optional_details:optional");
   expect(member).toContain('pattern="[0-9]{6}"');
+  expect(member).toContain('target<starting');
+  expect(member).toContain('step<=0');
+  expect(member).toContain("setCity('');setStateName('');setPincode('')");
  });
  it('passes classified attributes through the review workflow and exposes them for Admin editing',()=>{
   expect(review).toContain('r.optional_details');
