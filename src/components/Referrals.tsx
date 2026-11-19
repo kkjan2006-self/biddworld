@@ -9,6 +9,23 @@ import { rpcContractUnavailableMessage } from '../lib/rpc-errors';
 type TreeMember={member_code:string;display_name:string;status:string;created_at:string;depth:number;sponsor_code:string|null};
 type Dashboard={main_member_code:string;direct_referrals:number;total_downline:number;active_members:number;active_activations:number;commission_total:number;bid_wallet:number;income_wallet:number;tree:TreeMember[];tree_total:number;has_more:boolean};
 type MatrixSummary={credited_total:number;pending_total:number;reversed_total:number;credited_count:number;pending_count:number};
+function parseDashboard(value:unknown):Dashboard{
+ if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('The team dashboard response was malformed.');
+ const row=value as Record<string,unknown>;
+ const numeric=['direct_referrals','total_downline','active_members','active_activations','commission_total','bid_wallet','income_wallet','tree_total'];
+ if(typeof row.main_member_code!=='string'||!row.main_member_code.trim()||numeric.some(key=>typeof row[key]!=='number'||!Number.isFinite(row[key])||Number(row[key])<0)||!Number.isInteger(row.tree_total)||typeof row.has_more!=='boolean'||!Array.isArray(row.tree)||row.tree.length>50||Number(row.tree_total)<row.tree.length)throw new Error('The team dashboard returned invalid totals or pagination metadata.');
+ const seen=new Set<string>();
+ const tree=row.tree.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The team dashboard contains a malformed member.');const member=raw as Record<string,unknown>;if(typeof member.member_code!=='string'||!member.member_code.trim()||seen.has(member.member_code)||typeof member.display_name!=='string'||typeof member.status!=='string'||typeof member.created_at!=='string'||!Number.isFinite(Date.parse(member.created_at))||!Number.isInteger(member.depth)||Number(member.depth)<1||(member.sponsor_code!==null&&typeof member.sponsor_code!=='string'))throw new Error('The team dashboard contains an invalid or duplicate member.');seen.add(member.member_code);return member as unknown as TreeMember;});
+ if(row.has_more&&tree.length===0)throw new Error('The team dashboard pagination cursor cannot continue from an empty page.');
+ return {...row,tree} as unknown as Dashboard;
+}
+function parseMatrixSummary(value:unknown):MatrixSummary{
+ if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('The Matrix commission summary was malformed.');
+ const row=value as Record<string,unknown>;const keys=['credited_total','pending_total','reversed_total','credited_count','pending_count'];
+ if(keys.some(key=>typeof row[key]!=='number'||!Number.isFinite(row[key])||Number(row[key])<0))throw new Error('The Matrix commission summary contains invalid totals.');
+ if(!Number.isInteger(row.credited_count)||!Number.isInteger(row.pending_count))throw new Error('The Matrix commission summary contains invalid counts.');
+ return row as unknown as MatrixSummary;
+}
 
 export default function Referrals(){
  const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[matrixSummary,setMatrixSummary]=useState<MatrixSummary|null>(null),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all'),[exportBusy,setExportBusy]=useState(false),[exportMessage,setExportMessage]=useState('');
@@ -27,8 +44,8 @@ export default function Referrals(){
     ]);
     if(!active||seq!==request.current)return;
     if(loadError)throw loadError;
-    setData(result as Dashboard);
-    if(!matrixError&&matrix&&typeof matrix==='object')setMatrixSummary(matrix as MatrixSummary);
+    setData(parseDashboard(result));
+    if(!matrixError&&matrix)setMatrixSummary(parseMatrixSummary(matrix));
    }catch(e){if(active&&seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'Your team dashboard could not be loaded. Please retry.'));}
    finally{if(active&&seq===request.current)setLoading(false);}
   },query.trim()||depth!=='all'?250:0);
@@ -42,8 +59,7 @@ export default function Referrals(){
     pages+=1;if(pages>10000)throw new Error('The team report exceeded the safe export limit. Please narrow the filters and retry.');
     const {data:result,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
     if(loadError)throw loadError;
-    const page=result as Dashboard|null;
-    if(!page||!Array.isArray(page.tree))throw new Error('The team report response was incomplete. Please refresh and retry.');
+    const page=parseDashboard(result);
     const fresh=page.tree.filter(member=>{if(seen.has(member.member_code))return false;seen.add(member.member_code);return true;});
     if(fresh.length!==page.tree.length)throw new Error('The team report returned duplicate member IDs. Export stopped to prevent an incomplete CSV. Please refresh and retry.');
     all.push(...fresh);offset+=page.tree.length;
@@ -65,8 +81,7 @@ export default function Referrals(){
    const {data:next,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
    if(seq!==request.current)return;
    if(loadError)throw loadError;
-   const page=next as Dashboard|null;
-   if(!page||!Array.isArray(page.tree))throw new Error('The team dashboard returned an incomplete page. Refresh and retry.');
+   const page=parseDashboard(next);
    const knownCodes=new Set(data.tree.map(member=>member.member_code));
    const fresh=page.tree.filter(member=>{if(knownCodes.has(member.member_code))return false;knownCodes.add(member.member_code);return true;});
    const repeatedRows=fresh.length!==page.tree.length;
