@@ -458,3 +458,10 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Verified locally: TypeScript project build passed, Vite 6 production bundle built successfully, and all 60 test files / 228 tests passed. No routes, permissions, authentication, financial locks or feature switches were changed; no dependencies were added; no database changes were made.
 - Git sync note: this Bolt workspace is not a git checkout, so the changes could not be committed or pushed to `completion-work` from here; use Bolt's publish/version history to sync, then confirm CI on GitHub.
 - Remaining work is unchanged: database financial interlock rollout, migration reconciliation, sponsor-lookup rate limiting, leaked-password protection, live integration/E2E testing and owner financial/legal approval.
+
+
+## Member product listings — development source added (2026-11-19)
+
+- [x] Member OLX-style product submission form, private image uploads, owner-scoped history, Admin approval/rejection queue, signed private image previews, and publication into the existing public catalogue are now implemented in source.
+- [x] Source-only migration `20261119440000_member_product_submission_moderation.sql` is registered in the clean-install forward migration manifest.
+- [ ] Apply and validate the migration only in the isolated TEST database during the final testing phase; do not use Production for this task.
