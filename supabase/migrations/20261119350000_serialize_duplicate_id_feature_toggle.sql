@@ -1,0 +1,100 @@
+-- Serialize Duplicate-ID creation with the Admin feature switch.
+-- Whichever transaction obtains the graph lock first completes first: an OFF
+-- update cannot race past an in-flight create, and a later create observes OFF.
+
+create or replace function public.admin_set_feature_setting(p_setting_key text,p_enabled boolean)
+returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $function$
+declare
+ v_uid uuid:=auth.uid();
+ v_enabled_keys text[]:=array[
+  'registration_enabled','email_verification_required','sponsor_referrals_enabled',
+  'duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled',
+  'bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled',
+  'bidding_enabled','fixed_bid_enabled','winning_payment_enabled',
+  'delivery_tracking_enabled','notifications_enabled'
+ ];
+ v_server_condition_keys text[]:=array[
+  'package_activations_enabled','referral_commissions_enabled',
+  'bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled',
+  'bidding_enabled','fixed_bid_enabled','winning_payment_enabled'
+ ];
+ v_server_condition_satisfied boolean:=false;
+begin
+ if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
+  raise exception 'Administrator access required' using errcode='42501';
+ end if;
+ if p_enabled is null then raise exception 'A true/false value is required' using errcode='22023'; end if;
+ if p_setting_key is null or p_setting_key<>all(array[
+  'registration_enabled','email_verification_required','sponsor_referrals_enabled',
+  'duplicate_ids_enabled','automatic_placement_enabled','package_activations_enabled',
+  'referral_commissions_enabled','bid_wallet_enabled','income_wallet_enabled',
+  'withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winner_selection_configured',
+  'winning_payment_enabled','delivery_tracking_enabled','notifications_enabled'
+ ]) then
+  raise exception 'Unsupported feature setting' using errcode='22023';
+ end if;
+
+ -- Match the lock used by automatic Duplicate-ID placement before changing
+ -- the switch. This makes OFF/ON changes linearizable with all creation paths.
+ if p_setting_key='duplicate_ids_enabled' then
+  perform pg_catalog.pg_advisory_xact_lock(
+   pg_catalog.hashtextextended('biddworld.member_id_graph_mutation',0)
+  );
+ end if;
+
+ if p_enabled and not (p_setting_key=any(v_enabled_keys)) then
+  raise exception 'Cannot enable % yet: its complete backend workflow and verification are not implemented. It remains safely disabled.',p_setting_key using errcode='55000';
+ end if;
+ if p_enabled and p_setting_key=any(v_server_condition_keys) then
+  select coalesce((setting_value#>>'{}')::boolean,false) into v_server_condition_satisfied
+  from public.app_settings where setting_key='financial_model_approved';
+  if not coalesce(v_server_condition_satisfied,false) then
+   raise exception 'This feature is currently locked by a server-side condition (%).',p_setting_key using errcode='55000';
+  end if;
+ end if;
+ insert into public.app_settings(setting_key,setting_value,updated_at)
+ values(p_setting_key,to_jsonb(p_enabled),now())
+ on conflict(setting_key) do update set setting_value=excluded.setting_value,updated_at=now();
+ insert into public.audit_logs(actor_user_id,action,entity_type,details)
+ values(v_uid,'feature_setting_changed','app_settings',jsonb_build_object('setting_key',p_setting_key,'enabled',p_enabled));
+ return jsonb_build_object('success',true,'setting_key',p_setting_key,'enabled',p_enabled);
+end;
+$function$;
+
+revoke all on function public.admin_set_feature_setting(text,boolean) from public,anon;
+grant execute on function public.admin_set_feature_setting(text,boolean) to authenticated;
+
+create or replace function private.enforce_duplicate_id_creation_switch()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_enabled boolean := false;
+begin
+  if new.id_type = 'duplicate'
+     and (tg_op = 'INSERT' or old.id_type is distinct from 'duplicate') then
+    -- Also serialize direct/alternate insert paths with the feature toggle.
+    perform pg_catalog.pg_advisory_xact_lock(
+      pg_catalog.hashtextextended('biddworld.member_id_graph_mutation',0)
+    );
+    select coalesce((setting_value #>> '{}')::boolean, false)
+      into v_enabled
+      from public.app_settings
+     where setting_key = 'duplicate_ids_enabled';
+
+    if not coalesce(v_enabled, false) then
+      raise exception 'Duplicate ID creation is disabled by the administrator'
+        using errcode = '42501';
+    end if;
+  end if;
+  return new;
+end;
+$function$;
+
+revoke all on function private.enforce_duplicate_id_creation_switch() from public, anon, authenticated;
