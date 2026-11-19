@@ -18,6 +18,7 @@ describe('Admin product submission keyset pagination',()=>{
   expect(ui).toContain('setRows(previous=>reset?items:[...previous,...items])');
   expect(ui).toContain('Load more pending submissions');
   expect(ui).toContain('function validSubmission(value:unknown)');
+  expect(ui).toContain("Object.values(row.optional_details as Record<string,unknown>).every(value=>typeof value==='string')");
   expect(ui).toContain('duplicate or overlapping records');
  });
 });
