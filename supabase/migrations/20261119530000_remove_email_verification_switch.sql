@@ -14,7 +14,7 @@ begin
  select coalesce(jsonb_object_agg(setting_key,setting_value),'{}'::jsonb) into v_result
  from public.app_settings where setting_key=any(array[
   'registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled',
-  'automatic_placement_enabled','package_activations_enabled','referral_commissions_enabled',
+  'package_activations_enabled','referral_commissions_enabled',
   'bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled',
   'fixed_bid_enabled','winner_selection_configured','winning_payment_enabled',
   'delivery_tracking_enabled','notifications_enabled'
@@ -47,7 +47,7 @@ begin
  if p_enabled is null then raise exception 'A true/false value is required' using errcode='22023';end if;
  if p_setting_key is null or p_setting_key<>all(array[
   'registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled',
-  'automatic_placement_enabled','package_activations_enabled','referral_commissions_enabled',
+  'package_activations_enabled','referral_commissions_enabled',
   'matrix_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled',
   'bidding_enabled','fixed_bid_enabled','winner_selection_configured','winning_payment_enabled',
   'delivery_tracking_enabled','notifications_enabled'
