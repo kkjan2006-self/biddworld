@@ -1020,3 +1020,10 @@
 
 
 - Inventory update after Main Wallet funding migration #76: 76 forward + 16 excluded timestamped + 3 legacy SQL files = 95 SQL files (92 timestamped). This is source inventory only; no replay was performed.
+
+
+### 2026-11-19 — Cross-workflow UTR uniqueness
+
+- Added a trigger-level shared UTR guard between package payment submissions and Main Wallet top-ups. A normalized UTR is serialized through one transaction-scoped advisory lock before cross-table lookup; duplicate references across either workflow are rejected.
+- Added source-contract coverage; not executed. Migration #77 added to the forward manifest, bringing source inventory to 77 forward + 16 excluded + 3 legacy SQL files (96 total; 93 timestamped).
+- No migration replay, DB write, tests/build/QA or deployment. Overall estimate remains 55% (Provisional).
