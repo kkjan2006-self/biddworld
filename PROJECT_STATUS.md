@@ -501,3 +501,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/registration-email-verification-default.test.ts` as source-contract coverage; not executed.
 - Updated the forward manifest and clean-install README. No tests, build, type-check, browser/device QA, migration replay, Supabase writes or deployment were performed. Production remains read-only; no TEST writes were performed. Protected `main` remains untouched.
 - Overall development completion remains **60% Provisional**; this source correction does not establish migration replay or runtime verification.
+
+
+## 2026-11-19 — Staff access verification diagnostics
+
+- Improved `AdminStaff` access initialization so Supabase configuration errors, session verification failures and other authentication errors are displayed as explicit access-verification failures instead of being misreported as an account with no assigned permissions.
+- Added a Retry access check action. The normal no-permissions message is now shown only after a successful session lookup confirms that no supported Staff permissions are assigned.
+- Added `tests/admin-staff-access-diagnostics.test.ts` as source-contract coverage; not executed.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment were performed. Production remains read-only; TEST untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional**; this targeted diagnostics fix does not establish end-to-end Staff workflow readiness.
