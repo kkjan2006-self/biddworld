@@ -1,3 +1,9 @@
+## 2026-11-19 — Preview source synchronization and connection gate
+
+- Rechecked Preview workflow #12: failed at the isolated TEST secret preflight; the Supabase URL/key secrets are still absent or unavailable to Actions. The build/deploy steps were skipped. No live Supabase connection or new deployment is claimed.
+- Compared key Preview files against `completion-work`. `src/lib/supabase.ts`, `src/App.tsx`, `Account.tsx`, `WalletFunding.tsx`, `FixedBid.tsx`, and `package.json` already matched. Found stale `MemberPlaceAuction.tsx` and `Admin.tsx`; synchronized both from `completion-work` into Preview. Preview commits: `c4a095f3d413e91b2a99c29c6520e36c6fdad3c9` and `e94ec10849a2641634c17098c426c1d82127f5b6`.
+- This updates the Preview source without disabling or hiding features. It does not establish that every operation works until the TEST credentials are configured and final QA is authorized. No tests, build, type-check, browser/mobile checks were run in this batch. No further TEST database writes. Production remains read-only.
+
 ## 2026-11-19 — Preview TEST secret fail-closed guard
 
 - Added a pre-deployment workflow check requiring both TEST Supabase repository secrets and rejecting any URL other than `https://yoaauthwejdgaevfvwpo.supabase.co`. This prevents a green Pages build from silently deploying a visual-only preview when secrets are missing and blocks accidental use of Production URL. Preview commits: workflow `f4446ac0f06c3e0d64246ecb8897b979c536f2f9`, README `80c27b58987c54d9e347c8e88c25c035d0da8054`.
