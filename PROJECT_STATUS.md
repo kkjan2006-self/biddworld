@@ -812,3 +812,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: UI `b1ab1516a7433bcd8b79d71f4c28c00912dc3ed9`, contract `a2eb416e25e074c61d41b0a0dff5987f3b6890c6`, completion register `9c3c331ed246dd624e634115c0c694ada266e138`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
 - Overall development estimate: **67% provisional**.
+
+
+## Latest checkpoint — Member Matrix pagination hardening
+
+- Matrix commission Load More now blocks duplicate rapid requests and ignores stale responses after reload/unmount.
+- Commits: UI `574f21aa83b301953ceba62354b1ad9a2636a221`, test `2f01743305c5b57700a0cb0c6642749cb2776ef1`, register `e8169e3d1fcac644e452e65080b61263438a611f`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
+- Overall development estimate: **68% provisional**.
