@@ -26,4 +26,13 @@ describe('Duplicate ID feature switch enforcement',()=>{
     expect(admin).toContain('Disable new Duplicate ID creation; existing IDs and their history remain unchanged.');
     expect(admin).toContain("p_setting_key:key,p_enabled:enabled");
   });
+  it('allows Admin to turn Duplicate IDs back ON without an unrelated feature lock',()=>{
+    const start=migration.indexOf('v_server_condition_keys text[]');
+    const end=migration.indexOf('];',start);
+    const guardedKeys=migration.slice(start,end);
+    expect(guardedKeys).not.toContain("'duplicate_ids_enabled'");
+    expect(migration).toContain("'duplicate_ids_enabled','package_activations_enabled'");
+    expect(migration).toContain("grant execute on function public.admin_set_feature_setting(text,boolean) to authenticated;");
+  });
+
 });
