@@ -14,7 +14,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   try{
    let rows:Notice[]=[];
    if(isAdmin){
-    const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_page',{p_limit:PAGE_SIZE,p_offset:0,p_category:categoryFilter});
+    const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_keyset_page',{p_limit:PAGE_SIZE+1,p_cursor_created_at:null,p_cursor_id:null,p_category:categoryFilter});
     if(loadError)throw loadError;
     rows=(data??[]) as Notice[];
    }else{
@@ -23,12 +23,12 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false});
     if(unreadOnly)request=request.is('read_at',null);
     if(categoryFilter!=='all')request=request.eq('category',categoryFilter);
-    const{data,error:loadError}=await request.range(0,PAGE_SIZE-1);
+    const{data,error:loadError}=await request.limit(PAGE_SIZE+1);
     if(loadError)throw loadError;
     rows=(data??[]) as Notice[];
    }
    if(seq!==requestSeq.current)return;
-   setItems(rows);setHasMore(rows.length===PAGE_SIZE);
+   setItems(rows.slice(0,PAGE_SIZE));setHasMore(rows.length>PAGE_SIZE);
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
  },[isAdmin,unreadOnly,categoryFilter]);
@@ -36,9 +36,9 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   if(!supabase||loadMoreBusy.current||busy||!hasMore)return;
   loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
   try{
-   const from=items.length;let rows:Notice[]=[];
+   const cursor=items[items.length-1];if(!cursor){setHasMore(false);return;}let rows:Notice[]=[];
    if(isAdmin){
-    const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_page',{p_limit:PAGE_SIZE,p_offset:from,p_category:categoryFilter});
+    const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_keyset_page',{p_limit:PAGE_SIZE+1,p_cursor_created_at:cursor.created_at,p_cursor_id:cursor.id,p_category:categoryFilter});
     if(loadError)throw loadError;
     rows=(data??[]) as Notice[];
    }else{
@@ -47,19 +47,20 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     let request=supabase.from('member_notifications').select('id,user_id,title,message,category,read_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false});
     if(unreadOnly)request=request.is('read_at',null);
     if(categoryFilter!=='all')request=request.eq('category',categoryFilter);
-    const{data,error:loadError}=await request.range(from,from+PAGE_SIZE-1);
+    request=request.or(`created_at.lt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.lt.${cursor.id})`);
+    const{data,error:loadError}=await request.limit(PAGE_SIZE+1);
     if(loadError)throw loadError;
     rows=(data??[]) as Notice[];
    }
    if(seq!==requestSeq.current)return;
    const known=new Set(items.map(item=>item.id));const pageIds=new Set<string>();const fresh:Notice[]=[];let duplicateFound=false;
    for(const item of rows){if(known.has(item.id)||pageIds.has(item.id)){duplicateFound=true;continue;}pageIds.add(item.id);fresh.push(item);}
-   setItems(current=>[...current,...fresh.filter(item=>!current.some(existing=>existing.id===item.id))]);
+   setItems(current=>[...current,...fresh.filter(item=>!current.some(existing=>existing.id===item.id)).slice(0,PAGE_SIZE)]);
    if(duplicateFound){setHasMore(false);setError('The notification inbox returned duplicate notification IDs. Refresh the inbox before loading more.');}
-   else setHasMore(rows.length===PAGE_SIZE);
+   else setHasMore(rows.length>PAGE_SIZE);
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
- },[busy,hasMore,items.length,isAdmin,unreadOnly,categoryFilter]);
+ },[busy,hasMore,items,isAdmin,unreadOnly,categoryFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
  async function lookupRecipients(){
   if(!supabase||!isAdmin||recipientLookupBusy)return;const term=recipientSearch.trim();if(term.length<2){setError('Enter at least 2 characters to search members.');return;}const seq=++recipientLookupSeq.current;setRecipientLookupBusy(true);setError('');setNotice('');setRecipientOptions([]);setUserId('');
