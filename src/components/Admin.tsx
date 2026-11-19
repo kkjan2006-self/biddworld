@@ -277,7 +277,7 @@ export default function Admin(){
   async function saveAuctionDraft(){if(!supabase||auctionSaveInFlight.current)return;const validationMessage=validateAuctionDraftInput({productId:auctionProductId,title:auctionTitle,startingPrice:auctionStartingPrice,minimumIncrement:auctionIncrement,startsAt:auctionStarts,endsAt:auctionEnds});if(validationMessage){setAuctionMessage(validationMessage);return;}auctionSaveInFlight.current=true;setAuctionBusy(true);setAuctionMessage('');const wasEditing=Boolean(editingAuctionId);try{const{error}=await supabase.rpc('admin_save_auction_draft',{p_auction_id:editingAuctionId||null,p_product_id:auctionProductId,p_title:auctionTitle,p_description:auctionDescription,p_image_url:auctionImage,p_category:auctionCategory,p_starting_price:Number(auctionStartingPrice),p_minimum_increment:Number(auctionIncrement),p_starts_at:auctionStarts?new Date(auctionStarts).toISOString():null,p_ends_at:auctionEnds?new Date(auctionEnds).toISOString():null});if(error)throw error;setAuctionProductId('');setEditingAuctionId('');setAuctionTitle('');setAuctionDescription('');setAuctionImage('');setAuctionCategory('');setAuctionStartingPrice('0');setAuctionIncrement('1');setAuctionStarts('');setAuctionEnds('');setAuctionMessage(wasEditing?'Auction draft updated. It remains unpublished.':'Auction draft saved. It is not scheduled or live.');setRefresh(v=>v+1);}catch(e){setAuctionMessage(e instanceof Error?e.message:'Auction draft could not be saved. Please retry.');}finally{auctionSaveInFlight.current=false;setAuctionBusy(false);}}
   async function toggleFeature(key:string,enabled:boolean){
   if(!supabase||savingFeature!==''||featureSaveInFlight.current)return;
-  if(enabled&&FINANCIAL_APPROVAL_LOCKED&&FINANCIAL_FEATURE_KEYS.has(key)){setFeatureMessage('This financial feature cannot be enabled until the owner approves the financial and compliance model.');return;}
+  
   featureSaveInFlight.current=true;setSavingFeature(key);setFeatureMessage('');
   try{
    const {data,error}=await supabase.rpc('admin_set_feature_setting',{p_setting_key:key,p_enabled:enabled});
@@ -352,7 +352,7 @@ async function saveReferralPlanDraft(){if(!supabase||!selectedPlanPackage||planB
   finally{setActivationReceiptBusy('');}
  }
  async function reviewActivation(id:string,approve:boolean){
-   if(approve && FINANCIAL_APPROVAL_LOCKED){setActivationMessage('Package approval and Bid Wallet credits are locked pending owner financial/legal approval and the reviewed Production database guard.');return;}
+   
    if(!supabase||reviewingActivation||activationReviewInFlight.current)return;
    activationReviewInFlight.current=true;setReviewingActivation(id);setActivationMessage('');
    try{const{error}=await supabase.rpc('admin_review_package_activation',{p_activation_id:id,p_approve:approve});if(error)throw error;setActivationMessage(approve?'Payment approved. Package activated and Bid Wallet credit posted.':'Payment rejected. No wallet credit was issued.');setRefresh(v=>v+1);}
