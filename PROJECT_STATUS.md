@@ -1300,7 +1300,7 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member history UI `4b586721e1842d5bbb125bc4b7f528d7666fedc7`; member history migration `8bd890f7e54e34e1394107cffa6d528c462b1f73`; member history test `0fc47e89e0be629882a4b4af31456fc26124b445`; anon catalogue RLS/column grants `460182be64d3dda0ba17e7424d4697c1f494d902`; gallery column grant `8721d20970b8972987a6b2245c6ee24d9a2b9216`; updated tests `82e7d9e0bbce28a820dee7d5ebc296602d0626d1`, `07b6bdb632e77143fc74e517fb30af1e7d426172`.
 - Current inventory: 118 forward + 16 excluded = 134 timestamped migration files, plus 3 legacy/unversioned SQL files. Forward manifest is strictly ordered and unique.
 - Development-only boundary: no database changes or migration execution, no Preview publishing/runtime QA, no protected `main` changes.
-- Source development estimate: **93% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
+- Source development estimate: **94% provisional**; remaining baseline/forward migration dependency reconciliation, complete frontend/RPC security review and other outstanding module integration remain open.
 
 
 ## 2026-11-19 — Mandatory package receipt and current migration inventory
@@ -1356,3 +1356,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Reconciled the clean-install manifest against the Git tree after the email-verification migration registration. Removed one duplicate entry and restored strict lexical order. Final inventory is 122 unique forward migrations + 16 unique excluded historical migrations = 138 timestamped migration files, plus three legacy SQL files. All paths exist; no overlap or uncovered timestamped migration remains.
 - Commit: `a91c7f949a15625b8135cb059ac160f50e2dbb19`.
 - No SQL execution, Supabase data changes, tests/build, Preview deployment or runtime QA. Work remains on `completion-work`.
+
+
+## 2026-11-19 — Matrix feature workflow readiness and Admin switch reconciliation
+
+- Reconciled the Matrix plan/commission engine with the Admin feature switch. Matrix commissions are now marked backend-ready in Admin; the switch is user-controlled and remains OFF by default. Enabling it is routed through the server-side feature-condition check.
+- Updated the consolidated feature-setting RPC to allow the Matrix switch only through the existing server condition, while retaining the Duplicate-ID graph advisory lock and the latest enabled-feature allowlist. This also restores parity between the Admin readiness list and server-side feature readiness for referral, wallet, withdrawal, bidding, winner-payment, delivery and notification switches.
+- Existing Matrix plan drafting/activation, pending commission creation, secure Admin posting/reversal, member summaries and commission history remain connected to the same database workflow.
+- Added `tests/matrix-feature-switch-readiness.test.ts`; updated `20261119530000_remove_email_verification_switch.sql` and Admin feature controls. No tests/build/type-check or migration execution performed.
+- Commits: migration `8d34402b8c49489fe25141dfb17f2e40d601ec33`; Admin switch `81d6e89044ef7b7eba7e03675dd8f6821b62b50a`; regression source `ad2b351dad06bc50ec462085843aecee884d36bb`.
+- Inventory unchanged: 122 forward + 16 excluded = 138 timestamped migrations; manifest remains unique and sorted.
+- Source development estimate: **94% provisional**. Remaining final source/RPC reconciliation and security/documentation integration remain open.
