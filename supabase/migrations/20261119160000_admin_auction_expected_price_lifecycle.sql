@@ -9,8 +9,7 @@ begin
  if new.expected_price is not null
     and new.target_reached_at is null
     and new.status='live'
-    and new.starts_at is not null
-    and new.starts_at<=clock_timestamp()
+    and (new.starts_at is null or new.starts_at<=clock_timestamp())
     and new.current_price>=new.expected_price then
    new.target_reached_at:=clock_timestamp();
    new.ends_at:=new.target_reached_at+interval '48 hours';
