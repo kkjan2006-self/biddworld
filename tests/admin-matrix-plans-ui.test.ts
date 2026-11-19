@@ -13,7 +13,8 @@ describe('Admin package Matrix plan editor contract',()=>{
   expect(admin).toContain("setActiveSection('commission')");
  });
  it('supports independent width/depth and per-level fixed/percentage rules',()=>{
-  expect(editor).toContain('Matrix Width');
+  expect(editor).toContain('Matrix Width (1:X)');
+  expect(editor).toContain('any whole number from 2 to 100');
   expect(editor).toContain('Matrix Depth');
   expect(editor).toContain("value=\"fixed\"");
   expect(editor).toContain("value=\"percentage\"");
