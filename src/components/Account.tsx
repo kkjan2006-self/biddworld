@@ -22,15 +22,22 @@ function appendUniqueRows<T extends {id:string}>(current:T[],incoming:T[]):T[]{
  const known=new Set(current.map(row=>row.id));
  return [...current,...incoming.filter(row=>!known.has(row.id))];
 }
-async function fetchAllPages<T>(fetchPage:(from:number,to:number)=>PromiseLike<any>):Promise<T[]>{
- const all:T[]=[];const seenPages=new Set<string>();
+async function fetchAllPages<T extends {id:string}>(fetchPage:(from:number,to:number)=>PromiseLike<any>):Promise<T[]>{
+ const all:T[]=[];const seenPages=new Set<string>();const seenIds=new Set<string>();
  for(let from=0;from<REPORT_PAGE_SIZE*10000;from+=REPORT_PAGE_SIZE){
   const {data,error}=await fetchPage(from,from+REPORT_PAGE_SIZE-1);
   if(error)throw new Error(error.message);
   const batch=(data??[]) as T[];
+  const fingerprint=JSON.stringify(batch.map(row=>row.id));
+  if(batch.length&&seenPages.has(fingerprint))throw new Error('The report service repeated a page. Export stopped to avoid an incomplete or duplicated report. Please retry.');
+  const pageIds=new Set<string>();
+  for(const row of batch){
+   if(!row||typeof row.id!=='string'||!row.id.trim())throw new Error('The report service returned a record without a valid ID. Export stopped to protect report accuracy.');
+   if(seenIds.has(row.id)||pageIds.has(row.id))throw new Error('The report service returned duplicate record IDs across pages. Export stopped to avoid an inaccurate CSV. Please retry.');
+   pageIds.add(row.id);
+  }
+  for(const id of pageIds)seenIds.add(id);
   if(batch.length<REPORT_PAGE_SIZE){all.push(...batch);return all;}
-  const fingerprint=JSON.stringify(batch);
-  if(seenPages.has(fingerprint))throw new Error('The report service repeated a page. Export stopped to avoid an incomplete or duplicated report. Please retry.');
   seenPages.add(fingerprint);all.push(...batch);
  }
  throw new Error('The report contains more pages than can be safely exported in one request. Narrow the report scope and retry.');
