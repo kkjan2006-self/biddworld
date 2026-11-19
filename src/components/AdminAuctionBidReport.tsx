@@ -64,6 +64,7 @@ export default function AdminAuctionBidReport(){
  },[]);
  async function exportAll(){
   if(!supabase||exporting)return;
+  if(applied.from&&applied.to&&applied.from>applied.to){setError('From date must be on or before To date. Apply a valid date range before exporting.');return;}
   setExporting(true);setError('');
   try{
    const all:AuctionBidReportRow[]=[];
@@ -101,7 +102,7 @@ export default function AdminAuctionBidReport(){
   }catch(e){setError(e instanceof Error?e.message:'Auction bid CSV export failed. Please retry.');}
   finally{setExporting(false);}
  }
- function applyFilters(){const filters={search:search.trim(),status,from,to};setApplied(filters);void loadPage(true,filters);}
+ function applyFilters(){if(from&&to&&from>to){setError('From date must be on or before To date.');return;}const filters={search:search.trim(),status,from,to};setApplied(filters);void loadPage(true,filters);}
  return <section className="sponsorAdmin">
   <h4>6. Auction Bid History</h4>
   <p>Complete Admin-only bid history with server-side search, status/date filters and paginated CSV export. Idempotency keys are never exposed.</p>
@@ -110,8 +111,8 @@ export default function AdminAuctionBidReport(){
    <select value={status} onChange={e=>setStatus(e.target.value)}><option value="all">All statuses</option><option value="accepted">Accepted</option><option value="voided">Voided</option><option value="cancelled">Cancelled</option><option value="rejected">Rejected</option></select>
    <label>From <input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label>
    <label>To <input type="date" value={to} onChange={e=>setTo(e.target.value)}/></label>
-   <button className="secondary small" onClick={applyFilters} disabled={loading}>Apply filters</button>
-   <button className="secondary small" onClick={()=>void exportAll()} disabled={exporting}>{exporting?'Preparing CSV…':'Export Complete Auction Bids CSV'}</button>
+   <button className="secondary small" onClick={applyFilters} disabled={loading||Boolean(from&&to&&from>to)}>Apply filters</button>
+   <button className="secondary small" onClick={()=>void exportAll()} disabled={exporting||Boolean(applied.from&&applied.to&&applied.from>applied.to)}>{exporting?'Preparing CSV…':'Export Complete Auction Bids CSV'}</button>
   </div>
   {error&&<p role="alert">{error} <button className="secondary small" onClick={()=>void loadPage(true,applied)}>Retry</button></p>}
   {loading?<p>Loading auction bid history…</p>:rows.length===0?<p>No auction bids match these filters.</p>:
