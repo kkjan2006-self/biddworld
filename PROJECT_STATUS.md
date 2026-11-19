@@ -892,3 +892,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: migration `57a79146c8b6b1e74ee23be540a9101223fe6b8a`; UI `6aba7b418763b88735f100794314a6d94b342487`; manifest `d9045fb35c86f65a81e42a38c7b08f943cb5d4e0`; contract `28d134838f5e559fe48dc440fc0ffe95f82a114c`.
 - Migration is source-only and has not been applied. No tests/build/type-check/browser/mobile QA, database writes, Production access, deployments or protected `main` changes occurred.
 - Overall development completion remains **69% provisional**.
+
+
+## Admin Member / Placement relationship clarity — 2026-11-19
+
+- Admin Member Details now label the Main ID's Under ID / Placement Parent separately from its Matrix position; Sponsor Main ID remains a separate field.
+- Admin Placement Hierarchy now displays each node's Under ID, Matrix position and (for Duplicate IDs) owner Main ID. Linked Duplicate ID rows also show their actual Under ID and position.
+- Added source-contract assertions in `tests/admin-member-detail-search-selection.test.ts`. Test source authored but not executed.
+- Commits: Admin UI `d39fd2d646ddc3e737f7f093a723fb7597866160`; regression contract `fee444afb8becfabcdc165729a3883d91ab010f8`.
+- No tests/build/type-check/browser/mobile QA, migrations, database writes, Production access, deployment or protected `main` changes.
+- Overall development completion remains **69% provisional**.
