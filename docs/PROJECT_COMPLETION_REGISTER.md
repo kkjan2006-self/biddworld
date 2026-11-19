@@ -1,3 +1,11 @@
+## 2026-11-19 — Auction lifecycle report export and isolated Preview status
+
+- Corrected the complete Admin auction CSV export to include Expected Price and Target Reached At alongside Starting Price, Current Price, Minimum Increment, status and schedule fields. The existing single-page auction export already carried these fields; this aligns the paginated report export with the same lifecycle data contract.
+- Added source-contract coverage in `tests/admin-complete-report-exports.test.ts`; the test source was authored but not executed under the development-first testing gate.
+- Rechecked the latest `completion-work` branch and the expected-price lifecycle migrations. Member submission requires Starting Price, Expected Price (not below Starting Price), a start time at least 30 minutes ahead, and no end-time input; the database derives a 48-hour deadline after Expected Price is reached. Admin draft save and open-ended status migrations carry the corresponding nullable-end-time lifecycle.
+- Rechecked isolated Preview repository workflow #8: GitHub Pages deployment completed successfully on `903b198fb69039d2f0de706c714662467a5a8abc`. The live Preview URL opens, but this remains a visual-only build. Its Supabase client is intentionally null without environment credentials; member/admin mutations, wallet, add-funds, auction submission and bidding cannot be treated as functional backend operations yet.
+- No tests, type-check, build or browser automation were run. No SQL was applied or replayed. Production Supabase remains read-only; TEST Supabase remains untouched. No member, wallet, package, bid, payment or withdrawal data was changed.
+
 ## 2026-11-19 — Public auction preview clarity and tablet navigation
 
 - The public auction catalogue loader now distinguishes an unavailable/missing catalogue RPC from a genuinely empty search result. When the RPC is unavailable, the page explains that the database update is not installed and that any sample cards are preview-only; it does not represent samples as live auctions.
