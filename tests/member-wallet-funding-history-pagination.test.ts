@@ -7,7 +7,8 @@ describe('member wallet funding history pagination',()=>{
   expect(sql).toContain('select main_member_id into v_main from public.profiles where id=v_uid');
   expect(sql).toContain('where r.member_id=v_main');
  });
- it('uses a bounded descending keyset cursor and has-more marker',()=>{
+ it('adds the member history index and uses a bounded descending keyset cursor',()=>{
+  expect(sql).toContain('wallet_fund_requests_member_history_idx');
   expect(sql).toContain('v_limit<1 or v_limit>100');
   expect(sql).toContain('(r.created_at,r.id)<(p_before_created_at,p_before_id)');
   expect(sql).toContain('count(*) over() as total_count');
