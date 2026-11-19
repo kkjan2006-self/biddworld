@@ -1068,3 +1068,10 @@
 - Added the approved-image publishing step: private pending uploads are copied to public product media during Admin/authorized Staff approval; public auction and product views resolve stored paths to public URLs.
 - Added migration #83 and source-contract test (not run). Inventory: 83 forward + 16 excluded + 3 legacy SQL files (102 total; 99 timestamped).
 - Image upload and database approval are separate operations; orphaned public objects may require cleanup if approval fails after copying. No tests, builds, QA, migration replay, DB writes or deployment.
+
+
+### 2026-11-19 — Expected-price auction lifecycle (#84)
+
+- Added Starting Price + Expected Price flow; removed mandatory End Time. Auction runs until the current bid reaches/exceeds Expected Price, then a 48-hour close deadline is stored. Bid RPC supports open-ended auctions and blocks bids after the deadline.
+- Added scheduled-start/automatic-close `pg_cron` job, Admin/Staff expected-price editing, public expected-price/countdown fields and member countdown UI. Source-contract test added but not run.
+- Inventory: 84 forward + 16 excluded + 3 legacy SQL files (103 total; 100 timestamped). No tests, builds, QA, SQL replay, DB writes or deployment; cron remains unapplied/unverified. Overall development estimate 58% provisional.
