@@ -8,6 +8,7 @@ describe('complete approved product image galleries',()=>{
   expect(sql).toContain('add column if not exists image_paths text[]');
   expect(sql).toContain('image_path,image_paths,category,status,product_details');
   expect(sql).toContain('p.image_paths');
+  expect(sql).toContain('grant select (image_paths) on public.products to anon,authenticated');
   expect(app).toContain('image_paths?:string[]');
  });
  it('copies every private image and removes newly uploaded public images if approval fails',()=>{
