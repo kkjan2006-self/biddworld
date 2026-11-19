@@ -7,6 +7,7 @@ describe('approved member product details in public catalogue',()=>{
  it('validates a positive bounded asking price on the database write path',()=>{
   expect(sql).toContain("v_price:=new.optional_details->>'Price'");
   expect(sql).toContain("A valid product asking price is required");
+  expect(sql).toContain("Every product detail value must be plain text");
  });
  it('copies the complete submitted details into the published product record',()=>{
   expect(sql).toContain('status,product_details');
