@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs';
 import {describe,it,expect} from 'vitest';
 const sql=readFileSync('supabase/migrations/20261119460000_product_catalogue_details.sql','utf8');
 const app=readFileSync('src/App.tsx','utf8');
+const manifest=readFileSync('supabase/clean-install/forward-migrations.txt','utf8');
 describe('approved member product details in public catalogue',()=>{
  it('validates a positive bounded asking price on the database write path',()=>{
   expect(sql).toContain("v_price:=new.optional_details->>'Price'");
@@ -16,5 +17,6 @@ describe('approved member product details in public catalogue',()=>{
   expect(sql).toContain("where p.status='published'");
   expect(app).toContain('product_details?:Record<string,string>|null');
   expect(app).toContain("p.product_details?.Price");
+  expect(manifest).toContain('supabase/migrations/20261119460000_product_catalogue_details.sql');
  });
 });
