@@ -8,22 +8,27 @@ import { rpcContractUnavailableMessage } from '../lib/rpc-errors';
 
 type TreeMember={member_code:string;display_name:string;status:string;created_at:string;depth:number;sponsor_code:string|null};
 type Dashboard={main_member_code:string;direct_referrals:number;total_downline:number;active_members:number;active_activations:number;commission_total:number;bid_wallet:number;income_wallet:number;tree:TreeMember[];tree_total:number;has_more:boolean};
+type MatrixSummary={credited_total:number;pending_total:number;reversed_total:number;credited_count:number;pending_count:number};
 
 export default function Referrals(){
- const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all'),[exportBusy,setExportBusy]=useState(false),[exportMessage,setExportMessage]=useState('');
+ const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[matrixSummary,setMatrixSummary]=useState<MatrixSummary|null>(null),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all'),[exportBusy,setExportBusy]=useState(false),[exportMessage,setExportMessage]=useState('');
  const request=useRef(0),loadMoreBusy=useRef(false);
  useEffect(()=>{if(!supabase){setLoading(false);return}let active=true,authEventObserved=false;const{data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{authEventObserved=true;if(active)setUserId(s?.user?.id??null)});void supabase.auth.getUser().then(({data,error})=>{if(active&&!authEventObserved){if(error)throw error;setUserId(data.user?.id??null)}}).catch(()=>{if(active&&!authEventObserved){setError('Your sign-in session could not be verified. Please sign in again.');setLoading(false)}});return()=>{active=false;subscription.unsubscribe()}},[]);
  useEffect(()=>{
   let active=true;
   const seq=++request.current;loadMoreBusy.current=false;
-  setData(null);setError('');setLoading(true);setLoadingMore(false);
+  setData(null);setMatrixSummary(null);setError('');setLoading(true);setLoadingMore(false);
   const timer=window.setTimeout(async()=>{
    if(!supabase||!userId){if(active)setLoading(false);return;}
    try{
-    const {data:result,error:loadError}=await supabase.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:0,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
+    const [{data:result,error:loadError},{data:matrix,error:matrixError}]=await Promise.all([
+     supabase.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:0,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)}),
+     supabase.rpc('member_get_my_matrix_commission_summary')
+    ]);
     if(!active||seq!==request.current)return;
     if(loadError)throw loadError;
     setData(result as Dashboard);
+    if(!matrixError&&matrix&&typeof matrix==='object')setMatrixSummary(matrix as MatrixSummary);
    }catch(e){if(active&&seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'Your team dashboard could not be loaded. Please retry.'));}
    finally{if(active&&seq===request.current)setLoading(false);}
   },query.trim()||depth!=='all'?250:0);
@@ -70,9 +75,9 @@ export default function Referrals(){
   }catch(e){if(seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'More team members could not be loaded. Please retry.'));}
   finally{if(seq===request.current){loadMoreBusy.current=false;setLoadingMore(false);}}
  }
- const cards=data?[['My Main ID',data.main_member_code,Users],['Direct Referrals',data.direct_referrals,UserCheck],['Total Team',data.total_downline,Network],['Active Members',data.active_members,UserCheck],['Package Activations',data.active_activations,Gift],['Referral Income',money(Number(data.commission_total)),Wallet],['Bid Wallet',money(Number(data.bid_wallet)),Wallet],['Main Wallet',money(Number(data.income_wallet)),Wallet]] as const:[];
+ const cards=data?[['My Main ID',data.main_member_code,Users],['Direct Referrals',data.direct_referrals,UserCheck],['Total Team',data.total_downline,Network],['Active Members',data.active_members,UserCheck],['Package Activations',data.active_activations,Gift],['Sponsor Referral Income',money(Number(data.commission_total)),Wallet],...(matrixSummary?[['Matrix Commission Income',money(Number(matrixSummary.credited_total)),Gift] as const]:[]),['Bid Wallet',money(Number(data.bid_wallet)),Wallet],['Main Wallet',money(Number(data.income_wallet)),Wallet]] as const:[];
  return <section className="referralWorkspace">
-  <div className="packageIntro"><span className="workspaceIcon"><Network/></span><div><h3>My MLM Dashboard</h3><p>Your sponsor genealogy, team members, wallet and referral summary.</p></div><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>
+  <div className="packageIntro"><span className="workspaceIcon"><Network/></span><div><h3>My MLM Dashboard</h3><p>Your Sponsor genealogy, placement-independent Matrix commission summary, team members and wallets.</p></div><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>
   {loading&&!data?<p className="packageState">Loading your team dashboard…</p>:error?<div className="notice">{error} <button className="outline small" onClick={()=>setRefresh(v=>v+1)}>Retry</button></div>:data&&<>
    <div className="mlmCards">{cards.map(([label,value,Icon])=><article key={label}><Icon size={19}/><small>{label}</small><b>{value}</b></article>)}</div>
    <div className="genealogyHead"><div><h4>My Team Genealogy</h4><p>Members are grouped under the Sponsor Main ID recorded at registration or last admin correction.</p></div><span>{data.tree_total} matching members</span><button className="outline small" type="button" onClick={()=>void exportTeam()} disabled={exportBusy||loading}><RefreshCw size={14}/>{exportBusy?"Preparing report…":"Export Team CSV"}</button></div>{exportMessage&&<p className="memberModuleState" role="status">{exportMessage}</p>}
