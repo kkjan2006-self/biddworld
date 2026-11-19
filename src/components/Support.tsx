@@ -5,6 +5,7 @@ import {csvDocument} from '../lib/csv';
 
 type Ticket={id:string;user_id:string;subject:string;message:string;status:'open'|'in_progress'|'resolved'|'closed';admin_response:string|null;created_at:string;updated_at:string};
 const PAGE_SIZE=100;
+function validTicket(value:unknown):value is Ticket{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;return typeof row.id==='string'&&row.id.length>0&&typeof row.user_id==='string'&&row.user_id.length>0&&typeof row.subject==='string'&&typeof row.message==='string'&&['open','in_progress','resolved','closed'].includes(String(row.status))&&(row.admin_response===null||typeof row.admin_response==='string')&&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))&&typeof row.updated_at==='string'&&Number.isFinite(Date.parse(row.updated_at));}
 
 export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>()),submitKey=useRef(''),submitKeyPayload=useRef('');
@@ -30,13 +31,13 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   try{
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
    if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
-   const {data,error:loadError}=await request.range(0,PAGE_SIZE-1);
+   const {data,error:loadError}=await request.range(0,PAGE_SIZE);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
-   const rows=(data??[]) as Ticket[];
-   setTickets(rows);setHasMore(rows.length===PAGE_SIZE);
-   setStatus(Object.fromEntries(rows.map(row=>[row.id,row.status])));
-   setResponse(Object.fromEntries(rows.map(row=>[row.id,row.admin_response??''])));
+   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(validTicket))throw new Error('The support queue returned malformed ticket records. Refresh and retry.');const page=rows.slice(0,PAGE_SIZE);const ids=new Set<string>();for(const row of page){if(ids.has(row.id))throw new Error('The support queue returned duplicate ticket IDs. Refresh and retry.');ids.add(row.id);}
+   setTickets(page);setHasMore(rows.length>PAGE_SIZE);
+   setStatus(Object.fromEntries(page.map(row=>[row.id,row.status])));
+   setResponse(Object.fromEntries(page.map(row=>[row.id,row.admin_response??''])));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
  },[isAdmin,statusFilter]);
@@ -49,19 +50,19 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
    if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
    request=request.or(`updated_at.lt.${cursor.updated_at},and(updated_at.eq.${cursor.updated_at},id.lt.${cursor.id})`);
-   const {data,error:loadError}=await request.limit(PAGE_SIZE);
+   const {data,error:loadError}=await request.limit(PAGE_SIZE+1);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
-   const rows=(data??[]) as Ticket[];
-   const known=new Set(tickets.map(ticket=>ticket.id));const pageIds=new Set<string>();const fresh:Ticket[]=[];let duplicateFound=false;
-   for(const ticket of rows){if(known.has(ticket.id)||pageIds.has(ticket.id)){duplicateFound=true;continue;}pageIds.add(ticket.id);fresh.push(ticket);}
+   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(validTicket))throw new Error('The next support page returned malformed ticket records. Refresh the list.');
+   const known=new Set(tickets.map(ticket=>ticket.id));const page=rows.slice(0,PAGE_SIZE);const pageIds=new Set<string>();const fresh:Ticket[]=[];
+   for(const ticket of page){if(known.has(ticket.id)||pageIds.has(ticket.id))throw new Error('The support queue returned duplicate or overlapping ticket IDs. Refresh the list before loading more.');pageIds.add(ticket.id);fresh.push(ticket);}
    setTickets(current=>[...current,...fresh.filter(ticket=>!current.some(existing=>existing.id===ticket.id))]);
-   if(duplicateFound){setHasMore(false);setError('The support queue returned duplicate ticket IDs. Refresh the list before loading more.');}else setHasMore(rows.length===PAGE_SIZE);
-   setStatus(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.status]))}));
-   setResponse(current=>({...current,...Object.fromEntries(rows.map(row=>[row.id,row.admin_response??'']))}));
+   setHasMore(rows.length>PAGE_SIZE);
+   setStatus(current=>({...current,...Object.fromEntries(fresh.map(row=>[row.id,row.status]))}));
+   setResponse(current=>({...current,...Object.fromEntries(fresh.map(row=>[row.id,row.admin_response??'']))}));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
- },[busy,hasMore,tickets.length,isAdmin,statusFilter]);
+ },[busy,hasMore,tickets,isAdmin,statusFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
 
  async function submit(e:React.FormEvent<HTMLFormElement>){
