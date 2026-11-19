@@ -1421,3 +1421,12 @@
 - Reviewed the delivery tracking migration and current Admin integration: tracking creation requires a paid winning payment, serializes creation per payment, prevents duplicate tracking rows, restricts member reads to the owning member, and records Admin tracking updates in audit logs. No migration was changed or applied.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
 - Overall development estimate remains **60% Provisional** pending full source reconciliation and final end-to-end verification.
+
+
+## 2026-11-19 — Delivery workspace diagnostics and bulk report safeguards
+
+- Admin Delivery Tracking now displays the delivery RPC failure directly inside its own workspace instead of relying only on the general Admin warning list; a successful load clears the prior delivery-specific error.
+- Winning Payment and Delivery report exports validate date ranges before retrieval, disable export while a range is reversed or another report export is active, and use the exact Delivery Tracking backend statuses.
+- Extended source-contract tests for the delivery workspace error state and report filter contracts. Tests remain unexecuted.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains unchanged; protected `main` unchanged.
+- Overall development estimate remains **60% Provisional** until broad source reconciliation and final end-to-end verification.
