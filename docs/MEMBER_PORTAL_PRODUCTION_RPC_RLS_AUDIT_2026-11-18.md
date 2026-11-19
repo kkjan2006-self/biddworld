@@ -91,3 +91,41 @@ Also reviewed source-only Support and Notification RLS:
 These tables are not present in the current Production catalogue, so these are source definitions, not deployed Production protections.
 
 No test/build or migration replay was run. Policy behavior still requires isolated TEST role/identity tests.
+
+
+## Current-head source-only delta — 2026-11-19
+
+The following RPCs and return contracts were added or replaced after the 2026-11-18 inventory. These are repository source definitions on `completion-work`; they are not assertions about the current Production or TEST catalogs.
+
+### Admin
+
+| RPC | Current source contract | Source |
+|---|---|---|
+| `admin_list_product_submissions_page(integer,timestamptz,uuid)` | Pending submissions, stable `created_at,id` keyset, 50-row default, `has_more` | `20261119470000_admin_product_submission_keyset_pagination.sql` |
+| `admin_review_product_submission_with_images(uuid,text,text,text[])` | Admin-only approval/rejection; validates and publishes 1–8 public image objects; writes audit row | `20261119480000_product_gallery_publication.sql` |
+| `admin_post_matrix_commissions(uuid)` | Posts pending commission rows for one package activation through the wallet ledger | `20261119310000_matrix_commission_engine.sql` |
+| `admin_reverse_matrix_commission(uuid,text)` | Reverses a credited commission with a required reason and matching ledger reversal | `20261119310000_matrix_commission_engine.sql` |
+| `admin_get_feature_settings()`, `admin_set_feature_setting(text,boolean)` | Consolidated current feature list; Duplicate-ID advisory lock retained; Matrix switch included and server-conditioned; removed email/unused switches | `20261119530000_remove_email_verification_switch.sql` |
+
+### Member and public catalogue
+
+| RPC | Current source contract | Source |
+|---|---|---|
+| `member_list_own_product_submissions_page(integer,timestamptz,uuid)` | Authenticated owner-only, descending keyset, signed private images generated page-by-page in UI | `20261119490000_member_product_submission_keyset_pagination.sql` |
+| `member_list_my_wallet_fund_requests_page(integer,timestamptz,uuid)` | Main-ID-owned Add Money history, descending keyset, bounded pages | `20261119510000_member_wallet_funding_history_pagination.sql` |
+| `member_list_my_withdrawals_page(integer,timestamptz,uuid)` | Main-ID-owned withdrawal history, descending keyset, bounded pages | `20261119520000_member_withdrawal_history_pagination.sql` |
+| `member_submit_product_listing(text,text,text,text[],jsonb)`, `member_update_product_submission(uuid,text,text,text,text[],jsonb)` | Per-member advisory lock; rejects duplicate pending normalized titles on both create and edit paths | `20261119550000_prevent_duplicate_pending_product_submissions.sql` |
+| `submit_package_activation_with_receipt(uuid,text,text)` | Requires an existing private receipt owned by the signed-in user before activation is created | `20261119500000_require_package_activation_receipt.sql` |
+| `public_list_active_products_page(text,integer,integer)` | Returns published product details and complete image gallery, including stable `has_more` | `20261119480000_product_gallery_publication.sql` |
+
+### RLS, Storage and client alignment
+
+- The public catalogue function is SECURITY INVOKER. The source migration now grants only the required product columns to `anon` and replaces the published-product read policy with an `anon,authenticated` policy constrained to `status='published'`. The gallery column is granted by the gallery migration. This source policy does not make pending submissions public.
+- Member product submission images remain in the private `product-submission-media` bucket. Owner history uses short-lived signed URLs; Admin moderation can read the private objects. Approval copies all images to the public `product-media` bucket. The UI retains uploaded images if the moderation RPC outcome is uncertain.
+- Package receipts remain private; the activation RPC verifies the path's first folder is the authenticated user's UID and verifies the object exists.
+- The BiddWorld email-verification switch and resend-confirmation UI were removed. The Supabase Auth provider-level Confirm Email setting remains an environment configuration and is not changed by SQL.
+- Admin feature switches and the settings RPC response/allowlist were statically compared: all 14 visible switches match the response, allowlist and enabled-key set. Matrix commissions are ready in the UI and remain behind the server-side feature condition.
+
+### Verification boundary
+
+No tests, type-check, build, migration replay, Storage request, role-impersonation test or browser/Android test was run for this delta. All new migrations are registered in the ordered forward manifest. Verify against isolated TEST only after the development-complete gate and explicit migration authorization; Production remains read-only.
