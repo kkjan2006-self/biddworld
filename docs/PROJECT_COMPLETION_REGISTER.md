@@ -2209,3 +2209,14 @@
 - Reconciled the clean-install manifest against the Git tree after the email-verification migration registration. Removed one duplicate entry and restored strict lexical order. Final inventory is 122 unique forward migrations + 16 unique excluded historical migrations = 138 timestamped migration files, plus three legacy SQL files. All paths exist; no overlap or uncovered timestamped migration remains.
 - Commit: `a91c7f949a15625b8135cb059ac160f50e2dbb19`.
 - No SQL execution, Supabase data changes, tests/build, Preview deployment or runtime QA. Work remains on `completion-work`.
+
+
+## 2026-11-19 — Matrix feature workflow readiness and Admin switch reconciliation
+
+- Reconciled the Matrix plan/commission engine with the Admin feature switch. Matrix commissions are now marked backend-ready in Admin; the switch is user-controlled and remains OFF by default. Enabling it is routed through the server-side feature-condition check.
+- Updated the consolidated feature-setting RPC to allow the Matrix switch only through the existing server condition, while retaining the Duplicate-ID graph advisory lock and the latest enabled-feature allowlist. This also restores parity between the Admin readiness list and server-side feature readiness for referral, wallet, withdrawal, bidding, winner-payment, delivery and notification switches.
+- Existing Matrix plan drafting/activation, pending commission creation, secure Admin posting/reversal, member summaries and commission history remain connected to the same database workflow.
+- Added `tests/matrix-feature-switch-readiness.test.ts`; updated `20261119530000_remove_email_verification_switch.sql` and Admin feature controls. No tests/build/type-check or migration execution performed.
+- Commits: migration `8d34402b8c49489fe25141dfb17f2e40d601ec33`; Admin switch `81d6e89044ef7b7eba7e03675dd8f6821b62b50a`; regression source `ad2b351dad06bc50ec462085843aecee884d36bb`.
+- Inventory unchanged: 122 forward + 16 excluded = 138 timestamped migrations; manifest remains unique and sorted.
+- Source development estimate: **94% provisional**. Remaining final source/RPC reconciliation and security/documentation integration remain open.
