@@ -25,7 +25,7 @@ const sampleFixedCampaigns:Campaign[]=[
 {id:'sample-fixed-3',title:'Lifestyle Accessories Fixed Bid',description:'Sample campaign preview showing multiple winner slots and compact product details.',status:'preview',created_at:new Date().toISOString(),configuration:{entry_amount:30,winner_payment_amount:3000,max_entries_per_member:2,max_entries_total:300,winner_count:3,starts_at:new Date(Date.now()+86400000).toISOString(),ends_at:new Date(Date.now()+9*86400000).toISOString(),refund_non_winners:false},product:{name:'Premium Smartwatch',description:'Sample product details.',category:'Lifestyle',image_path:null}}
 ];
 type CampaignStatus='all'|'scheduled'|'live'|'ended';
-function productImageUrl(path:string|null|undefined){if(!path)return '';if(/^https?:\\/\\//i.test(path))return path;return supabase?.storage.from('product-media').getPublicUrl(path).data.publicUrl??'';}
+function productImageUrl(path:string|null|undefined){if(!path)return '';if(/^https?:\/\//i.test(path))return path;return supabase?.storage.from('product-media').getPublicUrl(path).data.publicUrl??'';}
 function requestKey(){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
 
 export default function FixedBid({compact=false}:{compact?:boolean}){
