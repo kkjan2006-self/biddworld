@@ -198,7 +198,6 @@ export default function Admin(){
    {key:'registration_enabled',label:'Member Registration',description:'Let new members create an account.'},
    {key:'sponsor_referrals_enabled',label:'Sponsor Referral',description:'Let new members enter a Sponsor ID.'},
    {key:'duplicate_ids_enabled',label:'Duplicate IDs',description:'Disable new Duplicate ID creation; existing IDs and their history remain unchanged.'},
-   {key:'automatic_placement_enabled',label:'Automatic Placement',description:'Place new IDs in the network automatically. Use only after placement rules are tested.'}
   ]},
   {title:'2. Packages & Wallets',description:'Manage packages, wallet balances and payment settings.',items:[
    {key:'package_activations_enabled',label:'Package Activation',description:'Allow members to submit package payment requests. Activate only after payment is verified.'},
@@ -220,7 +219,7 @@ export default function Admin(){
   ]}
  ];
  const featureLabels:Record<string,string>=Object.fromEntries(featureGroups.flatMap(group=>group.items.map(item=>[item.key,item.label])));
- const backendPendingFeatureKeys=new Set(['automatic_placement_enabled','winner_selection_configured']);
+ const backendPendingFeatureKeys=new Set(['winner_selection_configured']);
  const serverConditionFeatureKeys=new Set(['package_activations_enabled','referral_commissions_enabled','matrix_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled']);
  const featureEnableReadyKeys=new Set(['registration_enabled','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled','matrix_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled','delivery_tracking_enabled','notifications_enabled']);
  const [featureSettings,setFeatureSettings]=useState<Record<string,boolean>>({}),[featureSettingsLoaded,setFeatureSettingsLoaded]=useState(false),[featureSettingsLoadError,setFeatureSettingsLoadError]=useState('');
