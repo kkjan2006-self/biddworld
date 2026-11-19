@@ -1,5 +1,20 @@
 # Current development checkpoint — 2026-11-19
 
+- Active branch: `completion-work`; protected `main` unchanged.
+- Admin Main Wallet funding review now uses a server-side keyset-paginated RPC (50 rows per UI page; backend hard cap 100), stable `(created_at,id)` cursor, duplicate/malformed page rejection and short-lived private receipt URLs.
+- The legacy no-argument pending-funding queue RPC is also capped at 100 rows, preserving its response shape and Admin/authorized Staff permission check.
+- Approval/rejection remains through the existing locked, audited RPC. Approval still requires a receipt URL to be available in the UI; no wallet posting logic was changed.
+- Added migration `20261119390000_admin_wallet_funding_queue_keyset_pagination.sql`, UI pagination and `tests/admin-wallet-funding-keyset-pagination.test.ts`; registered the migration in the clean-install forward manifest.
+- Manifest reconciled against repository tree: **124 timestamped migrations = 108 forward + 16 excluded**; no missing, stale or duplicate timestamped entries.
+- Commits: migration `3532bb20c3e67330308dee83f684e2e430b8b8e8`; UI `fc803d60bfebeca0dce3f8e9c11e0f7417045df1`; source-contract test `2b7907ae310afb1adb8ff392a49b9dc5d27a753e`; manifest `1707134b46d7391e95507da8362d9068fceb5997`; inventory README `69c85d4787a63196ca63d6b8458276d2aaf8d6ab`.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production migrations/data writes, no Production reads, no deployment, and no protected `main` changes.
+- Next bulk focus: package activation review queue and other Admin operational queues for bounded pagination and response validation; final testing remains deferred.
+- Overall development completion: **70% provisional** (not runtime verified).
+
+---
+
+# Current development checkpoint — 2026-11-19
+
 - Active branch: `completion-work`; protected `main` remains unchanged.
 - Bulk source reconciliation reviewed the current Admin/Member workflows, Main/Duplicate lifecycle, feature-switch locking, automatic Matrix placement, Matrix commissions, Sponsor-vs-Under ID separation, wallet history/funding, auctions, Fixed Bid, notifications and Support.
 - Clean-install inventory is now reconciled exactly: **123 timestamped migrations = 107 forward candidates + 16 excluded historical migrations**; no timestamped migration is missing, stale or duplicated in the manifests.
