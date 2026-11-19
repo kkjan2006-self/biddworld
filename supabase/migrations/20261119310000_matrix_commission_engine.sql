@@ -76,7 +76,8 @@ begin
     select * into v_rule
     from public.matrix_level_rules
     where plan_version_id=v_plan_id and level_number=v_ancestor.depth;
-    if not found or not v_rule.is_enabled then continue; end if;
+    if not found then continue; end if;
+    if not v_rule.is_enabled then continue; end if;
     if coalesce((v_rule.eligibility_rule->>'requires_active_main_id')::boolean,true)
        and v_ancestor.credited_status<>'active' then continue; end if;
     if coalesce((v_rule.eligibility_rule->>'max_depth')::integer,v_ancestor.depth)<v_ancestor.depth then continue; end if;
