@@ -1489,3 +1489,13 @@
 - Added the new migration to the ordered clean-install forward manifest and updated the inventory to 94 forward + 16 excluded = 110 timestamped migrations.
 - No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment were performed. Production remains read-only; TEST remains untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional** pending full source reconciliation and final end-to-end verification.
+
+## 2026-11-19 — In-app Notifications feature switch integration
+
+- Enabled the existing in-app notification workflow through the Admin Platform Settings allowlist. The setting is now available to turn ON from the Admin UI.
+- Added database enforcement to `admin_send_member_notification()`: manual in-app sends are rejected while Notifications is OFF. Support-ticket update notifications also respect the same setting and are skipped while OFF.
+- Kept the scope explicit: this switch controls in-app notifications only. Email/SMS templates remain drafts and are not represented as active delivery channels.
+- Preserved Admin authorization, notification idempotency and audit logging. Added source-contract coverage for the new setting gate and support-ticket trigger behavior; tests were not run.
+- Added the migration to the clean-install forward manifest; inventory is now 95 forward + 16 excluded = 111 timestamped migrations.
+- No tests, build, type-check, browser/device QA, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched; protected `main` unchanged.
+- Overall development completion remains **60% Provisional** pending full source reconciliation and final end-to-end verification.
