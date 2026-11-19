@@ -1,5 +1,15 @@
 ## Latest source-development checkpoint — 2026-11-19
 
+- Current `completion-work` HEAD before this checkpoint refresh: `7929bc9fa35c5989ac42e44cd3e11aa5db56dfbd`.
+- Member complete-report pagination now validates every returned row has a non-empty ID and rejects duplicate IDs both within a page and across pages. This complements repeated-page detection and prevents an export from silently including duplicated records.
+- Source commit: `113be7d17c44be252b24a99acf7cdf9bd3fdd9f2`; source-contract test commit: `7929bc9fa35c5989ac42e44cd3e11aa5db56dfbd`.
+- Tests/build/type-check/browser QA were not run. No Supabase access, SQL application, deployment or protected `main` changes occurred.
+- Overall development completion remains **60% provisional**.
+
+---
+
+## Latest source-development checkpoint — 2026-11-19
+
 - Current `completion-work` HEAD at the start of this documentation update: `85216cea2b065c3f72c0a02595d4d3494f1cb254`.
 - Latest PWA batch: `src/components/PWAInstallButton.tsx` now provides a manual Android Chrome install-help fallback when the browser does not expose `beforeinstallprompt`, detects standalone installation, and hides the control once installed. The PWA source-contract test now checks these paths and the existing service-worker cache v4.
 - Batch commits: component `6781a79dbc34ce0238288b2a881ff66b5c1e0e18`; PWA test `935f42a0605d3bfb9b60514414f65c3573178a2a`; focused note `85216cea2b065c3f72c0a02595d4d3494f1cb254`.
