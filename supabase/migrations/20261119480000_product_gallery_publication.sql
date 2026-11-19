@@ -1,5 +1,6 @@
 -- Publish the complete approved product image gallery instead of dropping all but the first image.
 alter table public.products add column if not exists image_paths text[] not null default '{}';
+grant select (image_paths) on public.products to anon,authenticated;
 update public.products set image_paths=array[image_path] where image_path is not null and cardinality(image_paths)=0;
 
 create or replace function public.admin_review_product_submission_with_images(
