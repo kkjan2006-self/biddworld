@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {describe,it,expect} from 'vitest';
-const sql=readFileSync('supabase/migrations/20261119540000_prevent_duplicate_pending_product_submissions.sql','utf8');
+const sql=readFileSync('supabase/migrations/20261119550000_prevent_duplicate_pending_product_submissions.sql','utf8');
 const ui=readFileSync('src/components/MemberProductSubmission.tsx','utf8');
 describe('duplicate pending product submission protection',()=>{
  it('serializes same-member submissions and indexes pending normalized titles',()=>{
