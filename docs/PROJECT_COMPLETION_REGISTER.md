@@ -1636,3 +1636,11 @@
 - Added source-level regression assertions for filter/refresh request lifecycle and load-more concurrency.
 - Commits: UI `f700d99528cf70374bd20d6869d60881c3736388`; test `bb0014685b74a4fa94d9c96d485637812688c824`.
 - No tests/build/type-check/browser/mobile QA run; no TEST or Production migration applied.
+
+
+## Wallet CSV Matrix attribution correction — 2026-11-19
+
+- Fixed the full wallet statement export query to select `reference_type` and `reference_id`, matching the on-screen query. Matrix commission transactions can now be resolved through the caller-scoped source attribution RPC and exported with source ID, source type and Matrix level.
+- Added a regression contract for the full-export query and attribution path.
+- Commits: UI `b1ab1516a7433bcd8b79d71f4c28c00912dc3ed9`; test `a2eb416e25e074c61d41b0a0dff5987f3b6890c6`.
+- No tests/build/type-check/browser/mobile QA run; no TEST or Production migrations applied.
