@@ -1399,3 +1399,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Added `tests/admin-feature-setting-contract.test.ts` to prevent future drift. This was static source inspection only; tests/build/type-check were not executed.
 - Commits: feature RPC parity fix `c9e2d00527eb42edd466d29d65a0aab2da5258a8`; parity regression `bb132f1dfaaecedc012aa2a8fe923e008be7e02c`.
 - Forward migration inventory remains 122 unique candidates. Source development estimate: **96% provisional**; final RPC/source contract review and documentation consistency remain.
+
+
+## 2026-11-19 — Support history query performance and pagination completion
+
+- Added the missing composite indexes matching Support's stable `(updated_at DESC,id DESC)` ordering for Admin history and `(user_id,updated_at DESC,id DESC)` for member history. Existing indexes and row-level access policies are preserved.
+- Added `20261119540000_support_ticket_keyset_indexes.sql` to the clean-install forward manifest and `tests/support-ticket-keyset-indexes.test.ts` as source-only regression coverage.
+- Verified the clean-install migration inventory against the repository tree: **123 forward + 16 excluded = 139 timestamped SQL files**, with no missing/orphaned/overlapping entries, no duplicate forward entries, and strict sort order. Three legacy/unversioned SQL files remain excluded from clean install.
+- Commits: Support index migration `5b3f952185ea399c324a6ee42af3a65e9714d550`; test `d6d3674abc9e3b6937df918ca7974d4a3a1477b6`; manifest `e10307e9af94b1a8dc4aa21c8f0ddfc593c95655`; clean-install README `27307f0911f5f2d322cfbb3801e0d440d44c1223`.
+- Development-only boundary maintained: no tests/build/type-check/browser QA, no Supabase migrations/data changes, no Preview deployment, and no protected `main` changes.
+- Overall source development estimate remains **94% provisional**; remaining source-level frontend/RPC/RLS/Storage integration reconciliation is open.
