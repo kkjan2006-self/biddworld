@@ -13,4 +13,7 @@ describe('member Matrix commission history pagination',()=>{
  it('loads the next 100 rows using the current record count as offset',()=>{expect(account).toContain('loadMoreMatrixCommissions');expect(account).toContain('p_limit:100,p_offset:offset');expect(account).toContain('matrixCommissions.length');});
  it('validates and rejects repeated commission rows before appending',()=>{expect(account).toContain('Matrix commission history returned invalid data');expect(account).toContain('Matrix commission history repeated an existing record');});
  it('shows a load-more control only when another page may exist',()=>{expect(account).toContain('matrixHistoryHasMore&&');expect(account).toContain('Load more Matrix commissions');});
+
+ it('serializes rapid pagination clicks with a synchronous ref guard',()=>{expect(account).toContain('matrixHistoryBusy=useRef(false)');expect(account).toContain('matrixHistoryBusy.current||!matrixHistoryHasMore');expect(account).toContain('matrixHistoryBusy.current=true');});
+ it('ignores stale pagination responses after the account reloads or unmounts',()=>{expect(account).toContain('request!==loadRequest.current||!loadMounted.current');expect(account).toContain('request===loadRequest.current&&loadMounted.current');});
 });
