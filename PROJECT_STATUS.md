@@ -780,3 +780,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: `1e2765350b77bbdc2821c0a94acd2f516cafc30e`, `2d4d75cc0bd1ce3f8b256a0c4e55411708ab9349`, `8010e4dbc57fffd7f2017ddc90d833b0729402c4`, completion register `cd6f34e9e3239c9fc9a4f010a11f68a7ff3aa6a6`.
 - No tests/build/type-check/browser/mobile QA run. No TEST or Production migration applied. Protected `main` unchanged; Matrix feature OFF. Schema reconciliation and final QA remain pending.
 - Overall development estimate: **63% provisional**.
+
+
+## Latest checkpoint — Member Matrix history pagination
+
+- Member Commission History now supports loading subsequent 100-row Matrix commission pages, with input validation and duplicate-page protection. Sponsor history remains separate.
+- Commits: `78ea081e6145c06eae9c21c8c3e5ce5bf0b12df7`, `be486979909cf6d7635b93c9c0025fd27b414ccd`, completion register `9a93e439b7b8834616e810c37977a9afa91ff3a1`.
+- No tests/build/type-check/browser/mobile QA run. No TEST or Production migration applied. Protected `main` unchanged; Matrix feature OFF. Schema reconciliation and final QA remain pending.
+- Overall development estimate: **64% provisional**.
