@@ -256,3 +256,12 @@ At every development batch/chat end, update this file with the actual verified b
 
 
 - Follow-up in the same consolidated member-payment batch: Package Activation now displays the KRFSI UPI payee/UPI ID and payment QR beside the package selection and UTR/receipt submission form. The member can pay the selected package amount and submit the existing receipt-backed request for Admin verification. Source-only; no tests or deployment.
+
+
+## Latest development checkpoint — Restricted Payment Review Staff (#79)
+
+- Added a dedicated `admin_staff` role for an existing registered account. Only the designated Primary Admin (`Kkjan2006@gmail.com`) can grant/revoke it; grants contain exactly `package_activation_review` and `wallet_funding_review` permissions, with audit logging.
+- Added isolated Staff portal with only two queues: Package Activation payment review and Main Wallet Add Money review. Staff cannot access the full Admin dashboard, member management, wallet adjustments, reports, settings, or role management.
+- Updated package and Main Wallet queue/review RPCs and private receipt Storage read policies to require the corresponding explicit staff permission. Approvals remain server-side, atomic, and ledger/audit recorded; the reviewer is recorded.
+- Added migration #79 `20261119100000_restricted_payment_review_staff.sql` and source-contract test `tests/restricted-payment-review-staff.test.ts` (not executed). Inventory: 79 forward + 16 excluded + 3 legacy SQL files = 98 total (95 timestamped).
+- No tests/build/CI/QA, SQL replay, DB writes, Production access or deployment. Production remains read-only; Test Supabase untouched. Overall estimate remains 55% Provisional.
