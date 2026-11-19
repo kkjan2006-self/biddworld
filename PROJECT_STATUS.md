@@ -1043,3 +1043,8 @@ At every development batch/chat end, update this file with the actual verified b
 - Added source-contract coverage in `tests/admin-duplicate-id-directory-integrity.test.ts`. Commits: Admin source `729351bfad962ba09e11296fae4d490a70077820`; contract test `b4c348f96facae029b868903a9396f36eba968c5`.
 - Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database reads or writes, migrations, Preview deployment, or protected `main` changes occurred.
 - Overall development completion remains **71% provisional** (not runtime verified).
+
+- Admin Matrix Plan directory hardened: validates package ownership, unique plan IDs, version/dimensions, timestamps, complete sequential level definitions, reward bounds and eligibility JSON objects. Added request-generation guards so a slow response for a previously selected package cannot overwrite the currently selected package's plans; selection clears stale rows while loading.
+- Added source-contract coverage in `tests/admin-matrix-plan-directory-integrity.test.ts`. Commits: Matrix Plans component `4f82989cce55b824d1be762b34f93c919c0693c0`; contract test `a3b0496266d1edd5a8e325ebb7abeb3883110e7d`.
+- Tests/build/type-check/browser/mobile QA remain deferred and were not run. No TEST/Production database reads or writes, migrations, Preview deployment, or protected `main` changes occurred.
+- Overall development completion remains **71% provisional** (not runtime verified).
