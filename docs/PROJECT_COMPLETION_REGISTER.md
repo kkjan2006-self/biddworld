@@ -1167,3 +1167,10 @@
 - Corrected the member Fixed Bid campaign cards to resolve product-media Storage object paths through Supabase's public URL helper instead of assigning raw storage paths to `<img src>`. Existing absolute HTTP(S) URLs remain supported; missing image paths use the visual fallback. Images are lazy-loaded.
 - Added a source-contract test; not executed. No build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Production remains read-only; TEST remains untouched.
 - Commits: `758aef3c942ffe45091ab010c0ddaa1523a2f441` (media URL resolution), `2c3c44be230d63e1c8fb904c69cab70ad76644e5` (JSX fallback correction), test commit recorded separately.
+
+
+## 2026-11-19 — Homepage marketplace rows
+
+- Home now shows Fixed Bids first and Auctions second as separate horizontal, touch-scrollable card rows with responsive sizing. Member Auction submission remains below the rows. The dedicated Fixed Bid tab retains its full search/filter interface.
+- Added source-contract tests only; not executed. No build/QA/browser checks, SQL replay, Supabase writes or deployment.
+- Commits: `3fd718d4`, `b4b98b72`, `34a9a888`, `ff2f2fc6`, `804920f4`, `bf93102d`.
