@@ -107,6 +107,41 @@ function parseFixedBidCampaigns(value:unknown):FixedBidCampaign[]{
 type WinningPayment={payment_id:string;winner_member_code:string;winner_name:string|null;auction_title:string|null;fixed_bid_title:string|null;amount:number;status:string;paid_at:string|null;created_at:string};
 type AdminAccount={user_id:string;email:string|null;created_at:string;last_sign_in_at:string|null;app_role:string};
 type NotificationTemplate={id:string;name:string;channel:string;subject:string|null;body:string;is_active:boolean;created_at:string;updated_at:string};
+function parseMlmOverview(value:unknown):MlmOverview{
+ if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('MLM overview returned an invalid response.');
+ const row=value as Record<string,unknown>,keys=['total_members','active_members','direct_relationships','pending_activations','verified_activations','commission_total','withdrawal_pending'] as const;
+ for(const key of keys)if(typeof row[key]!=='number'||!Number.isFinite(row[key])||row[key]<0)throw new Error('MLM overview contains an invalid '+key+' value.');
+ for(const key of ['total_members','active_members','direct_relationships','pending_activations','verified_activations','withdrawal_pending'] as const)if(!Number.isInteger(row[key]))throw new Error('MLM overview count fields must be whole numbers.');
+ if(row.active_members>row.total_members)throw new Error('MLM overview active member count exceeds total members.');
+ return row as unknown as MlmOverview;
+}
+function parseMemberStructure(value:unknown):StructureReport{
+ if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('Member structure returned an invalid response.');
+ const row=value as Record<string,unknown>;
+ for(const key of ['total_ids','main_ids','duplicate_ids','placement_assigned'] as const)if(!Number.isInteger(row[key])||Number(row[key])<0)throw new Error('Member structure contains an invalid '+key+' count.');
+ if(Number(row.total_ids)!==Number(row.main_ids)+Number(row.duplicate_ids)||Number(row.placement_assigned)>Number(row.total_ids)||!Array.isArray(row.ids)||row.ids.length>50000||!Array.isArray(row.sponsor_levels)||row.sponsor_levels.length>50)throw new Error('Member structure totals or collections are inconsistent.');
+ const ids=new Set<string>();
+ const parsedIds=row.ids.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Member structure contains a malformed ID record.');const item=raw as Record<string,unknown>;
+ if(typeof item.member_code!=='string'||!item.member_code.trim()||ids.has(item.member_code)||!['main','duplicate'].includes(String(item.id_type))||typeof item.status!=='string'||!item.status.trim()||(item.display_name!==null&&typeof item.display_name!=='string')||(item.main_member_code!==null&&typeof item.main_member_code!=='string')||(item.placement_parent_code!==null&&typeof item.placement_parent_code!=='string')||(item.placement_position!==null&&typeof item.placement_position!=='string')||typeof item.created_at!=='string'||!Number.isFinite(Date.parse(item.created_at)))throw new Error('Member structure contains malformed or duplicate ID records.');
+ if(item.id_type==='duplicate'&&(typeof item.main_member_code!=='string'||!item.main_member_code.trim()))throw new Error('Duplicate ID is missing its owner Main ID.');
+ ids.add(item.member_code);return item as unknown as StructureId;});
+ const levels=new Set<number>(),parsedLevels=row.sponsor_levels.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Sponsor level summary is malformed.');const item=raw as Record<string,unknown>;if(!Number.isInteger(item.level)||Number(item.level)<1||Number(item.level)>50||levels.has(Number(item.level))||!Number.isInteger(item.members)||Number(item.members)<0)throw new Error('Sponsor level summary contains invalid or duplicate levels.');levels.add(Number(item.level));return {level:Number(item.level),members:Number(item.members)};});
+ if(parsedIds.filter(item=>item.id_type==='main').length!==Number(row.main_ids)||parsedIds.filter(item=>item.id_type==='duplicate').length!==Number(row.duplicate_ids))throw new Error('Member structure summary does not match its ID records.');
+ return {...row,ids:parsedIds,sponsor_levels:parsedLevels} as unknown as StructureReport;
+}
+function parseNotificationTemplates(value:unknown):NotificationTemplate[]{
+ if(!Array.isArray(value)||value.length>1000)throw new Error('Notification template list is invalid.');
+ const ids=new Set<string>();return value.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Notification template record is malformed.');const row=raw as Record<string,unknown>;
+ if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||typeof row.name!=='string'||row.name.trim().length<2||row.name.length>100||!['in_app','email','sms'].includes(String(row.channel))||(row.subject!==null&&typeof row.subject!=='string')||(row.channel==='email'&&(typeof row.subject!=='string'||!row.subject.trim()))||typeof row.body!=='string'||!row.body.trim()||row.body.length>5000||typeof row.is_active!=='boolean'||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||typeof row.updated_at!=='string'||!Number.isFinite(Date.parse(row.updated_at)))throw new Error('Notification template list contains malformed or duplicate records.');
+ ids.add(row.id);return row as unknown as NotificationTemplate;});
+}
+function parseAdminAccounts(value:unknown):AdminAccount[]{
+ if(!Array.isArray(value)||value.length>1000)throw new Error('Admin account list is invalid.');
+ const ids=new Set<string>();return value.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Admin account record is malformed.');const row=raw as Record<string,unknown>;
+ if(typeof row.user_id!=='string'||!row.user_id.trim()||ids.has(row.user_id)||(row.email!==null&&typeof row.email!=='string')||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||(row.last_sign_in_at!==null&&(typeof row.last_sign_in_at!=='string'||!Number.isFinite(Date.parse(row.last_sign_in_at))))||typeof row.app_role!=='string'||!row.app_role.trim())throw new Error('Admin account list contains malformed or duplicate records.');
+ ids.add(row.user_id);return row as unknown as AdminAccount;});
+}
+
 type WalletAccount={wallet_account_id:string;member_id:string;member_code:string;wallet_type:string;balance:number;currency:string;updated_at:string};
 type WalletTransaction={transaction_id:string;member_id:string;member_code:string;wallet_type:string|null;transaction_type:string;direction:string;amount:number;balance_after:number;reference_type:string|null;reference_id:string|null;description:string|null;created_at:string};
 type DeliveryRow={tracking_id:string;payment_id:string;member_code:string;winner_name:string|null;item_title:string|null;amount:number;payment_status:string;carrier:string|null;tracking_number:string|null;status:string;shipped_at:string|null;delivered_at:string|null;updated_at:string};
@@ -246,8 +281,8 @@ export default function Admin(){
     .map(([label,issue])=>label+': '+issue.message);
    setLoadWarnings(loadIssues);
    if(!memberResult.error&&memberRequestAtStart===memberSearchRequest.current){try{const batch=parseSponsorMemberPage(memberResult.data);setMembers(batch);setMemberHasMore(batch.length===100);}catch(e){setMembers([]);setMemberHasMore(false);setMemberMessage(e instanceof Error?e.message:'Member directory returned invalid records.');}}
-   if(!overviewResult.error)setOverview(overviewResult.data as MlmOverview);
-   if(!structureResult.error)setStructure(structureResult.data as StructureReport);
+   let overviewData:MlmOverview|null=null;if(!overviewResult.error){try{overviewData=parseMlmOverview(overviewResult.data);setOverview(overviewData);}catch(issue){setOverview(null);setLoadWarnings(current=>[...current,'MLM overview: '+(issue instanceof Error?issue.message:'Invalid response')]);}}else setOverview(null);
+   if(!structureResult.error){try{setStructure(parseMemberStructure(structureResult.data));}catch(issue){setStructure(null);setLoadWarnings(current=>[...current,'Member structure: '+(issue instanceof Error?issue.message:'Invalid response')]);}}else setStructure(null);
    if(!pendingResult.error){const page=parsePendingActivationPage(pendingResult.data);setPendingActivations(page.items);setPendingActivationHasMore(page.has_more);setPendingActivationCursor(page.has_more?{submitted_at:page.next_submitted_at!,id:page.next_id!}:null);}
    if(auditGeneration===auditPageGeneration.current&&!auditResult.error){const batch=(auditResult.data??[]) as AuditEntry[];const ids=new Set<string>();const valid=Array.isArray(auditResult.data)&&batch.length<=100&&batch.every(row=>row&&typeof row.id==='string'&&row.id.trim()&&!ids.has(row.id)&&typeof row.created_at==='string'&&!Number.isNaN(Date.parse(row.created_at))&&(ids.add(row.id),true));if(valid){setAuditLogs(batch);setAuditHasMore(batch.length===100);}else{setAuditLogs([]);setAuditHasMore(false);setError('Audit log returned malformed or duplicate records. Refresh and retry.');}}
    if(settingsResult.error){setFeatureSettingsLoaded(false);setFeatureSettingsLoadError('Feature settings could not be loaded: '+settingsResult.error.message);}
@@ -279,13 +314,13 @@ export default function Admin(){
    if(deliveryGeneration===deliveryPageGeneration.current){if(!deliveryResult.error){const batch=(deliveryResult.data??[]) as DeliveryRow[];const ids=new Set<string>();const valid=Array.isArray(deliveryResult.data)&&batch.length<=100&&batch.every(row=>row&&typeof row.tracking_id==='string'&&row.tracking_id.trim()&&!ids.has(row.tracking_id)&&typeof row.payment_id==='string'&&row.payment_id.trim()&&(ids.add(row.tracking_id),true));if(valid){setDeliveryRows(batch);setDeliveryHasMore(batch.length===100);setDeliveryMessage('');}else{setDeliveryRows([]);setDeliveryHasMore(false);setDeliveryMessage('Delivery tracking returned malformed or duplicate records. Refresh and retry.');}}else setDeliveryMessage('Delivery tracking could not be loaded: '+deliveryResult.error.message);
    if(walletAccountsGeneration===walletAccountsPageGeneration.current){if(!walletAccountResult.error){const batch=(walletAccountResult.data??[]) as WalletAccount[];const ids=new Set<string>();const valid=Array.isArray(walletAccountResult.data)&&batch.length<=100&&batch.every(row=>row&&typeof row.wallet_account_id==='string'&&row.wallet_account_id.trim()&&!ids.has(row.wallet_account_id)&&Number.isFinite(Number(row.balance))&&Number(row.balance)>=0&&(ids.add(row.wallet_account_id),true));if(valid){setWalletAccounts(batch);setWalletAccountsHasMore(batch.length===100);}else{setWalletAccounts([]);setWalletAccountsHasMore(false);setWalletMessage('Wallet account register returned malformed or duplicate records. Refresh and retry.');}}else setWalletMessage('Wallet balances: '+walletAccountResult.error.message);}
    if(walletGeneration===walletPageGeneration.current){if(!walletTransactionResult.error){const ledger=(walletTransactionResult.data??[]) as WalletTransaction[];const ids=new Set<string>();const valid=Array.isArray(walletTransactionResult.data)&&ledger.length<=100&&ledger.every(row=>row&&typeof row.transaction_id==='string'&&row.transaction_id.trim()&&!ids.has(row.transaction_id)&&Number.isFinite(Number(row.amount))&&Number(row.amount)>0&&(ids.add(row.transaction_id),true));if(valid){setWalletTransactions(ledger);setWalletHasMore(ledger.length===100);}else{setWalletTransactions([]);setWalletHasMore(false);setWalletMessage('Wallet ledger returned malformed or duplicate records. Refresh and retry.');}}else setWalletMessage('Wallet ledger: '+walletTransactionResult.error.message);}
-   if(!notificationResult.error)setNotificationTemplates((notificationResult.data??[]) as NotificationTemplate[]);else setTemplateMessage(notificationResult.error.message);
-   if(!adminAccountsResult.error)setAdminAccounts((adminAccountsResult.data??[]) as AdminAccount[]);else setAdminAccountsMessage(adminAccountsResult.error.message);
+   if(!notificationResult.error){try{setNotificationTemplates(parseNotificationTemplates(notificationResult.data??[]));setTemplateMessage('');}catch(issue){setNotificationTemplates([]);setTemplateMessage(issue instanceof Error?issue.message:'Notification template list returned invalid records.');}}else{setNotificationTemplates([]);setTemplateMessage('Notification templates could not be loaded: '+notificationResult.error.message);}
+   if(!adminAccountsResult.error){try{setAdminAccounts(parseAdminAccounts(adminAccountsResult.data??[]));setAdminAccountsMessage('');}catch(issue){setAdminAccounts([]);setAdminAccountsMessage(issue instanceof Error?issue.message:'Admin account list returned invalid records.');}}else{setAdminAccounts([]);setAdminAccountsMessage('Admin accounts could not be loaded: '+adminAccountsResult.error.message);}
    setCounts(current=>({
-    members:!overviewResult.error?Number((overviewResult.data as MlmOverview|null)?.total_members??0):current.members,
+    members:overviewData?overviewData.total_members:current.members,
     packages:!packageResult.error&&Array.isArray(packageResult.data)?packageResult.data.length:current.packages,
     pendingActivations:!pendingResult.error&&Array.isArray(pendingResult.data)?pendingResult.data.length:current.pendingActivations,
-    pendingWithdrawals:!overviewResult.error?Number((overviewResult.data as MlmOverview|null)?.withdrawal_pending??0):current.pendingWithdrawals,
+    pendingWithdrawals:overviewData?overviewData.withdrawal_pending:current.pendingWithdrawals,
     auctions:!auctionResult.error&&Array.isArray(auctionResult.data)?auctionResult.data.length:current.auctions,
     campaigns:!fixedCampaignResult.error&&Array.isArray(fixedCampaignResult.data)?fixedCampaignResult.data.length:current.campaigns
    }));
