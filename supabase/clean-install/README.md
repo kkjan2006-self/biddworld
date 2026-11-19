@@ -21,7 +21,7 @@ Schema-only baseline candidate reconstructed from read-only Production PostgreSQ
 ## Forward migration manifest
 The baseline represents the current Production schema at capture time. Do not replay historical migrations at/before `20261115163218` on top of it. The source migration `20261115180000_admin_audit_log_pagination.sql` is excluded because its effect is already represented in the captured state.
 
-Ordered forward candidates are listed in `forward-migrations.txt` (**73 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **91 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
+Ordered forward candidates are listed in `forward-migrations.txt` (**78 files at the current branch checkpoint**). The 16 timestamped source files whose effects are already captured in the baseline are explicitly listed in `excluded-historical-migrations.txt`; do not replay those on top of the baseline. Together they account for all **91 timestamped migrations** in the current directory exactly once. The directory also contains three legacy/unversioned SQL files, all disqualified from clean installation. The repository test suite checks that every timestamped migration file is accounted for exactly once. This is a review manifest, not proof of dependency safety or successful replay.
 
 ## Remaining work before canonical status
 1. Review all captured function definitions and ACLs against current source and the recovered historical SQL archive. Public function EXECUTE counts align with the Production inventory (43 authenticated, anon only public.lookup_sponsor(text)); read-only Production evidence confirms service_role EXECUTE on all 43 public functions. The candidate intentionally narrows audit_logs_id_seq to service_role USAGE only; effective permissions still require final TEST replay. See docs/CLEAN_INSTALL_BASELINE_FUNCTION_ACL_RECONCILIATION_2026-11-18.md.
@@ -50,7 +50,7 @@ The support-ticket and member-notification frontend write paths were reconciled 
 
 ## Notification column privilege follow-up (#69)
 
-The original member-notification migration separately granted column-level INSERT on (user_id, title, message, category). Candidate #67 revoked table-level INSERT only; the Admin-only RLS insert policy still allowed an Admin to bypass the audited/idempotent delivery RPC if the column grant survived. Candidate #69 explicitly revokes both table-level and column-level INSERT from authenticated. Owner-scoped UPDATE(read_at) remains intentionally available for members marking notifications as read. See [the notification column privilege follow-up](../../docs/MEMBER_NOTIFICATION_COLUMN_PRIVILEGE_FOLLOWUP_2026-11-18.md). The ordered forward manifest now contains 75 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 94 SQL files. Source-only; no replay or database verification has occurred.
+The original member-notification migration separately granted column-level INSERT on (user_id, title, message, category). Candidate #67 revoked table-level INSERT only; the Admin-only RLS insert policy still allowed an Admin to bypass the audited/idempotent delivery RPC if the column grant survived. Candidate #69 explicitly revokes both table-level and column-level INSERT from authenticated. Owner-scoped UPDATE(read_at) remains intentionally available for members marking notifications as read. See [the notification column privilege follow-up](../../docs/MEMBER_NOTIFICATION_COLUMN_PRIVILEGE_FOLLOWUP_2026-11-18.md). The ordered forward manifest now contains 78 candidates + 16 excluded timestamped migrations + 3 legacy SQL files = 97 SQL files. Source-only; no replay or database verification has occurred.
 
 
 ## Fixed Bid public rules projection (#70)
@@ -101,3 +101,12 @@ The original member-notification migration separately granted column-level INSER
 - Both paths normalize the UTR/reference, acquire the same transaction-scoped advisory lock, and reject a reference already used by the other payment workflow. Existing per-table unique protection remains in place.
 - Added source-contract coverage. No tests were executed and no database migration was applied.
 - Updated forward candidate inventory: 77 forward + 16 excluded timestamped + 3 legacy SQL files = 96 total (93 timestamped).
+
+
+## 2026-11-19 — Registration email verification setting (#78)
+
+- Added the Admin Platform Settings switch Email Verification, default ON. Admin setting changes are audit logged and included in the Admin feature-settings response.
+- Added an anonymous/authenticated read-only RPC so the registration screen can read the policy without exposing other app settings. Registration messaging and email redirect behavior now follow the stored setting.
+- Supabase Auth's project-level Email Confirm option is provider configuration and cannot be securely changed by a browser-side app setting. The Admin description explicitly requires that provider option to match; when the app switch is OFF but the provider still requires confirmation, the registration flow explains the mismatch instead of claiming verification was disabled.
+- Added a source-contract test (not run). Forward migration candidate #78 added. Inventory: 78 forward + 16 excluded timestamped + 3 legacy SQL files = 97 total (94 timestamped).
+- Admin financial actions now defer to the connected database's safeguards instead of a hardcoded client-side lock. Database interlocks remain intact; Production is not unlocked. No tests/build/QA or DB replay/write performed.
