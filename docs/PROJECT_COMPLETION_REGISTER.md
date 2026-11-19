@@ -1174,3 +1174,13 @@
 - Home now shows Fixed Bids first and Auctions second as separate horizontal, touch-scrollable card rows with responsive sizing. Member Auction submission remains below the rows. The dedicated Fixed Bid tab retains its full search/filter interface.
 - Added source-contract tests only; not executed. No build/QA/browser checks, SQL replay, Supabase writes or deployment.
 - Commits: `3fd718d4`, `b4b98b72`, `34a9a888`, `ff2f2fc6`, `804920f4`, `bf93102d`.
+
+
+## 2026-11-19 — Homepage discovery and accessibility controls
+
+- Activated the existing Auction category and sort state with visible homepage controls and a live matching-count label. Auction cards remain in the requested horizontal row beneath the separate Fixed Bids row.
+- Improved screen-reader naming and state communication for the marketplace search and mobile navigation toggle.
+- Added global keyboard focus-visible styling and reduced-motion preference support.
+- Added source-contract coverage in `tests/homepage-auction-discovery-controls.test.ts`; test not run.
+- Commits: `6e3ee90f2289bdf523b9fef4b3f1e27d544cb45b`, `03af6f2bf428a900734d5bf14fa3c4a11f3d86ae`, `0e4d5cbccde0d0fc68c29f89031567ffda924d5e`, `198c9af0e8a398277b30ee08adb658077635b6ce`, `2d89fe5aa7771e0bfef783c0e7de6309bff47cce`.
+- No tests/build/QA/browser/device checks, SQL replay, Supabase writes or deployment. Completion estimate remains **60% Provisional**.
