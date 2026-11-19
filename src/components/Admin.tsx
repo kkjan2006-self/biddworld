@@ -86,6 +86,7 @@ export default function Admin(){
    {key:'bid_wallet_enabled',label:'Bid Wallet',description:'Wallet used only for auction bids.'},
    {key:'income_wallet_enabled',label:'Main Wallet',description:'Wallet for eligible income and referral rewards.'},
    {key:'referral_commissions_enabled',label:'Referral Commissions',description:'Calculate eligible referral rewards. Use only after the rules and amounts are reviewed.'},
+   {key:'matrix_commissions_enabled',label:'Matrix Commissions',description:'Calculate rewards from the Under ID placement chain. The control remains locked until the complete Matrix workflow is ready.'},
    {key:'withdrawals_enabled',label:'Withdrawals',description:'Let members request a withdrawal from the Main Wallet.'}
   ]},
   {title:'3. Auctions & Winner Process',description:'Manage auctions, winner payments and product delivery.',items:[
@@ -100,7 +101,7 @@ export default function Admin(){
   ]}
  ];
  const featureLabels:Record<string,string>=Object.fromEntries(featureGroups.flatMap(group=>group.items.map(item=>[item.key,item.label])));
- const backendPendingFeatureKeys=new Set(['automatic_placement_enabled','winner_selection_configured']);
+ const backendPendingFeatureKeys=new Set(['automatic_placement_enabled','winner_selection_configured','matrix_commissions_enabled']);
  const serverConditionFeatureKeys=new Set(['duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled']);
  const featureEnableReadyKeys=new Set(['registration_enabled','email_verification_required','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','referral_commissions_enabled','bid_wallet_enabled','income_wallet_enabled','withdrawals_enabled','bidding_enabled','fixed_bid_enabled','winning_payment_enabled','delivery_tracking_enabled','notifications_enabled']);
  const [featureSettings,setFeatureSettings]=useState<Record<string,boolean>>({}),[featureSettingsLoaded,setFeatureSettingsLoaded]=useState(false),[featureSettingsLoadError,setFeatureSettingsLoadError]=useState('');
