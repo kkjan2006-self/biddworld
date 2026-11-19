@@ -721,3 +721,15 @@ At every development batch/chat end, update this file with the actual verified b
 - Inventory: 98 forward + 16 excluded timestamped migrations = 114 timestamped migrations, plus 3 legacy SQL files.
 - No tests/build/type-check/browser QA, SQL replay, Supabase writes or deployment. Production and TEST remain untouched; protected `main` unchanged.
 - Overall development completion remains **60% Provisional** pending full source reconciliation and final verification.
+
+
+## Matrix commission engine checkpoint — 2026-11-19
+
+- Fixed the malformed regex literal in `20261119300000_automatic_duplicate_matrix_placement.sql`; the previous expression would not parse as SQL.
+- Added `20261119310000_matrix_commission_engine.sql`: Under ID placement-chain traversal (not Sponsor referrals), independent Matrix commission records, Duplicate source-ID attribution with credit to the owner Main ID Income Wallet, atomic/idempotent ledger posting, audited reversal, and a paginated Admin reporting RPC.
+- Added the separate `matrix_commissions_enabled` feature setting, seeded OFF. Admin can see the setting but it remains locked until the end-to-end Matrix workflow is completed.
+- Added source-contract tests in `tests/matrix-commission-engine.test.ts`, registered the migration in the clean-install forward manifest, and documented the implementation in `docs/MATRIX_COMMISSION_ENGINE_2026-11-19.md`.
+- Key commits: placement SQL syntax fix `c0c4e088c9f5b7e87912a527e496ae6f10dc95cc`; Matrix engine `7c56bdaffbb5fa364f377a40d9b8d1e2e49ad624`; feature gate `3bde0d8a00d116becb764db80670eaf177318911`; Admin locked control `56fca0fa28527917f55d11bf04e609ee05835b41`; manifest `8a7b01a8a7d4133e4ba41d3ebb501ee0560dddad`; tests `70af94aab1320e02b23836a27780744002a6e7f3`; SQL guard `a83fed0f7d681014196a73db3f1b8ee0ae49afc6`; docs `9cf5d667e3ce2ec572c3aab82ca419996add5f49`.
+- No tests, typecheck, build, browser/mobile QA or E2E were run. No TEST or Production migration was applied; no database data was changed. Protected `main` remains untouched.
+- Remaining: Admin Matrix commission report UI and exports, member/Admin Matrix income dashboard totals, full source/schema reconciliation, then final QA.
+- Overall development completion remains **60% provisional**; this backend batch does not establish runtime correctness.
