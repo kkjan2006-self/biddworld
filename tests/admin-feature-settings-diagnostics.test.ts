@@ -14,7 +14,7 @@ describe('Admin feature settings diagnostics and enablement', () => {
   });
 
   it('allows only implemented or server-condition-checked settings in the frontend', () => {
-    expect(admin).toContain("featureEnableReadyKeys=new Set(['registration_enabled','email_verification_required','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','bid_wallet_enabled','income_wallet_enabled','delivery_tracking_enabled'])");
+    expect(admin).toContain("featureEnableReadyKeys=new Set(['registration_enabled','email_verification_required','sponsor_referrals_enabled','duplicate_ids_enabled','package_activations_enabled','bid_wallet_enabled','income_wallet_enabled','delivery_tracking_enabled','notifications_enabled'])");
     expect(admin).toMatch(/disabled=\{!featureSettingsLoaded\|\|savingFeature!==''\|\|\(!enabled&&!canEnable\)\}/);
     expect(admin).toMatch(/Server condition checked when saving/);
     expect(admin).toMatch(/Backend workflow pending/);
