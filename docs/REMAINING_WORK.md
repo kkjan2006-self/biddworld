@@ -1,3 +1,4 @@
+- Hardened five additional Admin mutation response contracts (withdrawal review, Primary Admin role, member profile, package publication, referral-plan activation); local success/state updates now require matching returned identities and result values. Corrected withdrawal wallet terminology to Income Wallet. Static regression file added, not executed. Commits: `85bae1ab125e7beb912b1e77086ea8d540253cef`, `450afd35be20f35946adae8b81ca3a0e1bbf8eb1`.
 ## Latest source development batch — Admin wallet adjustment retry integrity
 
 - Fixed incomplete idempotent replay response for `admin_adjust_member_wallet`: replay now returns the original complete result and immutable ledger balance-after snapshot.
