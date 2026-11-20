@@ -2,6 +2,16 @@ import {readFileSync} from 'node:fs';
 import {describe,it,expect} from 'vitest';
 const ui=readFileSync('src/components/Notifications.tsx','utf8');
 describe('Notifications response and realtime integrity',()=>{
+ it('uses PostgreSQL character counts for outgoing content and recipient search limits',()=>{
+  expect(ui).toContain('function databaseCharLength(value:string):number{return Array.from(value).length;}');
+  expect(ui).toContain('databaseCharLength(title.trim())<3||databaseCharLength(title.trim())>120');
+  expect(ui).toContain('databaseCharLength(message.trim())<5||databaseCharLength(message.trim())>2000');
+  expect(ui).toContain('const searchLength=databaseCharLength(term);if(searchLength<2||searchLength>120)');
+  expect(ui).toContain('databaseCharLength(recipientSearch.trim())>120');
+  expect(ui).toContain('maxLength={240} value={recipientSearch}');
+  expect(ui).toContain('maxLength={240} value={title}');
+  expect(ui).toContain('maxLength={4000} rows={3} value={message}');
+ });
  it('matches notification identity, category and content bounds to the SQL contract',()=>{
   expect(ui).toContain('NOTIFICATION_UUID.test(row.id)');
   expect(ui).toContain('NOTIFICATION_UUID.test(row.user_id)');

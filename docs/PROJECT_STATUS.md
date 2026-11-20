@@ -18,6 +18,10 @@ Active development branch: `completion-work`
 - Added source-only regression coverage in `tests/member-workflow-status-notifications.test.ts`; not executed. Migration registered in the clean-install forward manifest. No migration applied and no tests/build/type-check/E2E/browser QA/database/deployment operations run.
 - Inventory: 153 forward + 16 excluded = 169 timestamped migration paths, plus 3 legacy/unversioned SQL files.
 
+## Notification Unicode length and lookup-boundary parity (2026-11-20)
+
+Admin notification submission and recipient lookup now count Unicode code points with the same semantics as PostgreSQL length(text), rather than JavaScript UTF-16 code units. The recipient search is constrained to the SQL RPC's 2–120 character range, and input maxlength allowances permit up to 120/2,000 supplementary Unicode characters before code-point validation. No SQL change. Source-only regression assertions added in tests/notifications-response-integrity.test.ts; not executed.
+
 ## Latest development batch
 ## Latest source-only batch — notification response contract hardening (2026-11-20)
 

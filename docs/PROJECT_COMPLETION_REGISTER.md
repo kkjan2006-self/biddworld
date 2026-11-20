@@ -1,3 +1,11 @@
+## 2026-11-20 — Notification Unicode length and lookup-boundary parity
+
+- Reconciled Admin notification send validation with PostgreSQL length(text): JavaScript .length counts UTF-16 code units, so supplementary Unicode characters could be rejected despite fitting the database's character limit. Send validation now uses the existing code-point counter for title and message.
+- Enforced the recipient lookup RPC's 2–120 character bound in the UI and aligned input maxlength allowances so supplementary characters are not prematurely truncated. No database change.
+- Added source-only regression assertions in tests/notifications-response-integrity.test.ts; not executed.
+
+---
+
 ## 2026-11-20 — Withdrawal cancellation notification parity
 
 - Source audit found that the member/Admin parsers and UI had been reconciled to accept the canonical `cancelled` withdrawal status, but `private.notify_member_workflow_status_change()` still handled only approved, rejected and paid transitions. A valid cancellation therefore appeared in history without a matching member notification.
