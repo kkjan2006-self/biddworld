@@ -1,3 +1,8 @@
+## Latest source-only batch — Sponsor Referral reversal replay identity parity repair (2026-11-21)
+
+- Corrected the credited-and-reversed idempotent replay branch in `20261120260000_referral_commission_reversal_replay_identity.sql`: it now returns the exact `commission_id`, matching the pending-only replay, fresh response and strict Admin client parser.
+- Strengthened source-only regression coverage to require both successful replay branches to return the selected commission UUID. Not executed. No new migration, manifest change or database operation; existing forward candidate #154 was corrected in place.
+
 ## Latest source-only batch — Admin review reason bounds and Unicode parity (2026-11-20)
 
 - Admin withdrawal rejection, Sponsor Referral reversal and Matrix commission reversal now validate trimmed reasons at 5–500 Unicode code points, matching PostgreSQL length(text) and the SQL maximum. Withdrawal rejection sends the normalized reason so whitespace padding cannot exceed the SQL limit after validation.
