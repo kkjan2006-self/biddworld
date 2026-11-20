@@ -53,7 +53,8 @@ begin
    or not exists(select 1 from storage.objects o where o.bucket_id='product-submission-media' and o.name=v_path) then
    raise exception 'An image path is invalid, missing or does not belong to your account' using errcode='22023';end if;
  end loop;
- if p_optional_details is null or jsonb_typeof(p_optional_details)<>'object' or pg_catalog.octet_length(p_optional_details::text)>12000 then
+ if p_optional_details is null or jsonb_typeof(p_optional_details)<>'object' or pg_catalog.octet_length(p_optional_details::text)>12000
+  or exists(select 1 from jsonb_each(p_optional_details) item where jsonb_typeof(item.value)<>'string') then
   raise exception 'Optional details must be a small JSON object' using errcode='22023';end if;
  insert into public.product_submissions(submitted_by,member_id,name,description,category,image_paths,optional_details)
  values(v_uid,v_member,btrim(p_name),btrim(p_description),nullif(btrim(coalesce(p_category,'')),''),p_image_paths,p_optional_details)
