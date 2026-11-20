@@ -1,3 +1,12 @@
+## 2026-11-20 — Persistent member submission media cleanup recovery
+
+- **Member Product/Auction media cleanup now survives page reloads:** failed image-object removals and definite-rejection upload cleanup paths are persisted in account-scoped browser storage, restored only for the signed-in account, constrained to that account's storage prefix, capped at 100 paths, and removed from the queue after successful retry. In-memory retry remains available if browser storage is unavailable. Added/extended `tests/member-submission-media-cleanup-recovery.test.ts`; source-only, not executed. Commits: Product retry `667205ff0512076556394ac6e455d9da8478f3a0`, Auction retry `36b5253e30615411d35750cca51c902ce269470e`, persistence Product `49ef130bbb0b76aac4f6f2308c791de3ccf6ba80`, Auction `fdbd78a5292fcf3297222140144a5e3cee523a75`, test `3ea16cb108394d964053faf209b2c0deba82771c`.
+
+- This extends the previous in-session cleanup recovery: queue keys are account-scoped, stored paths must begin with the authenticated user's ID prefix, and successful retries clear the persisted queue. Browser storage is best-effort and no database schema was changed.
+- No tests/build/type-check, database access/replay, or deployment was performed.
+
+---
+
 ## 2026-11-20 — Member Product/Auction media cleanup recovery
 
 - **Member Product/Auction submission media recovery:** failed removal of replaced draft images and definitely rejected upload batches is now retained in an in-session cleanup queue in both member submission screens, with a visible Retry image cleanup action. This prevents a transient Storage deletion failure from silently losing the paths needed to retry. Ambiguous network/RPC outcomes are deliberately not deleted because the submission may already have committed. Added `tests/member-submission-media-cleanup-recovery.test.ts`; source-only, not executed.
