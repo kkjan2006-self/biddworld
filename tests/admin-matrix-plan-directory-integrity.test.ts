@@ -18,6 +18,8 @@ describe('Admin Matrix plan directory integrity',()=>{
   expect(source).toContain('result.is_active!==false');
   expect(source).toContain('result.plan_id!==plan.id');
   expect(source).toContain('result.matrix_width!==plan.matrix_width');
+  expect(source).toContain('await loadPlans(packageId,false)');
+  expect(source).toContain('if(clearMessage)setMessage(\'\')');
   expect(source).toContain('disabled={busy} onChange={e=>{setPackageId(e.target.value)');
  });
  it('prevents stale package responses from replacing the selected package plans',()=>{
