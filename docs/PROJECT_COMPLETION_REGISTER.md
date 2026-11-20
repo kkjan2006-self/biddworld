@@ -2396,3 +2396,14 @@
 - Added source-only regression tests for the public product gallery and Admin auction submission queue. Not executed.
 - Commits: public product gallery parser `b2f55bb4da9662507c03a619c311680d560caa4a`; Admin auction queue parser `249238ec0083404fc6e1c51983044bdb86f29ef2`; README `aaeedb1f0b7f30e2f56d1be4e04f06c751b61729`.
 - Development-only boundary remains unchanged: no tests/build/type-check/QA, no Supabase migrations or data writes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Safe submission-media cleanup
+
+- Added `20261119630000_cleanup_unreferenced_submission_media.sql` and registered it in the clean-install forward manifest. Members can now remove only their own unreferenced private auction/product uploads, so the existing failure-cleanup calls can succeed without deleting files still referenced by submissions.
+- Authorized Auction Review Staff can remove only unreferenced temporary public images for a pending auction submission. Admin and authorized Staff can remove private auction source images after approval has replaced those paths with public media; referenced published images remain protected.
+- Member auction/product edit flows remove replaced private images after the database update succeeds. Admin auction approval removes the old private source images after publication succeeds. Cleanup failures are reported without misreporting the successful submission/publication.
+- Added source-only policy/UI regression coverage. Not executed.
+- Commits: policy migration `f635bd4c0c21b5e0ed6c93ba4d880b5bb4a08545` and approval cleanup policy update `52f2afda494c5a9df27ce9778b7706552107ac03`; Member auction UI `e4658bc127f881062c5075e591bc1aec1b47400d`; Member product UI `231bd6195bd8737ecfbda04a9760a2a6fea4ac41`; Admin auction review `cae266945444942384b72a36d9ad4566111c15c7`; policy test `1179710f7b812e43b97dd6366d1b5c326348db2c`.
+- Migration inventory reconciliation: **131 forward + 16 excluded = 147 timestamped SQL files**; missing 0, orphaned 0, overlap 0, duplicate forward 0.
+- No migrations applied, no database writes, no Preview deployment, and no protected `main` changes.
