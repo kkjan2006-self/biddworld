@@ -17,7 +17,7 @@ describe('Individual restricted Staff permissions',()=>{
  });
  it('renders per-user permission controls and calls the protected RPC',()=>{
   expect(ui).toContain('Package Activation Payment Review');
-  expect(ui).toContain('Main Wallet Add Money Review');
+  expect(ui).toContain('Income Wallet Add Money Review');
   expect(ui).toContain('Member Auction Listing Review');
   expect(ui).toContain('admin_update_payment_review_staff_permissions');
   expect(ui).toContain('Save Permissions');
