@@ -29,6 +29,13 @@ describe('Admin withdrawal queue pagination hardening',()=>{
   expect(component).toContain("payout.account_holder_name.trim().length<2");
   expect(component).toContain("row.rejection_reason.length<=500");
  });
+ it('validates every CSV export page and detects repeated request IDs even when row contents change',()=>{
+  expect(component).toContain('data:parseAdminWithdrawals(data??[])');
+  expect(component).toContain('},x=>x.request_id);');
+  expect(component).toContain('getRowKey?:(row:T)=>string');
+  expect(component).toContain('const key=getRowKey?getRowKey(row):JSON.stringify(row)');
+  expect(component).toContain('repeated record identity across pages');
+ });
  it('uses one shared parser for first and subsequent pages and rejects cross-page overlap',()=>{
   expect(component).toContain('const batch=parseAdminWithdrawals(withdrawalResult.data??[])');
   expect(component).toContain('const batch=parseAdminWithdrawals(data)');
