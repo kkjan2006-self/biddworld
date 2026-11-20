@@ -214,18 +214,22 @@ function parseAdminAccounts(value:unknown):AdminAccount[]{
 type WalletAccount={wallet_account_id:string;member_id:string;member_code:string;wallet_type:string;balance:number;currency:string;updated_at:string};
 type WalletTransaction={transaction_id:string;member_id:string;member_code:string;wallet_type:string|null;transaction_type:string;direction:string;amount:number;balance_after:number;reference_type:string|null;reference_id:string|null;description:string|null;created_at:string};
 const WALLET_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function isWalletMoney(value:unknown,allowZero:boolean):value is number{
+ return typeof value==='number'&&Number.isFinite(value)&&value>=0&&value<=999999999999.99
+  &&Math.abs(value*100-Math.round(value*100))<1e-7&&(allowZero||value>0);
+}
 function parseAdminWalletAccountPage(value:unknown):WalletAccount[]{
  if(!Array.isArray(value)||value.length>100)throw new Error('Invalid wallet account page.');
  const ids=new Set<string>();
  return value.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Malformed wallet account record.');const row=raw as Record<string,unknown>;
- if(typeof row.wallet_account_id!=='string'||!WALLET_UUID.test(row.wallet_account_id)||ids.has(row.wallet_account_id)||typeof row.member_id!=='string'||!WALLET_UUID.test(row.member_id)||typeof row.member_code!=='string'||!row.member_code.trim()||!['bid','income'].includes(String(row.wallet_type))||!Number.isFinite(Number(row.balance))||Number(row.balance)<0||typeof row.currency!=='string'||!/^[A-Z]{3}$/.test(row.currency)||typeof row.updated_at!=='string'||!Number.isFinite(Date.parse(row.updated_at)))throw new Error('Malformed or duplicate wallet account records. Refresh the Admin workspace.');
+ if(typeof row.wallet_account_id!=='string'||!WALLET_UUID.test(row.wallet_account_id)||ids.has(row.wallet_account_id)||typeof row.member_id!=='string'||!WALLET_UUID.test(row.member_id)||typeof row.member_code!=='string'||!row.member_code.trim()||!['bid','income'].includes(String(row.wallet_type))||!isWalletMoney(row.balance,true)||typeof row.currency!=='string'||!/^[A-Z]{3}$/.test(row.currency)||typeof row.updated_at!=='string'||!Number.isFinite(Date.parse(row.updated_at)))throw new Error('Malformed or duplicate wallet account records. Refresh the Admin workspace.');
  ids.add(row.wallet_account_id);return row as unknown as WalletAccount;});
 }
 function parseAdminWalletTransactionPage(value:unknown):WalletTransaction[]{
  if(!Array.isArray(value)||value.length>100)throw new Error('Invalid wallet ledger page.');
  const ids=new Set<string>();
  return value.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Malformed wallet ledger record.');const row=raw as Record<string,unknown>;
- if(typeof row.transaction_id!=='string'||!WALLET_UUID.test(row.transaction_id)||ids.has(row.transaction_id)||typeof row.member_id!=='string'||!WALLET_UUID.test(row.member_id)||typeof row.member_code!=='string'||!row.member_code.trim()||(row.wallet_type!==null&&!['bid','income'].includes(String(row.wallet_type)))||typeof row.transaction_type!=='string'||!row.transaction_type.trim()||!['credit','debit'].includes(String(row.direction))||!Number.isFinite(Number(row.amount))||Number(row.amount)<=0||!Number.isFinite(Number(row.balance_after))||Number(row.balance_after)<0||(row.reference_type!==null&&typeof row.reference_type!=='string')||(row.reference_id!==null&&typeof row.reference_id!=='string')||(row.description!==null&&typeof row.description!=='string')||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('Malformed or duplicate wallet ledger records. Refresh the Admin workspace.');
+ if(typeof row.transaction_id!=='string'||!WALLET_UUID.test(row.transaction_id)||ids.has(row.transaction_id)||typeof row.member_id!=='string'||!WALLET_UUID.test(row.member_id)||typeof row.member_code!=='string'||!row.member_code.trim()||(row.wallet_type!==null&&!['bid','income'].includes(String(row.wallet_type)))||typeof row.transaction_type!=='string'||!row.transaction_type.trim()||!['credit','debit'].includes(String(row.direction))||!isWalletMoney(row.amount,false)||!isWalletMoney(row.balance_after,true)||(row.reference_type!==null&&typeof row.reference_type!=='string')||(row.reference_id!==null&&typeof row.reference_id!=='string')||(row.description!==null&&typeof row.description!=='string')||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('Malformed or duplicate wallet ledger records. Refresh the Admin workspace.');
  ids.add(row.transaction_id);return row as unknown as WalletTransaction;});
 }
 

@@ -3316,3 +3316,8 @@
 - Wired the matching sample fixtures to those assets using Vite `BASE_URL` paths and updated the image URL resolver to serve app-local public assets directly rather than treating them as Supabase Storage object paths. Homepage compact cards, catalogue cards and product details gallery share the same image source.
 - Added source-only assertions in `tests/fixed-bid-sample-images.test.ts`; not executed. The supplied mixer-grinder image visibly contains a Vecteezy watermark; it was retained as provided.
 - No SQL migration, database operation, tests, build, type-check, E2E, browser QA or deployment was performed. Production and TEST unchanged; `main` unchanged.
+
+
+## Admin wallet numeric precision integrity (source-only, 2026-11-20)
+
+Admin wallet account and ledger response validation now rejects nulls and numeric strings instead of relying on JavaScript coercion, and enforces finite numeric values within the wallet numeric(14,2) range and cent precision. Positive ledger amounts and non-negative balances are checked consistently before display/export. Source-only regression assertions were added to `tests/admin-wallet-page-response-integrity.test.ts`; not executed. No SQL migration or database operation was needed.

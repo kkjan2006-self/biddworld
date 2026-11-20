@@ -2,6 +2,14 @@ import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 const source=readFileSync('src/components/Admin.tsx','utf8');
 describe('Admin wallet page response integrity',()=>{
+ it('rejects null, string-coerced, excessive and sub-cent wallet amounts',()=>{
+  expect(source).toContain('function isWalletMoney(value:unknown,allowZero:boolean):value is number');
+  expect(source).toContain("typeof value==='number'&&Number.isFinite(value)");
+  expect(source).toContain('value<=999999999999.99');
+  expect(source).toContain('Math.abs(value*100-Math.round(value*100))<1e-7');
+  expect(source).toContain('!isWalletMoney(row.balance,true)');
+  expect(source).toContain('!isWalletMoney(row.amount,false)||!isWalletMoney(row.balance_after,true)');
+ });
  it('validates full wallet account identity and value contracts',()=>{
   expect(source).toContain('function parseAdminWalletAccountPage(value:unknown):WalletAccount[]');
   for(const field of ["row.wallet_account_id","row.member_id","row.member_code","row.wallet_type","row.balance","row.currency","row.updated_at"])expect(source).toContain(field);

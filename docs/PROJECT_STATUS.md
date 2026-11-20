@@ -183,3 +183,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Admin wallet account and ledger pages previously validated only record IDs and a subset of numeric values. Added strict response parsers for UUID identities, Main ID references, wallet type, currency, transaction direction/type, timestamps, nullable references and non-negative balances.
 - Initial and continuation pages now use the same parsers; continuation pages fail closed on any overlap with already loaded IDs instead of silently dropping repeated rows.
 - Added source-only regression coverage in `tests/admin-wallet-page-response-integrity.test.ts`; not executed. No SQL migration or database operation was required.
+
+
+## Latest Admin wallet numeric precision integrity
+
+- Closed a response-validation gap where JavaScript numeric coercion allowed null or numeric-string wallet balances to pass as valid numbers. Admin wallet account balances and ledger amounts/balance-after values now require actual finite numbers, non-negative/positive values as appropriate, database-scale bounds, and cent precision before display or export.
+- Extended `tests/admin-wallet-page-response-integrity.test.ts` with source-only assertions for null/coercion, upper-bound and sub-cent rejection. Not executed. No SQL migration or database operation was required; no tests/build/type-check/E2E/browser QA or deployment was run.
