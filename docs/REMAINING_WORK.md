@@ -1,3 +1,11 @@
+## Latest source-only development batch — 2026-11-20 (Admin media recovery)
+
+- Admin Product temporary image cleanup now survives page reloads through account-scoped browser storage, generated-path validation, a 100-entry cap and successful-retry removal.
+- Admin Auction Submission Review now retains and retries failed private-source and temporary-public image cleanup by bucket/path. The queue is account-scoped, validated and persistent; ambiguous RPC outcomes still preserve potentially committed public media.
+- Added source-only regression coverage: `tests/admin-product-media-cleanup-recovery.test.ts` and `tests/admin-auction-submission-media-cleanup-recovery.test.ts`. Neither was executed.
+- Commits: `1a0d63be3f8edd4e561c6021cf5784949d9868b3`, `93451d08943fd914582a79253885f45eb6a93bf9`, `3e89f0ded12dfa34380d2ac4d6831a91f462e87f`, `03ce3269951399a89d8046ded353b108c7a34181`, `9cf833a6927d4124d285f88f54afedd90988221e`.
+- No SQL, database, test, build, type-check or deployment operation was performed. No schema changes were required.
+
 # BiddWorld — Current Source Development Status
 
 This file keeps the historical audit notes below, but the opening status is the current source-of-truth summary. Continue only on `completion-work`. This is a source-development checkpoint, not a runtime verification or production-readiness claim.
