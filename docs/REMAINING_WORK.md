@@ -24,6 +24,10 @@ This file keeps the historical audit notes below, but the opening status is the 
 - Complete static regression-contract coverage for every newly corrected RPC/migration and every critical workflow.
 - Reconcile all source documentation and completion records with the current branch head.
 
+## Latest source-only development batch — 2026-11-20
+
+- Admin Product image replacement/discard cleanup now retains failed temporary-object removals in a visible retry queue and clears stale image references after successful removal. Added source-only regression coverage; not executed. Persistent orphan inventory across page reloads remains a possible follow-up.
+
 ## Latest source-only reconciliation — 2026-11-20
 
 - Member/Admin Product and Auction submission create/edit/review/history RPCs and all four bounded moderation queue pagination contracts were compared between frontend call sites and SQL migrations. No mismatch was found in this scoped set; regression source coverage was added in `tests/member-admin-submission-rpc-contracts.test.ts` and was not executed.
