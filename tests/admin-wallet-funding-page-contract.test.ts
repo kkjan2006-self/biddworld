@@ -18,6 +18,11 @@ describe('Admin wallet funding page and SQL contract',()=>{
   expect(migration).toContain('limit p_limit+1');
   expect(migration).toContain('max(total_rows)>p_limit');
  });
+ it('requires continuation pages to begin strictly after the prior cursor',()=>{
+  expect(source).toContain('if(append&&items.length){const first=items[0],previous=cursor.current');
+  expect(source).toContain('first.id.localeCompare(previous.id)<=0');
+  expect(source).toContain('did not continue strictly after the previous cursor');
+ });
  it('enforces ascending keyset order within each page and across page boundaries',()=>{
   expect(source).toContain('The wallet funding page is not in ascending keyset order.');
   expect(source).toContain('Date.parse(current.created_at)-Date.parse(previous.created_at)');

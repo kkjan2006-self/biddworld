@@ -195,3 +195,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Hardened Staff package-activation pagination so each continuation page must begin strictly before the prior page's final `(submitted_at,id)` cursor in descending order. Existing row-order, final-row cursor matching and duplicate/overlap checks remain in place.
 - Added source-only regression assertions in `tests/staff-package-activation-review-contract.test.ts`; not executed. No SQL migration or database operation was required.
+
+
+## Latest Admin Income Wallet funding cursor-boundary integrity
+
+- Hardened the Admin Income Wallet funding review queue so every continuation page must begin strictly after the previous page's final ascending `(created_at,id)` cursor. A page with unseen IDs but overlapping or regressing timestamp/ID range is now rejected before rows, receipt links or cursor state are appended.
+- Added source-only regression assertions in `tests/admin-wallet-funding-page-contract.test.ts`; not executed. No SQL migration or database operation was required.

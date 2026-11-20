@@ -43,6 +43,7 @@ const client=supabase;
    if(!data||typeof data!=='object'||!Array.isArray((data as Page).items)||typeof (data as Page).has_more!=='boolean')throw new Error('The wallet funding review page was invalid. Please retry.');
    const page=data as Page,items=page.items;
    if(items.length>50||!items.every(isRow))throw new Error('The wallet funding review page contains invalid records. Refresh and retry.');
+   if(append&&items.length){const first=items[0],previous=cursor.current;if(!previous||Date.parse(first.created_at)<Date.parse(previous.created_at)||(first.created_at===previous.created_at&&first.id.localeCompare(previous.id)<=0))throw new Error('The next wallet funding page did not continue strictly after the previous cursor. Refresh the queue.');}
    if(page.has_more&&items.length!==50)throw new Error('The wallet funding page returned a short page with a continuation cursor. Refresh and retry.');
    for(let index=1;index<items.length;index++){const previous=items[index-1],current=items[index];const timeDelta=Date.parse(current.created_at)-Date.parse(previous.created_at);if(timeDelta<0||(timeDelta===0&&current.id.localeCompare(previous.id)<0))throw new Error('The wallet funding page is not in ascending keyset order. Refresh and retry.');}
    const pageIds=new Set<string>();

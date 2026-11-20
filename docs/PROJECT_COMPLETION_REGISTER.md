@@ -3326,3 +3326,8 @@ Admin wallet account and ledger response validation now rejects nulls and numeri
 ## Staff package activation continuation cursor boundary (source-only, 2026-11-20)
 
 The restricted Staff package-activation queue now rejects a continuation page whose first row is equal to or newer than the prior page's final descending `(submitted_at,id)` cursor, preventing server-side pagination overlap or cursor regression from being accepted even when row IDs differ. Existing per-page order, final cursor equality and duplicate/overlap validation remain active. Source-only regression assertions were added; not executed. No SQL or database operation was required.
+
+
+## Admin Income Wallet funding continuation cursor boundary (source-only, 2026-11-20)
+
+Admin wallet funding pagination now validates the first row of each continuation page against the prior cursor in ascending `(created_at,id)` order, rejecting overlap/regression even when returned IDs are not duplicated. Existing within-page ordering, final-row cursor equality, duplicate detection, bounded pages and request sequencing remain intact. Source-only regression assertions added; not executed. No database or SQL change.
