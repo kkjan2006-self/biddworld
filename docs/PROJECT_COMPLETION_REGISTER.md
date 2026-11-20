@@ -1,3 +1,12 @@
+## 2026-11-20 — Admin Product media cleanup recovery
+
+- **Admin Product media cleanup recovery implemented:** when replacing an uploaded-but-unattached product image, failed removal of the previous object is now retained in a retry queue instead of becoming an untracked orphan. The Admin form exposes a Retry Temporary Image Cleanup action, reports outstanding cleanup, and clears the image URL/reference when a staged object is successfully discarded or retried. Added `tests/admin-product-media-cleanup-recovery.test.ts` as source-only regression coverage; not executed. Commits: `60623c211a2d4622c8bd78f1fc0603ae4ec10151`, `e19782e4de743b75b5463c9359be068295e79b99`, `4fa15a8b32036bc60d52608364440c849a3417a5`, test `317cf07de96ca7970245c1ad4a99b698e6d4a390`.
+
+- This closes the in-session retry gap for temporary product image objects when Storage cleanup initially fails. It does not provide a persistent orphan inventory across browser reloads; that remains a broader cleanup concern.
+- No tests/build/type-check, database access, migration replay, or deployment was performed.
+
+---
+
 ## 2026-11-20 — Member/Admin submission RPC contract reconciliation
 
 - reconciled Member Product create/edit/history, Member Auction edit/history, Admin Product image publication, and all four Member/Admin product/auction moderation pagination call sites against their declared SQL signatures, result shapes, keyset ordering and grants. No argument-name/type or return-shape mismatch was found in this scoped batch. Added `tests/member-admin-submission-rpc-contracts.test.ts` to lock these contracts; it was not executed. This is a scoped reconciliation, not completion of the full project-wide RPC audit. Commits: test `5dff1102585f31abfb4e5814271be23bf062f719`, regex correction `9006ef30171c524eb5f597c262542fced55868ac`.
