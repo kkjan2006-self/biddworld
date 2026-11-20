@@ -71,3 +71,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Corrected an undeclared source variable in the final Matrix upline traversal regression case: assertions now inspect the existing `migration` source binding.
 - This repairs the regression test's source-level reference without changing Matrix placement, commission, wallet or RPC behavior. Test remains unexecuted.
 - No migration or clean-install manifest change was required.
+
+
+## 2026-11-20 — Clean-install regression source syntax repair
+
+- Repaired literal backslash-n characters embedded in the migration-manifest version-uniqueness test block; real source line breaks now separate the TypeScript statements.
+- Assertion behavior and the existing 151-forward / 16-excluded migration inventory are unchanged. Test remains unexecuted.

@@ -21,7 +21,11 @@ describe('Clean-install migration manifest safety',()=>{
   expect(excluded.every(p=>existsSync(resolve(root,p)))).toBe(true);
   expect([...forward,...excluded].sort()).toEqual(all);
  });
- it('uses a unique 14-digit version prefix for every timestamped migration',()=>{\n  const versions=all.map(p=>p.split('/').pop()!.slice(0,14));\n  expect(new Set(versions).size).toBe(versions.length);\n });\n it('keeps the forward manifest in timestamp order and historical source files out of replay',()=>{
+ it('uses a unique 14-digit version prefix for every timestamped migration',()=>{
+  const versions=all.map(p=>p.split('/').pop()!.slice(0,14));
+  expect(new Set(versions).size).toBe(versions.length);
+ });
+ it('keeps the forward manifest in timestamp order and historical source files out of replay',()=>{
   expect(forward).toEqual([...forward].sort());
   expect(excluded).toEqual([...excluded].sort());
   expect(excluded.every(p=>{

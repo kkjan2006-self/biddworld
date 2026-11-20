@@ -1,3 +1,11 @@
+## 2026-11-20 — Clean-install manifest regression source syntax repair
+
+- Source inspection found literal backslash-n characters embedded between statements in `tests/clean-install-migration-manifest-integrity.test.ts`, making the version-uniqueness assertion block invalid TypeScript source.
+- Replaced the literal escape sequences with real source line breaks. Assertions and manifest logic are unchanged.
+- No migration/manifest inventory change was required. Test remains unexecuted; no database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+---
+
 ## 2026-11-20 — Matrix placement regression source repair
 
 - Source audit found the final Matrix upline traversal regression assertion referenced an undeclared `sql` variable even though the migration source is loaded as `migration`.
