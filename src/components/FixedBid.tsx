@@ -98,6 +98,7 @@ export default function FixedBid({compact=false}:{compact?:boolean}){
    const batch=parseCampaignPage(data??[]);
    const knownIds=new Set(reset?[]:rows.map(row=>row.id));
    if(batch.some(campaign=>knownIds.has(campaign.id)))throw new Error('The campaign catalogue returned duplicate campaign IDs. Refresh before loading more.');
+   if(!reset&&rows.length>0&&batch.length>0&&!isCampaignBefore(batch[0],rows[rows.length-1]))throw new Error('The campaign catalogue continuation page crossed or repeated its previous (created_at,id) boundary. Refresh before loading more.');
    let added=batch.length;
    setRows(current=>{if(reset)return batch;added=batch.length;return [...current,...batch];});
    setHasMore(batch.length===PAGE_SIZE&&(reset||added>0));
