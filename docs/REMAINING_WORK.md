@@ -492,3 +492,9 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Added forward migration #137 `20261119690000_prevent_duplicate_pending_auction_submissions.sql`: transaction-advisory-lock serialization and a database BEFORE INSERT/UPDATE guard reject duplicate normalized pending auction titles for the same submitter. Added static regression-contract test.
 - Current clean-install inventory: 137 forward + 16 excluded = 153 timestamped migrations.
 - No tests/build/QA or SQL replay were run; TEST and Production remain unchanged. Continue source-only development until the 100% development gate.
+
+
+## 2026-11-20 — Expected Price equality lifecycle correction
+
+- The auction deadline trigger runs on current-price updates, not initial inserts. Corrected Admin approval so Expected Price = Starting Price initializes `target_reached_at` at the scheduled start (or immediately for a live auction) and sets the 48-hour deadline. Higher Expected Prices remain open-ended until reached.
+- Added source regression assertions; tests remain unexecuted during the development-only phase. Commit `a3b4dcf47685e9bdd9b4f94209c62b0c2beb70b4`.

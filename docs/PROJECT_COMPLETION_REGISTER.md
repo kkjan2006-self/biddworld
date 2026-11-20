@@ -2561,3 +2561,12 @@
 - Commits: `a3a0b7c799f7f2bab7f08351a53a614239712c41` (NOT VALID constraint compatibility); `744bd117f0aa7d949db0aad85fe1216d5a413099` (Member auction form/history contract); `95b9281e5fcaaa6cce27a8b6a8fe5fe65859f220` (database duplicate pending guard).
 - Source-only development: no tests/build/type-check, database replay, TEST or Production writes, or Preview publish were performed. `main` was not changed.
 - Overall source development estimate remains **95% provisional**; final module-wide RPC/schema/RLS reconciliation and remaining source gaps are still open.
+
+
+## 2026-11-20 — Expected Price already reached at auction start
+
+- Continued source-only lifecycle reconciliation after inspecting `apply_auction_expected_price_deadline()`: its trigger fires only on `UPDATE OF current_price`, not on initial auction insert. Therefore an auction whose Expected Price equals Starting Price would otherwise miss the 48-hour countdown at creation.
+- Corrected `20261119680000_admin_auction_submission_expected_price_review.sql`: when Expected Price equals Starting Price, approval now sets `target_reached_at` to the later of the scheduled start and current time, and sets `ends_at` exactly 48 hours later. Auctions with a higher Expected Price remain open-ended until bidding reaches the target. The submission history stores the derived deadline.
+- Expanded `tests/admin-auction-submission-expected-price-rpc.test.ts` source assertions for the equal-price lifecycle. No tests were executed.
+- Commit: `a3b4dcf47685e9bdd9b4f94209c62b0c2beb70b4`.
+- No migrations applied, no TEST/Production changes, no Preview publish, and no main-branch changes. Source development remains 95% provisional.
