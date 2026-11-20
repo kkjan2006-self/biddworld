@@ -1,3 +1,11 @@
+## 2026-11-20 — Duplicate ID lifecycle mutation response integrity
+
+- Admin Duplicate ID status changes now validate the RPC response's exact Duplicate ID, non-empty member code, requested status, supported previous status and boolean `changed` flag. The client rejects inconsistent no-op/change combinations and refreshes only after an actual state change.
+- Added source-only contract assertions in `tests/admin-duplicate-id-lifecycle-security.test.ts`; not executed.
+- Commits: `205898b1899c1a4337673472c953b6d0cb691698`, `5a718f1a649644c075c8e30a1613ec7ee3803609`.
+
+---
+
 ## 2026-11-20 — Admin Main ID lifecycle response integrity
 
 - Hardened the Admin Main ID status mutation client contract. A response is accepted only when `success=true`, the returned Main ID matches the submitted member identity (case-insensitive), the returned status matches the requested status, and the linked Duplicate ID change count is a non-negative integer.
