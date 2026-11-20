@@ -10,6 +10,8 @@ describe('wallet Matrix commission source attribution',()=>{
  it('validates the to-one wallet-account join and complete transaction/source rows',()=>{
   expect(wallet).toContain("wallet_account:{wallet_type:'bid'|'income';currency:string}|null");
   expect(wallet).toContain('function validTransaction(value:unknown)');
+  expect(wallet).toContain('r.wallet_account?.wallet_type');
+  expect(wallet).not.toContain('wallet_account?.[0]');
   expect(wallet).toContain('function validMatrixSource(value:unknown)');
   expect(wallet).toContain('sourceRows.length!==commissionIds.length');
  });
