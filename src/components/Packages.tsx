@@ -120,12 +120,14 @@ export default function Packages() {
     if(!['image/jpeg','image/png','application/pdf'].includes(receiptFile.type)||receiptFile.size>5*1024*1024){setActivationMessage('Receipt must be JPG, PNG or PDF and no larger than 5 MB.');return;}
     activationInFlight.current=true;setActivationBusy(true);setActivationMessage('');
     let uploadedReceiptPath:string|null=null;
+    let receiptOwnerId:string|null=null;
     let activationSubmitted=false;
     let activationRpcRejected=false;
     try{
       const{data:authData,error:authError}=await supabase.auth.getUser();
       if(authError)throw authError;
       if(!authData.user){setActivationMessage('Please sign in before submitting a package activation request.');return;}
+      receiptOwnerId=authData.user.id;
       let receiptPath:string|null=null;
       if(receiptFile){
         const safeName=receiptFile.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').slice(-90)||'payment-receipt';
@@ -148,8 +150,8 @@ export default function Packages() {
           cleanupFailed=!!cleanupError;
         }catch{cleanupFailed=true;}
         if(cleanupFailed){
-          const queued=persistReceiptCleanupPath((await supabase.auth.getUser()).data.user?.id??'',uploadedReceiptPath);
-          if(queued)setReceiptCleanupCount(readReceiptCleanupQueue((await supabase.auth.getUser()).data.user?.id??'').length);
+          const queued=!!receiptOwnerId&&persistReceiptCleanupPath(receiptOwnerId,uploadedReceiptPath);
+          if(queued)setReceiptCleanupCount(readReceiptCleanupQueue(receiptOwnerId!).length);
           setActivationMessage(queued?message+' The orphaned receipt was saved in a private retry queue. Use Retry receipt cleanup or revisit this page.':message+' Receipt cleanup could not be queued; please contact support.');
         }else setActivationMessage(message);
       }else setActivationMessage(message);
