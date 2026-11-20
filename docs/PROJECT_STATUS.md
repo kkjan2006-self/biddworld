@@ -213,3 +213,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Complete Admin withdrawal CSV export now validates strict descending `(requested_at,id)` ordering across page boundaries by passing each parsed page as the next page's cursor context. Reordered/shifted pages with unseen IDs fail closed before export.
 - Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — Member account history page-boundary integrity
+
+- Hardened the shared member history loader used by package activations, auction bids, Fixed Bid entries, sponsor commissions and winning-payment history. Every continuation page now validates record identity and timestamp, strict descending (timestamp,id) ordering within the page and against the previously loaded boundary, and rejects any duplicate/overlap before appending.
+- Package activations use their actual `submitted_at` ordering key; the other four histories use `created_at`. Invalid pages stop pagination and require a refresh rather than being silently filtered while the offset advances.
+- Added `tests/member-account-history-pagination-integrity.test.ts` as source-only regression coverage; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
