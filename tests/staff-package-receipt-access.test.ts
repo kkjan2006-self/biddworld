@@ -8,6 +8,7 @@ describe('Staff package receipt access contract',()=>{
   expect(sql).toContain("role','')='admin_staff'");
   expect(sql).toContain("? 'package_activation_review'");
   expect(sql).toContain("a.payment_status='pending' and a.activation_status='pending'");
+  expect(sql).toContain('drop policy if exists "Admins read package receipts" on storage.objects');
   expect(sql).toContain("bucket_id='package-receipts'");
  });
  it('keeps receipt access private and wired to Staff signed URLs',()=>{
