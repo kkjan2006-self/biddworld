@@ -123,9 +123,10 @@ export default function FixedBid({compact=false}:{compact?:boolean}){
     if(/insufficient/i.test(raw))throw new Error('Insufficient Funds – Please Add Funds');
     throw error;
    }
+   const result=data as Record<string,unknown>|null;const entryAmount=Number(result?.entry_amount),bidDebit=Number(result?.bid_wallet_debit),incomeDebit=Number(result?.income_wallet_debit);
+   if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||typeof result.entry_id!=='string'||!result.entry_id.trim()||!Number.isFinite(entryAmount)||entryAmount<=0||!Number.isFinite(bidDebit)||bidDebit<0||!Number.isFinite(incomeDebit)||incomeDebit<0||Math.abs(bidDebit+incomeDebit-entryAmount)>0.001||typeof result.replayed!=='boolean')throw new Error('The server returned a Fixed Bid entry result that does not match the campaign entry. The same request key is retained; refresh your entry history before retrying.');
    entryKeys.current.delete(campaign.id);
-   const result=(data??{}) as {entry_id?:string;entry_amount?:number;replayed?:boolean};
-   setMessage(result.replayed?'Your previous entry request was already recorded. No second entry was created.':`Entry confirmed. Entry ID: ${result.entry_id||'recorded'} · Amount: ${money(Number(result.entry_amount??campaign.configuration?.entry_amount??0),'INR')}.`);
+   setMessage(result.replayed?'Your previous entry request was already recorded. No second entry was created.':`Entry confirmed. Entry ID: ${result.entry_id} · Amount: ${money(entryAmount,'INR')} (Bid Wallet: ${money(bidDebit,'INR')}, Income Wallet: ${money(incomeDebit,'INR')}).`);
   }catch(e){setMessage(e instanceof Error?e.message:'Campaign entry could not be confirmed. Retry safely; the same request key will be reused.');}
   finally{setJoining('');}
  }
