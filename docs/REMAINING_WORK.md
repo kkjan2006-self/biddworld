@@ -480,3 +480,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - 48 forward migrations remain unapplied in TEST, beginning with 20261119180000_fix_auction_image_path_regex. The product_submissions table and product-submission-media Storage bucket are not present yet; the current product submission UI therefore cannot be fully exercised against this schema.
 - No migration, schema, Storage or data changes were made. Apply the missing migrations to TEST only after explicit owner approval. Never apply these to Production.
 - The previous checklist item requesting the two-argument Duplicate ID creation RPC is superseded: 20261119300000_automatic_duplicate_matrix_placement.sql intentionally replaces it with a one-argument automatic-placement RPC that uses the active Matrix plan and second package activation. The Duplicate ID activation RPC already requires an active linked Main ID and active placement parent (20261118270000); Main-ID child reconciliation is implemented in 20261119370000 and 20261119380000.
+
+
+## 2026-11-20 — Admin auction submission approval contract repaired (source-only)
+
+- Resolved the missing Admin/Staff `admin_review_auction_submission` RPC left after the Expected Price migration dropped the legacy fixed-end-time signature. Added `20261119680000_admin_auction_submission_expected_price_review.sql` with the current Frontend signature and Expected Price validation.
+- The new RPC validates 1–8 unique public image paths belonging to the submitting member, verifies the objects exist in `product-media`, publishes the complete gallery, creates the auction with `ends_at = NULL`, and writes approval/rejection audit events. Pending submissions require Expected Price >= Starting Price.
+- Added source regression test `tests/admin-auction-submission-expected-price-rpc.test.ts`, aligned Admin title preflight, and registered the migration in the clean-install forward manifest.
+- Current manifest: 136 forward + 16 excluded = 152 timestamped migrations. This is source-only; no SQL was applied and tests/build/browser QA remain deferred until development is complete.
