@@ -17,7 +17,7 @@ describe('Referral and Matrix commission mutation response integrity',()=>{
   expect(admin).toContain("const replayMatches=result.commission_id===commissionId");
   expect(admin).toContain("result.replayed===true?'Referral commission was already reversed; existing ledger state confirmed.'");
   expect(referralSql).toContain("jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',false)");
-  expect(referralReplaySql).toContain("jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',true)");
+  expect(referralReplaySql.match(/return jsonb_build_object\\('success',true,'commission_id',p_commission_id,'status','reversed','replayed',true\\);/g)).toHaveLength(2);
  });
  it('matches Sponsor Referral reversal reason bounds and Unicode character counts',()=>{expect(admin).toContain('const normalizedReason=reason.trim();const reasonLength=Array.from(normalizedReason).length;if(reasonLength<5||reasonLength>500)');expect(referralReplaySql).toContain("length(trim(coalesce(p_reason,'')))<5 or length(p_reason)>500");expect(admin).toContain('{p_commission_id:commissionId,p_reason:normalizedReason}');});
  it('validates Matrix posting identity and a non-negative integer count',()=>{
