@@ -20,6 +20,8 @@ type Campaign={
  product:{name:string;description:string|null;category:string|null;image_path:string|null;image_paths?:string[];product_details?:Record<string,string>}|null
 };
 const PAGE_SIZE=50;
+function isCampaignBefore(left:Campaign,right:Campaign):boolean{const leftTime=Date.parse(left.created_at),rightTime=Date.parse(right.created_at);return leftTime<rightTime||(leftTime===rightTime&&left.id<right.id);}
+function isStrictlyDescendingCampaignPage(items:Campaign[]):boolean{for(let index=1;index<items.length;index+=1){if(!isCampaignBefore(items[index],items[index-1]))return false;}return true;}
 function parseCampaignPage(value:unknown):Campaign[]{
  if(!Array.isArray(value)||value.length>PAGE_SIZE)throw new Error('The campaign catalogue returned an invalid page. Refresh before continuing.');
  const ids=new Set<string>();
