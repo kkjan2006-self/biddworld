@@ -27,5 +27,8 @@ describe('Restricted Staff Support ticket review',()=>{
   expect(support).toContain('canReview');
   expect(staff).toContain("support_ticket_review:'Support Ticket Review'");
   expect(staff).toContain('Support Ticket Review');
+  expect(staff).toContain("'support_ticket_review'].includes(p as string)");
+  expect(staff).toContain('<Support isStaffSupport/>');
+  expect(staff).toContain("type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review'|'support_ticket_review'");
  });
 });

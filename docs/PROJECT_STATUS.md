@@ -48,6 +48,11 @@ These are review targets, not assertions that every item is incomplete. Confirm 
 No defensible overall percentage is recorded here. A percentage must be calculated only after the remaining feature inventory is reconciled against implemented frontend, SQL/RPC, authorization/RLS, migration registration and source-contract coverage. Do not infer completion from migration counts or documentation entries alone.
 
 
+## 2026-11-20 — Restricted Staff Support workspace integration gap closed
+
+- The dedicated Staff workspace now recognizes `support_ticket_review` and renders the existing Support review UI only for that explicit claim. This closes the mismatch between the Primary Admin permission editor / Support RLS / Support tab and the Staff workspace permission filter.
+- Extended the existing source-only regression test; not executed. No SQL migration or manifest inventory change required.
+
 ## Latest source integrity fix
 
 - Admin Withdrawal CSV export now applies the existing strict withdrawal parser to every page and rejects repeated Request IDs across pages even when a row's other fields change.
