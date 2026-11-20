@@ -1,3 +1,12 @@
+## 2026-11-20 — Member Product structured-detail protection
+
+- Fixed an input-precedence issue in Member Product submission: free-form Additional Features could previously overwrite structured fields such as `Price` after the numeric price validation. Extras now cannot override reserved structured keys (case-insensitive); valid custom attributes remain supported.
+- Added source-only coverage in `tests/member-product-submission-details-integrity.test.ts`; it was not executed.
+- Commits: UI `799cd1c052835cff5b2a2521c167aa2606753e55`; source test `9714f81fe96b622e75573b58c72385945d58769c`.
+- No tests/build/type-check or database access/replay.
+
+---
+
 ## 2026-11-20 — Fixed Bid catalogue response integrity
 
 - Added strict client-side parsing for the public Fixed Bid catalogue: bounded page size, unique campaign IDs, supported lifecycle status, valid timestamps, positive entry/winner-payment amounts, positive integer limits/counts, valid percentage range, timestamp fields, refund flag, and product/gallery/detail shape.
