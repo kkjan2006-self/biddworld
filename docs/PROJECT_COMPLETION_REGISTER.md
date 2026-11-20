@@ -1,3 +1,14 @@
+## 2026-11-20 — Restricted Staff Support ticket review
+
+- Identified that the existing Support workspace and audited update RPC were Admin-only, while restricted Staff had no independently assignable Support permission. This left Support tickets outside the Staff access model despite the existing member and Admin workflow.
+- Added `20261120220000_restricted_staff_support_ticket_review.sql`. The Primary Admin can now assign `support_ticket_review` independently through the existing Staff permission editor; Support reads are granted by a dedicated permission-scoped RLS policy and ticket updates remain on the audited SECURITY DEFINER RPC, restricted to Admin or Staff with that exact claim.
+- Extended the existing Support UI for authorized Staff reviewers without exposing member ticket submission controls. Added the permission to the Primary Admin Staff editor and wired the Support tab to the Staff claim.
+- Added `tests/restricted-staff-support-ticket-review.test.ts` as source-only regression coverage; not executed. Registered the migration in the clean-install forward manifest.
+- Inventory: **150 forward + 16 excluded = 166 timestamped migration paths**, plus 3 legacy/unversioned SQL files. No migration was applied; Production and TEST remain untouched.
+- Commits: migration `40b5ab0e56813cb04317d74d0889c15c22fd1d04`, regression source `f7b52fb82c7df2522a8bd8c25ca461b55d770f79`, Support UI `bb88659e73ac664ac1373df7d66d8e0e52966a96`, App route `967826f1bf63838c28ad1529c834e02f94d7ed0a`, Staff permission editor `4beef31efa8ea6319210104e62225eba172ee9fc`.
+
+---
+
 ## 2026-11-20 — Member Income Wallet Add Money history pagination integrity
 
 - Reconciled `WalletFunding` with the SQL descending keyset query. Initial and continuation pages now share strict UUID, amount, currency, payment-reference, status, review-note and timestamp validation, consistent continuation metadata, full 50-row continuation pages, strict descending `(created_at,id)` order and cross-page duplicate checks.
