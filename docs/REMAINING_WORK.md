@@ -1,3 +1,4 @@
+- Also corrected stale Admin Member Details copy that incorrectly labelled the implemented Main ID status / linked Duplicate ID lifecycle workflow as pending; added source-only copy assertions (not executed). Commits: `d6981da16c05ad09db2401023ae430c2c32705a1`, `0aa6c0dc3389342fbe4be5cd7aa0573ca4341f97`.
 ## Latest source development batch — Admin Main ID lifecycle contract
 
 - Fixed a real UI/RPC mismatch: the Admin Main ID status form exposed Suspended but the client validation rejected it, while accepting unsupported `inactive`. Client validation now matches SQL's `active | suspended | closed` enum.
