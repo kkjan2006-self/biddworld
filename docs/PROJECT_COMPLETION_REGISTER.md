@@ -2443,3 +2443,13 @@
 - Commits: page guard `eb57399495d68c2221c14a38f0cbc57d4c9f282f`; follow-up migration `b68bc67ddb3576b1fa86e237d250328a2ae71dd9`; Staff portal `9205ddd07e45a7b412ee9d368c329336d506c2e6`, pagination reset `d96f785162b0a81c92175a93575c8570b3c1a726`; regression source `7aeb7133aed2a8427431f4d03c45f5657ac6c198`.
 - Migration inventory: **132 forward + 16 excluded = 148 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
 - No migration applied, no data changes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Staff package receipt authorization
+
+- Added `20261119650000_staff_package_receipt_access.sql`. Admin can continue to inspect all private package receipts; Staff can obtain signed URLs only when they hold `package_activation_review` and the receipt belongs to a currently pending package activation. Members still cannot read receipt objects.
+- This closes the final storage authorization dependency for the Staff package activation review workflow added in the previous batch.
+- Added source-only policy/UI regression coverage; not executed.
+- Commits: migration `dc0a99a08e3192198ccf498c58df920054980ef6`; test `1275211dfbdc8361e6ddd18ce46c5b7b58d99548`.
+- Migration inventory: **133 forward + 16 excluded = 149 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
+- No migrations applied, no data changes, no Preview deployment, and no protected `main` changes.
