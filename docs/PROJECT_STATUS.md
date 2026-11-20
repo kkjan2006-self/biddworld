@@ -207,3 +207,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Hardened the Admin auction moderation queue: continuation pages must start strictly after the previous `(created_at,id)` cursor; full pages must contain exactly 50 records and the returned cursor must match the final row; terminal pages must not return cursor values. Malformed pagination responses are rejected before image signing or queue updates.
 - Added source-only regression assertions in `tests/admin-auction-submission-page-runtime-contract.test.ts`; not executed. No SQL or database change.
+
+
+## Latest Admin withdrawal export boundary hardening
+
+- Complete Admin withdrawal CSV export now validates strict descending `(requested_at,id)` ordering across page boundaries by passing each parsed page as the next page's cursor context. Reordered/shifted pages with unseen IDs fail closed before export.
+- Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
