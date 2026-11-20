@@ -138,8 +138,9 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   try{
    let request=supabase.from('member_notifications').update({read_at:readAt}).eq('id',id).is('read_at',null);
    if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to update your notifications.');request=request.eq('user_id',user.id);}
-   const{error:updateError}=await request;if(updateError)throw updateError;
-   setItems(rows=>rows.map(row=>row.id===id?{...row,read_at:readAt}:row));
+   const{data:updated,error:updateError}=await request.select('id,read_at').maybeSingle();if(updateError)throw updateError;
+   if(updated){if(updated.id!==id||typeof updated.read_at!=='string'||!Number.isFinite(Date.parse(updated.read_at)))throw new Error('The server returned an invalid read-status update. Refresh the inbox.');setItems(rows=>rows.map(row=>row.id===id?{...row,read_at:updated.read_at}:row));}
+   else{await load();}
   }catch(e){setError(e instanceof Error?e.message:'Notification could not be marked as read. Please retry.');}
   finally{markReadBusy.current.delete(id);}
  }
@@ -147,8 +148,9 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
   if(!supabase||markAllBusy.current||markingAll||unread===0)return;markAllBusy.current=true;setMarkingAll(true);setError('');setNotice('');const readAt=new Date().toISOString();
   try{
    const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to update your notifications.');
-   const{error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).eq('user_id',user.id).is('read_at',null);if(updateError)throw updateError;
-   setItems(rows=>rows.map(row=>row.read_at?row:{...row,read_at:readAt}));setNotice('All unread notifications have been marked as read.');
+   const{data:updatedRows,error:updateError}=await supabase.from('member_notifications').update({read_at:readAt}).eq('user_id',user.id).is('read_at',null).select('id,read_at');if(updateError)throw updateError;
+   if(!Array.isArray(updatedRows))throw new Error('The server returned an invalid bulk read-status response. Refresh the inbox.');const changed=new Map<string,string>();for(const row of updatedRows){if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.read_at!=='string'||!Number.isFinite(Date.parse(row.read_at))||changed.has(row.id))throw new Error('The server returned malformed bulk read-status records. Refresh the inbox.');changed.set(row.id,row.read_at);}
+   setItems(rows=>rows.map(row=>{const persistedAt=changed.get(row.id);return persistedAt?{...row,read_at:persistedAt}:row;}));setNotice(changed.size?'All unread notifications have been marked as read.':'There were no unread notifications to update.');
   }catch(e){setError(e instanceof Error?e.message:'Unread notifications could not be updated. Please retry.');}
   finally{markAllBusy.current=false;setMarkingAll(false);}
  }
