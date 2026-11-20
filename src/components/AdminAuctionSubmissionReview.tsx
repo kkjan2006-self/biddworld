@@ -76,9 +76,9 @@ export default function AdminAuctionSubmissionReview(){
      if(downloadError||!blob)throw downloadError??new Error('Could not read submitted item image.');
      const filename=privatePath.split('/').pop()??crypto.randomUUID()+'.jpg';
      const publicPath=r.submitted_by+'/'+crypto.randomUUID()+'-'+filename;
+     publishedPaths.push(publicPath);
      const{error:uploadError}=await supabase.storage.from('product-media').upload(publicPath,blob,{upsert:false,contentType:blob.type||'image/jpeg'});
      if(uploadError)throw uploadError;
-     publishedPaths.push(publicPath);
     }
     approvedImagePaths=publishedPaths;
    }
