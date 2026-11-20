@@ -26,6 +26,10 @@ This file keeps the historical audit notes below, but the opening status is the 
 
 ## Latest source-only development batch — 2026-11-20
 
+- **Member Product/Auction submission media recovery:** failed removal of replaced draft images and definitely rejected upload batches is now retained in an in-session cleanup queue in both member submission screens, with a visible Retry image cleanup action. This prevents a transient Storage deletion failure from silently losing the paths needed to retry. Ambiguous network/RPC outcomes are deliberately not deleted because the submission may already have committed. Added `tests/member-submission-media-cleanup-recovery.test.ts`; source-only, not executed.
+
+
+
 - Fixed a real client/server idempotency mismatch: Referral and Matrix commission reversal replay responses (which omit commission_id only when `replayed=true`) are now accepted and accurately described; first-time responses still require the exact commission ID. Regression source test extended; not executed.
 
 
