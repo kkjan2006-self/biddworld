@@ -1573,3 +1573,12 @@ At every development batch/chat end, update this file with the actual verified b
 - This enables the existing `Packages.tsx` cleanup path after a definitive activation RPC rejection without opening member receipt downloads or allowing deletion of submitted payment evidence.
 - Added source-only regression assertions for the receipt helper, reference guard and existing UI cleanup path. Not executed.
 - Commit: migration `8f24baadb522a5ab36b1472c0cffa2769859aac9`; test `ac084f23db4aedc1ecc77fef440ae9dbfb4a048c`.
+
+
+## 2026-11-20 — Auction migration consolidation and listing-detail data contract
+
+- Removed a truncated duplicate `admin_review_auction_submission` definition from the Expected Price Auction migration; the migration now retains only complete review-function definitions. The remaining review definitions validate that every submitted public image exists in `product-media` and enforce string-only optional-detail values.
+- Enforced string-only optional-detail JSON values at the database boundary for auction submission, auction edit, auction review, product submission, product edit and product publication. This matches the member/Admin UI contracts and prevents non-text JSON values from breaking catalogue rendering or moderation.
+- Rebuilt the Expected Price Auction regression source after finding malformed assertions in the previous test file; updated product-gallery review contract coverage. Source only; tests not executed.
+- Commits: auction migration `34a022ba9fd1cadeea702d6f75b89513de81d0be`; auction test `4a8916474abe4ee57f1b424981c111077ee09a58`; product review migration `0237506c7125ade951df3430021610fe33c7d832`; product review test `48c1f9f2bc3cb6e9dcb86063f37ee29c19090b0d`; product submission/edit guards `87ea033edda27b0772cfc2bdaa7537d7f74b3dca`, `0c86c95a39d1187bb7041b250b08b10b25c294a7`, `d185daa4e311bad1b04b17741d25a38d88cc3a25`.
+- No tests/build/type-check/QA run; no Supabase migrations applied, no data writes, no Preview deployment, and no protected `main` changes.
