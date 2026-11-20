@@ -2416,3 +2416,11 @@
 - Updated the Storage cleanup regression source to cover helper ACLs, search_path and reference guards. Not executed.
 - Commits: helper/policy migration `8455866a19fd224475775aa4156d9b3033ff110f`; regression update `391b64506b159b9bb77145927eb98c111f191efe`.
 - No database migrations were applied and no data or Storage objects were modified.
+
+
+## 2026-11-20 — Package receipt upload cleanup
+
+- Extended the safe Storage cleanup migration with `public.can_delete_unreferenced_package_receipt(text)` and an owner-folder DELETE policy. A member can remove only a receipt object that is not referenced by any package activation; Admin-only receipt reads remain unchanged.
+- This enables the existing `Packages.tsx` cleanup path after a definitive activation RPC rejection without opening member receipt downloads or allowing deletion of submitted payment evidence.
+- Added source-only regression assertions for the receipt helper, reference guard and existing UI cleanup path. Not executed.
+- Commit: migration `8f24baadb522a5ab36b1472c0cffa2769859aac9`; test `ac084f23db4aedc1ecc77fef440ae9dbfb4a048c`.
