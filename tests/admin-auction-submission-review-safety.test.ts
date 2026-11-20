@@ -20,6 +20,10 @@ describe('Admin member-auction review safety',()=>{
   assert.match(review,/Choose a valid auction start date and time/);
   assert.match(review,/1 to 8 item images/);
  });
+ it('tracks each public image path before upload for failed-upload cleanup',()=>{
+  assert.ok(review.indexOf('publishedPaths.push(publicPath)')>=0);
+  assert.ok(review.indexOf("supabase.storage.from('product-media').upload")>review.indexOf('publishedPaths.push(publicPath)'));
+ });
  it('validates auction moderation identity and the Expected Price deadline response',()=>{
   assert.match(review,/data:reviewResult/);
   assert.match(review,/result\.auction_id/);
