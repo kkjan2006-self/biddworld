@@ -1,3 +1,11 @@
+## 2026-11-20 — Wallet funding review pagination contract reconciliation
+
+- Matched the Admin Income Wallet Add Money review page to the SQL keyset query: a continuation page must contain exactly 50 rows, every page must be strictly ascending by `(created_at,id)`, and the continuation cursor must match the final row and advance beyond the previous cursor.
+- Cursor timestamps are compared as parsed instants, avoiding assumptions about string formatting. Updated the stale source-contract test file so its assertions describe the actual UI and SQL contract instead of outdated conditions.
+- No schema change or migration required. Source-only test changes were not executed; no build/type-check/database/deployment work performed.
+
+---
+
 ## 2026-11-20 — Admin Auction Review source declaration repair
 
 - Corrected a literal backslash-n embedded between `validUuid` and `validCleanupPath` in `AdminAuctionSubmissionReview.tsx`; it was source text rather than a line break and could prevent the module from parsing.
