@@ -4,6 +4,7 @@ import {describe,expect,it} from 'vitest';
 
 const lifecycle=readFileSync(resolve(process.cwd(),'supabase/migrations/20261115150000_admin_duplicate_id_lifecycle.sql'),'utf8');
 const noop=readFileSync(resolve(process.cwd(),'supabase/migrations/20261117130000_admin_duplicate_status_noop_guard.sql'),'utf8');
+const source=readFileSync(resolve(process.cwd(),'src/components/Admin.tsx'),'utf8');
 
 describe('Admin Duplicate ID lifecycle security contract',()=>{
   it('restricts lifecycle RPCs to authenticated trusted Admin role',()=>{
@@ -80,6 +81,14 @@ describe('Admin Duplicate ID lifecycle security contract',()=>{
     const body=lifecycle.slice(start,lifecycle.indexOf('$function$;',start)+11);
     expect(body).toContain("setting_key='duplicate_ids_enabled'");
     expect(body).toContain("if not coalesce(v_enabled,false) then raise exception 'Duplicate IDs are disabled in Platform Settings'");
+  });
+
+  it('validates Duplicate ID status mutation identity, old/new state and replay flag',()=>{
+    expect(source).toContain("data.id!==id");
+    expect(source).toContain("data.status!==status");
+    expect(source).toContain("typeof data.changed!=='boolean'");
+    expect(source).toContain("(data.changed===(data.old_status===status))");
+    expect(source).toContain("if(data.changed)setRefresh(v=>v+1)");
   });
 
 });
