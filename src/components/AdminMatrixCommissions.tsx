@@ -53,7 +53,7 @@ export default function AdminMatrixCommissions(){
  const [summary,setSummary]=useState<MatrixSummary>(emptySummary),[summaryLoading,setSummaryLoading]=useState(true),[summaryError,setSummaryError]=useState('');
  const loadSummary=useCallback(async()=>{if(!supabase){setSummaryError('Supabase is not configured.');setSummaryLoading(false);return;}setSummaryLoading(true);setSummaryError('');try{const {data,error}=await supabase.rpc('admin_get_matrix_commission_summary');if(error)throw error;if(!validSummary(data))throw new Error('The Matrix summary response was invalid.');setSummary(data);}catch(e){setSummaryError(e instanceof Error?e.message:'Could not load the overall Matrix summary.');}finally{setSummaryLoading(false);}},[]);
  useEffect(()=>{void loadSummary();},[loadSummary]);
- const fetchPage=useCallback(async(offset:number,filterStatus:string,filterLevel:string)=>{
+ const fetchPage=useCallback(async(offset:number,filterStatus:string,filterLevel:string,cursor?:MatrixCursor)=>{
   if(!supabase)throw new Error('Supabase is not configured for this environment.');
   const {data,error}=await supabase.rpc('admin_list_matrix_commissions_page',{
    p_limit:PAGE_SIZE,p_offset:offset,p_status:filterStatus==='all'?null:filterStatus,
