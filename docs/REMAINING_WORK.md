@@ -11,7 +11,7 @@ This file keeps the historical audit notes below, but the opening status is the 
 - Auction lifecycle with Starting/Expected Price, optional end time, 48-hour target countdown, idempotent bid RPC, Admin auction management, item-award-only auction finalization and separate Fixed Bid winner-payment/delivery workflows.
 - Refreshed Auction and Fixed Bid cards with one-line titles/subtitles, details dialogs, percentage progress and prominent bid actions; homepage Recent Winners cards and My Team terminology.
 - Fixed-Amount Bid campaigns, member entries, Admin draw/settlement and reporting source; strict public catalogue parsing for campaign rules, progress and product gallery/details.
-- Member OLX-style product and auction submissions, private image uploads, duplicate-pending product prevention, editable resubmission, Admin/Staff review, public gallery publication and keyset pagination.
+- Member OLX-style product and auction submissions, private image uploads, duplicate-pending product prevention, editable resubmission, Admin/Staff review, public gallery publication and keyset pagination; structured product fields are protected from free-form extras overrides.
 - Admin member/sponsor/ID management, staff permission scopes, package/payment review, reports/CSV exports, audit logs, feature settings and delivery tracking.
 - In-app notifications, member support tickets, workflow status updates and notification history/realtime validation.
 - Source migrations for RLS, RPC authorization, idempotency, Storage access, audit logging, clean-install inventory and regression-contract coverage.
