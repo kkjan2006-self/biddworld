@@ -1,3 +1,12 @@
+## 2026-11-20 — Income Wallet funding receipt recovery
+
+- Failed deletion of a private Add Money receipt after a definite RPC rejection is now persisted in a bounded, account-scoped retry queue; only UUID-owned `wallet-funding` paths are eligible. The queue retries when the member account returns and offers a manual Retry action.
+- Wallet funding submission now validates the returned request UUID and pending status before clearing the form; ambiguous outcomes preserve the receipt.
+- Added `tests/wallet-funding-receipt-cleanup-recovery.test.ts` source-only assertions; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Member package activation response contract
 
 - Member package activation submission now validates the exact returned activation UUID, positive activation number, pending payment/activation states and receipt object path before clearing the form or showing success.
