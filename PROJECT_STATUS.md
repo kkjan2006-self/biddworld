@@ -1618,3 +1618,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: migration `b13a09ccf7a0c5481e6c727ac8ac9e24511f1e7e`; test `cc5add9daa07956eaaaf7f1a9b75b1cd924ed13b`.
 - Migration inventory: **134 forward + 16 excluded = 150 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
 - No migrations applied, no data changes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Staff auction submission media access
+
+- Added `20261119670000_staff_auction_submission_media_access.sql` to replace the broad private auction-media SELECT policy. Members retain access to their own submission folder, Admin retains full review access, and Staff with `auction_submission_review` can read only image objects referenced by currently pending submissions in their assigned queue.
+- Added source-only Storage policy regression coverage. Not executed.
+- Commits: migration `6a81d30a918ddd12b8a4ab669ebdaeff6dc920ab`; test `f4751eef26001bc680eba41a3e2b0310d02fe2b7`.
+- Migration inventory: **135 forward + 16 excluded = 151 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
+- No migrations applied, no data changes, no Preview deployment, and no protected `main` changes.
