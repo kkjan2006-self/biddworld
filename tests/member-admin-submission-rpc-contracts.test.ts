@@ -18,29 +18,29 @@ describe('Member/Admin submission RPC and pagination contracts',()=>{
  it('keeps Member Product create/edit calls aligned with authenticated SQL signatures',()=>{
   expect(productMember).toContain("'member_submit_product_listing'");
   expect(productMember).toContain("'member_update_product_submission'");
-  expect(productSubmit.replace(/\\s+/g,'')).toContain('member_submit_product_listing(text,text,text,text[],jsonb)');
-  expect(productEdit.replace(/\\s+/g,'')).toContain('member_update_product_submission(uuid,text,text,text,text[],jsonb)');
+  expect(productSubmit.replace(/\s+/g,'')).toContain('member_submit_product_listing(text,text,text,text[],jsonb)');
+  expect(productEdit.replace(/\s+/g,'')).toContain('member_update_product_submission(uuid,text,text,text,text[],jsonb)');
  });
  it('keeps Member Auction edit and history calls aligned with the Expected Price schema',()=>{
   expect(auctionMember).toContain("'member_update_own_auction_submission'");
   expect(auctionMember).toContain("'member_list_own_auction_submissions_page'");
-  expect(auctionEdit.replace(/\\s+/g,'')).toContain('member_update_own_auction_submission(uuid,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb)');
-  expect(auctionMemberPage.replace(/\\s+/g,'')).toContain('member_list_own_auction_submissions_page(integer,timestamptz,uuid)');
+  expect(auctionEdit.replace(/\s+/g,'')).toContain('member_update_own_auction_submission(uuid,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb)');
+  expect(auctionMemberPage.replace(/\s+/g,'')).toContain('member_list_own_auction_submissions_page(integer,timestamptz,uuid)');
   expect(auctionMember).toContain('row.expected_price>=row.starting_price');
  });
  it('keeps Admin Product image publication aligned with the full-gallery RPC',()=>{
   expect(productAdmin).toContain("'admin_review_product_submission_with_images'");
   expect(productAdmin).toContain('p_public_image_paths:decision===\'approve\'?publicPaths:null');
-  expect(productReview.replace(/\\s+/g,'')).toContain('admin_review_product_submission_with_images(uuid,text,text,text[])');
+  expect(productReview.replace(/\s+/g,'')).toContain('admin_review_product_submission_with_images(uuid,text,text,text[])');
   expect(productReview).toContain('cardinality(p_public_image_paths)');
  });
  it('keeps all four moderation queues on their declared bounded page contracts',()=>{
   expect(productAdmin).toContain("'admin_list_product_submissions_page'");
-  expect(productAdminPage.replace(/\\s+/g,'')).toContain('admin_list_product_submissions_page(integer,timestamptz,uuid)');
+  expect(productAdminPage.replace(/\s+/g,'')).toContain('admin_list_product_submissions_page(integer,timestamptz,uuid)');
   expect(productMember).toContain("'member_list_own_product_submissions_page'");
-  expect(productMemberPage.replace(/\\s+/g,'')).toContain('member_list_own_product_submissions_page(integer,timestamptz,uuid)');
+  expect(productMemberPage.replace(/\s+/g,'')).toContain('member_list_own_product_submissions_page(integer,timestamptz,uuid)');
   expect(auctionAdmin).toContain("'admin_list_auction_submissions_page'");
-  expect(auctionAdminPage.replace(/\\s+/g,'')).toContain('admin_list_auction_submissions_page(integer,timestamptz,uuid)');
+  expect(auctionAdminPage.replace(/\s+/g,'')).toContain('admin_list_auction_submissions_page(integer,timestamptz,uuid)');
   expect(auctionAdmin).toContain('data.items');
   expect(auctionAdminPage).toContain("'items',v_rows,'has_more'");
   expect(productAdmin).toContain('row.has_more');
