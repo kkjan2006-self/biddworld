@@ -1650,3 +1650,15 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: member UI `b9215dfa1e0d9087336f92838470ff1a8f6b9820`; member test `a4daefce54aff9939a4cdd239f164aade7640d50`; Admin queue UI `c26798212dde51230799b7e34f308c1c2b14b558`; Admin queue test `6f5c990ae11ab135b23d90d848fea45b105e289b`.
 - No migration/data writes, tests/build/type-check/browser QA, Preview deployment, or protected `main` changes.
 - Overall source development estimate remains **95% provisional**; remaining source/RPC/RLS/Storage reconciliation and unresolved workflow gaps remain open.
+
+
+## 2026-11-20 — Preview base-path and strict TypeScript build repair
+
+- Corrected GitHub Pages asset routing: vite.config.ts now accepts BIDDWORLD_BASE_PATH so the isolated Preview uses /biddworld-preview/ while the primary repository retains its /biddworld/ default.
+- Updated the isolated Preview workflow to run npm run build (TypeScript project check plus Vite production build) and inject the Preview-specific base path. TEST configuration checks still require the exact https://yoaauthwejdgaevfvwpo.supabase.co URL and the TEST publishable key.
+- The first strict build exposed type errors in Admin overview/audit parsing, Staff button state, nullable Supabase client usage, and Wallet History filtering. Corrected seven source files; a follow-up fixed the remaining optional Duplicate ID pagination flag.
+- Development commits: base-path support 9c468edf2986a6d948f69ba395599c1d8fd3fe4a; TypeScript repair 38fe63c0dd14427e65995826d0829232e7edb056; final Admin type fix 4e34dc4f147434903643bd9f6717d18e488b90fa.
+- Preview workflow configuration commit: 822d5daad07dadf021cf3b509737732c0353498b. GitHub Actions Preview run #32 (44677536492) completed successfully: TEST secret validation, TypeScript check, Vite build, artifact upload and GitHub Pages publish all passed.
+- Preview URL: https://kkjan2006-self.github.io/biddworld-preview/ . This confirms deployment only; Member/Admin end-to-end feature testing and TEST schema/RLS/Storage migration replay remain unverified.
+- No automated test suite or browser/mobile QA was run. No Supabase migration was applied, no TEST or Production data was changed, and protected main was not modified.
+- Overall source development estimate remains 95% provisional pending remaining source reconciliation and final functional verification.
