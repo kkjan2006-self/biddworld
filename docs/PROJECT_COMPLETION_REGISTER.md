@@ -1,3 +1,12 @@
+## 2026-11-20 — Paginated withdrawal history payout privacy
+
+- Found that the newer `member_list_my_withdrawals_page` RPC returned `w.payout_details` unchanged, while the older `member_list_my_withdrawals` endpoint had already been restricted to the payout method label. Since the Member Account UI uses the paginated RPC, the newer path could disclose the member's UPI ID or bank account number to the client unnecessarily.
+- Added `20261120190000_minimize_paginated_withdrawal_payout_data.sql`. The paginated response now returns only `{method: ...}` or `{}` while preserving the result shape, keyset pagination, row ordering, page bounds and authenticated-only execution grant.
+- Added `tests/member-withdrawal-paginated-payout-privacy.test.ts`; source-only and not executed. Inventory: 147 forward + 16 excluded = 163 timestamped paths, plus 3 legacy SQL files.
+- Commits: migration `7a2c825269ce357771c54c783cfe359b092c3c79`; source test `35e60f47460788ecc893bb130763169dc01d8a9b`.
+
+---
+
 ## 2026-11-20 — Income Wallet Add Money active-profile eligibility
 
 - Found that the Add Money submission RPC checked the Main ID status but did not check the authenticated profile status, unlike other member financial actions. A profile marked inactive/suspended while its Main ID remained active could still submit a funding request.
