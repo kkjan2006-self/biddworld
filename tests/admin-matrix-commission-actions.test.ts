@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs';
 import {describe,it,expect} from 'vitest';
 const ui=readFileSync('src/components/AdminMatrixCommissions.tsx','utf8');
 const sql=readFileSync('supabase/migrations/20261119310000_matrix_commission_engine.sql','utf8');
+const reversalMigration=readFileSync('supabase/migrations/20261120240000_matrix_commission_reversal_replay_identity.sql','utf8');
 describe('Admin Matrix commission actions',()=>{
  it('exposes pending activation posting and credited commission reversal actions',()=>{
   expect(ui).toContain("supabase.rpc('admin_post_matrix_commissions'");
@@ -13,7 +14,8 @@ describe('Admin Matrix commission actions',()=>{
   expect(ui).toContain('reason.trim().length<5');
   expect(ui).toContain('Reverse this Matrix commission and its matching Income Wallet ledger credit?');
   expect(sql).toContain('Matrix reversal exists without original credit; reconciliation required');
-  expect(sql).toContain("jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',true)");
+  const replayIdentity="jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',true)";
+  expect(reversalMigration.split(replayIdentity).length-1).toBe(2);
   expect(ui).toContain('const replayMatches=result.commission_id===commissionId;');
   expect(ui).not.toContain('result.commission_id===undefined');
  });
