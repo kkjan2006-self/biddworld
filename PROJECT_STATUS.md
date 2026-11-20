@@ -1639,3 +1639,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Current branch head after this batch: `182d7fc8b75e42185d04a4676aae96b17b020873`. Migration inventory remains **135 forward + 16 excluded = 151 timestamped SQL files**; this UI-only batch adds no migration.
 - Development-only: no test/build/type-check/browser QA, no database migration or data writes, no Preview deployment, and no protected `main` changes.
 - Overall source development estimate: **95% provisional**; remaining source/RPC/RLS/Storage reconciliation and unclosed development gaps remain open.
+
+
+## 2026-11-20 — Wallet funding member history and Admin review queue
+
+- Member Add Money history now validates ISO currency codes, non-empty payment references, both submission/review timestamps, and consistent `has_more` metadata across the returned page.
+- Fixed the member history pagination lock so a stale request cannot release a newer request's lock during account changes; reset/no-session paths also clear loading state correctly.
+- Admin wallet-funding review now reloads the first pending page after Approve/Reject instead of appending the next cursor page and leaving the reviewed request visible as pending. Retry also restarts from a clean first page; stale append requests cannot release a newer queue lock, including when the backend is unavailable.
+- Added source regression coverage: `tests/member-wallet-funding-history-integrity.test.ts` and `tests/admin-wallet-funding-review-refresh.test.ts`. Not executed.
+- Commits: member UI `b9215dfa1e0d9087336f92838470ff1a8f6b9820`; member test `a4daefce54aff9939a4cdd239f164aade7640d50`; Admin queue UI `c26798212dde51230799b7e34f308c1c2b14b558`; Admin queue test `6f5c990ae11ab135b23d90d848fea45b105e289b`.
+- No migration/data writes, tests/build/type-check/browser QA, Preview deployment, or protected `main` changes.
+- Overall source development estimate remains **95% provisional**; remaining source/RPC/RLS/Storage reconciliation and unresolved workflow gaps remain open.
