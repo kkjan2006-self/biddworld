@@ -56,7 +56,8 @@ begin
   raise exception 'Expected price must be at least the starting price. Check prices and future start time.' using errcode='22023';
  end if;
  if p_optional_details is null or jsonb_typeof(p_optional_details)<>'object'
-  or pg_catalog.octet_length(p_optional_details::text)>12000 then
+  or pg_catalog.octet_length(p_optional_details::text)>12000
+  or exists(select 1 from jsonb_each(p_optional_details) item where jsonb_typeof(item.value)<>'string') then
   raise exception 'Optional details must be a small JSON object' using errcode='22023';
  end if;
  update public.auction_submissions
