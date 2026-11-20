@@ -3253,3 +3253,10 @@
 - Live notification INSERT events are now merged into the inbox using the same descending `(created_at,id)` tuple order enforced by the initial and continuation page parsers. Previously, every realtime event was prepended, so a delayed/older event could move ahead of newer records and invalidate the visible keyset cursor.
 - Existing IDs are replaced rather than duplicated, and the inbox remains capped at 100 loaded rows. Realtime inserts signal that a continuation page may be needed after the oldest visible row is displaced.
 - Added source-only regression coverage in `tests/notifications-response-integrity.test.ts`; not executed. No SQL migration or database operation was required.
+
+
+## 2026-11-20 — Wallet history page ordering and cursor integrity
+
+- Member Wallet History now validates strict descending `(created_at,id)` order on every loaded page and requires each continuation page to fall strictly before the previous page cursor. A reordered or shifted page fails closed instead of silently displaying a misleading transaction sequence.
+- The full wallet CSV export applies the same per-page ordering and cursor-boundary checks, in addition to its existing duplicate transaction-ID detection, so export cannot silently skip or repeat rows when the underlying page order changes.
+- Added source-only assertions in `tests/wallet-history-keyset-pagination.test.ts`; not executed. No SQL migration or database operation was required.

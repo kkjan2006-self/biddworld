@@ -24,3 +24,22 @@ describe('wallet history keyset pagination', () => {
     expect(source).toContain('if(page===0){loadMoreBusy.current=false;pageCursor.current=null;');
   });
 });
+
+
+describe('wallet history keyset response ordering',()=>{
+  it('rejects pages that violate strict descending created_at/id order',()=>{
+    expect(source).toContain('function isStrictlyDescendingWalletPage(rows:Tx[]):boolean');
+    expect(source).toContain('previousTime===currentTime&&previous.id.toLowerCase()<=current.id.toLowerCase()');
+    expect(source).toContain('if(!isStrictlyDescendingWalletPage(batch))');
+  });
+  it('requires continuation rows to be strictly older than the previous page cursor',()=>{
+    expect(source).toContain('function isBeforeWalletCursor(row:Tx,cursor:{created_at:string;id:string}):boolean');
+    expect(source).toContain('batch.some(row=>!isBeforeWalletCursor(row,cursor!))');
+    expect(source).toContain('crossed or repeated its previous keyset cursor');
+  });
+  it('applies the same ordering and cursor checks to full CSV export pages',()=>{
+    const exportBlock=source.slice(source.indexOf('async function exportTransactions'));
+    expect(exportBlock).toContain('isStrictlyDescendingWalletPage(batch)');
+    expect(exportBlock).toContain('isBeforeWalletCursor(row,cursor!)');
+  });
+});
