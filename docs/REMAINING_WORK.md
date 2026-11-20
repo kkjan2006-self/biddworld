@@ -1,3 +1,11 @@
+## Latest source development batch — Admin wallet adjustment retry integrity
+
+- Fixed incomplete idempotent replay response for `admin_adjust_member_wallet`: replay now returns the original complete result and immutable ledger balance-after snapshot.
+- Admin client validates the full response against the submitted request and clears the idempotency key only after validation; ambiguous outcomes retain the same key.
+- Added `tests/admin-wallet-adjustment-response-contract.test.ts`; not executed. Added migration `20261120130000_wallet_adjustment_idempotent_response_integrity.sql` to the clean-install forward manifest.
+- Commits: `1319b0f9f9c4a5ba516d293ff3f1ef390fcfb5ee`, `1b4d6e7b33a36b0c8a42593f57dd1f30af1c1065`, `c66aa3e84c8b41fcd141e29bca8933b3b5125ec0`, `73225a2fac62fa34d619abccf8f12e2b000378f9`, `5e48e5cffc1d744f1fcddec3e991b091bd289923`.
+- Current forward manifest count: 141; excluded timestamped entries: 16; three legacy/unversioned SQL files remain intentionally excluded. No database or runtime verification performed.
+
 - Duplicate ID lifecycle response integrity is now checked end-to-end at the client boundary (identity, returned status, old status, and idempotent `changed` semantics); static source assertions added, not executed. Commits: `205898b1899c1a4337673472c953b6d0cb691698`, `5a718f1a649644c075c8e30a1613ec7ee3803609`.
 - Main ID lifecycle response validation now checks success, exact member identity, requested status and linked Duplicate ID count before reporting success; static regression assertions added, not executed. Commits: `808bf9a9bcf6109837a320c5cb172f1ec0e77645`, `446f6afaf467e8ad6063abec809a383fb63fbb92`.
 - Also corrected stale Admin Member Details copy that incorrectly labelled the implemented Main ID status / linked Duplicate ID lifecycle workflow as pending; added source-only copy assertions (not executed). Commits: `d6981da16c05ad09db2401023ae430c2c32705a1`, `0aa6c0dc3389342fbe4be5cd7aa0573ca4341f97`.
