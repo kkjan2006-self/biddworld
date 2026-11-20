@@ -3,6 +3,10 @@ import {describe,it,expect} from 'vitest';
 const sql=readFileSync('supabase/migrations/20261119560000_product_gallery_review_integrity.sql','utf8');
 const ui=readFileSync('src/components/AdminProductSubmissionReview.tsx','utf8');
 describe('Admin product gallery publication integrity',()=>{
+ it('accepts only string-valued optional details before publishing a product',()=>{
+  expect(sql).toContain("exists(select 1 from jsonb_each(v_s.optional_details) item where jsonb_typeof(item.value)<>'string')");
+  expect(sql).toContain('Product details must be a small object containing only text values');
+ });
  it('requires a one-to-one unique mapping from submitted private images to public images',()=>{
   expect(sql).toContain('cardinality(p_public_image_paths)<>cardinality(v_s.image_paths)');
   expect(sql).toContain('count(distinct path) from unnest(v_s.image_paths)');
