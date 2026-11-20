@@ -40,7 +40,7 @@ export default function WalletFunding(){
  return <section className="walletFunding">
   <button type="button" className="primary" onClick={()=>setOpen(v=>!v)}><QrCode size={17}/> {open?'Close Add Money':'Add Money'}</button>
   {open&&<div className="walletFundingPanel">
-   <h5>Add Money to Main Wallet</h5><p>Scan this QR code with any UPI app, make your payment, then enter the UTR number and upload the payment receipt.</p>
+   <h5>Add Money to Income Wallet</h5><p>Scan this QR code with any UPI app, make your payment, then enter the UTR number and upload the payment receipt.</p>
    <div className="walletFundingQr"><img src="/payment/biddworld-main-wallet-qr.svg" alt="KRFSI UPI payment QR code"/><b>KRFSI</b><span>UPI ID: krindia@bpunity</span><small>Scan to pay with any UPI app</small></div>
    <form onSubmit={submit} className="memberWithdrawalForm">
     <label>Amount (INR)<input type="number" min="1" max="10000000" step="0.01" required value={amount} onChange={e=>setAmount(e.target.value)} placeholder="Enter amount"/></label>
