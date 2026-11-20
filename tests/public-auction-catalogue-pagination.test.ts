@@ -17,6 +17,8 @@ describe('public auction catalogue pagination',()=>{
   expect(sql).toContain('order by a.starts_at asc,a.id desc');
   expect(sql).toContain('limit p_limit+1 offset p_offset');
   expect(sql).toContain('count(*) over()>p_limit as has_more');
+  expect(sql).toContain('auctions_public_catalogue_start_idx');
+  expect(sql).toContain("on public.auctions(starts_at asc,id desc)");
   expect(sql).toContain('p_limit>100');
   expect(sql).toContain('p_offset>1000000');
   expect(sql).toContain('limit p_limit;');
