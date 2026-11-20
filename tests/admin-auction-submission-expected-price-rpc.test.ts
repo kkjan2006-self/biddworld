@@ -11,7 +11,7 @@ describe('Admin auction submission Expected Price RPC contract',()=>{
   expect(migration).toContain('p_expected_price numeric');
   expect(migration).toContain('p_optional_details jsonb');
   expect(migration).toContain('drop function if exists public.admin_review_auction_submission');
-  expect(migration.replace(/\\s+/g,'')).toContain('admin_review_auction_submission(uuid,text,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text)');
+  expect(migration.replace(/\s+/g,'')).toContain('admin_review_auction_submission(uuid,text,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text)');
   expect(lifecycle).toContain('p_starting_price numeric,p_expected_price numeric,p_minimum_increment numeric');
   expect(lifecycle).toContain('insert into public.auction_submissions');
   expect(admin).toContain('p_expected_price:expected');
