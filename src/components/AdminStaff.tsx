@@ -56,6 +56,7 @@ export default function AdminStaff(){
    if(!items.every(validActivation))throw new Error('The package activation queue contains malformed activation records.');
    const page=items as Activation[];
    if(payload.has_more&&(page.length!==50||page[page.length-1].id!==payload.next_id||page[page.length-1].submitted_at!==payload.next_submitted_at))throw new Error('The package activation queue cursor does not match the final record on this page.');
+   if(after&&page.length){const first=page[0],timeDelta=Date.parse(first.submitted_at)-Date.parse(after.submitted_at);if(timeDelta>0||(timeDelta===0&&first.id.localeCompare(after.id)>=0))throw new Error('The next package activation page did not continue strictly before the previous cursor. Refresh the queue.');}
    for(let index=1;index<page.length;index++){const previous=page[index-1],current=page[index];if(Date.parse(previous.submitted_at)<Date.parse(current.submitted_at)||(previous.submitted_at===current.submitted_at&&previous.id.localeCompare(current.id)<0))throw new Error('The package activation queue is not in descending keyset order.');}
    const known=new Set(reset?[]:rows.map(row=>row.id));
    for(const item of page){if(known.has(item.id))throw new Error('The next package activation page contains duplicate or overlapping requests. Refresh the queue.');known.add(item.id);}

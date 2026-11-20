@@ -3321,3 +3321,8 @@
 ## Admin wallet numeric precision integrity (source-only, 2026-11-20)
 
 Admin wallet account and ledger response validation now rejects nulls and numeric strings instead of relying on JavaScript coercion, and enforces finite numeric values within the wallet numeric(14,2) range and cent precision. Positive ledger amounts and non-negative balances are checked consistently before display/export. Source-only regression assertions were added to `tests/admin-wallet-page-response-integrity.test.ts`; not executed. No SQL migration or database operation was needed.
+
+
+## Staff package activation continuation cursor boundary (source-only, 2026-11-20)
+
+The restricted Staff package-activation queue now rejects a continuation page whose first row is equal to or newer than the prior page's final descending `(submitted_at,id)` cursor, preventing server-side pagination overlap or cursor regression from being accepted even when row IDs differ. Existing per-page order, final cursor equality and duplicate/overlap validation remain active. Source-only regression assertions were added; not executed. No SQL or database operation was required.

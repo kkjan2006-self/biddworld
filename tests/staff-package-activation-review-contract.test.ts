@@ -28,6 +28,11 @@ describe('Staff package activation review permission contract',()=>{
   expect(staff).toContain("/^[A-Za-z0-9./_-]{6,80}$/.test(row.payment_reference)");
   expect(staff).toContain("/^[A-Z]{3}$/.test(row.currency)");
  });
+ it('requires continuation pages to begin strictly before the prior cursor',()=>{
+  expect(staff).toContain('if(after&&page.length){const first=page[0],timeDelta=Date.parse(first.submitted_at)-Date.parse(after.submitted_at)');
+  expect(staff).toContain('first.id.localeCompare(after.id)>=0');
+  expect(staff).toContain('did not continue strictly before the previous cursor');
+ });
  it('requires exact keyset cursor agreement, page size and descending record order',()=>{
   expect(staff).toContain("page.length!==50||page[page.length-1].id!==payload.next_id||page[page.length-1].submitted_at!==payload.next_submitted_at");
   expect(staff).toContain('previous.id.localeCompare(current.id)<0');
