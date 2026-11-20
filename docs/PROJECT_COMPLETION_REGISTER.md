@@ -1,3 +1,12 @@
+## 2026-11-20 — Clean-install inventory documentation guard
+
+- Reconciled current source-tree inventory: 143 forward migrations, 16 excluded timestamped migrations and 3 legacy/unversioned SQL files (162 SQL files total; 159 timestamped paths).
+- Corrected the current inventory statements in `PROJECT_STATUS.md` and `docs/REMAINING_WORK.md` to match the branch tree and manifests.
+- Extended `tests/clean-install-migration-manifest-integrity.test.ts` to assert that the Clean-install README's forward/excluded/total counts stay synchronized with the actual manifest and timestamped migration inventory.
+- Source-only regression coverage; not executed. No database access, migration replay, build, type-check, test execution or deployment was performed.
+
+---
+
 ## 2026-11-20 — Restricted Staff grant response mismatch fixed
 
 - Found a concrete RPC contract mismatch: the Staff grant operation persisted and audited three permissions, but its returned JSON contained only two. This made the frontend reject an otherwise successful Staff grant.
