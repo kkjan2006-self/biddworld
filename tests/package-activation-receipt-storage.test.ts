@@ -20,6 +20,11 @@ describe('Private package receipt storage contract',()=>{
  it('allows receipt reads only to Admin app-metadata role and keeps client workflows aligned',()=>{
   expect(migration).toContain("(select auth.jwt()->'app_metadata'->>'role')='admin'");
   expect(member).toContain("storage.from('package-receipts').upload");
+  expect(member).toContain('biddworld.package-receipt-cleanup.v1.');
+  expect(member).toContain('validReceiptCleanupPath');
+  expect(member).toContain('retryReceiptCleanup(sessionData.session.user.id)');
+  expect(member).toContain('Retry receipt cleanup');
+  expect(member).toContain('persistReceiptCleanupPath');
   expect(admin).toContain("storage.from('package-receipts').createSignedUrl");
   expect(migration).not.toContain('for select to authenticated using (bucket_id=');
  });
