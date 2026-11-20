@@ -3336,3 +3336,10 @@ Admin wallet funding pagination now validates the first row of each continuation
 ## Admin auction moderation cursor-boundary validation (source-only, 2026-11-20)
 
 The Admin auction submission queue now validates strict ascending continuation boundaries, full-page cursor equality and absence of terminal cursors. This supplements existing row validation, duplicate/overlap detection and request sequencing. Regression assertions added to the source-only test file; not executed. No database operation or migration was required.
+
+
+## 2026-11-20 — Admin withdrawal CSV export page-boundary integrity
+
+- The complete Admin withdrawal CSV export already validated each row and rejected repeated request IDs, but parsed every 100-row page independently. A shifted or reordered page with previously unseen IDs could therefore cross the preceding `(requested_at,id)` boundary without being rejected.
+- The export now carries the immediately preceding page into the shared strict descending parser. Every export page must continue strictly before the previous page's final tuple, while preserving the existing stable-ID duplicate guard, filters and complete export flow.
+- Added source-only regression assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration or database change required.
