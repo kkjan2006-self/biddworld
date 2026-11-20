@@ -57,3 +57,11 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Member withdrawal creation now validates the exact success response from the SQL RPC, including UUID request identity, `pending` status and the server's bounded minimum amount, before clearing submitted form fields.
 - Added source-only regression coverage in `tests/member-withdrawal-create-response-integrity.test.ts` (not executed). No SQL migration or database operation was required.
+
+
+## 2026-11-20 — Notification read-action persistence reconciliation
+
+- Member single-notification read updates now request the persisted row and only update local inbox state from its returned `read_at`; when the row was concurrently removed or already changed, the inbox is refreshed instead of displaying an unconfirmed success.
+- Bulk Mark All Read now reconciles only the exact IDs and timestamps returned by the database, rejecting malformed or duplicate response identities rather than optimistically marking every loaded row as read.
+- Added `tests/notification-read-action-persistence.test.ts` as source-only regression coverage. Not executed. No SQL migration was required; the existing owner-scoped `UPDATE(read_at)` policy and SELECT grant already support the response projection.
+- No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
