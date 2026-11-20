@@ -1535,3 +1535,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: Auction runtime parser `ce182ffffcc9131e721740b749f8b974a17a22fa`; Product runtime parser `829c385becdee0cc13281ff53453e462e84072ed`; Auction catalogue index `405cdcaa4da4a288e6b0df12f197fab4ce459203`; Auction image regex/storage checks `670ac733f7607a06775a5543cdecfb60869dabb0` and `2d56a1438f6c3d384cd468dbc98128e8982f54a7`.
 - Clean-install manifest remains **130 forward + 16 excluded = 146 timestamped SQL files**; exact tree reconciliation has no missing, orphaned, overlapping or duplicate entries.
 - No Supabase migration executed, no database writes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Product gallery and Admin auction queue validation
+
+- The public Product catalogue runtime parser now validates all returned gallery image paths (maximum eight), optional product-detail JSON values, published status, IDs and consistent pagination markers before rendering. The existing gallery UI continues to render all approved images and product facts.
+- The Admin Auction Submission queue now validates the full RPC page contract before requesting private signed image URLs: title/description limits, price relationships, image count/paths, schedule timestamps, optional-detail values, submitter identity, duplicate IDs and the keyset cursor.
+- Refreshed the root README's project scope to reflect the current implemented source modules rather than the obsolete starter-template statement.
+- Added source-only regression tests for the public product gallery and Admin auction submission queue. Not executed.
+- Commits: public product gallery parser `b2f55bb4da9662507c03a619c311680d560caa4a`; Admin auction queue parser `249238ec0083404fc6e1c51983044bdb86f29ef2`; README `aaeedb1f0b7f30e2f56d1be4e04f06c751b61729`.
+- Development-only boundary remains unchanged: no tests/build/type-check/QA, no Supabase migrations or data writes, no Preview deployment, and no protected `main` changes.
