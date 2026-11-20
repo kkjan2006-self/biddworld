@@ -12,7 +12,8 @@ describe('Referral and Matrix commission mutation response integrity',()=>{
   expect(referralSql).toContain("jsonb_build_object('success',true,'activation_id',p_activation_id,'posted_count',v_posted)");
  });
  it('validates referral reversal identity and final status',()=>{
-  expect(admin).toContain("result.success!==true||result.commission_id!==commissionId||result.status!=='reversed'");
+  expect(admin).toContain("result.replayed===true?(result.commission_id===undefined||result.commission_id===commissionId):result.commission_id===commissionId");
+  expect(admin).toContain("result.replayed===true?'Referral commission was already reversed; existing ledger state confirmed.'");
   expect(referralSql).toContain("jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',false)");
  });
  it('validates Matrix posting identity and a non-negative integer count',()=>{
@@ -20,7 +21,8 @@ describe('Referral and Matrix commission mutation response integrity',()=>{
   expect(matrixSql).toContain("jsonb_build_object('success',true,'activation_id',p_activation_id,'posted_count',v_posted)");
  });
  it('validates Matrix reversal identity and final status',()=>{
-  expect(matrix).toContain("result.success!==true||result.commission_id!==commissionId||result.status!=='reversed'");
+  expect(matrix).toContain("result.replayed===true?(result.commission_id===undefined||result.commission_id===commissionId):result.commission_id===commissionId");
+  expect(matrix).toContain("result.replayed===true?'Matrix commission was already reversed; existing ledger state confirmed.'");
   expect(matrixSql).toContain("jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',false)");
  });
 });
