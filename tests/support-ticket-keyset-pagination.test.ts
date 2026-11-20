@@ -18,6 +18,11 @@ describe('support ticket keyset pagination', () => {
     expect(source).not.toContain('request.range(offset,offset+499)');
   });
 
+  it('validates every exported ticket record before including it in the CSV',()=>{
+    expect(source).toContain('!Array.isArray(data)||data.length>500||!data.every(validTicket)');
+    expect(source).toContain('The support export returned malformed ticket records.');
+  });
+
   it('retains duplicate-ID and repeated-page guards during export', () => {
     expect(source).toContain('const seenPages=new Set<string>(),seenIds=new Set<string>()');
     expect(source).toContain('if(seenIds.has(ticket.id))throw new Error');
