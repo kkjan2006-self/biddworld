@@ -3,9 +3,8 @@ import {RefreshCw,ShieldCheck,PackageCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import AdminWalletFundingReview from './AdminWalletFundingReview';
 import AdminAuctionSubmissionReview from './AdminAuctionSubmissionReview';
-import Support from './Support';
 
-type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review'|'support_ticket_review';
+type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review';
 type Activation={id:string;activation_number:number;member_code:string;member_name:string|null;package_name:string;amount_paid:number;currency:string;bid_wallet_credit:number;payment_reference:string;receipt_path:string|null;submitted_at:string};
 type ActivationCursor={submitted_at:string;id:string};
 const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -79,7 +78,7 @@ export default function AdminStaff(){
   }
  }
 
- useEffect(()=>{let active=true;setAccessReady(false);setAccessError('');void (async()=>{try{if(!supabase)throw new Error('Supabase is not configured for this environment.');const{data,error}=await supabase.auth.getUser();if(error)throw error;if(!active)return;const user=data.user;if(!user)throw new Error('Your Staff session could not be verified. Please sign in again.');const allowed=user.app_metadata?.role==='admin_staff'&&Array.isArray(user.app_metadata?.permissions)?user.app_metadata.permissions.filter((p):p is Permission=>['package_activation_review','wallet_funding_review','auction_submission_review','support_ticket_review'].includes(p as string)):[];setPermissions(allowed);}catch(e){if(active){setPermissions([]);setAccessError(e instanceof Error?e.message:'Staff access could not be verified. Please retry.');}}finally{if(active)setAccessReady(true);}})();return()=>{active=false};},[accessAttempt]);
+ useEffect(()=>{let active=true;setAccessReady(false);setAccessError('');void (async()=>{try{if(!supabase)throw new Error('Supabase is not configured for this environment.');const{data,error}=await supabase.auth.getUser();if(error)throw error;if(!active)return;const user=data.user;if(!user)throw new Error('Your Staff session could not be verified. Please sign in again.');const allowed=user.app_metadata?.role==='admin_staff'&&Array.isArray(user.app_metadata?.permissions)?user.app_metadata.permissions.filter((p):p is Permission=>['package_activation_review','wallet_funding_review','auction_submission_review'].includes(p as string)):[];setPermissions(allowed);}catch(e){if(active){setPermissions([]);setAccessError(e instanceof Error?e.message:'Staff access could not be verified. Please retry.');}}finally{if(active)setAccessReady(true);}})();return()=>{active=false};},[accessAttempt]);
  useEffect(()=>{if(accessReady&&permissions.includes('package_activation_review'))void load();},[accessReady,permissions.join('|')]);
 
  async function review(id:string,approve:boolean){
@@ -94,7 +93,7 @@ export default function AdminStaff(){
 
  return <main className="adminDashboard" style={{padding:'18px 12px',maxWidth:1000,margin:'0 auto'}}>
   <header style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
-   <ShieldCheck/><div><h2>Staff Workspace</h2><p>Only the review permissions assigned to this Staff account are available here.</p></div>
+   <ShieldCheck/><div><h2>Payment Review Staff</h2><p>Restricted access · Package Payments, Income Wallet Add Money and Auction Listing Reviews</p></div>
    {permissions.includes('package_activation_review')&&<button className="outline small" onClick={()=>void load()} disabled={queueLoading}><RefreshCw size={14}/> Refresh</button>}
   </header>
   {!accessReady?<div className="empty">Checking your assigned review permissions…</div>:accessError?<div className="notice" role="alert">Staff access could not be verified: {accessError} <button type="button" className="outline small" onClick={()=>setAccessAttempt(value=>value+1)}>Retry access check</button></div>:permissions.length===0?<div className="empty">No review permissions are assigned to this Staff account. Contact the Primary Admin.</div>:null}
@@ -113,6 +112,5 @@ export default function AdminStaff(){
   </section>}
   {permissions.includes('wallet_funding_review')&&<AdminWalletFundingReview/>}
   {permissions.includes('auction_submission_review')&&<AdminAuctionSubmissionReview/>}
-  {permissions.includes('support_ticket_review')&&<section className="adminModuleDetail" style={{marginTop:18}}><h3>Support Ticket Reviews</h3><Support isStaffSupport/></section>}
  </main>;
 }

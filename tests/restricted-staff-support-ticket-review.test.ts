@@ -5,6 +5,7 @@ const migration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261120
 const app=readFileSync(resolve(process.cwd(),'src/App.tsx'),'utf8');
 const support=readFileSync(resolve(process.cwd(),'src/components/Support.tsx'),'utf8');
 const staff=readFileSync(resolve(process.cwd(),'src/components/AdminPaymentReviewStaff.tsx'),'utf8');
+const staffWorkspace=readFileSync(resolve(process.cwd(),'src/components/AdminStaff.tsx'),'utf8');
 describe('Restricted Staff Support ticket review',()=>{
  it('allows only the Primary Admin to assign the explicit support permission',()=>{
   expect(migration).toContain("lower(coalesce(auth.jwt()->>'email',''))<>'kkjan2006@gmail.com'");
@@ -27,8 +28,8 @@ describe('Restricted Staff Support ticket review',()=>{
   expect(support).toContain('canReview');
   expect(staff).toContain("support_ticket_review:'Support Ticket Review'");
   expect(staff).toContain('Support Ticket Review');
-  expect(staff).toContain("'support_ticket_review'].includes(p as string)");
-  expect(staff).toContain('<Support isStaffSupport/>');
-  expect(staff).toContain("type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review'|'support_ticket_review'");
+  expect(staffWorkspace).toContain("'support_ticket_review'].includes(p as string)");
+  expect(staffWorkspace).toContain('<Support isStaffSupport/>');
+  expect(staffWorkspace).toContain("type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review'|'support_ticket_review'");
  });
 });
