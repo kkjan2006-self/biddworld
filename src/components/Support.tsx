@@ -78,7 +78,8 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    if(!submitKey.current){const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);submitKey.current=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
    const {data:submitResult,error:insertError}=await supabase.rpc('member_submit_support_ticket',{p_subject:subject.trim(),p_message:message.trim(),p_idempotency_key:submitKey.current});
    if(insertError)throw insertError;
-   submitKey.current='';submitKeyPayload.current='';setSubject('');setMessage('');setNotice((submitResult as {replayed?:boolean}|null)?.replayed?'Your earlier support request was already recorded.':'Your support request has been submitted.');
+   const result=submitResult as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||typeof result.ticket_id!=='string'||!result.ticket_id.trim()||typeof result.status!=='string'||!['open','in_progress','resolved','closed'].includes(result.status)||typeof result.replayed!=='boolean')throw new Error('The server returned an invalid support request result. The same request key is retained; refresh your support history before retrying.');
+   submitKey.current='';submitKeyPayload.current='';setSubject('');setMessage('');setNotice(result.replayed?'Your earlier support request was already recorded.':'Your support request has been submitted.');
    await load();
   }catch(e){setError(e instanceof Error?e.message:'Your support request could not be submitted. Please retry.');}
   finally{submitBusy.current=false;setBusy(false);}
@@ -124,8 +125,9 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   if(nextResponse.length>5000){setError('Admin response must be 5,000 characters or fewer.');return;}
   saveBusy.current.add(id);setSaving(id);setError('');setNotice('');
   try{
-   const {error:updateError}=await supabase.rpc('admin_update_support_ticket',{p_ticket_id:id,p_status:nextStatus,p_admin_response:nextResponse||null});
+   const {data:updateResult,error:updateError}=await supabase.rpc('admin_update_support_ticket',{p_ticket_id:id,p_status:nextStatus,p_admin_response:nextResponse||null});
    if(updateError)throw updateError;
+   const result=updateResult as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||result.ticket_id!==id||result.status!==nextStatus)throw new Error('The server returned a support ticket result that does not match the selected ticket. Refresh the queue before retrying.');
    setNotice('Support ticket updated.');await load();
   }catch(e){setError(e instanceof Error?e.message:'Support ticket could not be updated. Please retry.');}
   finally{saveBusy.current.delete(id);setSaving(current=>current===id?'':current);}
