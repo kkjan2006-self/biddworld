@@ -7,7 +7,8 @@ type Ticket={id:string;user_id:string;subject:string;message:string;status:'open
 const PAGE_SIZE=100;
 function validTicket(value:unknown,expectedUserId?:string):value is Ticket{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;return typeof row.id==='string'&&uuid.test(row.id)&&typeof row.user_id==='string'&&uuid.test(row.user_id)&&(!expectedUserId||row.user_id===expectedUserId)&&typeof row.subject==='string'&&row.subject.trim().length>=4&&row.subject.trim().length<=120&&typeof row.message==='string'&&row.message.trim().length>=10&&row.message.trim().length<=5000&&['open','in_progress','resolved','closed'].includes(String(row.status))&&(row.admin_response===null||(typeof row.admin_response==='string'&&row.admin_response.length<=5000))&&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))&&typeof row.updated_at==='string'&&Number.isFinite(Date.parse(row.updated_at))&&Date.parse(row.updated_at)>=Date.parse(row.created_at);}
 
-export default function Support({isAdmin=false}:{isAdmin?:boolean}){
+export default function Support({isAdmin=false,isStaffSupport=false}:{isAdmin?:boolean;isStaffSupport?:boolean}){
+ const canReview=isAdmin||isStaffSupport;
  const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>()),submitKey=useRef(''),submitKeyPayload=useRef('');
  const [tickets,setTickets]=useState<Ticket[]>([]);
  const [subject,setSubject]=useState('');
@@ -30,7 +31,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   setBusy(true);setError('');
   try{
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
-   let expectedUserId:string|undefined;if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');expectedUserId=user.id;request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
+   let expectedUserId:string|undefined;if(!canReview){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');expectedUserId=user.id;request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
    const {data,error:loadError}=await request.range(0,PAGE_SIZE);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
@@ -40,7 +41,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    setResponse(Object.fromEntries(page.map(row=>[row.id,row.admin_response??''])));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
- },[isAdmin,statusFilter]);
+ },[canReview,statusFilter]);
  const loadMore=useCallback(async()=>{
   if(!supabase||loadMoreBusy.current||busy||!hasMore)return;
   loadMoreBusy.current=true;const seq=requestSeq.current;setBusy(true);setError('');
@@ -48,7 +49,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    const cursor=tickets[tickets.length-1];
    if(!cursor){setHasMore(false);return;}
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
-   let expectedUserId:string|undefined;if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');expectedUserId=user.id;request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
+   let expectedUserId:string|undefined;if(!canReview){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');expectedUserId=user.id;request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
    request=request.or(`updated_at.lt.${cursor.updated_at},and(updated_at.eq.${cursor.updated_at},id.lt.${cursor.id})`);
    const {data,error:loadError}=await request.limit(PAGE_SIZE+1);
    if(loadError)throw loadError;
@@ -62,7 +63,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    setResponse(current=>({...current,...Object.fromEntries(fresh.map(row=>[row.id,row.admin_response??'']))}));
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'More support requests could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current){loadMoreBusy.current=false;setBusy(false);}}
- },[busy,hasMore,tickets,isAdmin,statusFilter]);
+ },[busy,hasMore,tickets,canReview,statusFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
 
  async function submit(e:React.FormEvent<HTMLFormElement>){
@@ -88,7 +89,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   if(!supabase||exportBusy)return;setExportBusy(true);setExportMessage('');
   try{
    let userId:string|undefined;
-   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to export your support requests.');userId=user.id;}
+   if(!canReview){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to export your support requests.');userId=user.id;}
    const all:Ticket[]=[];const seenPages=new Set<string>(),seenIds=new Set<string>();
    let cursor:Pick<Ticket,'updated_at'|'id'>|null=null;
    for(let pages=0;pages<10000;pages++){
@@ -114,7 +115,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    const q=search.trim().toLowerCase();const matched=all.filter(ticket=>!q||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(q)));
    if(!matched.length){setExportMessage('No matching support requests are available to export.');return;}
    const rows=[['Ticket ID','Member User ID','Subject','Message','Status','Admin Response','Created At','Updated At'],...matched.map(ticket=>[ticket.id,ticket.user_id,ticket.subject,ticket.message,ticket.status,ticket.admin_response??'',ticket.created_at,ticket.updated_at])];
-   const url=URL.createObjectURL(new Blob([csvDocument(rows)],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=isAdmin?'biddworld-support-queue.csv':'biddworld-my-support-requests.csv';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+   const url=URL.createObjectURL(new Blob([csvDocument(rows)],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=canReview?'biddworld-support-queue.csv':'biddworld-my-support-requests.csv';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
    setExportMessage('Exported '+matched.length+' support requests matching the current filters.');
   }catch(e){setExportMessage(e instanceof Error?e.message:'Support requests could not be exported. Please retry.');}
   finally{setExportBusy(false);}
@@ -136,29 +137,29 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const date=(value:string)=>new Date(value).toLocaleString('en-IN');
  const visibleTickets=tickets.filter(ticket=>(statusFilter==='all'||ticket.status===statusFilter)&&(!search.trim()||[ticket.subject,ticket.message,ticket.admin_response??''].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
  return <section className="accountSection" style={{display:'block',maxWidth:980,margin:'0 auto'}}>
-  <h3><MessageCircle size={20}/> {isAdmin?'Member Support Queue':'Support & Help'}</h3>
-  <p className="memberModuleHint">{isAdmin?'Review member requests and record a status and response.':'Send a private request to the BiddWorld support team and follow its status here.'}</p>
+  <h3><MessageCircle size={20}/> {canReview?'Support Review Queue':'Support & Help'}</h3>
+  <p className="memberModuleHint">{canReview?'Review member requests and record a status and response.':'Send a private request to the BiddWorld support team and follow its status here.'}</p>
   {error&&<div className="notice" role="alert">{error}</div>}{notice&&<div className="notice" role="status">{notice}</div>}
-  {!isAdmin&&<form className="memberWithdrawalForm" onSubmit={submit}>
+  {!canReview&&<form className="memberWithdrawalForm" onSubmit={submit}>
    <label>Subject<input required minLength={4} maxLength={120} value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Briefly describe the issue"/></label>
    <label>Message<textarea required minLength={10} maxLength={5000} rows={5} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Include the details needed to help resolve your issue."/></label>
    <button className="primary" type="submit" disabled={busy||!supabase}><Send size={16}/> {busy?'Submitting…':'Submit support request'}</button>
   </form>}
-  <div className="memberReportHeading"><h4>{isAdmin?'Recent member requests':'My support requests'} ({tickets.length}{hasMore?' loaded':''})</h4><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button className="outline small" type="button" onClick={()=>void exportTickets()} disabled={exportBusy}><RefreshCw size={14}/>{exportBusy?'Preparing…':'Export Full CSV'}</button><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div></div>{exportMessage&&<p className="memberModuleState" role="status">{exportMessage}</p>}
+  <div className="memberReportHeading"><h4>{canReview?'Recent member requests':'My support requests'} ({tickets.length}{hasMore?' loaded':''})</h4><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button className="outline small" type="button" onClick={()=>void exportTickets()} disabled={exportBusy}><RefreshCw size={14}/>{exportBusy?'Preparing…':'Export Full CSV'}</button><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}><RefreshCw size={14}/> Refresh</button></div></div>{exportMessage&&<p className="memberModuleState" role="status">{exportMessage}</p>}
   <div className="sponsorAdminForm" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10,marginBottom:12}}><label>Search loaded requests<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Subject or message"/></label><label>Filter by status<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as typeof statusFilter)}><option value="all">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select></label></div>
   <div className="memberModuleHint">Showing {visibleTickets.length} matching requests from {tickets.length} loaded records. Status is filtered on the server before pagination; text search applies to loaded records.</div>
   {busy&&tickets.length===0?<div className="empty">Loading support requests…</div>:error&&tickets.length===0?<div className="empty">Support requests could not be loaded. Please retry.<br/><button className="outline small" type="button" onClick={()=>void load()} disabled={busy}>Retry loading support requests</button></div>:tickets.length===0?<div className="empty">No support requests found.</div>:visibleTickets.length===0?<div className="empty">No loaded support requests match these filters.</div>:<div className="activationList">{visibleTickets.map(ticket=><article key={ticket.id} style={{display:'block'}}>
    <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}><b>{ticket.subject}</b><span className="protected">{ticket.status.replace('_',' ').toUpperCase()}</span></div>
-   {isAdmin&&<small>Ticket {ticket.id.slice(0,8).toUpperCase()} · Member {ticket.user_id.slice(0,8)} </small>}
+   {canReview&&<small>Ticket {ticket.id.slice(0,8).toUpperCase()} · Member {ticket.user_id.slice(0,8)} </small>}
    <p style={{whiteSpace:'pre-wrap'}}>{ticket.message}</p><small>Submitted: {date(ticket.created_at)} · Updated: {date(ticket.updated_at)}</small>
    {ticket.admin_response&&<div className="notice"><b>Support response</b><p style={{whiteSpace:'pre-wrap'}}>{ticket.admin_response}</p></div>}
-   {isAdmin&&<div className="sponsorAdminForm" style={{display:'grid',gap:8,marginTop:12}}>
+   {canReview&&<div className="sponsorAdminForm" style={{display:'grid',gap:8,marginTop:12}}>
     <label>Status<select value={status[ticket.id]??ticket.status} onChange={e=>setStatus(current=>({...current,[ticket.id]:e.target.value as Ticket['status']}))}><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select></label>
     <label>Response<textarea rows={3} maxLength={5000} value={response[ticket.id]??''} onChange={e=>setResponse(current=>({...current,[ticket.id]:e.target.value}))} placeholder="Reply to the member"/></label>
     <button className="primary small" type="button" disabled={saving!==''} onClick={()=>void saveTicket(ticket.id)}><ShieldCheck size={15}/>{saving===ticket.id?'Saving…':'Save response & status'}</button>
    </div>}
   </article>)}</div>}
   {hasMore&&<button className="outline small" type="button" onClick={()=>void loadMore()} disabled={busy}>{busy?'Loading…':'Load 100 more requests'}</button>}
-  <small className="memberModuleState">Privacy: members can access only their own requests. Admin access is checked by database policies. Records load 100 at a time.</small>
+  <small className="memberModuleState">Privacy: members can access only their own requests. Admin and assigned Staff access is enforced by database policies. Records load 100 at a time.</small>
  </section>;
 }
