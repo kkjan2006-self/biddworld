@@ -6,6 +6,8 @@ import {csvDocument} from '../lib/csv';
 type Ticket={id:string;user_id:string;subject:string;message:string;status:'open'|'in_progress'|'resolved'|'closed';admin_response:string|null;created_at:string;updated_at:string};
 const PAGE_SIZE=100;
 function validTicket(value:unknown,expectedUserId?:string):value is Ticket{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;return typeof row.id==='string'&&uuid.test(row.id)&&typeof row.user_id==='string'&&uuid.test(row.user_id)&&(!expectedUserId||row.user_id===expectedUserId)&&typeof row.subject==='string'&&row.subject.trim().length>=4&&row.subject.trim().length<=120&&typeof row.message==='string'&&row.message.trim().length>=10&&row.message.trim().length<=5000&&['open','in_progress','resolved','closed'].includes(String(row.status))&&(row.admin_response===null||(typeof row.admin_response==='string'&&row.admin_response.length<=5000))&&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))&&typeof row.updated_at==='string'&&Number.isFinite(Date.parse(row.updated_at))&&Date.parse(row.updated_at)>=Date.parse(row.created_at);}
+function isStrictlyDescendingTicketPage(rows:Ticket[]):boolean{for(let i=1;i<rows.length;i++){const delta=Date.parse(rows[i-1].updated_at)-Date.parse(rows[i].updated_at);if(delta<0||(delta===0&&rows[i-1].id.localeCompare(rows[i].id)<=0))return false;}return true;}
+function isBeforeTicketCursor(row:Ticket,cursor:Pick<Ticket,'updated_at'|'id'>):boolean{const delta=Date.parse(row.updated_at)-Date.parse(cursor.updated_at);return delta<0||(delta===0&&row.id.localeCompare(cursor.id)<0);}
 
 export default function Support({isAdmin=false,isStaffSupport=false}:{isAdmin?:boolean;isStaffSupport?:boolean}){
  const canReview=isAdmin||isStaffSupport;
@@ -35,7 +37,7 @@ export default function Support({isAdmin=false,isStaffSupport=false}:{isAdmin?:b
    const {data,error:loadError}=await request.range(0,PAGE_SIZE);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
-   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(row=>validTicket(row,expectedUserId)))throw new Error('The support queue returned malformed ticket records. Refresh and retry.');const page=rows.slice(0,PAGE_SIZE);const ids=new Set<string>();for(const row of page){if(ids.has(row.id))throw new Error('The support queue returned duplicate ticket IDs. Refresh and retry.');ids.add(row.id);}
+   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(row=>validTicket(row,expectedUserId)))throw new Error('The support queue returned malformed ticket records. Refresh and retry.');const page=rows.slice(0,PAGE_SIZE);if(!isStrictlyDescendingTicketPage(page))throw new Error('The support queue is not in strict descending (updated_at,id) order. Refresh and retry.');if(rows.length>PAGE_SIZE&&page.length!==PAGE_SIZE)throw new Error('The support queue returned an invalid continuation page. Refresh and retry.');const ids=new Set<string>();for(const row of page){if(ids.has(row.id))throw new Error('The support queue returned duplicate ticket IDs. Refresh and retry.');ids.add(row.id);}
    setTickets(page);setHasMore(rows.length>PAGE_SIZE);
    setStatus(Object.fromEntries(page.map(row=>[row.id,row.status])));
    setResponse(Object.fromEntries(page.map(row=>[row.id,row.admin_response??''])));
@@ -55,7 +57,7 @@ export default function Support({isAdmin=false,isStaffSupport=false}:{isAdmin?:b
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
    const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(row=>validTicket(row,expectedUserId)))throw new Error('The next support page returned malformed ticket records. Refresh the list.');
-   const known=new Set(tickets.map(ticket=>ticket.id));const page=rows.slice(0,PAGE_SIZE);const pageIds=new Set<string>();const fresh:Ticket[]=[];
+   const known=new Set(tickets.map(ticket=>ticket.id));const page=rows.slice(0,PAGE_SIZE);if(!isStrictlyDescendingTicketPage(page))throw new Error('The next support page is not in strict descending (updated_at,id) order. Refresh the list.');if(rows.length>PAGE_SIZE&&page.length!==PAGE_SIZE)throw new Error('The next support page is incomplete. Refresh the list.');if(page.length&&!isBeforeTicketCursor(page[0],cursor))throw new Error('The next support page crossed or repeated the previous cursor. Refresh the list.');const pageIds=new Set<string>();const fresh:Ticket[]=[];
    for(const ticket of page){if(known.has(ticket.id)||pageIds.has(ticket.id))throw new Error('The support queue returned duplicate or overlapping ticket IDs. Refresh the list before loading more.');pageIds.add(ticket.id);fresh.push(ticket);}
    setTickets(current=>[...current,...fresh.filter(ticket=>!current.some(existing=>existing.id===ticket.id))]);
    setHasMore(rows.length>PAGE_SIZE);
@@ -99,6 +101,8 @@ export default function Support({isAdmin=false,isStaffSupport=false}:{isAdmin?:b
     const{data,error:loadError}=await request.limit(500);if(loadError)throw loadError;
     if(!Array.isArray(data)||data.length>500||!data.every(row=>validTicket(row,userId)))throw new Error('The support export returned malformed ticket records. Export stopped to avoid an inaccurate CSV.');
     const batch=data as Ticket[];
+    if(!isStrictlyDescendingTicketPage(batch))throw new Error('The support export page is not in strict descending (updated_at,id) order. Export stopped.');
+    if(cursor&&batch.length&&!isBeforeTicketCursor(batch[0],cursor))throw new Error('The support export crossed or repeated its previous cursor. Export stopped.');
     if(batch.length===500){
      const fingerprint=JSON.stringify(batch.map(ticket=>ticket.id));
      if(seenPages.has(fingerprint))throw new Error('The support export repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');

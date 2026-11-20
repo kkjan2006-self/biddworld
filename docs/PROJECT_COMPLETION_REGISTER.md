@@ -1,3 +1,11 @@
+## 2026-11-20 — Support ticket pagination ordering and cursor integrity
+
+- The Support inbox previously relied on the database's descending `(updated_at,id)` ordering without independently validating initial pages, continuation pages or complete CSV export batches.
+- Added strict per-page ordering checks and strict-before-cursor checks for continuation and export. Existing member owner scoping and Admin/Staff review permissions remain unchanged.
+- Added source-only assertions in `tests/support-ticket-pagination-integrity.test.ts`; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+---
+
 ## 2026-11-20 — Restricted Staff Support workspace integration gap closed
 
 - A follow-up end-to-end route audit found that the Support permission editor, Support RLS/RPC and top-level Support tab already recognized `support_ticket_review`, but the dedicated Admin Staff workspace filtered that claim out and did not render the Support queue. Staff assigned only Support review therefore saw an incorrect empty-permissions state inside the Staff workspace.

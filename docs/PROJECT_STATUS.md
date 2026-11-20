@@ -22,7 +22,7 @@ Restricted Staff Support ticket review was added end-to-end:
 - Forward migration: `20261120220000_restricted_staff_support_ticket_review.sql`.
 - Source-only regression file: `tests/restricted-staff-support-ticket-review.test.ts` (not executed).
 
-Latest follow-up source work now also includes the Staff Support notification trigger, Matrix reversal replay identity, strict page-order/cursor validation across Fixed Bid, Admin Package Activation, Notifications, Wallet and withdrawal histories, and repaired source-only regression assertions. The three user-supplied Fixed Bid sample product images are present under `public/sample-products/`; the smartphone image was subsequently replaced with a higher-resolution version. Current branch HEAD at this checkpoint: `a30ae80e702dc45a562eca969b077725013a2af3`.
+Latest follow-up source work now also includes the Staff Support notification trigger, Matrix reversal replay identity, strict page-order/cursor validation across Fixed Bid, Admin Package Activation, Notifications, Wallet and withdrawal histories, and repaired source-only regression assertions. The three user-supplied Fixed Bid sample product images are present under `public/sample-products/`; the smartphone image was subsequently replaced with a higher-resolution version. Current branch HEAD is recorded in the latest verified commit and completion register.
 
 ## Next source-development priorities
 
@@ -169,3 +169,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Updated image URL resolution to serve Vite base-path public assets directly, including GitHub Pages `/biddworld-preview/`, instead of requesting them from Supabase Storage. Shared by homepage compact cards, catalogue cards and details gallery.
 - Added source-only regression assertions in `tests/fixed-bid-sample-images.test.ts`; not executed. The uploaded Mixer Grinder image contains a visible Vecteezy watermark.
 - No DB changes, migrations, tests/build/type-check/E2E/browser QA or deployment. Production/TEST unchanged; `main` unchanged.
+
+
+## Latest Support ticket pagination integrity
+
+- Source audit found Support initial, continuation and full CSV export pages trusted the database's descending `(updated_at,id)` order without independently validating page order or the continuation cursor boundary.
+- Added strict descending tuple validation to every Support page and export batch; continuation pages must start strictly before the prior cursor. Existing owner scoping, Staff/Admin review scope, duplicate-ID checks and full-page continuation behavior are preserved.
+- Added `tests/support-ticket-pagination-integrity.test.ts` as source-only regression coverage; not executed. No SQL migration or database operation was required.
