@@ -1,3 +1,12 @@
+## 2026-11-20 — Referral and Matrix commission mutation response validation
+
+- **Referral/Matrix commission mutation responses hardened:** Admin posting actions now require a JSON object with `success=true`, the exact requested activation ID, and a non-negative integer posted count; reversal actions require `success=true`, the exact commission ID and `status='reversed'`. Applied to both Referral and Matrix commission screens and matched the expected SQL return contracts. Added `tests/admin-commission-mutation-result-integrity.test.ts` (source only; not executed). Commits: `8bfefc3207b7fc497a55cbe8cd2249fd11d7e9f7`, `542d07d9ad61033c4a2a8948c6ebe30003e2104b`, test `6c1103d290c62816a29cf5db2aabc86dabfe69a5`.
+
+- This validates returned mutation identity/count/status before presenting success; it does not execute commission posting or reversal.
+- No tests/build/type-check or database access/replay was performed.
+
+---
+
 ## 2026-11-20 — Admin Product media cleanup recovery
 
 - **Admin Product media cleanup recovery implemented:** when replacing an uploaded-but-unattached product image, failed removal of the previous object is now retained in a retry queue instead of becoming an untracked orphan. The Admin form exposes a Retry Temporary Image Cleanup action, reports outstanding cleanup, and clears the image URL/reference when a staged object is successfully discarded or retried. Added `tests/admin-product-media-cleanup-recovery.test.ts` as source-only regression coverage; not executed. Commits: `60623c211a2d4622c8bd78f1fc0603ae4ec10151`, `e19782e4de743b75b5463c9359be068295e79b99`, `4fa15a8b32036bc60d52608364440c849a3417a5`, test `317cf07de96ca7970245c1ad4a99b698e6d4a390`.
