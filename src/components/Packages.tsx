@@ -11,6 +11,23 @@ type PackageItem = {
   currency: string;
   bid_wallet_credit: number;
 };
+function parsePackageCatalogue(value:unknown):PackageItem[]{
+  if(!Array.isArray(value)||value.length>100)throw new Error('Package catalogue response is invalid or exceeds the 100-item page limit.');
+  const ids=new Set<string>();
+  return value.map(raw=>{
+    if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Package catalogue contains a malformed record.');
+    const row=raw as Record<string,unknown>;
+    if(typeof row.id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(row.id)||ids.has(row.id)
+      ||typeof row.name!=='string'||!row.name.trim()||row.name.length>120
+      ||(row.description!==null&&typeof row.description!=='string')
+      ||typeof row.price!=='number'||!Number.isFinite(row.price)||row.price<0
+      ||typeof row.currency!=='string'||!row.currency.trim()||row.currency.length>8
+      ||typeof row.bid_wallet_credit!=='number'||!Number.isFinite(row.bid_wallet_credit)||row.bid_wallet_credit<0){
+      throw new Error('Package catalogue contains invalid or duplicate package fields.');
+    }
+    ids.add(row.id);return row as unknown as PackageItem;
+  });
+}
 
 const RECEIPT_CLEANUP_LIMIT=20;
 function validReceiptCleanupPath(value:unknown,userId:string):value is string{
@@ -92,7 +109,7 @@ export default function Packages() {
       if (queryError) {
         setItems([]);
         setError('Packages could not be loaded. Please try again later.');
-      } else setItems((data ?? []) as PackageItem[]);
+      } else setItems(parsePackageCatalogue(data));
       const {data:sessionData}=await supabase.auth.getSession();
       if(!isCurrent())return;
       if(!sessionData.session){setActivationEnabled(false);setReceiptCleanupCount(0);return;}
@@ -105,7 +122,7 @@ export default function Packages() {
     } catch {
       if (!isCurrent()) return;
       setItems([]);
-      setError('A network error prevented packages from loading. Please retry.');
+      setError(e instanceof Error&&e.message.startsWith('Package catalogue')?e.message:'A network error prevented packages from loading. Please retry.');
     } finally {
       if (isCurrent()) setLoading(false);
     }
