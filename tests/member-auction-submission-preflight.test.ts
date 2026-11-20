@@ -20,6 +20,13 @@ describe('member auction submission preflight', () => {
     expect(source).toContain('p_title:cleanTitle,p_description:cleanDescription');
   });
 
+  it('records generated image paths before upload so ambiguous upload failures can be cleaned',()=>{
+    const tracked=source.indexOf('uploadedPaths.push(path)');
+    const upload=source.indexOf("supabase.storage.from('auction-submission-media').upload");
+    expect(tracked).toBeGreaterThan(-1);
+    expect(upload).toBeGreaterThan(tracked);
+  });
+
   it('preflights every selected image type and size before the first upload', () => {
     const preflight = source.indexOf("for(const file of files){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)");
     const firstUpload = source.indexOf("supabase.storage.from('auction-submission-media').upload");
