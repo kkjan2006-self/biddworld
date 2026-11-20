@@ -56,6 +56,8 @@ function parseProductPage(value:unknown):ProductPageRow[]{
    ||(row.description!==null&&typeof row.description!=='string')
    ||(row.image_path!==null&&typeof row.image_path!=='string')
    ||(row.category!==null&&typeof row.category!=='string')
+   ||!Array.isArray(row.image_paths)||row.image_paths.length>8||!row.image_paths.every(path=>typeof path==='string'&&path.trim().length>0)
+   ||(row.product_details!==null&&row.product_details!==undefined&&(!row.product_details||typeof row.product_details!=='object'||Array.isArray(row.product_details)||Object.entries(row.product_details as Record<string,unknown>).some(([key,value])=>!key.trim()||typeof value!=='string')))
    ||row.status!=='published'||typeof row.has_more!=='boolean')
    throw new Error('The product catalogue contains invalid listing fields. Refresh and retry.');
   if(pageHasMore!==undefined&&pageHasMore!==row.has_more)throw new Error('The product catalogue returned inconsistent pagination metadata. Refresh and retry.');
