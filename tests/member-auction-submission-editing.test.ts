@@ -19,6 +19,12 @@ describe('member auction submission editing contract',()=>{
   expect(ui).toContain('editingId&&submissionId!==editingId');
   expect(ui).toContain('The outcome may already be recorded; refresh your submission history before retrying.');
  });
+ it('restricts persisted cleanup retries and displayed image paths to generated UUID-owned objects',()=>{
+  expect(ui).toContain('function validOwnedImagePath(value:unknown)');
+  expect(ui).toContain('row.image_paths.every(validOwnedImagePath)');
+  expect(ui).toContain('validOwnedImagePath(path)&&path.startsWith(data.user.id+\'/\')');
+  expect(ui).toContain('cleanupInFlight.current');
+ });
  it('resets edited submissions to pending review and audits the change',()=>{
   expect(sql).toContain("status='pending',review_note=null,reviewed_by=null,reviewed_at=null");
   expect(sql).toContain("'auction.submission_edited_for_review'");
