@@ -9,8 +9,14 @@ Active development branch: `completion-work`
 - Source-only development is in progress. Do not run tests, builds, type-checks, E2E, browser QA, deployment, or database replay until the owner declares development 100% complete.
 - Production Supabase project `hbqatszyzqobgtauyuzy` remains read-only. TEST project `yoaauthwejdgaevfvwpo` remains unused.
 - No preview deployments. All SQL changes remain forward migration source only; none are applied to a database.
-- Clean-install source inventory: **152 forward + 16 excluded historical = 168 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
+- Clean-install source inventory: **153 forward + 16 excluded historical = 169 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
 - Source-only regression tests may be added but must remain unexecuted.
+
+## Latest source-only batch — withdrawal cancellation notification parity (2026-11-20)
+
+- The canonical withdrawal status set and both UIs support `cancelled`, but the shared member workflow-status trigger previously ignored this terminal transition. Added a forward-only replacement migration that sends a member-facing cancellation notice through the existing in-app inbox, explicitly stating that no payout will be made.
+- Added source-only regression coverage in `tests/member-workflow-status-notifications.test.ts`; not executed. Migration registered in the clean-install forward manifest. No migration applied and no tests/build/type-check/E2E/browser QA/database/deployment operations run.
+- Inventory: 153 forward + 16 excluded = 169 timestamped migration paths, plus 3 legacy/unversioned SQL files.
 
 ## Latest development batch
 ## Latest source-only batch — notification response contract hardening (2026-11-20)

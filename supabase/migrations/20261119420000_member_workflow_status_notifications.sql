@@ -110,6 +110,9 @@ begin
     elsif v_status = 'paid' then
       v_title := 'Withdrawal marked as paid';
       v_message := 'Your withdrawal request has been marked as paid by the administrator.';
+    elsif v_status = 'cancelled' then
+      v_title := 'Withdrawal request cancelled';
+      v_message := 'Your withdrawal request has been cancelled. No payout will be made for this request.';
     else
       return new;
     end if;

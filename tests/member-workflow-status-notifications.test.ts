@@ -18,6 +18,13 @@ describe('member workflow status notifications',()=>{
   expect(sql).toContain("new.status = 'rejected'");
   expect(sql).toContain("v_status = 'paid'");
  });
+ it('notifies the member when a withdrawal reaches the cancelled terminal status',()=>{
+  expect(sql).toContain("elsif v_status = 'cancelled' then");
+  expect(sql).toContain("v_title := 'Withdrawal request cancelled'");
+  expect(sql).toContain('No payout will be made for this request.');
+  expect(sql).toContain('create trigger notify_member_withdrawal_status');
+  expect(sql).toContain('after update of status on public.withdrawal_requests');
+ });
  it('writes only to the existing in-app notification inbox',()=>{
   expect(sql).toContain('insert into public.member_notifications(user_id, title, message, category)');
   expect(sql).not.toMatch(/net\.http|http_post|sendgrid|twilio/i);

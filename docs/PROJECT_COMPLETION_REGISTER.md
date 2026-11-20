@@ -1,3 +1,11 @@
+## 2026-11-20 — Withdrawal cancellation notification parity
+
+- Source audit found that the member/Admin parsers and UI had been reconciled to accept the canonical `cancelled` withdrawal status, but `private.notify_member_workflow_status_change()` still handled only approved, rejected and paid transitions. A valid cancellation therefore appeared in history without a matching member notification.
+- Added `20261120250000_notify_member_on_withdrawal_cancellation.sql`, replacing the existing trigger function with the same behavior plus a clear cancellation message stating that no payout will be made. Existing trigger, feature switch, private function boundary and in-app notification destination are retained.
+- Registered the migration as forward candidate #153; added source-only regression coverage in `tests/member-workflow-status-notifications.test.ts`. Not executed. No database replay, tests, build, type-check, E2E, browser QA or deployment.
+
+---
+
 ## Latest source-only batch — notification response contract hardening (2026-11-20)
 
 - Notification inbox and Realtime INSERT/UPDATE events now validate notification and recipient identities as UUIDs, enforce the database-supported category set (`general`, `account`, `support`, `security`), and enforce title/message bounds matching the `member_notifications` table constraints. Optional Admin recipient labels are bounded before rendering.
