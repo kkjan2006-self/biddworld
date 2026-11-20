@@ -12,7 +12,7 @@ type MatrixCommissionRow={
 const PAGE_SIZE=100;
 type MatrixSummary={total_count:number;total_amount:number;pending_count:number;pending_amount:number;credited_count:number;credited_amount:number;reversed_count:number;reversed_amount:number};
 const emptySummary:MatrixSummary={total_count:0,total_amount:0,pending_count:0,pending_amount:0,credited_count:0,credited_amount:0,reversed_count:0,reversed_amount:0};
-function validSummary(value:unknown):value is MatrixSummary{if(!value||typeof value!=='object')return false;const row=value as Record<string,unknown>;return Object.keys(emptySummary).every(key=>Number.isFinite(Number(row[key]))&&Number(row[key])>=0);}
+function validSummary(value:unknown):value is MatrixSummary{if(!value||typeof value!=='object')return false;const row=value as Record<string,unknown>;return Object.keys(emptySummary).every(key=>typeof row[key]==='number'&&Number.isFinite(row[key])&&Number(row[key])>=0);}
 const formatINR=(value:number)=>'₹'+Number(value).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const validStatuses=['pending','credited','reversed'] as const;
 function validRow(value:unknown):value is MatrixCommissionRow{
@@ -26,9 +26,9 @@ function validRow(value:unknown):value is MatrixCommissionRow{
   &&typeof r.source_id_type==='string'&&['main','duplicate'].includes(r.source_id_type)
   &&typeof r.credited_main_member_code==='string'&&r.credited_main_member_code.length>0
   &&(r.credited_main_name===null||typeof r.credited_main_name==='string')
-  &&Number.isFinite(Number(r.amount))&&Number(r.amount)>0
+  &&typeof r.amount==='number'&&Number.isFinite(r.amount)&&r.amount>0
   &&typeof r.status==='string'&&(validStatuses as readonly string[]).includes(r.status)
-  &&typeof r.created_at==='string'&&Number.isFinite(Date.parse(r.created_at));
+  &&typeof r.created_at==='string'&&Number.isFinite(Date.parse(r.created_at))&&typeof r.has_more==='boolean';
 }
 export default function AdminMatrixCommissions(){
  const [rows,setRows]=useState<MatrixCommissionRow[]>([]);
@@ -46,7 +46,9 @@ export default function AdminMatrixCommissions(){
    p_level:filterLevel==='all'?null:Number(filterLevel)
   });
   if(error)throw error;
-  if(!Array.isArray(data)||!data.every(validRow))throw new Error('The Matrix commission report returned an invalid or incomplete page. Refresh before continuing.');
+  if(!Array.isArray(data)||data.length>PAGE_SIZE||!data.every(validRow))throw new Error('The Matrix commission report returned an invalid or oversized page. Refresh before continuing.');
+  if(data.length&&data.some(row=>row.has_more!==data[0].has_more))throw new Error('The Matrix commission page returned inconsistent continuation metadata. Refresh the report.');
+  if(data.length<PAGE_SIZE&&data.some(row=>row.has_more))throw new Error('The Matrix commission page returned an invalid continuation flag. Refresh the report.');
   const ids=new Set<string>();
   for(const row of data as MatrixCommissionRow[]){if(ids.has(row.commission_id))throw new Error('The Matrix report returned duplicate commission IDs.');ids.add(row.commission_id);}
   return data as MatrixCommissionRow[];
