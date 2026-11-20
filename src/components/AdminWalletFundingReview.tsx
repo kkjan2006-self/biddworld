@@ -72,7 +72,7 @@ const client=supabase;
    const result=reviewResult as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||result.status!==(approve?'approved':'rejected')||(approve&&(result.wallet_type!=='income'||typeof result.balance_after!=='number'||!Number.isFinite(result.balance_after)||result.balance_after<0)))throw new Error('The server returned a wallet funding review result that does not match this request. Refresh the queue before retrying.');
    setMessage(approve?'Payment approved. The amount has been credited to the member Income Wallet.':'Payment request rejected. No wallet credit was made.');
    await load();
-  }catch(e){setError(e instanceof Error?e.message:'The request could not be reviewed. Please retry.');}
+  }catch(e){setError((e instanceof Error?e.message:'The request could not be reviewed. Please retry.').replace(/Main Wallet/gi,'Income Wallet'));}
   finally{reviewBusy.current=false;setBusy('');}
  }
  return <section className="adminModuleDetail" style={{marginTop:18}}>
