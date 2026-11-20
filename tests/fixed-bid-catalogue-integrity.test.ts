@@ -25,7 +25,7 @@ describe('Fixed Bid public catalogue integrity',()=>{
  it('validates the approved product gallery and string-valued product attributes',()=>{
   expect(component).toContain('product.image_paths.length>8');
   expect(component).toContain('product.product_details');
-  expect(component).toContain('Object.values(product.product_details as Record<string,unknown>).every(item=>typeof item===\\'string\\')');
+  expect(component).toContain("Object.values(product.product_details as Record<string,unknown>).every(item=>typeof item==='string')");
   expect(projection).toContain("'image_paths'");
   expect(projection).toContain("'product_details'");
  });
