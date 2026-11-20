@@ -1,3 +1,11 @@
+## 2026-11-20 — Sponsor Referral reversal replay identity
+
+- The existing Admin client accepted an idempotent replay response with no commission UUID, while the successful fresh response returned one. This left the replay contract weaker than the Matrix reversal contract and allowed a status-only response to be treated as success.
+- Added `20261120260000_referral_commission_reversal_replay_identity.sql`, preserving the existing ledger checks and adding `commission_id` to the replay response for both pending-only and credited/reversed cases. The client now requires the exact selected commission UUID in all successful responses.
+- Updated `tests/admin-commission-mutation-result-integrity.test.ts` to assert exact identity on fresh and replay paths for both Referral and Matrix. Source-only; not executed. Registered as clean-install forward candidate #154.
+
+---
+
 ## 2026-11-20 — Notification Unicode length and lookup-boundary parity
 
 - Reconciled Admin notification send validation with PostgreSQL length(text): JavaScript .length counts UTF-16 code units, so supplementary Unicode characters could be rejected despite fitting the database's character limit. Send validation now uses the existing code-point counter for title and message.

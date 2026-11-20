@@ -9,7 +9,7 @@ Active development branch: `completion-work`
 - Source-only development is in progress. Do not run tests, builds, type-checks, E2E, browser QA, deployment, or database replay until the owner declares development 100% complete.
 - Production Supabase project `hbqatszyzqobgtauyuzy` remains read-only. TEST project `yoaauthwejdgaevfvwpo` remains unused.
 - No preview deployments. All SQL changes remain forward migration source only; none are applied to a database.
-- Clean-install source inventory: **153 forward + 16 excluded historical = 169 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
+- Clean-install source inventory: **154 forward + 16 excluded historical = 170 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
 - Source-only regression tests may be added but must remain unexecuted.
 
 ## Latest source-only batch — withdrawal cancellation notification parity (2026-11-20)
@@ -21,6 +21,12 @@ Active development branch: `completion-work`
 ## Notification Unicode length and lookup-boundary parity (2026-11-20)
 
 Admin notification submission and recipient lookup now count Unicode code points with the same semantics as PostgreSQL length(text), rather than JavaScript UTF-16 code units. The recipient search is constrained to the SQL RPC's 2–120 character range, and input maxlength allowances permit up to 120/2,000 supplementary Unicode characters before code-point validation. No SQL change. Source-only regression assertions added in tests/notifications-response-integrity.test.ts; not executed.
+
+## Latest source-only batch — Sponsor Referral reversal replay identity (2026-11-20)
+
+- The Admin client now requires the exact commission UUID for fresh and replayed reversal results. The original SQL replay path for an already-reversed pending commission without wallet credit omitted commission_id; added a forward-only replacement returning the exact selected ID.
+- Registered migration candidate #154 and extended source-only assertions for Referral and Matrix replay identity. Not executed. No database replay, tests/build/type-check/E2E/browser QA or deployment.
+- Inventory: 154 forward + 16 excluded = 170 timestamped paths, plus 3 legacy/unversioned SQL files.
 
 ## Latest development batch
 ## Latest source-only batch — notification response contract hardening (2026-11-20)
