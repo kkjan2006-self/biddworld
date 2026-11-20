@@ -26,6 +26,9 @@ This file keeps the historical audit notes below, but the opening status is the 
 
 ## Latest source-only development batch — 2026-11-20
 
+- Fixed a real client/server idempotency mismatch: Referral and Matrix commission reversal replay responses (which omit commission_id only when `replayed=true`) are now accepted and accurately described; first-time responses still require the exact commission ID. Regression source test extended; not executed.
+
+
 - Referral and Matrix commission Admin actions now validate complete server mutation results (requested activation/commission identity, success status, posted count or reversal status) before reporting success. Added source-only regression coverage; not executed.
 
 
