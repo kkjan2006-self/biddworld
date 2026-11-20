@@ -147,11 +147,24 @@ export default function Account(){
   }
  }
  useEffect(()=>{loadMounted.current=true;void load();return()=>{loadMounted.current=false;loadRequest.current+=1;}},[]);
- async function loadHistoryPage<T extends {id:string}>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
+ function validateMemberHistoryPage<T extends {id:string;created_at?:string;submitted_at?:string}>(value:unknown,previous:T[],timestampKey:'created_at'|'submitted_at',pageSize:number):T[]{
+ if(!Array.isArray(value)||value.length>pageSize)throw new Error('Account history returned an invalid page. Refresh your account and retry.');
+ const page=value as T[];const seen=new Set(previous.map(row=>row.id));
+ for(let index=0;index<page.length;index++){
+  const row=page[index],prior=index?page[index-1]:previous[previous.length-1];
+  const timestamp=row&&row[timestampKey];
+  if(!row||typeof row.id!=='string'||!row.id.trim()||typeof timestamp!=='string'||!Number.isFinite(Date.parse(timestamp)))throw new Error('Account history returned an invalid record identity or timestamp. Refresh your account and retry.');
+  if(seen.has(row.id))throw new Error('Account history repeated a record across pages. Refresh your account before continuing.');
+  seen.add(row.id);
+  if(prior){const priorTimestamp=prior[timestampKey];if(typeof priorTimestamp!=='string')throw new Error('Account history cursor is invalid. Refresh your account and retry.');const delta=Date.parse(priorTimestamp)-Date.parse(timestamp);if(delta<0||(delta===0&&prior.id.localeCompare(row.id)<=0))throw new Error('Account history is not in strict descending ('+timestampKey+',id) order. Refresh your account and retry.');}
+ }
+ return page;
+}
+async function loadHistoryPage<T extends {id:string;created_at?:string;submitted_at?:string}>(key:'activations'|'auctionBids'|'fixedBids'|'commissions'|'winningPayments',offset:number,pageSize:number,fetchPage:(client:NonNullable<typeof supabase>,memberId:string,from:number,to:number)=>PromiseLike<any>,append:(rows:T[],client:NonNullable<typeof supabase>)=>Promise<void>|void){
  if(!supabase||!profile?.main_member_id||historyPageInFlight.current.has(key))return;
  const client=supabase;const memberId=profile.main_member_id;historyPageInFlight.current.add(key);setHistoryLoading(key);
- try{const {data,error}=await fetchPage(client,memberId,offset,offset+pageSize-1);if(error)throw error;const batch=(data??[]) as T[];const currentRows=key==='activations'?activations:key==='auctionBids'?auctionBids:key==='fixedBids'?fixedBids:key==='commissions'?commissions:winningPayments;const known=new Set(currentRows.map(row=>row.id));const freshCount=batch.filter(row=>!known.has(row.id)).length;await append(batch,client);if(batch.length===pageSize&&freshCount===0){setHistoryHasMore(current=>({...current,[key]:false}));setError('The '+(key==='auctionBids'?'auction':key==='fixedBids'?'Fixed Bid':key==='winningPayments'?'winner payment':key==='activations'?'package activation':'commission')+' history returned a repeated page. Refresh your account before loading more.');}else setHistoryHasMore(current=>({...current,[key]:batch.length===pageSize}));}
- catch(e){setError(e instanceof Error?e.message:'Could not load more account history.');}
+ try{const {data,error}=await fetchPage(client,memberId,offset,offset+pageSize-1);if(error)throw error;const currentRows=key==='activations'?activations:key==='auctionBids'?auctionBids:key==='fixedBids'?fixedBids:key==='commissions'?commissions:winningPayments;const timestampKey=key==='activations'?'submitted_at':'created_at';const batch=validateMemberHistoryPage<T>(data,currentRows as T[],timestampKey,pageSize);await append(batch,client);setHistoryHasMore(current=>({...current,[key]:batch.length===pageSize}));}
+ catch(e){setHistoryHasMore(current=>({...current,[key]:false}));setError(e instanceof Error?e.message:'Could not load more account history.');}
  finally{historyPageInFlight.current.delete(key);setHistoryLoading(current=>current===key?'':current);}
 }
 async function loadMoreWithdrawals(){
