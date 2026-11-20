@@ -46,7 +46,7 @@ begin
  if p_image_paths is null or cardinality(p_image_paths)<1 or cardinality(p_image_paths)>8 then
   raise exception 'Upload between 1 and 8 item images' using errcode='22023';end if;
  foreach v_path in array p_image_paths loop
-  if v_path !~ ('^'||v_uid::text||'/[A-Za-z0-9_-]+\\.(jpg|jpeg|png|webp)$') then
+  if v_path !~ ('^'||v_uid::text||'/[A-Za-z0-9_-]+[.](jpg|jpeg|png|webp)$') then
    raise exception 'An image path is invalid or does not belong to your account' using errcode='22023';end if;
  end loop;
  if p_starting_price is null or p_starting_price<=0 or p_expected_price is null
@@ -94,7 +94,7 @@ begin
   raise exception 'Reviewed auction details are incomplete or invalid' using errcode='22023';end if;
  foreach v_path in array p_image_paths loop
   if not exists(select 1 from unnest(v_s.image_paths) original(path) where original.path=v_path)
-   and v_path !~ ('^'||v_s.submitted_by::text||'/[A-Za-z0-9_-]+\\.(jpg|jpeg|png|webp)$') then
+   and v_path !~ ('^'||v_s.submitted_by::text||'/[A-Za-z0-9_-]+[.](jpg|jpeg|png|webp)$') then
    raise exception 'Reviewed image path is invalid' using errcode='22023';end if;
  end loop;
  if p_expected_price<=p_starting_price then v_reached:=p_starts_at;v_deadline:=p_starts_at+interval '48 hours';end if;
