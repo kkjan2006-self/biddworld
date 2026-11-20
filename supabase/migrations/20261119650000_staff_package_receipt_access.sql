@@ -16,6 +16,7 @@ $function$;
 revoke all on function public.can_read_package_activation_receipt(text) from public,anon;
 grant execute on function public.can_read_package_activation_receipt(text) to authenticated;
 
+drop policy if exists "Admins read package receipts" on storage.objects;
 drop policy if exists package_receipts_select_admin on storage.objects;
 drop policy if exists package_receipts_select_admin_or_assigned_staff on storage.objects;
 create policy package_receipts_select_admin_or_assigned_staff on storage.objects
