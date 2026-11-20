@@ -1,3 +1,13 @@
+## 2026-11-20 — Member submission moderation response contracts
+
+- Admin Product moderation now validates `success`, action-specific status, the returned Product UUID and exact published image count before reporting success or clearing workflow state.
+- Admin Auction moderation now validates action-specific status, returned Auction/Product UUIDs, exact Expected Price and the SQL 48-hour deadline contract (including the already-reached-at-start case) before clearing edits or reporting publication.
+- Corrected the auction review regression assertion to match the actual 5-character minimum title contract.
+- Added source-only assertions in `tests/admin-product-submission-image-cleanup.test.ts` and `tests/admin-auction-submission-review-safety.test.ts`; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Matrix commission report pagination contract
 
 - Matrix commission report pages now reject responses over the requested 100-row bound, require numeric summary/amount fields and require a boolean, consistent `has_more` flag on every returned row.
