@@ -19,4 +19,12 @@ describe('Marketplace homepage listing rows',()=>{
  it('keeps full Fixed Bid filters and details outside compact homepage mode',()=>{
   assert.match(fixed, /!compact&&<div className="sponsorAdminForm"/);
  });
+ it('renders clean auction cards with one-line hierarchy, expected-price progress and a prominent bid action',()=>{
+  assert.match(app,/auctionCleanCard/);
+  assert.match(app,/auctionDetailsLink/);
+  assert.match(app,/auctionTargetProgress/);
+  assert.match(app,/auctionBidButton/);
+  assert.match(css,/\.auctionTargetTrack/);
+  assert.match(css,/\.auctionBidButton/);
+ });
 });
