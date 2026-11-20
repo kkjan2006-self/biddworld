@@ -48,6 +48,8 @@ describe('Expected-price auction lifecycle',()=>{
 });
 )");
   expect(migration).not.toContain('\\\\\\\\.');
+  expect(migration).toContain("o.bucket_id='auction-submission-media' and o.name=v_path");
+  expect(migration).toContain("o.bucket_id='product-media' and o.name=v_path");
  });
  it('starts a 48-hour close timer only after the expected price is reached',()=>{
   expect(migration).toContain("new.current_price >= new.expected_price");
