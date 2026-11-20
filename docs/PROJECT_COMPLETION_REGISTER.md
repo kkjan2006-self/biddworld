@@ -1,3 +1,11 @@
+## 2026-11-20 — Admin report stable identity integrity
+
+- The shared Admin CSV pagination helper previously used the full serialized row as a fallback identity when a caller omitted a key. A repeated record whose mutable status/content changed between offset pages could therefore evade duplicate detection.
+- Made stable identity keys mandatory and supplied the canonical record identity for every paged report: withdrawal request, winning payment, delivery tracking, Main ID, package activation, Duplicate ID, referral commission, auction, Fixed Bid campaign, audit log and wallet transaction.
+- Added source-only regression coverage in `tests/admin-report-stable-identity-export.test.ts`; not executed. No SQL migration or database operation required.
+
+---
+
 ## 2026-11-20 — Admin review reason bounds and Unicode parity
 
 - Admin withdrawal rejection, Sponsor Referral reversal and Matrix commission reversal previously checked only the minimum with JavaScript UTF-16 `.length`; they did not enforce the SQL maximum of 500 characters. Supplementary Unicode could also be counted differently from PostgreSQL.

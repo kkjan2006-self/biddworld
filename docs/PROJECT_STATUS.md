@@ -4,6 +4,12 @@
 - Added source-only regression assertions to the existing withdrawal, Referral and Matrix contract tests; not executed. No SQL change or migration required.
 - Current clean-install manifest totals: 155 forward + 16 excluded = 171 timestamped paths, plus 3 legacy/unversioned SQL files.
 
+## Latest source-only batch — Admin report stable identity integrity (2026-11-20)
+
+- The shared Admin paged CSV exporter previously fell back to `JSON.stringify(row)` when a report did not supply an identity key. If a record appeared on two offset pages with changed status/content, duplicate detection could miss the repeated record.
+- Made stable identity keys mandatory and wired every complete report to its immutable record ID (payment, tracking, member code, activation, Duplicate ID, commission, auction, campaign, audit or wallet transaction). Withdrawal exports retain their request UUID key.
+- Added `tests/admin-report-stable-identity-export.test.ts`; not executed. No SQL migration or database change. Tests/build/type-check/E2E/browser QA/deployment remain deferred.
+
 # BiddWorld Development Status
 
 Last updated: 2026-11-20  
