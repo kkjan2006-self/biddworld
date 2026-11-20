@@ -1,3 +1,10 @@
+## 2026-11-20 — Wallet workflow error-state clarity
+
+- Member withdrawal submission now shows actionable validation/server errors rather than replacing all thrown errors with a generic network failure. Admin Add Money review maps legacy server-side “Main Wallet” error text to the correct “Income Wallet” label.
+- Commits: `45f91041a3c656e9a5a7b0586bc1ed01298f1193`, `0e2b8e3725215fade4e39bf0215e5bc865e7774f`.
+
+---
+
 ## 2026-11-20 — Auction and Fixed Bid Admin mutation response validation
 
 - Fixed Bid draft save now validates the UUID returned by `admin_save_fixed_bid_campaign`; edits must return the same campaign ID before the form is cleared.
