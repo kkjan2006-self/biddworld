@@ -24,7 +24,7 @@ export default function AdminWalletFundingReview(){
  const requestSeq=useRef(0),reviewBusy=useRef(false),pageBusy=useRef(false),cursor=useRef<Cursor|null>(null),seenIds=useRef<Set<string>>(new Set());
  const load=useCallback(async(append=false)=>{
   if(append&&pageBusy.current)return;
-  if(append)pageBusy.current=true;
+  if(append)pageBusy.current=true;else pageBusy.current=false;
   const seq=++requestSeq.current;
   if(!supabase){setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);setLoadingMore(false);return;}
   if(append){setLoadingMore(true);}else{cursor.current=null;seenIds.current=new Set();setRows([]);setUrls({});setReceiptErrors({});setHasMore(false);setLoading(true);}
@@ -58,7 +58,7 @@ export default function AdminWalletFundingReview(){
    cursor.current=page.has_more?{created_at:page.next_created_at as string,id:page.next_id as string}:null;
    if(Object.keys(failures).length)setError('One or more receipts could not be opened. Refresh the queue before approving those requests.');
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Wallet funding requests could not be loaded. Please retry.');}
-  finally{if(seq===requestSeq.current){setLoading(false);setLoadingMore(false);}if(append)pageBusy.current=false;}
+  finally{if(seq===requestSeq.current){setLoading(false);setLoadingMore(false);if(append)pageBusy.current=false;}}
  },[]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;};},[load]);
  async function review(id:string,approve:boolean){
@@ -69,13 +69,13 @@ export default function AdminWalletFundingReview(){
    const{error:reviewError}=await supabase.rpc('admin_review_wallet_fund_request',{p_request_id:id,p_approve:approve,p_review_note:note[id]??null});
    if(reviewError)throw reviewError;
    setMessage(approve?'Payment approved. The amount has been credited to the member Main Wallet.':'Payment request rejected. No wallet credit was made.');
-   await load(false);
+   await load();
   }catch(e){setError(e instanceof Error?e.message:'The request could not be reviewed. Please retry.');}
   finally{reviewBusy.current=false;setBusy('');}
  }
  return <section className="adminModuleDetail" style={{marginTop:18}}>
   <h4>Main Wallet Add Money Reviews</h4><p>Check the UTR and payment receipt before approving. Approval credits the member Main Wallet and records the wallet ledger entry.</p>
-  {error&&<div className="notice" role="alert">{error} <button type="button" className="outline small" onClick={()=>void load(false)} disabled={loading||loadingMore}>Retry</button></div>}
+  {error&&<div className="notice" role="alert">{error} <button type="button" className="outline small" onClick={()=>void load()} disabled={loading||loadingMore}>Retry</button></div>}
   {message&&<div className="notice" role="status">{message}</div>}
   {loading?<div className="empty">Loading pending Add Money requests…</div>:error&&!rows.length?null:rows.length===0?<div className="empty">No pending Add Money requests.</div>:<div className="referralList">{rows.map(row=><article key={row.id} style={{display:'flex',flexDirection:'column',gap:8,padding:14}}>
    <b>{row.member_code} · {row.member_name||'Member'}</b><strong>{money(Number(row.amount),row.currency||'INR')}</strong><small>UTR: {row.payment_reference}</small><small>Submitted: {new Date(row.created_at).toLocaleString('en-IN')}</small>
