@@ -1,3 +1,12 @@
+## 2026-11-20 — Admin review reason bounds and Unicode parity
+
+- Admin withdrawal rejection, Sponsor Referral reversal and Matrix commission reversal previously checked only the minimum with JavaScript UTF-16 `.length`; they did not enforce the SQL maximum of 500 characters. Supplementary Unicode could also be counted differently from PostgreSQL.
+- All three UI actions now validate 5–500 trimmed Unicode code points with `Array.from(...).length`. Withdrawal rejection sends the normalized reason so its transmitted length matches the validated length.
+- Added source-only regression assertions to the existing Admin withdrawal, Referral and Matrix contract tests; not executed. No SQL migration required.
+- Reconciled the clean-install README to 155 forward + 16 excluded = 171 timestamped paths, plus 3 legacy SQL files.
+
+---
+
 ## 2026-11-20 — My Team genealogy pagination integrity
 
 - The member dashboard RPC orders genealogy rows by `(depth,created_at,member_code)`, but the frontend previously filtered duplicate IDs on Load More and still appended the remaining rows from an overlapping page. That could hide a shifted offset page and leave a gap in the displayed/exported team.

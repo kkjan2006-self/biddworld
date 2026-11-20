@@ -1,3 +1,9 @@
+## Latest source-only batch — Admin review reason bounds and Unicode parity (2026-11-20)
+
+- Admin withdrawal rejection, Sponsor Referral reversal and Matrix commission reversal now validate trimmed reasons at 5–500 Unicode code points, matching PostgreSQL length(text) and the SQL maximum. Withdrawal rejection sends the normalized reason so whitespace padding cannot exceed the SQL limit after validation.
+- Added source-only regression assertions to the existing withdrawal, Referral and Matrix contract tests; not executed. No SQL change or migration required.
+- Current clean-install manifest totals: 155 forward + 16 excluded = 171 timestamped paths, plus 3 legacy/unversioned SQL files.
+
 # BiddWorld Development Status
 
 Last updated: 2026-11-20  
