@@ -51,7 +51,8 @@ begin
   or p_expected_price<p_starting_price or p_minimum_increment is null or p_minimum_increment<=0
   or p_starts_at is null or p_starts_at<now()+interval '30 minutes' then
   raise exception 'Expected price must be at least the starting price. Check prices and future start time.' using errcode='22023';end if;
- if p_optional_details is null or jsonb_typeof(p_optional_details)<>'object' or pg_catalog.octet_length(p_optional_details::text)>12000 then
+ if p_optional_details is null or jsonb_typeof(p_optional_details)<>'object' or pg_catalog.octet_length(p_optional_details::text)>12000
+  or exists(select 1 from jsonb_each(p_optional_details) item where jsonb_typeof(item.value)<>'string') then
   raise exception 'Optional details must be a small JSON object' using errcode='22023';end if;
  insert into public.auction_submissions(submitted_by,member_id,title,description,category,image_paths,starting_price,expected_price,minimum_increment,starts_at,ends_at,optional_details)
  values(v_uid,v_member,btrim(p_title),btrim(p_description),nullif(btrim(coalesce(p_category,'')),''),p_image_paths,p_starting_price,p_expected_price,p_minimum_increment,p_starts_at,null,p_optional_details)
