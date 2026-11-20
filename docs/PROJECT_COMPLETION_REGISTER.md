@@ -1,3 +1,14 @@
+## 2026-11-20 — Auction and Fixed Bid Admin mutation response validation
+
+- Fixed Bid draft save now validates the UUID returned by `admin_save_fixed_bid_campaign`; edits must return the same campaign ID before the form is cleared.
+- Fixed Bid campaign status changes now validate campaign ID, requested status and non-negative integer refunded-entry count before confirming success.
+- Auction status changes now validate `success`, exact auction ID, requested status and non-negative integer refunded-bid count before confirming success.
+- Added `tests/admin-auction-fixed-bid-mutation-response-integrity.test.ts`; source-only, not executed.
+- Commits: `35d93630d52a6b85d0a992a0f0b67505627ca549`, `7430ee2e13cda5aad5282a0a8b82c1630a5d189e`.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Auction item-only winner rule enforced in payment workflow
 
 - Added forward migration `20261120140000_restrict_winner_payment_to_fixed_bid.sql`: `member_pay_winning_item_payment` rejects a new payment when the winning-payment record has no Fixed Bid campaign link. A previously paid transaction with a valid matching ledger entry remains replay-compatible; historical records are not deleted or rewritten.
