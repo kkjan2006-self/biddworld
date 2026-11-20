@@ -20,6 +20,11 @@ describe('Admin pending package activation keyset pagination',()=>{
   expect(component).toContain("admin_list_pending_activations_page',{p_limit:50");
   expect(component).toContain('parsePendingActivationPage');
   expect(component).toContain('page.items.some(item=>seen.has(item.id))');
+  expect(component).toContain('isStrictlyDescendingPendingActivationPage(items)');
+  expect(component).toContain('isBeforePendingActivationCursor(item,cursor)');
+  expect(component).toContain('page.items.length!==50');
+  expect(component).toContain('last.submitted_at!==nextSubmittedAt||last.id!==nextId');
+  expect(component).toContain('PENDING_ACTIVATION_UUID.test(item.id)');
   expect(component).toContain('Load 50 more pending activations');
  });
  it('keeps receipt viewing and approval on the existing secured workflows',()=>{

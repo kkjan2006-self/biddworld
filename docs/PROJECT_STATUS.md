@@ -89,3 +89,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Reconciled `tests/member-package-activation-response-integrity.test.ts` with the current receipt cleanup guard in `Packages.tsx`. The test now verifies that cleanup occurs only before the activation RPC or after a definite coded rejection; ambiguous RPC outcomes preserve the uploaded receipt. Added explicit assertions for the attempt/rejection flags.
 - Regression source remains unexecuted. No runtime, SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## Latest Admin package activation queue hardening
+
+- The Admin pending-activation client now validates row identity and payment/receipt fields, strict descending `(submitted_at,id)` ordering, full continuation pages and exact cursor-to-final-row agreement. Load-more responses must be strictly older than the previous cursor and may not overlap loaded IDs.
+- Added source-only assertions in `tests/admin-package-activation-keyset-pagination.test.ts`; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.

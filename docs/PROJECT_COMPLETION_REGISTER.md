@@ -1,3 +1,11 @@
+## 2026-11-20 — Admin package activation keyset response integrity hardened
+
+- Source audit found the Admin pending-activation queue validated duplicate IDs but did not independently verify strict descending `(submitted_at,id)` ordering, full continuation-page/cursor agreement, or that continuation rows stayed strictly before the loaded cursor.
+- Added strict UUID, activation-number, amount/currency, payment-reference and receipt-object-path validation; every page now enforces descending order, a full 50-row page when `has_more` is true, exact final-row cursor agreement, and null cursors when no more rows exist. Continuation pages reject rows at or beyond the previous cursor before appending.
+- Added source-only regression assertions in `tests/admin-package-activation-keyset-pagination.test.ts`; not executed. No SQL migration or database change required.
+
+---
+
 ## 2026-11-20 — Package activation receipt ambiguity regression contract repaired
 
 - Source audit found the package activation response regression test still asserted an obsolete cleanup condition that no longer matched the current upload-recovery logic. The test now checks the actual guard: cleanup is allowed before the activation RPC or after a definite coded RPC rejection; ambiguous RPC outcomes retain the uploaded receipt.

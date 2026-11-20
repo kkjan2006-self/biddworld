@@ -38,8 +38,26 @@ function parseDuplicateIdPage(value:unknown):DuplicateId[]{
  });
 }
 type AuditEntry={id:number;actor_user_id:string|null;actor_name:string;action:string;entity_type:string;entity_id:string|null;details:Record<string,unknown>;created_at:string};
-type PendingActivation={id:string;activation_number:number;member_code:string;member_name:string|null;package_name:string;amount_paid:number;currency:string;bid_wallet_credit:number;payment_reference:string;receipt_path?:string|null;submitted_at:string};
+type PendingActivation={id:string;activation_number:number;member_code:string;member_name:string|null;package_name:string;amount_paid:number;currency:string;bid_wallet_credit:number;payment_reference:string;receipt_path:string|null;submitted_at:string};
 type PendingActivationPage={items:PendingActivation[];has_more:boolean;next_submitted_at:string|null;next_id:string|null};
+const PENDING_ACTIVATION_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function validPendingActivationReceiptPath(value:unknown):value is string|null{
+ if(value===null)return true;
+ if(typeof value!=='string'||value.length>300)return false;
+ const parts=value.split('/');
+ return parts.length===2&&PENDING_ACTIVATION_UUID.test(parts[0])&&/^[a-f0-9]{32}-[a-z0-9._-]{1,110}$/i.test(parts[1]);
+}
+function isStrictlyDescendingPendingActivationPage(items:PendingActivation[]):boolean{
+ for(let index=1;index<items.length;index++){
+  const previous=items[index-1],current=items[index],delta=Date.parse(previous.submitted_at)-Date.parse(current.submitted_at);
+  if(delta<0||(delta===0&&previous.id.localeCompare(current.id)<=0))return false;
+ }
+ return true;
+}
+function isBeforePendingActivationCursor(item:PendingActivation,cursor:{submitted_at:string;id:string}):boolean{
+ const itemTime=Date.parse(item.submitted_at),cursorTime=Date.parse(cursor.submitted_at);
+ return itemTime<cursorTime||(itemTime===cursorTime&&item.id.localeCompare(cursor.id)<0);
+}
 function parsePendingActivationPage(value:unknown):PendingActivationPage{
  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('Pending activation page returned an invalid response.');
  const row=value as Record<string,unknown>;
@@ -48,14 +66,29 @@ function parsePendingActivationPage(value:unknown):PendingActivationPage{
  const items=row.items.map((entry)=>{
   if(!entry||typeof entry!=='object'||Array.isArray(entry))throw new Error('Pending activation page contains an invalid row.');
   const item=entry as Record<string,unknown>;
-  if(typeof item.id!=='string'||!item.id.trim()||ids.has(item.id)||!Number.isInteger(item.activation_number)||typeof item.member_code!=='string'||!item.member_code.trim()||typeof item.package_name!=='string'||!item.package_name.trim()||typeof item.submitted_at!=='string'||!Number.isFinite(Date.parse(item.submitted_at))||typeof item.amount_paid!=='number'||!Number.isFinite(item.amount_paid)||typeof item.currency!=='string'||typeof item.bid_wallet_credit!=='number'||!Number.isFinite(item.bid_wallet_credit)||typeof item.payment_reference!=='string'||(item.receipt_path!==null&&typeof item.receipt_path!=='string'))throw new Error('Pending activation page contains a malformed or duplicate row.');
+  if(typeof item.id!=='string'||!PENDING_ACTIVATION_UUID.test(item.id)||ids.has(item.id)
+   ||typeof item.activation_number!=='number'||!Number.isSafeInteger(item.activation_number)||item.activation_number<1
+   ||typeof item.member_code!=='string'||!item.member_code.trim()
+   ||(item.member_name!==null&&typeof item.member_name!=='string')
+   ||typeof item.package_name!=='string'||!item.package_name.trim()
+   ||typeof item.submitted_at!=='string'||!Number.isFinite(Date.parse(item.submitted_at))
+   ||typeof item.amount_paid!=='number'||!Number.isFinite(item.amount_paid)||item.amount_paid<0
+   ||typeof item.currency!=='string'||!/^[A-Z]{3}$/.test(item.currency)
+   ||typeof item.bid_wallet_credit!=='number'||!Number.isFinite(item.bid_wallet_credit)||item.bid_wallet_credit<0
+   ||typeof item.payment_reference!=='string'||!/^[A-Za-z0-9./_-]{6,80}$/.test(item.payment_reference)
+   ||!validPendingActivationReceiptPath(item.receipt_path))throw new Error('Pending activation page contains a malformed or duplicate row.');
   ids.add(item.id);
   return item as unknown as PendingActivation;
  });
+ if(!isStrictlyDescendingPendingActivationPage(items))throw new Error('Pending activation page is not in strict descending (submitted_at,id) order.');
  const nextSubmittedAt=row.next_submitted_at===null?null:typeof row.next_submitted_at==='string'&&Number.isFinite(Date.parse(row.next_submitted_at))?row.next_submitted_at:null;
- const nextId=row.next_id===null?null:typeof row.next_id==='string'&&row.next_id.trim()?row.next_id:null;
- if(row.has_more&&(!nextSubmittedAt||!nextId))throw new Error('Pending activation page is missing its continuation cursor.');
+ const nextId=row.next_id===null?null:typeof row.next_id==='string'&&PENDING_ACTIVATION_UUID.test(row.next_id)?row.next_id:null;
+ if(row.has_more&&(!nextSubmittedAt||!nextId||items.length!==50))throw new Error('Pending activation page is missing its full continuation page or cursor.');
  if((nextSubmittedAt===null)!==(nextId===null))throw new Error('Pending activation page returned an incomplete cursor.');
+ if(row.has_more){
+  const last=items[items.length-1];
+  if(!last||last.submitted_at!==nextSubmittedAt||last.id!==nextId)throw new Error('Pending activation page cursor does not match its final row.');
+ }else if(nextSubmittedAt!==null||nextId!==null)throw new Error('Pending activation page returned a cursor without more records.');
  return {items,has_more:row.has_more,next_submitted_at:nextSubmittedAt,next_id:nextId};
 }
 type PackageActivationReportRow={activation_id:string;activation_number:number;member_code:string;member_name:string|null;package_name:string;amount_paid:number;currency:string;bid_wallet_credit:number;payment_reference:string|null;receipt_path:string|null;payment_status:string;activation_status:string;submitted_at:string;verified_at:string|null;verified_by:string|null;has_more?:boolean};
@@ -626,7 +659,7 @@ async function saveDefaultSponsor(){if(!supabase||savingSponsor||sponsorSaveInFl
  const loadMoreWalletTransactions=async()=>{if(!supabase||walletMoreBusy||walletPageInFlight.current||!walletHasMore)return;walletPageInFlight.current=true;setWalletMoreBusy(true);const generation=walletPageGeneration.current,offset=walletTransactions.length;try{const{data,error}=await supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:offset});if(error)throw error;if(generation!==walletPageGeneration.current)return;if(!Array.isArray(data)||data.length>100)throw new Error('Invalid wallet ledger page.');const batch=data as WalletTransaction[],ids=new Set<string>();for(const row of batch){if(!row||typeof row.transaction_id!=='string'||!row.transaction_id.trim()||ids.has(row.transaction_id)||!Number.isFinite(Number(row.amount))||Number(row.amount)<=0)throw new Error('Malformed or duplicate wallet ledger records.');ids.add(row.transaction_id);}let added=0;setWalletTransactions(current=>{const seen=new Set(current.map(x=>x.transaction_id));const fresh=batch.filter(x=>!seen.has(x.transaction_id));added=fresh.length;return [...current,...fresh];});if(batch.length===100&&added===0){setWalletHasMore(false);setWalletMessage('Repeated wallet ledger page detected. Refresh the Admin workspace.');}else setWalletHasMore(batch.length===100);}catch(e){if(generation===walletPageGeneration.current)setWalletMessage('Could not load more wallet transactions: '+(e instanceof Error?e.message:'Please retry.'));}finally{if(generation===walletPageGeneration.current){walletPageInFlight.current=false;setWalletMoreBusy(false);}}};
  const exportAllWalletTransactions=()=>{if(!supabase)return;const client=supabase;void exportPagedReport<WalletTransaction>('wallet ledger','complete-wallet-ledger.csv',['Transaction ID','Member ID','Wallet','Type','Direction','Amount','Balance After','Reference Type','Reference ID','Description','Created At'],offset=>client.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:offset}),items=>items.map(x=>[x.transaction_id,x.member_code,x.wallet_type,x.transaction_type,x.direction,x.amount,x.balance_after,x.reference_type,x.reference_id,x.description,x.created_at]));};
  const searchMembers=async()=>{if(!supabase||memberSearchBusy||memberMoreBusy)return;memberPageInFlight.current=false;const request=++memberSearchRequest.current;setMemberSearchBusy(true);setMemberMessage('');setSelectedMemberCode('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:memberSearch.trim()||null,p_limit:100,p_offset:0});if(error)throw error;if(request!==memberSearchRequest.current)return;const batch=parseSponsorMemberPage(data);setMembers(batch);setAppliedMemberSearch(memberSearch.trim());setMemberHasMore(batch.length===100);}catch(e){if(request===memberSearchRequest.current)setMemberMessage(rpcContractUnavailableMessage(e,'Admin member directory')??(e instanceof Error?e.message:'Could not search member records.'));}finally{if(request===memberSearchRequest.current)setMemberSearchBusy(false);}};
- const loadMorePendingActivations=async()=>{if(!supabase||pendingActivationMoreBusy||activationPageInFlight.current||!pendingActivationHasMore||!pendingActivationCursor)return;activationPageInFlight.current=true;const generation=activationPageGeneration.current,cursor=pendingActivationCursor;setPendingActivationMoreBusy(true);setActivationMessage('');try{const{data,error}=await supabase.rpc('admin_list_pending_activations_page',{p_limit:50,p_after_submitted_at:cursor.submitted_at,p_after_id:cursor.id});if(error)throw error;if(generation!==activationPageGeneration.current)return;const page=parsePendingActivationPage(data);const seen=new Set(pendingActivations.map(item=>item.id));if(page.items.some(item=>seen.has(item.id)))throw new Error('Pending activation page overlaps records already loaded. Refresh the Admin workspace.');setPendingActivations(current=>[...current,...page.items]);setPendingActivationHasMore(page.has_more);setPendingActivationCursor(page.has_more?{submitted_at:page.next_submitted_at!,id:page.next_id!}:null);}catch(e){if(generation===activationPageGeneration.current)setActivationMessage(e instanceof Error?e.message:'Could not load more pending package activations.');}finally{if(generation===activationPageGeneration.current){activationPageInFlight.current=false;setPendingActivationMoreBusy(false);}}};
+ const loadMorePendingActivations=async()=>{if(!supabase||pendingActivationMoreBusy||activationPageInFlight.current||!pendingActivationHasMore||!pendingActivationCursor)return;activationPageInFlight.current=true;const generation=activationPageGeneration.current,cursor=pendingActivationCursor;setPendingActivationMoreBusy(true);setActivationMessage('');try{const{data,error}=await supabase.rpc('admin_list_pending_activations_page',{p_limit:50,p_after_submitted_at:cursor.submitted_at,p_after_id:cursor.id});if(error)throw error;if(generation!==activationPageGeneration.current)return;const page=parsePendingActivationPage(data);const seen=new Set(pendingActivations.map(item=>item.id));if(page.items.some(item=>seen.has(item.id)))throw new Error('Pending activation page overlaps records already loaded. Refresh the Admin workspace.');if(page.items.some(item=>!isBeforePendingActivationCursor(item,cursor)))throw new Error('Pending activation page crossed or repeated its keyset cursor. Refresh the Admin workspace.');setPendingActivations(current=>[...current,...page.items]);setPendingActivationHasMore(page.has_more);setPendingActivationCursor(page.has_more?{submitted_at:page.next_submitted_at!,id:page.next_id!}:null);}catch(e){if(generation===activationPageGeneration.current)setActivationMessage(e instanceof Error?e.message:'Could not load more pending package activations.');}finally{if(generation===activationPageGeneration.current){activationPageInFlight.current=false;setPendingActivationMoreBusy(false);}}};
  const loadMoreMembers=async()=>{if(!supabase||memberMoreBusy||!memberHasMore||memberPageInFlight.current)return;memberPageInFlight.current=true;const request=memberSearchRequest.current,search=appliedMemberSearch.trim(),offset=members.length;setMemberMoreBusy(true);setMemberMessage('');try{const{data,error}=await supabase.rpc('admin_list_members_sponsors_page',{p_search:search||null,p_limit:100,p_offset:offset});if(error)throw error;if(request!==memberSearchRequest.current)return;const batch=parseSponsorMemberPage(data);const existing=new Set(members.map(item=>item.member_code));if(batch.some(item=>existing.has(item.member_code)))throw new Error('Member directory page overlaps records already loaded. Refresh the Admin workspace.');setMembers(current=>[...current,...batch]);setMemberHasMore(batch.length===100);}catch(e){if(request===memberSearchRequest.current)setMemberMessage(rpcContractUnavailableMessage(e,'Admin member directory')??(e instanceof Error?e.message:'Could not load more member records.'));}finally{if(request===memberSearchRequest.current){memberPageInFlight.current=false;setMemberMoreBusy(false);}}};
  async function submitWalletAdjustment(e:FormEvent){
   e.preventDefault();
