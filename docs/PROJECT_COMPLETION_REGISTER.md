@@ -1,3 +1,12 @@
+## 2026-11-20 — Upload failure orphan tracking across receipt and listing workflows
+
+- Package Activation and Income Wallet receipt paths are now recorded before the Storage upload call; a failed/ambiguous upload is treated as a pre-RPC orphan candidate and removed or persisted for retry. Cleanup still does not run after an ambiguous activation RPC outcome.
+- Member Product/Auction and Admin Product/Auction moderation now record each generated object path before attempting upload, so partial/ambiguous upload failures can be included in the existing cleanup path/queue.
+- Added source-only assertions for pre-upload path tracking in the Member and Admin submission/receipt tests; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Admin Product moderation Storage recovery
 
 - Failed deletion of temporary public `product-media` objects after a definite Product moderation RPC rejection or pre-RPC failure is now persisted in an Admin-account-scoped queue, validated against generated UUID image paths and capped at 100 entries.
