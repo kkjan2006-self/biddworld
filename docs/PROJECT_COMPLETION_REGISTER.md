@@ -1,3 +1,11 @@
+## 2026-11-20 — Main ID lifecycle guidance copy
+
+- Replaced outdated Admin member-directory helper text that described the already-implemented Main ID status and linked Duplicate ID reconciliation workflow as pending. The copy now describes the audited lifecycle action accurately.
+- Extended `tests/admin-main-member-status-mutation-safety.test.ts` with static guidance-copy assertions (not executed).
+- Commits: `d6981da16c05ad09db2401023ae430c2c32705a1`, `0aa6c0dc3389342fbe4be5cd7aa0573ca4341f97`.
+
+---
+
 ## 2026-11-20 — Admin Main ID status RPC contract repair
 
 - Corrected a real frontend/SQL enum mismatch in Admin Main ID status changes. The visible UI and `admin_set_main_member_status(text,text,text)` support `active`, `suspended`, and `closed`; the frontend guard incorrectly accepted `inactive` instead of `suspended`, blocking the visible Suspended action. The guard now matches the SQL contract.
