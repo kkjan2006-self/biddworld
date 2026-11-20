@@ -9,6 +9,6 @@ describe('public product gallery runtime contract',()=>{
  });
  it('keeps product card gallery rendering aligned with validated page fields',()=>{
   expect(ui).toContain('(p.image_paths?.length?p.image_paths:p.image_path?[p.image_path]:[])');
-  expect(ui).toContain('Object.entries(p.product_details)');
+  expect(ui).toContain('Object.entries(p.product_details??{})');
  });
 });
