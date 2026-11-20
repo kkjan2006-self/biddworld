@@ -42,6 +42,7 @@ describe('Admin withdrawal queue pagination hardening',()=>{
   expect(component).toContain('batch.some(item=>seen.has(item.request_id))');
   expect(component).toContain('setWithdrawalRequests(current=>[...current,...batch])');
  });
+ it('carries the previous export page into the shared parser to reject cross-page timestamp/UUID regressions',()=>{expect(component).toContain('let previousPage:WithdrawalRequest[]=[]');expect(component).toContain('parseAdminWithdrawals(data??[],previousPage)');expect(component).toContain('previousPage=batch');});
  it('validates strict descending request-time and UUID ordering within and across pages',()=>{
   expect(component).toContain('function parseAdminWithdrawals(value:unknown,previous:WithdrawalRequest[]=[]):WithdrawalRequest[]');
   expect(component).toContain('Date.parse(prior.requested_at)-Date.parse(row.requested_at)');
