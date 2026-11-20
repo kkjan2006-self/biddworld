@@ -1,3 +1,14 @@
+## 2026-11-20 — Restricted Staff and notification RPC contract alignment
+
+- Staff grant/revoke response validation now matches the SQL's exact default permission set: package activation review, wallet funding review and auction submission review. The mismatch was corrected so successful grants are not falsely reported as invalid.
+- Individual Staff permission updates validate returned email identity and the exact permission set selected for that account.
+- Updated Staff portal copy and permission test expectations to use “Income Wallet” terminology.
+- Notification recipient lookup validates a bounded list of UUID/member records before exposing selectable recipients. Notification delivery validates success, notification UUID and replay flag; its idempotency key is retained on malformed/ambiguous responses and cleared only after a valid result.
+- Support ticket submission/update response contracts are covered by additional source-only regression assertions.
+- No tests/build/type-check, database replay/access or deployment was performed.
+
+---
+
 ## 2026-11-20 — Restricted Staff and notification mutation integrity
 
 - Restricted Staff grant/revoke validates the returned target email, resulting app role and exact permission list before confirming success. Individual permission updates validate returned Staff email and exact selected permissions.
