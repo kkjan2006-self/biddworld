@@ -34,6 +34,13 @@ Continue source-based frontend ↔ SQL ↔ RPC ↔ permission ↔ RLS reconcilia
 
 These are review targets, not assertions that every item is incomplete. Confirm each gap against current source before changing it.
 
+
+## Latest follow-up integration fix
+
+- The Support Staff permission rollout initially left the existing Support notification trigger Admin-only. Added `20261120230000_staff_support_ticket_notifications.sql` so only Admin or Staff with `support_ticket_review` can cause the existing member status/reply notification; the global notification feature switch remains enforced.
+- Source-only regression coverage: `tests/staff-support-ticket-notifications.test.ts` (not executed).
+- Clean-install inventory: **151 forward + 16 excluded = 167 timestamped paths**, plus 3 legacy/unversioned SQL files.
+
 ## Completion measurement
 
 No defensible overall percentage is recorded here. A percentage must be calculated only after the remaining feature inventory is reconciled against implemented frontend, SQL/RPC, authorization/RLS, migration registration and source-contract coverage. Do not infer completion from migration counts or documentation entries alone.
