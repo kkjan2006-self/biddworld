@@ -68,7 +68,7 @@ This file keeps the historical audit notes below, but the opening status is the 
 ## Current checkpoint
 
 - Branch: `completion-work`
-- Current migration inventory at this checkpoint: 140 forward manifest entries + 16 excluded historical entries = 156 listed timestamped migration paths (source-tree accounting still pending).
+- Current migration inventory: static source-tree accounting confirms 159 SQL files = 140 forward manifest entries + 16 excluded timestamped entries + 3 legacy/unversioned SQL files; no timestamped file is missing, stale or duplicated in the manifests. Migration dependency/order and SQL compatibility review remain pending.
 - Latest auction source repairs: `20261119680000_admin_auction_submission_expected_price_review.sql`, `20261119690000_prevent_duplicate_pending_auction_submissions.sql`, and `20261120120000_fix_recent_auction_winner_profile_join.sql` (canonical `owner_user_id` join for Recent Winners), plus strict client-side Recent Winners response validation.
 - Source development estimate: 95% provisional. This is not a verified completion percentage.
 
