@@ -1,3 +1,12 @@
+## 2026-11-20 — Package catalogue and receipt recovery integrity
+
+- Member package catalogue responses are now validated for page bounds, UUID identity, duplicate IDs, names, descriptions, currency, price and Bid Wallet credit before rendering.
+- Definite package-activation RPC rejections now clean up the uploaded private receipt; failed Storage deletion is retained in a user-scoped, bounded persistent retry queue and exposed through a Retry action. The queue is retried when the signed-in member revisits the package screen, and paths are constrained to the verified uploader's own folder.
+- Added source-only regression assertions in `tests/packages-catalogue-request-lifecycle.test.ts` and `tests/package-activation-receipt-storage.test.ts`; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Matrix plan mutation and directory integrity
 
 - Matrix plan directory parsing now rejects duplicate version numbers, multiple active versions for one package, and fixed reward values above the SQL contract maximum.
