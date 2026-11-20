@@ -29,8 +29,8 @@ const client=supabase;
  const [busy,setBusy]=useState(''),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
  const requestSeq=useRef(0),reviewBusy=useRef(false),pageBusy=useRef(false),cursor=useRef<Cursor|null>(null),seenIds=useRef<Set<string>>(new Set());
  const load=useCallback(async(append=false)=>{
-  if(append&&pageBusy.current)return;
-  if(append)pageBusy.current=true;else pageBusy.current=false;
+  if(pageBusy.current)return;
+  pageBusy.current=true;
   const seq=++requestSeq.current;
   if(!client){pageBusy.current=false;setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);setLoadingMore(false);return;}
   if(append){setLoadingMore(true);}else{cursor.current=null;seenIds.current=new Set();setRows([]);setUrls({});setReceiptErrors({});setHasMore(false);setLoading(true);}
@@ -67,7 +67,7 @@ const client=supabase;
    cursor.current=page.has_more?{created_at:page.next_created_at as string,id:page.next_id as string}:null;
    if(Object.keys(failures).length)setError('One or more receipts could not be opened. Refresh the queue before approving those requests.');
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Wallet funding requests could not be loaded. Please retry.');}
-  finally{if(seq===requestSeq.current){setLoading(false);setLoadingMore(false);if(append)pageBusy.current=false;}}
+  finally{if(seq===requestSeq.current){setLoading(false);setLoadingMore(false);pageBusy.current=false;}}
  },[]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;};},[load]);
  async function review(id:string,approve:boolean){
