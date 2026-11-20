@@ -1,3 +1,13 @@
+## 2026-11-20 — Wallet history, Admin templates and member submission contracts
+
+- Wallet History now treats the wallet-account FK embed as its to-one object shape, validates bounded transaction rows and Matrix source records, and resolves complete Matrix attribution in 200-ID chunks to respect the SQL RPC cap during full CSV export.
+- Admin notification template saves now validate the returned template UUID, inactive state and exact existing template identity before resetting the editor.
+- Member Product and Auction create/edit submission RPCs now validate the returned UUID and require edits to return the original submission ID before clearing forms. Ambiguous/malformed outcomes retain uploaded media and instruct the member to refresh history.
+- Added/extended source-only assertions in `tests/wallet-matrix-commission-source.test.ts`, `tests/admin-notification-template-response-integrity.test.ts`, `tests/member-auction-submission-editing.test.ts` and `tests/member-product-submission-editing.test.ts`; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Member submission moderation response contracts
 
 - Admin Product moderation now validates `success`, action-specific status, the returned Product UUID and exact published image count before reporting success or clearing workflow state.
