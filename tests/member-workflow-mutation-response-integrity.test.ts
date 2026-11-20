@@ -66,4 +66,14 @@ describe('Member and staff workflow mutation response integrity',()=>{
   expect(read('src/components/Admin.tsx')).toContain("label:'Income Wallet'");
  });
 
+ it('keeps Auction item awards payment-free and limits the payment action to Fixed Bid winners',()=>{
+  const account=read('src/components/Account.tsx');
+  const paymentMigration=read('supabase/migrations/20261120140000_restrict_winner_payment_to_fixed_bid.sql');
+  expect(account).toContain("fixed_bid_campaign_id,amount,status,paid_at,created_at");
+  expect(account).toContain("x.status==='pending'&&x.fixed_bid_campaign_id&&<button");
+  expect(account).toContain('Auction winners receive the item only; no separate payment is required.');
+  expect(paymentMigration).toContain('if v_payment.fixed_bid_campaign_id is null then');
+  expect(paymentMigration).toContain('Auction winners receive the item only; no separate winner payment is required');
+ });
+
 });
