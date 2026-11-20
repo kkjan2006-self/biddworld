@@ -26,6 +26,9 @@ This file keeps the historical audit notes below, but the opening status is the 
 
 ## Latest source-only development batch — 2026-11-20
 
+- Referral and Matrix commission Admin actions now validate complete server mutation results (requested activation/commission identity, success status, posted count or reversal status) before reporting success. Added source-only regression coverage; not executed.
+
+
 - Admin Product image replacement/discard cleanup now retains failed temporary-object removals in a visible retry queue and clears stale image references after successful removal. Added source-only regression coverage; not executed. Persistent orphan inventory across page reloads remains a possible follow-up.
 
 ## Latest source-only reconciliation — 2026-11-20
