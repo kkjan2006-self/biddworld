@@ -13,7 +13,11 @@ declare
  v_next_submitted_at timestamptz;
  v_next_id uuid;
 begin
- if auth.uid() is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
+ if auth.uid() is null or not(
+  coalesce(auth.jwt()->'app_metadata'->>'role','')='admin'
+  or (coalesce(auth.jwt()->'app_metadata'->>'role','')='admin_staff'
+   and coalesce(auth.jwt()->'app_metadata'->'permissions','[]'::jsonb) ? 'package_activation_review')
+ ) then
   raise exception 'Administrator access required' using errcode='42501';
  end if;
  if p_limit is null or p_limit<1 or p_limit>100 then
