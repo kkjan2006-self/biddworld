@@ -3276,3 +3276,11 @@
 - Added strict per-page descending tuple validation and cursor-boundary validation to Load More and complete CSV export. Shifted, overlapping or reordered pages now fail closed rather than silently omitting or repeating commission records.
 - Added source-only assertions in `tests/admin-matrix-commissions-source-integrity.test.ts`; not executed. No SQL migration or database operation was required.
 - No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
+
+
+## 2026-11-20 — Fixed Bid product image frame rendering
+
+- Corrected the shared Fixed Bid product media frame so an available campaign image fills the entire visual area, preserves its aspect ratio with `object-fit: cover`, and renders as a block element. This applies to both the full catalogue and compact homepage cards; the compact-specific sizing remains compatible.
+- Added `tests/fixed-bid-image-frame-rendering.test.ts` as source-only regression coverage. It was not executed under the development-only restrictions.
+- Audited the repository asset tree: it currently contains no sample product photography. The three sample campaigns still have null/empty image paths, so this CSS correction prepares real images to render but does not fabricate or substitute AI-generated product art.
+- No SQL migration, DB access, tests, build, type-check, E2E, browser QA, or deployment was performed. Production and TEST remain unchanged; `main` was not modified.

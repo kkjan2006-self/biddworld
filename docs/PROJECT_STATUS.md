@@ -147,3 +147,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Forward migration: `20261120240000_matrix_commission_reversal_replay_identity.sql`; registered in clean-install manifest. Source-only coverage added to `tests/admin-matrix-commission-actions.test.ts` and not executed.
 - Inventory: 152 forward + 16 excluded = 168 timestamped migration paths, plus 3 legacy/unversioned SQL files. No migration was applied; Production remains read-only and TEST remains unused.
 - Tests, builds, type-check, E2E, browser QA and database replay were not run.
+
+
+## 2026-11-20 — Fixed Bid product image frame rendering
+
+- Shared `.fixedBidVisual img` styling now fills the complete product frame with `object-fit: cover` and block layout for full catalogue and compact homepage cards.
+- Added source-only regression coverage in `tests/fixed-bid-image-frame-rendering.test.ts`; not executed. Repository asset audit found no sample product images, so the three sample fixtures still require the separately requested AI-generated images.
+- No database, migration replay, tests, build, type-check, E2E, browser QA or deployment. Production/TEST unchanged; `main` unchanged.
