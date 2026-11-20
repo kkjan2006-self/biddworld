@@ -50,6 +50,26 @@ grant execute on function public.can_delete_member_submission_media(text,text) t
 grant execute on function public.can_delete_pending_auction_public_media(text) to authenticated;
 grant execute on function public.can_delete_approved_auction_source_media(text) to authenticated;
 
+create or replace function public.can_delete_unreferenced_package_receipt(p_name text)
+returns boolean language plpgsql stable security definer set search_path=''
+as $function$
+declare v_uid uuid:=auth.uid();
+begin
+ return v_uid is not null
+  and p_name is not null
+  and (storage.foldername(p_name))[1]=v_uid::text
+  and not exists(select 1 from public.package_activations a where a.receipt_path=p_name);
+end;
+$function$;
+
+revoke all on function public.can_delete_unreferenced_package_receipt(text) from public,anon;
+grant execute on function public.can_delete_unreferenced_package_receipt(text) to authenticated;
+
+drop policy if exists package_receipts_delete_own_unreferenced on storage.objects;
+create policy package_receipts_delete_own_unreferenced on storage.objects
+for delete to authenticated
+using(bucket_id='package-receipts' and public.can_delete_unreferenced_package_receipt(name));
+
 -- Members may delete only their own unreferenced private auction/product submission objects.
 drop policy if exists auction_submission_media_delete_unreferenced on storage.objects;
 create policy auction_submission_media_delete_unreferenced on storage.objects
