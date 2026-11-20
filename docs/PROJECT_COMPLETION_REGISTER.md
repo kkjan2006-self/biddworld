@@ -1,3 +1,11 @@
+## 2026-11-20 — Admin Income Wallet funding queue response and cursor integrity
+
+- The restricted Admin/Staff Add Money queue now validates request UUIDs, INR currency, bounded positive amount, payment-reference format and the exact authenticated-user `wallet-funding` receipt path before requesting signed URLs.
+- Keyset responses now require exactly 50 rows whenever `has_more` is true, strict ascending `(created_at,id)` order, no overlap with the prior cursor or loaded IDs, and a continuation cursor identical to the final row. Completed pages must return null cursors.
+- Added source-only assertions in `tests/admin-wallet-funding-page-contract.test.ts`; not executed. No SQL migration was needed because the checks mirror the existing RPC and upload-path contracts.
+
+---
+
 ## 2026-11-20 — Paginated withdrawal history payout privacy
 
 - Found that the newer `member_list_my_withdrawals_page` RPC returned `w.payout_details` unchanged, while the older `member_list_my_withdrawals` endpoint had already been restricted to the payout method label. Since the Member Account UI uses the paginated RPC, the newer path could disclose the member's UPI ID or bank account number to the client unnecessarily.

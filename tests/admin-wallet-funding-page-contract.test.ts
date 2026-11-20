@@ -19,3 +19,17 @@ describe('Admin wallet funding page response integrity',()=>{
   expect(source).toContain('if(append)pageBusy.current=false;');
  });
 });
+
+ it('validates request UUIDs, bounded INR payment data and member-owned receipt paths',()=>{
+  expect(source).toContain('FUNDING_UUID.test(row.id)');
+  expect(source).toContain('isFundingReceiptPath(row.receipt_path)');
+  expect(source).toContain("row.currency==='INR'");
+  expect(source).toContain('row.amount<=10000000');
+  expect(source).toContain('FUNDING_UUID.source.slice(1,-1)');
+ });
+ it('requires full continuing pages, strict order and no cursor overlap',()=>{
+  expect(source).toContain('page.has_more&&items.length!==50');
+  expect(source).toContain('strict ascending keyset order');
+  expect(source).toContain('page overlaps or precedes its cursor');
+  expect(source).toContain('page.next_id!==last.id');
+ });
