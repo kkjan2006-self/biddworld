@@ -46,3 +46,14 @@ describe('Notification keyset page ordering',()=>{
   expect(ui).toContain('crossed or repeated its keyset cursor');
  });
 });
+
+
+describe('Notification realtime insertion ordering',()=>{
+ it('merges live INSERT events in the same descending (created_at,id) order as keyset pages',()=>{
+  expect(ui).toContain('function compareNoticesNewestFirst(left:Notice,right:Notice):number');
+  expect(ui).toContain('Date.parse(right.created_at)-Date.parse(left.created_at)');
+  expect(ui).toContain('right.id.toLowerCase().localeCompare(left.id.toLowerCase())');
+  expect(ui).toContain('[...current.filter(item=>item.id!==row.id),row].sort(compareNoticesNewestFirst).slice(0,PAGE_SIZE)');
+  expect(ui).toContain('setHasMore(true)');
+ });
+});

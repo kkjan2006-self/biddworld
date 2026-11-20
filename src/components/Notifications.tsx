@@ -18,6 +18,11 @@ function isStrictlyDescendingNoticePage(rows:Notice[]):boolean{
  }
  return true;
 }
+function compareNoticesNewestFirst(left:Notice,right:Notice):number{
+ const timeDifference=Date.parse(right.created_at)-Date.parse(left.created_at);
+ if(timeDifference!==0)return timeDifference;
+ return right.id.toLowerCase().localeCompare(left.id.toLowerCase());
+}
 function isBeforeNoticeCursor(row:Notice,cursor:Notice):boolean{
  const rowTime=Date.parse(row.created_at),cursorTime=Date.parse(cursor.created_at);
  return rowTime<cursorTime||(rowTime===cursorTime&&row.id.toLowerCase()<cursor.id.toLowerCase());
@@ -109,7 +114,8 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
        try{row=parseNoticeRow(payload.new,isAdmin?undefined:user.id);}catch{return;}
        if(categoryFilter!=='all'&&row.category!==categoryFilter)return;
        if(unreadOnly&&row.read_at)return;
-       setItems(current=>[row,...current.filter(item=>item.id!==row.id)].slice(0,PAGE_SIZE));
+       setItems(current=>[...current.filter(item=>item.id!==row.id),row].sort(compareNoticesNewestFirst).slice(0,PAGE_SIZE));
+       setHasMore(true);
        setNotice('A new notification has arrived.');
       }else if(payload.eventType==='UPDATE'){
        let row:Notice;

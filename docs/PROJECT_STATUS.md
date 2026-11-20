@@ -115,3 +115,11 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - The My Team dashboard and its optional Matrix commission summary are now treated as independent RPC contracts. A rejected/failed Matrix summary request no longer discards a successfully loaded Sponsor team dashboard.
 - Matrix summary failures are surfaced as a non-blocking status message; the dashboard retains its own error handling and retry behavior. Refresh resets the summary warning and retries both requests.
 - Added source-only regression coverage in `tests/member-team-matrix-summary-isolation.test.ts`; not executed. No SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — Notification realtime insertion and keyset ordering
+
+- Live notification INSERT events are now merged into the inbox using the same descending `(created_at,id)` tuple order enforced by the initial and continuation page parsers. Previously, every realtime event was prepended, so a delayed/older event could move ahead of newer records and invalidate the visible keyset cursor.
+- Existing IDs are replaced rather than duplicated, and the inbox remains capped at 100 loaded rows. Realtime inserts signal that a continuation page may be needed after the oldest visible row is displaced.
+- Added source-only regression coverage in `tests/notifications-response-integrity.test.ts`; not executed. No SQL migration or database operation was required.
+- No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
