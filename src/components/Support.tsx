@@ -96,7 +96,8 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
     if(userId)request=request.eq('user_id',userId);if(statusFilter!=='all')request=request.eq('status',statusFilter);
     if(cursor)request=request.or(`updated_at.lt.${cursor.updated_at},and(updated_at.eq.${cursor.updated_at},id.lt.${cursor.id})`);
     const{data,error:loadError}=await request.limit(500);if(loadError)throw loadError;
-    const batch=(data??[]) as Ticket[];
+    if(!Array.isArray(data)||data.length>500||!data.every(validTicket))throw new Error('The support export returned malformed ticket records. Export stopped to avoid an inaccurate CSV.');
+    const batch=data as Ticket[];
     if(batch.length===500){
      const fingerprint=JSON.stringify(batch.map(ticket=>ticket.id));
      if(seenPages.has(fingerprint))throw new Error('The support export repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');
