@@ -1,3 +1,14 @@
+## 2026-11-20 — Matrix auto-post and restricted Staff activation compatibility
+
+- Found a cross-module failure path: when Matrix auto-post was enabled, the package-activation trigger called the public Admin-only Matrix posting RPC. A Staff member with the valid `package_activation_review` permission could therefore have their otherwise valid package approval rolled back by the Admin-only check.
+- Added `20261120160000_matrix_staff_activation_auto_post.sql`. The trigger now uses a private internal posting routine; the public manual posting RPC remains Admin-only and the private routine is not executable by authenticated clients. Wallet locking, ledger idempotency, balance updates and audit attribution to the approving actor are preserved.
+- Added `tests/matrix-staff-activation-auto-post.test.ts` source-only contract coverage. Not executed.
+- Registered the migration in the clean-install forward manifest. Inventory: **144 forward + 16 excluded = 160 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
+- Commits: migration `6f1138f45f63b6529f7ac70d6d65cf35b3b77689`; source contract `5769c235ccdeaa64f2d0dad4fe3adba2ddec8836`; manifest `49bd906f952ffaa07f2429d5435a999985770ea1`; clean-install inventory `ed63440879dbb84e0a21681689318295d731e829`.
+- Source-only development. No tests/build/type-check, migration replay, database reads/writes or deployment were performed.
+
+---
+
 ## 2026-11-20 — Member Product/Auction media ownership and cleanup concurrency
 
 - Member Product and Auction submission history now validates every returned image path against the same authenticated-user-folder and safe filename contract enforced by the forward SQL RPCs; submission IDs are validated as UUIDs before signed URLs are requested.
