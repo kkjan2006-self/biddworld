@@ -33,6 +33,11 @@ begin
   values(v_uid,'product.submission_rejected','product_submission',v_s.id,jsonb_build_object('review_note',p_review_note));
   return jsonb_build_object('success',true,'status','rejected');
  end if;
+ if v_s.optional_details is null or jsonb_typeof(v_s.optional_details)<>'object'
+  or pg_catalog.octet_length(v_s.optional_details::text)>12000
+  or exists(select 1 from jsonb_each(v_s.optional_details) item where jsonb_typeof(item.value)<>'string') then
+  raise exception 'Product details must be a small object containing only text values' using errcode='22023';
+ end if;
  if v_s.image_paths is null or cardinality(v_s.image_paths)<1 or cardinality(v_s.image_paths)>8
     or p_public_image_paths is null
     or cardinality(p_public_image_paths)<>cardinality(v_s.image_paths)
