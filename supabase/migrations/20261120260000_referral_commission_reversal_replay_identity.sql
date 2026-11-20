@@ -51,7 +51,7 @@ begin
     or v_existing.reference_id is distinct from p_commission_id then
    raise exception 'The referral reversal ledger entry is missing or inconsistent; replay was not accepted' using errcode='23514';
   end if;
-  return jsonb_build_object('success',true,'status','reversed','replayed',true);
+  return jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',true);
  end if;
  if v_commission.status='pending' then
   update public.referral_commissions set status='reversed' where id=p_commission_id;
