@@ -8,7 +8,7 @@ describe('Notifications response and realtime integrity',()=>{
   expect(ui).toContain('databaseCharLength(message.trim())<5||databaseCharLength(message.trim())>2000');
   expect(ui).toContain('const searchLength=databaseCharLength(term);if(searchLength<2||searchLength>120)');
   expect(ui).toContain('databaseCharLength(recipientSearch.trim())>120');
-  expect(ui).toContain('maxLength={240} value={recipientSearch}');
+  expect(ui).toContain('value={recipientSearch} maxLength={240}');
   expect(ui).toContain('maxLength={240} value={title}');
   expect(ui).toContain('maxLength={4000} rows={3} value={message}');
  });
