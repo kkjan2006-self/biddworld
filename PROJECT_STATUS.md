@@ -1832,3 +1832,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Added a ref-backed single-flight lock for cleanup retries so rapid duplicate taps cannot issue overlapping delete requests or race the review action.
 - Extended `tests/admin-auction-submission-media-cleanup-recovery.test.ts` with source-only assertions. No tests/build/type-check were executed.
 - No SQL migration was needed; no database was accessed, no Preview deployment was created, and `main` was not modified. Development remains 95% provisional.
+
+
+## 2026-11-20 — Admin Main-ID lifecycle / financial-action serialization
+
+- Found that member Fixed Bid, withdrawal and winner-payment RPCs acquire the per-Main-ID advisory lock `biddworld.main_member_lifecycle:<uuid>` and recheck eligibility, but the Admin Main-ID suspend/close/reactivate RPC did not acquire that same lock.
+- Added `20261120200000_serialize_admin_main_member_lifecycle.sql`. Admin status changes now acquire the shared per-Main-ID lock before taking the Main-ID row lock and mutating profile/Main/Duplicate statuses. This ensures a member financial action completes before the status change, or the action rechecks and rejects after suspension/closure.
+- Preserved the graph-wide mutation lock, Admin authorization, valid status/reason checks, linked Duplicate-ID propagation, audit record and authenticated-only execute grant. Added `tests/admin-main-member-financial-lifecycle-serialization.test.ts`; source-only, not executed.
+- Registered the migration in the clean-install forward manifest. Inventory: **148 forward + 16 excluded = 164 timestamped paths**, plus 3 legacy/unversioned SQL files.
+- No tests/build/type-check, DB operations, migration replay, deployment or `main` changes. Production and TEST remain untouched.
