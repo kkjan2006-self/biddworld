@@ -1,3 +1,13 @@
+## 2026-11-20 — Restricted Staff grant response mismatch fixed
+
+- Found a concrete RPC contract mismatch: the Staff grant operation persisted and audited three permissions, but its returned JSON contained only two. This made the frontend reject an otherwise successful Staff grant.
+- Added `20261120150000_align_staff_grant_response_permissions.sql` to return all three permissions consistently; registered it in the clean-install forward manifest.
+- Added source-only regression coverage tying the frontend expectation, persisted permission set and returned RPC payload together. Not executed.
+- Forward migration manifest now contains 143 entries; the clean-install inventory documentation was updated.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Restricted Staff and notification RPC contract alignment
 
 - Staff grant/revoke response validation now matches the SQL's exact default permission set: package activation review, wallet funding review and auction submission review. The mismatch was corrected so successful grants are not falsely reported as invalid.
