@@ -15,6 +15,7 @@ function parseNoticePage(value:unknown,expectedUserId?:string):Notice[]{
  });
 }
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
+ const client=supabase;
  const requestSeq=useRef(0),recipientLookupSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false),sendKey=useRef<{key:string;fingerprint:string}|null>(null);
  const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[recipientSearch,setRecipientSearch]=useState(''),[recipientOptions,setRecipientOptions]=useState<{user_id:string;member_code:string;display_name:string;phone:string}[]>([]),[recipientLookupBusy,setRecipientLookupBusy]=useState(false),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
  const load=useCallback(async()=>{
@@ -75,16 +76,16 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  },[busy,hasMore,items,isAdmin,unreadOnly,categoryFilter]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;loadMoreBusy.current=false;}},[load]);
  useEffect(()=>{
-  if(!supabase)return;
+  if(!client)return;
   let active=true;
-  let channel:ReturnType<typeof supabase.channel>|null=null;
+  let channel:ReturnType<NonNullable<typeof supabase>['channel']>|null=null;
   void (async()=>{
    try{
-    const{data:{user},error:userError}=await supabase.auth.getUser();
+    const{data:{user},error:userError}=await client.auth.getUser();
     if(userError||!user)throw new Error('Please sign in again to receive live notifications.');
     if(!active)return;
     const config={event:'*' as const,schema:'public',table:'member_notifications',...(isAdmin?{}:{filter:'user_id=eq.'+user.id})};
-    channel=supabase.channel('member-notifications-live-'+(isAdmin?'admin':user.id))
+    channel=client.channel('member-notifications-live-'+(isAdmin?'admin':user.id))
      .on('postgres_changes',config,(payload)=>{
       if(!active)return;
       if(payload.eventType==='INSERT'){
@@ -107,7 +108,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
      });
    }catch(e){if(active)setError(e instanceof Error?e.message:'Live notifications could not be started. Use Refresh to check for updates.');}
   })();
-  return()=>{active=false;if(channel)void supabase.removeChannel(channel);};
+  return()=>{active=false;if(channel)void client.removeChannel(channel);};
  },[isAdmin,categoryFilter,unreadOnly]);
 
  async function lookupRecipients(){

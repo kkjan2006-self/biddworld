@@ -19,6 +19,7 @@ function isRow(value:unknown):value is Row{
   ;
 }
 export default function AdminWalletFundingReview(){
+const client=supabase;
  const [rows,setRows]=useState<Row[]>([]),[urls,setUrls]=useState<Record<string,string>>({}),[receiptErrors,setReceiptErrors]=useState<Record<string,string>>({}),[note,setNote]=useState<Record<string,string>>({});
  const [busy,setBusy]=useState(''),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
  const requestSeq=useRef(0),reviewBusy=useRef(false),pageBusy=useRef(false),cursor=useRef<Cursor|null>(null),seenIds=useRef<Set<string>>(new Set());
@@ -26,11 +27,11 @@ export default function AdminWalletFundingReview(){
   if(append&&pageBusy.current)return;
   if(append)pageBusy.current=true;else pageBusy.current=false;
   const seq=++requestSeq.current;
-  if(!supabase){pageBusy.current=false;setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);setLoadingMore(false);return;}
+  if(!client){pageBusy.current=false;setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);setLoadingMore(false);return;}
   if(append){setLoadingMore(true);}else{cursor.current=null;seenIds.current=new Set();setRows([]);setUrls({});setReceiptErrors({});setHasMore(false);setLoading(true);}
   setError('');
   try{
-   const{data,error:loadError}=await supabase.rpc('admin_list_pending_wallet_fund_requests_page',{
+   const{data,error:loadError}=await client.rpc('admin_list_pending_wallet_fund_requests_page',{
     p_limit:50,p_cursor_created_at:append?cursor.current?.created_at??null:null,p_cursor_id:append?cursor.current?.id??null:null
    });
    if(loadError)throw loadError;
@@ -45,7 +46,7 @@ export default function AdminWalletFundingReview(){
    if(seq!==requestSeq.current)return;
    const next:Record<string,string>={},failures:Record<string,string>={};
    await Promise.all(items.map(async row=>{
-    const{data:signed,error:signedError}=await supabase.storage.from('wallet-funding-receipts').createSignedUrl(row.receipt_path,300);
+    const{data:signed,error:signedError}=await client.storage.from('wallet-funding-receipts').createSignedUrl(row.receipt_path,300);
     if(signedError||!signed?.signedUrl)failures[row.id]=signedError?.message||'Receipt link could not be created. Refresh and retry.';
     else next[row.id]=signed.signedUrl;
    }));
@@ -62,11 +63,11 @@ export default function AdminWalletFundingReview(){
  },[]);
  useEffect(()=>{void load();return()=>{requestSeq.current++;};},[load]);
  async function review(id:string,approve:boolean){
-  if(!supabase||reviewBusy.current)return;
+  if(!client||reviewBusy.current)return;
   if(approve&&!urls[id]){setError('Open and verify the payment receipt before approving this request. Refresh the queue to retry the receipt link.');return;}
   reviewBusy.current=true;setBusy(id);setError('');setMessage('');
   try{
-   const{error:reviewError}=await supabase.rpc('admin_review_wallet_fund_request',{p_request_id:id,p_approve:approve,p_review_note:note[id]??null});
+   const{error:reviewError}=await client.rpc('admin_review_wallet_fund_request',{p_request_id:id,p_approve:approve,p_review_note:note[id]??null});
    if(reviewError)throw reviewError;
    setMessage(approve?'Payment approved. The amount has been credited to the member Main Wallet.':'Payment request rejected. No wallet credit was made.');
    await load();
