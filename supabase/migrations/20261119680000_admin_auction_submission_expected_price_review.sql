@@ -92,6 +92,7 @@ begin
  if length(btrim(coalesce(p_title,'')))<5 or length(btrim(p_title))>180
   or length(btrim(coalesce(p_description,'')))<20 or length(p_description)>10000
   or p_image_paths is null or cardinality(p_image_paths)<1 or cardinality(p_image_paths)>8
+  or cardinality(p_image_paths)<>cardinality(v_s.image_paths)
   or (select count(distinct image_path) from pg_catalog.unnest(p_image_paths) as paths(image_path))<>cardinality(p_image_paths)
   or p_starting_price is null or p_starting_price<=0
   or p_expected_price is null or p_expected_price<p_starting_price

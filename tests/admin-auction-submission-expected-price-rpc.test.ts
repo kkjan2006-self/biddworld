@@ -33,6 +33,7 @@ describe('Admin auction submission Expected Price RPC contract',()=>{
  it('publishes only existing unique public images owned by the submitter and keeps the full gallery',()=>{
   expect(migration).toContain("o.bucket_id='product-media' and o.name=v_path");
   expect(migration).toContain('count(distinct image_path)');
+  expect(migration).toContain('cardinality(p_image_paths)<>cardinality(v_s.image_paths)');
   expect(migration).toContain('image_path,image_paths,category,status,product_details');
   expect(migration).toContain('p_image_paths[1],p_image_paths');
  });
@@ -40,6 +41,7 @@ describe('Admin auction submission Expected Price RPC contract',()=>{
   expect(migration).toContain("'auction.submission_approved'");
   expect(migration).toContain("'auction.submission_rejected'");
   expect(admin).toContain('title.length<5');
+  expect(admin).toContain('minLength={5} maxLength={180}');
   expect(member).toContain('p_expected_price:Number(expected)');
  });
 });
