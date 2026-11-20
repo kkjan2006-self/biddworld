@@ -1,3 +1,14 @@
+## 2026-11-20 — Global payment reference uniqueness across payment workflows
+
+- Found a race between Package Activation and Income Wallet Add Money: each workflow checked the other table before insert, but concurrent transactions could both pass those independent checks and submit the same UTR.
+- Added `20261120170000_global_payment_reference_uniqueness.sql`. Both tables now invoke the same SECURITY DEFINER trigger routine, acquire a transaction-scoped advisory lock using the normalized UTR, and check the opposite workflow after acquiring the lock. Existing same-table unique constraints remain unchanged. Inserts and payment-reference updates are covered.
+- Added source-only regression coverage in `tests/global-payment-reference-uniqueness.test.ts`; not executed.
+- Registered migration in the clean-install forward manifest. Inventory: **145 forward + 16 excluded = 161 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
+- Commits: migration `03d088b9e8a4c177cd8a2cfcd07cce4aa27f8d33`; source contract `ec1176d94ac84582653689f59a45c2f8153ec6c8`; manifest `bbabbdb22ea0f255bd3b258896f168eaa8066965`; clean-install inventory `ae3f3915ac1654c5e750536ae443a4ba7a9ccf67`.
+- Source-only development. No tests/build/type-check, migration replay, database access or deployment were performed.
+
+---
+
 ## 2026-11-20 — Matrix auto-post and restricted Staff activation compatibility
 
 - Found a cross-module failure path: when Matrix auto-post was enabled, the package-activation trigger called the public Admin-only Matrix posting RPC. A Staff member with the valid `package_activation_review` permission could therefore have their otherwise valid package approval rolled back by the Admin-only check.
