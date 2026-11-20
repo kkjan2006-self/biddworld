@@ -12,7 +12,7 @@ describe('Admin member-auction review safety',()=>{
   assert.match(review,/pageLock\.current/);
  });
  it('validates edited listing details before uploading public media',()=>{
-  const validation=review.indexOf("if(title.length<3");
+  const validation=review.indexOf("if(title.length<5");
   const upload=review.indexOf("from('product-media').upload");
   assert.ok(validation>=0&&upload>validation);
   assert.match(review,/Expected Price must be equal to or greater than Starting Price/);
