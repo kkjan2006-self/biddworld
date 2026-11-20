@@ -1,3 +1,11 @@
+## Latest source-only batch — notification response contract hardening (2026-11-20)
+
+- Notification inbox and Realtime INSERT/UPDATE events now validate notification and recipient identities as UUIDs, enforce the database-supported category set (`general`, `account`, `support`, `security`), and enforce title/message bounds matching the `member_notifications` table constraints. Optional Admin recipient labels are bounded before rendering.
+- The same shared parser protects initial loads, keyset continuation pages and Realtime events; member owner matching, existing ordering/cursor checks, unread filtering and delivery idempotency remain unchanged.
+- Extended `tests/notifications-response-integrity.test.ts` with source-only assertions for identity, category and content bounds. Not executed. No SQL migration or database change.
+
+---
+
 ## Latest source-only batch — Admin withdrawal lifecycle visibility (2026-11-20)
 
 - The Admin Withdrawal Management summary previously showed only total loaded requests and Pending review. It now separately counts Approved (reserved), Paid, Rejected and Cancelled rows as well, so all five persisted lifecycle states are visible without changing queue filtering, pagination or review behavior.

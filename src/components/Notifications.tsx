@@ -4,10 +4,12 @@ import {supabase} from '../lib/supabase';
 
 type Notice={id:string;user_id:string;recipient_member_code?:string;recipient_name?:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
+const NOTIFICATION_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const NOTICE_CATEGORIES=['general','account','support','security'] as const;
 function parseNoticeRow(value:unknown,expectedUserId?:string):Notice{
  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('The notification inbox contains an invalid record.');
  const row=value as Record<string,unknown>;
- if(typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||!row.user_id.trim()||(expectedUserId&&row.user_id!==expectedUserId)||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at as string)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||(row.recipient_member_code!==undefined&&typeof row.recipient_member_code!=='string')||(row.recipient_name!==undefined&&typeof row.recipient_name!=='string'))throw new Error('The notification inbox contains malformed records.');
+ if(typeof row.id!=='string'||!NOTIFICATION_UUID.test(row.id)||typeof row.user_id!=='string'||!NOTIFICATION_UUID.test(row.user_id)||(expectedUserId&&row.user_id!==expectedUserId)||typeof row.title!=='string'||row.title.trim().length<3||row.title.length>120||typeof row.message!=='string'||row.message.trim().length<5||row.message.length>2000||typeof row.category!=='string'||!(NOTICE_CATEGORIES as readonly string[]).includes(row.category)||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at as string)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||(row.recipient_member_code!==undefined&&(typeof row.recipient_member_code!=='string'||row.recipient_member_code.length>100))||(row.recipient_name!==undefined&&(typeof row.recipient_name!=='string'||row.recipient_name.length>200)))throw new Error('The notification inbox contains malformed records.');
  return row as unknown as Notice;
 }
 function isStrictlyDescendingNoticePage(rows:Notice[]):boolean{
@@ -177,7 +179,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  }
  const unread=items.filter(item=>!item.read_at).length;
  const visibleItems=items.filter(item=>(!unreadOnly||isAdmin||!item.read_at)&&(categoryFilter==='all'||item.category===categoryFilter)&&(!search.trim()||[item.title,item.message,item.category].some(value=>value.toLowerCase().includes(search.trim().toLowerCase()))));
- const categories=['general','account','support','security'];
+ const categories=NOTICE_CATEGORIES;
  return <section className="accountSection" style={{display:'block',maxWidth:980,margin:'0 auto'}}>
   <h3><Bell size={20}/> {isAdmin?'Member Notifications':'Notifications'}</h3>
   <p className="memberModuleHint">{isAdmin?'Send an in-app notification to one member by searching their Main ID, name or mobile number.':'Your recent BiddWorld account and support notifications.'}</p>

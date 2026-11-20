@@ -2,6 +2,14 @@ import {readFileSync} from 'node:fs';
 import {describe,it,expect} from 'vitest';
 const ui=readFileSync('src/components/Notifications.tsx','utf8');
 describe('Notifications response and realtime integrity',()=>{
+ it('matches notification identity, category and content bounds to the SQL contract',()=>{
+  expect(ui).toContain('NOTIFICATION_UUID.test(row.id)');
+  expect(ui).toContain('NOTIFICATION_UUID.test(row.user_id)');
+  expect(ui).toContain('NOTICE_CATEGORIES');
+  expect(ui).toContain('row.title.trim().length<3||row.title.length>120');
+  expect(ui).toContain('row.message.trim().length<5||row.message.length>2000');
+  expect(ui).toContain('row.recipient_name.length>200');
+ });
  it('validates complete notification rows, timestamps and optional recipient fields',()=>{
   expect(ui).toContain('function parseNoticePage(value:unknown,expectedUserId?:string):Notice[]');
   expect(ui).toContain('(expectedUserId&&row.user_id!==expectedUserId)');
