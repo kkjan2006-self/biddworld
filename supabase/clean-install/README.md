@@ -1,3 +1,7 @@
+## Withdrawal lifecycle status contract reconciliation (source-only, 2026-11-20)
+
+The canonical baseline allows the withdrawal statuses `pending`, `approved`, `rejected`, `paid` and `cancelled`. Member and Admin frontend parsers previously omitted `cancelled`, which could cause a valid row to invalidate an entire history/queue response. Both parsers now accept it; the Admin CSV filter and member history summary expose the terminal state. No SQL migration or manifest change was required. Source-only assertions updated; not executed.
+
 ## Clean-install manifest regression source repair (source-only, 2026-11-20)
 
 Repaired `tests/clean-install-migration-manifest-integrity.test.ts`: literal backslash-n sequences embedded in the migration version-prefix uniqueness assertion block are now actual source line breaks. This restores valid test-source structure without changing assertions, manifests, baseline or migration inventory. Test remains unexecuted. Inventory remains **152 forward + 16 excluded = 168 timestamped paths**, plus 3 legacy/unversioned SQL files.

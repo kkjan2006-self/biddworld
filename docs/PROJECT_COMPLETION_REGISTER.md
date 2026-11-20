@@ -1,3 +1,11 @@
+## 2026-11-20 — Withdrawal lifecycle status contract reconciliation
+
+- Static source comparison found that `withdrawal_requests_status_check` in the canonical clean-install baseline permits `pending`, `approved`, `rejected`, `paid` and `cancelled`, and `admin_list_withdrawal_requests` returns all statuses. The member and Admin UI parsers previously accepted only the first four, so a valid cancelled row could invalidate the entire page and prevent history/queue loading.
+- Updated both response validators to accept the complete database status set. Added Cancelled to the Admin CSV status filter and a separate Cancelled count in member history. Cancelled remains terminal/read-only in the UI; no review actions are exposed.
+- Updated existing source-only regression assertions. No migration was needed; no tests/build/type-check/E2E/browser QA or database/deployment operation was run.
+
+---
+
 ## 2026-11-20 — Complete personal activity report integrity
 
 - The member complete personal report previously exported only the withdrawal rows already loaded in the Account screen (normally the first 50), despite labelling the output complete. It now drains the owner-scoped member_list_my_withdrawals_page RPC using the exact descending (requested_at,id) keyset cursor and validates every page against the full accumulated history before export.

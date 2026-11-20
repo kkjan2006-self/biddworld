@@ -25,7 +25,7 @@ describe('member withdrawal history pagination',()=>{
   expect(ui).toContain('prior.request_id.localeCompare(row.request_id)<=0');
   expect(ui).toContain('validateWithdrawalPage(wr.data??[])');
   expect(ui).toContain('validateWithdrawalPage(data,withdrawals)');
-  expect(ui).toContain("['pending','approved','rejected','paid'].includes(row.status)");
+  expect(ui).toContain("['pending','approved','rejected','paid','cancelled'].includes(row.status)");
  });
  it('accepts only the privacy-safe payout method projection',()=>{
   expect(ui).toContain("Object.keys(payout).every(key=>key==='method')");

@@ -24,6 +24,12 @@ Restricted Staff Support ticket review was added end-to-end:
 
 Latest follow-up source work now also includes the Staff Support notification trigger, Matrix reversal replay identity, strict page-order/cursor validation across Fixed Bid, Admin Package Activation, Notifications, Wallet and withdrawal histories, and repaired source-only regression assertions. The three user-supplied Fixed Bid sample product images are present under `public/sample-products/`; the smartphone image was subsequently replaced with a higher-resolution version. Current branch HEAD is recorded in the latest verified commit and completion register.
 
+## Latest source-only batch — withdrawal lifecycle status contract reconciliation (2026-11-20)
+
+- Reconciled both member and Admin withdrawal response parsers against the canonical baseline constraint and Admin list RPC: the database permits `cancelled` alongside `pending`, `approved`, `rejected` and `paid`, but both frontend parsers previously rejected it and would fail the entire page if a cancelled request appeared.
+- Both parsers now accept the full database status set. Admin withdrawal CSV status filter includes Cancelled; member history shows a separate Cancelled count and a non-active status treatment. Cancelled records remain read-only; no review or payout action is offered.
+- Updated source-only regression assertions in `tests/admin-withdrawal-pagination-hardening.test.ts` and `tests/member-withdrawal-history-pagination.test.ts`. Not executed. No SQL migration was needed because `cancelled` is already in the canonical database constraint. No tests/build/type-check/E2E/browser QA/database/deployment operations were run.
+
 ## Latest source-only batch — complete personal report integrity (2026-11-20)
 
 - The complete personal CSV previously included only the currently loaded first 50 withdrawal-history rows. It now retrieves every page through the owner-scoped member_list_my_withdrawals_page RPC, advances using the exact (requested_at,id) keyset cursor, validates each page against all prior rows, and stops only on a valid terminal page.

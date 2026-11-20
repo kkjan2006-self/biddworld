@@ -23,7 +23,7 @@ describe('Admin withdrawal queue pagination hardening',()=>{
  it('validates every Admin withdrawal field and exact supported payout-detail shape',()=>{
   expect(component).toContain('function validAdminWithdrawal(value:unknown):value is WithdrawalRequest');
   expect(component).toContain('WITHDRAWAL_UUID.test(row.request_id)');
-  expect(component).toContain("['pending','approved','rejected','paid'].includes(row.status)");
+  expect(component).toContain("['pending','approved','rejected','paid','cancelled'].includes(row.status)");
   expect(component).toContain("payout.method==='UPI'");
   expect(component).toContain("payout.method==='Bank Transfer'");
   expect(component).toContain("payout.account_holder_name.trim().length<2");
