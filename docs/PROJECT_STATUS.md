@@ -234,3 +234,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Corrected the commission register so status and level filters are sent to the server for both the first page and every continuation page; changing either filter now reloads the register from offset zero. This prevents a filtered view from silently continuing through unfiltered records and showing incomplete or misleading results.
 - Strengthened the shared commission-page parser against malformed UUIDs, invalid activation IDs, levels outside 1–20, unsupported statuses, malformed timestamps, duplicate IDs, inconsistent has-more metadata, and strict descending `(created_at,id)` ordering across page boundaries matching the SQL RPC.
 - Added `tests/admin-referral-commission-filter-pagination-integrity.test.ts` as source-only regression coverage; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — Staff activation queue concurrency hardening
+
+- Fixed the package activation review queue request lock so both refresh/reset and continuation requests acquire the same lock before asynchronous work begins.
+- A superseded request can no longer release the lock owned by a newer refresh. Only the currently active request generation clears loading state and releases the lock; stale responses remain unable to update the queue.
+- Added source-only regression coverage in `tests/staff-package-activation-request-lock-integrity.test.ts`. Not executed. No database, build, type-check, E2E, browser QA or deployment operation was performed.
