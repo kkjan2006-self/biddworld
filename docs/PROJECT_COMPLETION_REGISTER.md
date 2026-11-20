@@ -2407,3 +2407,12 @@
 - Commits: policy migration `f635bd4c0c21b5e0ed6c93ba4d880b5bb4a08545` and approval cleanup policy update `52f2afda494c5a9df27ce9778b7706552107ac03`; Member auction UI `e4658bc127f881062c5075e591bc1aec1b47400d`; Member product UI `231bd6195bd8737ecfbda04a9760a2a6fea4ac41`; Admin auction review `cae266945444942384b72a36d9ad4566111c15c7`; policy test `1179710f7b812e43b97dd6366d1b5c326348db2c`.
 - Migration inventory reconciliation: **131 forward + 16 excluded = 147 timestamped SQL files**; missing 0, orphaned 0, overlap 0, duplicate forward 0.
 - No migrations applied, no database writes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Storage cleanup policy privilege isolation
+
+- Hardened the new cleanup policies to avoid querying submission tables directly from Storage RLS under roles that intentionally have no table SELECT grants. Three narrow SECURITY DEFINER helper functions perform the reference checks with an empty search path and fully qualified objects; EXECUTE is revoked from PUBLIC/anon and granted only to authenticated users.
+- The member helper permits deletion only for the caller's own folder and only when the private object is no longer referenced by their submission. Staff cleanup helpers remain restricted to the Auction Review permission and pending/approved lifecycle state; published product/auction media is protected.
+- Updated the Storage cleanup regression source to cover helper ACLs, search_path and reference guards. Not executed.
+- Commits: helper/policy migration `8455866a19fd224475775aa4156d9b3033ff110f`; regression update `391b64506b159b9bb77145927eb98c111f191efe`.
+- No database migrations were applied and no data or Storage objects were modified.
