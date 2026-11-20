@@ -1,3 +1,10 @@
+## 2026-11-20 — Staff package activation nullable receipt compatibility
+
+- Reconciled the Staff queue parser with the SQL projection and existing UI behavior for nullable `package_activations.receipt_path`. A null receipt no longer invalidates the entire pending queue; the row remains reviewable for rejection, while approval remains disabled unless a valid receipt URL is available.
+- Non-null receipt paths continue to require the exact account-folder and generated filename format. Added a source-only regression assertion covering the nullable SQL/UI contract and approval guard. No migration required; test not executed.
+
+---
+
 ## 2026-11-20 — Wallet funding review pagination contract reconciliation
 
 - Matched the Admin Income Wallet Add Money review page to the SQL keyset query: a continuation page must contain exactly 50 rows, every page must be strictly ascending by `(created_at,id)`, and the continuation cursor must match the final row and advance beyond the previous cursor.

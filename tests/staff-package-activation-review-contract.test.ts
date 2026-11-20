@@ -40,4 +40,11 @@ describe('Staff package activation review permission contract',()=>{
   expect(submission).toContain("'activation_number', v_activation_number");
   expect(page).toContain("'activation_number',activation_number");
  });
+ it('keeps legacy pending activations with no receipt visible but never enables approval without a receipt',()=>{
+  expect(staff).toContain('receipt_path:string|null');
+  expect(staff).toContain('(row.receipt_path===null||validActivationReceiptPath(row.receipt_path))');
+  expect(staff).toContain("if(!item.receipt_path){failures[item.id]='No payment receipt is attached.';return;}");
+  expect(staff).toContain("disabled={!!busy||!urls[item.id]}");
+  expect(page).toContain("'receipt_path',receipt_path");
+ });
 });

@@ -25,7 +25,7 @@ function validActivation(value:unknown):value is Activation{
   &&typeof row.currency==='string'&&/^[A-Z]{3}$/.test(row.currency)
   &&typeof row.bid_wallet_credit==='number'&&Number.isFinite(row.bid_wallet_credit)&&row.bid_wallet_credit>=0&&row.bid_wallet_credit<=100000000
   &&typeof row.payment_reference==='string'&&/^[A-Za-z0-9./_-]{6,80}$/.test(row.payment_reference)
-  &&validActivationReceiptPath(row.receipt_path)
+  &&(row.receipt_path===null||validActivationReceiptPath(row.receipt_path))
   &&typeof row.submitted_at==='string'&&Number.isFinite(Date.parse(row.submitted_at));
 }
 export default function AdminStaff(){
