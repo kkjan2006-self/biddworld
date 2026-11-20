@@ -1,0 +1,29 @@
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {describe,expect,it} from 'vitest';
+
+const account=readFileSync(resolve(process.cwd(),'src/components/Account.tsx'),'utf8');
+
+describe('Member dashboard activation status guard',()=>{
+  it('requires both the profile and Main ID to be active before showing an active account state',()=>{
+    expect(account).toContain("const mainMemberStatus=members.find(member=>member.id_type==='main')?.status;");
+    expect(account).toContain("const accountActivationLocked=profile?.status!=='active'||mainMemberStatus!=='active';");
+  });
+
+  it('shows a clear lock notice when either status is inactive, suspended, missing or not verified',()=>{
+    expect(account).toContain("activeSection==='member-overview'&&accountActivationLocked");
+    expect(account).toContain('Your member profile and Main ID must both be active to use restricted member features.');
+    expect(account).toContain('Contact BiddWorld support or an administrator if you believe this status is incorrect.');
+  });
+
+  it('does not treat the dashboard notice as a replacement for server-side financial guards',()=>{
+    expect(account).not.toContain('setProfile(current=>current?{...current,status:');
+    expect(account).not.toContain("from('member_ids').update");
+  });
+
+  it('hides the withdrawal request form unless both member identity records are active',()=>{
+    expect(account).toContain('{withdrawEnabled&&!accountActivationLocked?<form className="memberWithdrawalForm"');
+    expect(account).toContain('Withdrawal requests are unavailable until both your member profile and Main ID are active.');
+    expect(account).toContain("supabase.rpc('member_create_withdrawal_request'");
+  });
+});
