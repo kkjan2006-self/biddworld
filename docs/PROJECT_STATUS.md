@@ -51,3 +51,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Admin Withdrawal CSV export now applies the existing strict withdrawal parser to every page and rejects repeated Request IDs across pages even when a row's other fields change.
 - Shared paged exports accept an optional stable identity key; other reports retain their existing row-content duplicate detection.
 - Source-only regression assertions updated in `tests/admin-withdrawal-pagination-hardening.test.ts` (not executed). No migration or database operation was required.
+
+
+## Latest source integrity fix
+
+- Member withdrawal creation now validates the exact success response from the SQL RPC, including UUID request identity, `pending` status and the server's bounded minimum amount, before clearing submitted form fields.
+- Added source-only regression coverage in `tests/member-withdrawal-create-response-integrity.test.ts` (not executed). No SQL migration or database operation was required.
