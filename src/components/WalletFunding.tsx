@@ -17,7 +17,7 @@ function validRequest(value:unknown):value is RequestRow{
   &&(row.review_note===null||(typeof row.review_note==='string'&&row.review_note.length<=500))
   &&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))
   &&(row.reviewed_at===null||(typeof row.reviewed_at==='string'&&Number.isFinite(Date.parse(row.reviewed_at))))
-  &&typeof row.has_more==='boolean;
+  &&typeof row.has_more==='boolean';
 }
 function validateWalletFundingHistoryPage(value:unknown,previous:RequestRow[]=[]):RequestRow[]{
  if(!Array.isArray(value)||value.length>PAGE_SIZE||!value.every(validRequest))throw new Error('The Add Money history returned an invalid page.');
