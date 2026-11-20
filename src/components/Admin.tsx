@@ -573,7 +573,11 @@ async function saveDefaultSponsor(){if(!supabase||savingSponsor||sponsorSaveInFl
    const{data,error}=await supabase.rpc('admin_set_main_member_status',{p_member_code:memberCodeAtSubmit,p_status:memberStatusValue,p_reason:reason});
    if(error)throw error;
    if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Main ID status result. Refresh the member record before retrying.');
-   const changed=(data as {linked_duplicate_ids_changed?:unknown}).linked_duplicate_ids_changed;
+   const result=data as Record<string,unknown>;
+   if(result.success!==true||typeof result.member_code!=='string'||result.member_code.trim().toUpperCase()!==memberCodeAtSubmit.trim().toUpperCase()||result.status!==memberStatusValue){
+    throw new Error('The server returned a Main ID status result for a different member or status. Refresh the member record to confirm the saved state.');
+   }
+   const changed=result.linked_duplicate_ids_changed;
    if(typeof changed!=='number'||!Number.isInteger(changed)||changed<0)throw new Error('The server returned an invalid linked Duplicate ID count. Refresh the member record to confirm the result.');
    setMemberStatusMessage('Main ID status updated. Linked Duplicate IDs changed: '+changed+'.');
    setMemberStatusReason('');setRefresh(v=>v+1);
