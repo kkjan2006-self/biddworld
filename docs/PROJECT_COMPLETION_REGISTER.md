@@ -2368,3 +2368,10 @@
 - Commits: auction RPC migration `f913d6ae243eda93d93d9866d2a03b373c220c96`; frontend pagination `2b45f006d177de89adc4198d42ac038baf98efcd`; test `ea9542a2eb9857b216dbcc32873000ca90f8f301`.
 - No Supabase migration executed; no database writes, no Preview deployment, and no changes to protected `main`.
 - Overall source development estimate remains **94% provisional** pending the remaining frontend/RPC/RLS/Storage integration reconciliation.
+
+
+## 2026-11-20 — Activation report source-contract alignment
+
+- Reconciled the existing Admin complete activation-history export test with the actual UI implementation: the export captures the current status/search/date filters into local variables before fetching all RPC pages, rather than using the old inline expression expected by the stale assertions.
+- Updated only the regression source assertions; the report UI and database workflow were not changed. No test run was performed in this development-only phase.
+- Commit: `8301455e8ec0bbe2bf0d461862a57a467b7f2cb4`.
