@@ -24,9 +24,9 @@ describe('public auction catalogue pagination',()=>{
   expect(sql).toContain('limit p_limit;');
  });
  it('exposes only live/scheduled auctions linked to published products and valid time windows',()=>{
-  expect(sql).toContain("p.status = 'published'");
-  expect(sql).toContain("a.status = 'live'");
-  expect(sql).toContain("a.status = 'scheduled'");
+  expect(sql).toContain("p.status='published'");
+  expect(sql).toContain("a.status='live'");
+  expect(sql).toContain("a.status='scheduled'");
   expect(sql).toContain('(a.ends_at is null or a.ends_at>now())');
   expect(sql).toContain('a.starts_at<=now()');
   expect(sql).toContain('a.starts_at>now()');
