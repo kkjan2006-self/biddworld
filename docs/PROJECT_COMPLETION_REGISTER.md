@@ -1,3 +1,11 @@
+## 2026-11-20 — Matrix placement regression source repair
+
+- Source audit found the final Matrix upline traversal regression assertion referenced an undeclared `sql` variable even though the migration source is loaded as `migration`.
+- Corrected all assertions in that case to inspect the already-loaded Matrix engine migration. No application or SQL migration behavior changed.
+- Regression source remains unexecuted under the development-only restriction. No database, build, type-check, test, E2E, browser QA or deployment operation was performed.
+
+---
+
 ## 2026-11-20 — Staff Support notification delivery
 
 - Follow-up integration review found the existing `notify_member_on_support_ticket_update()` trigger still returned early for every non-Admin JWT. After restricted Staff gained the `support_ticket_review` permission, Staff could update tickets through the audited RPC but the member received no in-app status/reply notification.

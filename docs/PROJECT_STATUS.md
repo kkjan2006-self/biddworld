@@ -65,3 +65,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Bulk Mark All Read now reconciles only the exact IDs and timestamps returned by the database, rejecting malformed or duplicate response identities rather than optimistically marking every loaded row as read.
 - Added `tests/notification-read-action-persistence.test.ts` as source-only regression coverage. Not executed. No SQL migration was required; the existing owner-scoped `UPDATE(read_at)` policy and SELECT grant already support the response projection.
 - No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
+
+## 2026-11-20 — Matrix placement regression source repair
+
+- Corrected an undeclared source variable in the final Matrix upline traversal regression case: assertions now inspect the existing `migration` source binding.
+- This repairs the regression test's source-level reference without changing Matrix placement, commission, wallet or RPC behavior. Test remains unexecuted.
+- No migration or clean-install manifest change was required.
