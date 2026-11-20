@@ -1,3 +1,10 @@
+## 2026-11-20 — Package activation receipt ambiguity regression contract repaired
+
+- Source audit found the package activation response regression test still asserted an obsolete cleanup condition that no longer matched the current upload-recovery logic. The test now checks the actual guard: cleanup is allowed before the activation RPC or after a definite coded RPC rejection; ambiguous RPC outcomes retain the uploaded receipt.
+- Added explicit source assertions for the RPC-attempt and definite-rejection flags. Test remains source-only and unexecuted; no application behavior, SQL migration, database, build, deployment or branch outside `completion-work` was changed.
+
+---
+
 ## 2026-11-20 — Notification keyset response ordering hardening
 
 - Source audit found the inbox rejected duplicate/overlapping notification IDs but did not independently validate strict descending (created_at,id) ordering or ensure continuation rows were strictly older than the loaded cursor.

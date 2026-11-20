@@ -14,7 +14,9 @@ describe('Member package activation response integrity',()=>{
  });
  it('preserves uploaded receipts after an ambiguous or malformed response',()=>{
   expect(source).toContain('The request may already have been recorded; refresh your activation history before retrying.');
-  expect(source).toContain('if(uploadedReceiptPath&&!activationSubmitted&&activationRpcRejected)');
+  expect(source).toContain('activationRpcAttempted=true');
+  expect(source).toContain("activationRpcRejected=typeof (error as {code?:unknown}).code==='string'");
+  expect(source).toContain('if(uploadedReceiptPath&&!activationSubmitted&&(!activationRpcAttempted||activationRpcRejected))');
  });
  it('matches the receipt wrapper response contract',()=>{
   expect(migration).toContain("return v_result||jsonb_build_object('receipt_path',p_receipt_path)");

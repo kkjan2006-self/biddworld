@@ -83,3 +83,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Initial and continuation inbox pages now require strict descending (created_at,id) order; continuation rows must also fall strictly before the existing cursor before they can be appended.
 - Added source-only assertions to tests/notifications-response-integrity.test.ts; not executed. No migration or database change required.
+
+
+## Latest source-only regression alignment
+
+- Reconciled `tests/member-package-activation-response-integrity.test.ts` with the current receipt cleanup guard in `Packages.tsx`. The test now verifies that cleanup occurs only before the activation RPC or after a definite coded rejection; ambiguous RPC outcomes preserve the uploaded receipt. Added explicit assertions for the attempt/rejection flags.
+- Regression source remains unexecuted. No runtime, SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
