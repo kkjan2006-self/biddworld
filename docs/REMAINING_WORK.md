@@ -8,7 +8,8 @@ This file keeps the historical audit notes below, but the opening status is the 
 - Member Main/Duplicate ID views, sponsor/team genealogy, package activation request workflow and receipt handling.
 - Bid Wallet and Income Wallet UI, wallet funding history, withdrawal requests, transaction statements and Admin wallet/withdrawal review workflows.
 - Configurable referral and Matrix plans, automated placement/commission source workflows, Admin configuration and member summaries.
-- Auction lifecycle with Starting/Expected Price, optional end time, 48-hour target countdown, idempotent bid RPC, Admin auction management and winner-payment/delivery workflows.
+- Auction lifecycle with Starting/Expected Price, optional end time, 48-hour target countdown, idempotent bid RPC, Admin auction management, item-award-only auction finalization and separate Fixed Bid winner-payment/delivery workflows.
+- Refreshed Auction and Fixed Bid cards with one-line titles/subtitles, details dialogs, percentage progress and prominent bid actions; homepage Recent Winners cards and My Team terminology.
 - Fixed-Amount Bid campaigns, member entries, Admin draw/settlement and reporting source.
 - Member OLX-style product and auction submissions, private image uploads, duplicate-pending product prevention, editable resubmission, Admin/Staff review, public gallery publication and keyset pagination.
 - Admin member/sponsor/ID management, staff permission scopes, package/payment review, reports/CSV exports, audit logs, feature settings and delivery tracking.
@@ -37,8 +38,8 @@ This file keeps the historical audit notes below, but the opening status is the 
 ## Current checkpoint
 
 - Branch: `completion-work`
-- Current migration inventory at this checkpoint: 139 forward manifest entries + 16 excluded historical entries = 155 listed timestamped migration paths (source-tree accounting still pending).
-- Latest auction source repairs: `20261119680000_admin_auction_submission_expected_price_review.sql` and `20261119690000_prevent_duplicate_pending_auction_submissions.sql`.
+- Current migration inventory at this checkpoint: 140 forward manifest entries + 16 excluded historical entries = 156 listed timestamped migration paths (source-tree accounting still pending).
+- Latest auction source repairs: `20261119680000_admin_auction_submission_expected_price_review.sql`, `20261119690000_prevent_duplicate_pending_auction_submissions.sql`, and `20261120120000_fix_recent_auction_winner_profile_join.sql` (canonical `owner_user_id` join for Recent Winners).
 - Source development estimate: 95% provisional. This is not a verified completion percentage.
 
 ## Historical audit notes
