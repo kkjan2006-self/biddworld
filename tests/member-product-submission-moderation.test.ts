@@ -11,6 +11,10 @@ describe('member product submission moderation contract',()=>{
   expect(sql).toContain("m.id_type='main' and m.status='active' and p.status='active'");
   expect(sql).toContain("o.bucket_id='product-submission-media' and o.name=v_path");
  });
+ it('tracks the generated private image path before upload for failed-upload cleanup',()=>{
+  expect(member.indexOf('uploaded.push(path)')).toBeGreaterThan(-1);
+  expect(member.indexOf("client.storage.from('product-submission-media').upload")).toBeGreaterThan(member.indexOf('uploaded.push(path)'));
+ });
  it('requires Admin approval before creating a published catalogue product',()=>{
   expect(sql).toContain("v_role='admin'");
   expect(sql).toContain("where s.status='pending'");
