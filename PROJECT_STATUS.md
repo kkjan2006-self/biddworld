@@ -1,3 +1,16 @@
+# Current continuation checkpoint — 2026-11-20 (source-only, updated after latest user changes)
+
+- Latest user-facing source updates are present on `completion-work`: Fixed Bid cards use a one-line campaign title and product subtitle, Product Details dialog with approved gallery images, entry amount, percentage progress and prominent BID NOW action; Auction cards use a one-line title/category, Auction Details, current bid, time/target progress and PLACE A BID; Homepage Recent Winners displays the auction item recipient and winning bid; member terminology is **My Team**.
+- Confirmed the auction winner is awarded the listed item. Auction finalization no longer creates a `winning_item_payments` row; Fixed Bid winner-payment remains a separate workflow. The existing Admin winner/payment register is read-only.
+- Latest Admin strict-TypeScript repairs inspected: commit `38fe63c0dd14427e65995826d0829232e7edb056`; Duplicate ID `has_more===true` narrowing repair: `4e34dc4f147434903643bd9f6717d18e488b90fa`. Preview Pages base path and `npm run build` (type-check + build) configuration are updated in the separate Preview repository; no new Preview deployment is claimed here.
+- **New source defect found and repaired:** `20261120110000_auction_item_awards_and_homepage_winners.sql` joined `member_ids.user_id`, but the canonical schema baseline defines `member_ids.owner_user_id`. This would make the public Recent Winners RPC fail on the candidate schema. Added forward migration `20261120120000_fix_recent_auction_winner_profile_join.sql` to replace the RPC with the canonical ownership join, preserving bounded output, profile-active filtering, and anon/authenticated execute grants. Added source-only contract test `tests/recent-auction-winner-profile-contract.test.ts` (not executed).
+- Clean-install forward manifest now has **140 unique listed forward entries** plus **16 excluded historical entries** = **156 listed paths**. This is a manifest count only; the full migration-directory exact-accounting contract remains unexecuted and source-tree accounting is not yet claimed.
+- No unit tests, build, type-check, browser/mobile QA, Supabase access, migration replay, or Preview deployment were run. Production and TEST Supabase remain untouched.
+- Remaining development: finish complete Frontend RPC-to-migration signature/return/authorization reconciliation; reconcile baseline schema, migration dependency order, RLS/ACL/Storage final state; continue cross-module Admin/Member workflow and retry/error-state source review; reconcile docs to the current branch.
+- Overall development completion: **95% provisional**. The new RPC/schema mismatch repair is source-only; 100% is not claimed until all remaining source reconciliation is complete.
+
+---
+
 # Current continuation checkpoint — 2026-11-20 (source-only)
 
 - Re-read this file and `docs/PROJECT_COMPLETION_REGISTER.md` against the current `completion-work` source files before continuing. Protected `main` was not written. No Supabase project was accessed or changed in this batch.
