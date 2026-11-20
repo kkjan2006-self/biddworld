@@ -1,6 +1,6 @@
 {
-  "generated_from": "completion-work frontend source inspection at commit 75c3c46e9932d8fc281cbeba11c5f0aa8f97e820",
-  "snapshot_commit": "75c3c46e9932d8fc281cbeba11c5f0aa8f97e820",
+  "generated_from": "completion-work frontend source inspection at commit 679c69ed120067e73c1e77260e7ec299356d867c",
+  "snapshot_commit": "679c69ed120067e73c1e77260e7ec299356d867c",
   "note": "This inventory records 105 literal frontend RPC call-site entries across App.tsx and all React component surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
@@ -132,7 +132,7 @@
       "ui": "src/components/AdminPaymentReviewStaff.tsx"
     },
     {
-      "name": "admin_list_pending_activations",
+      "name": "admin_list_pending_activations_page",
       "ui": "src/components/AdminStaff.tsx"
     },
     {
