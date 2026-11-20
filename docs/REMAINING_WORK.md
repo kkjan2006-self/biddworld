@@ -1,3 +1,4 @@
+- Main ID lifecycle response validation now checks success, exact member identity, requested status and linked Duplicate ID count before reporting success; static regression assertions added, not executed. Commits: `808bf9a9bcf6109837a320c5cb172f1ec0e77645`, `446f6afaf467e8ad6063abec809a383fb63fbb92`.
 - Also corrected stale Admin Member Details copy that incorrectly labelled the implemented Main ID status / linked Duplicate ID lifecycle workflow as pending; added source-only copy assertions (not executed). Commits: `d6981da16c05ad09db2401023ae430c2c32705a1`, `0aa6c0dc3389342fbe4be5cd7aa0573ca4341f97`.
 ## Latest source development batch — Admin Main ID lifecycle contract
 
