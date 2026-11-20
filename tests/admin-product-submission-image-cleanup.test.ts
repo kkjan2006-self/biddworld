@@ -6,6 +6,12 @@ describe('Admin product image cleanup after moderation',()=>{
   expect(ui).toContain('let rpcAttempted=false;let rpcDefinitelyRejected=false;');
   expect(ui).toContain("rpcDefinitelyRejected=typeof(error as {code?:unknown}).code==='string'");
  });
+ it('validates the moderation response before reporting approval or rejection',()=>{
+  expect(ui).toContain('data:reviewResult');
+  expect(ui).toContain('result.status!==expectedStatus');
+  expect(ui).toContain('result.image_count!==publicPaths.length');
+  expect(ui).toContain('result.product_id');
+ });
  it('cleans uploaded images only before RPC or after a definite server rejection',()=>{
   expect(ui).toContain('publicPaths.length&&(!rpcAttempted||rpcDefinitelyRejected)');
  });
