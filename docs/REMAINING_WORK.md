@@ -511,3 +511,12 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Refined the homepage Auction cards to match the clean Fixed Bid card system: single-line auction title, compact category subtitle, Auction Details link, prominent current-bid amount, time label, target-progress bar when an Expected Price exists, and a large gradient PLACE A BID action.
 - Preserved the existing auction details dialog, live/scheduled state handling, bid eligibility checks, and server-side bid workflow. No auction schema or database changes were required.
 - Added static source-contract assertions for the card hierarchy, progress indicator and bid action. No tests/build/browser QA were run during the development-only phase.
+
+## 2026-11-20 — Auction item awards and homepage Winners
+
+- Corrected Auction finalization: the highest eligible bidder is recorded as the winner and awarded the listed item. Auction finalization no longer creates a separate `winning_item_payments` record or returns a winner-payment obligation. Fixed Bid campaign winner-payment flows remain unchanged.
+- Added a restricted public read RPC for recent finalized Auction winners, exposing only auction title, listing image, display name, winning bid amount and finalization date. Homepage shows responsive Recent Winners cards only when real winner records exist; no sample winners are invented.
+- Auction winner-payment notifications are excluded; Fixed Bid winner-payment notifications remain active. Historical Auction payment records, if any, are not deleted or modified by this source migration.
+- Added static source-contract assertions and registered migration `20261120110000_auction_item_awards_and_homepage_winners.sql`.
+- Commit: `20fc530cea4e171bc3502ad23d49b63c7e6d3bb4`. No SQL was applied and no tests/build/browser QA were run.
+- Clean-install inventory: **139 forward + 16 excluded = 155 timestamped SQL migrations**.
