@@ -1,3 +1,15 @@
+## 2026-11-20 — Restricted Staff and notification mutation integrity
+
+- Restricted Staff grant/revoke validates the returned target email, resulting app role and exact permission list before confirming success. Individual permission updates validate returned Staff email and exact selected permissions.
+- Staff package activation review validates the action-specific status and Bid Wallet credit/balance before reporting approval/rejection.
+- Admin notification recipient lookup validates row structure, Main ID identity and the maximum 25-result limit. Notification send validates success, UUID and replay flag; the idempotency key is retained for malformed/ambiguous responses.
+- Corrected restricted Staff Add Money terminology to Income Wallet.
+- Added `tests/staff-notification-mutation-response-integrity.test.ts`; source-only, not executed.
+- Commits: `67759a013ad00b5d47a35bb700fbb504dd73bdd9`, `616a72bc30833e0c3b3fc688b40d8ea356fcdb14`, `6fd53920e560c54f585b155a8700f5e7506158a0`, `444f4f91232c320317da05d4249f385b71ec90fa`, `d746bbf766395c219b983e3a68b96b5f5fb9f79f`.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Product and Auction draft response validation
 
 - Admin Product draft save validates the returned Product UUID and ensures an edit returns the same Product ID before clearing form state.
