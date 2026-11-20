@@ -227,3 +227,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Reconciled the member Matrix history client with the authoritative `member_list_my_matrix_commissions_page` SQL ordering (`created_at DESC, id DESC`). Initial and continuation pages now share one strict parser that validates UUID identity, level, source attribution, positive finite amount, status and timestamp; it also rejects duplicate IDs and ordering regressions within/across pages before display.
 - Invalid continuation pages now stop further pagination and require a refresh instead of leaving a repeatedly failing cursor active. The initial page is validated before being placed into member state.
 - Added `tests/member-matrix-commission-history-integrity.test.ts` as source-only regression coverage; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — Admin referral commission filtered pagination
+
+- Corrected the commission register so status and level filters are sent to the server for both the first page and every continuation page; changing either filter now reloads the register from offset zero. This prevents a filtered view from silently continuing through unfiltered records and showing incomplete or misleading results.
+- Strengthened the shared commission-page parser against malformed UUIDs, invalid activation IDs, levels outside 1–20, unsupported statuses, malformed timestamps, duplicate IDs, inconsistent has-more metadata, and strict descending `(created_at,id)` ordering across page boundaries matching the SQL RPC.
+- Added `tests/admin-referral-commission-filter-pagination-integrity.test.ts` as source-only regression coverage; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
