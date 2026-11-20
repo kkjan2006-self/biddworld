@@ -1,3 +1,15 @@
+## 2026-11-20 — Secondary Admin mutation response validation
+
+- Package activation review now validates success, action-specific status, non-negative Bid Wallet credit and resulting wallet balance before confirming approval/rejection.
+- Minimum withdrawal amount changes validate the returned saved amount against the submitted value.
+- Referral-plan draft save validates returned plan ID, version number, inactive state, rule count and maximum depth against the submitted sequential rules.
+- Delivery tracking save validates the returned UUID and requires an edited record to return its original tracking ID before clearing form state.
+- Added `tests/admin-secondary-mutation-response-integrity.test.ts`; source-only, not executed.
+- Commits: `520d35f920b052ce0268919c6a1e06d40b792f6d`, `97495b39a6b8b89fc18393d5c2a9c54bb633a28d`.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Wallet workflow error-state clarity
 
 - Member withdrawal submission now shows actionable validation/server errors rather than replacing all thrown errors with a generic network failure. Admin Add Money review maps legacy server-side “Main Wallet” error text to the correct “Income Wallet” label.
