@@ -20,6 +20,13 @@ describe('Admin member-auction review safety',()=>{
   assert.match(review,/Choose a valid auction start date and time/);
   assert.match(review,/1 to 8 item images/);
  });
+ it('validates auction moderation identity and the Expected Price deadline response',()=>{
+  assert.match(review,/data:reviewResult/);
+  assert.match(review,/result\.auction_id/);
+  assert.match(review,/result\.product_id/);
+  assert.match(review,/result\.expected_price!==expected/);
+  assert.match(review,/48\*60\*60\*1000/);
+ });
  it('serializes review actions and avoids duplicate submissions',()=>{
   assert.match(review,/reviewInFlight\.current/);
   assert.match(review,/reviewInFlight\.current=true/);
