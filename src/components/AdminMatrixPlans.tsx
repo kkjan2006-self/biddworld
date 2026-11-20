@@ -8,11 +8,11 @@ type MatrixPlan={id:string;package_id:string;version_number:number;matrix_width:
 const makeRules=(depth:number):MatrixRule[]=>Array.from({length:depth},(_,i)=>({level:i+1,enabled:false,reward_type:'fixed',reward_value:'0',eligibility_rule:'{}'}));
 function parseMatrixPlans(value:unknown,packageId:string):MatrixPlan[]{
  if(!Array.isArray(value)||value.length>200)throw new Error('Matrix plan response is invalid or exceeds the safety limit.');
- const ids=new Set<string>();
+ const ids=new Set<string>(),versions=new Set<number>();let activeCount=0;
  return value.map(raw=>{
   if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Matrix plan record is malformed.');
   const row=raw as Record<string,unknown>;
-  if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||row.package_id!==packageId||!Number.isInteger(row.version_number)||Number(row.version_number)<1||!Number.isInteger(row.matrix_width)||Number(row.matrix_width)<2||Number(row.matrix_width)>100||!Number.isInteger(row.placement_depth)||Number(row.placement_depth)<1||Number(row.placement_depth)>50||!Number.isInteger(row.matrix_depth)||Number(row.matrix_depth)<1||Number(row.matrix_depth)>50||typeof row.is_active!=='boolean'||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||!Array.isArray(row.levels)||row.levels.length!==row.matrix_depth)throw new Error('Matrix plan record contains invalid fields.');
+  if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||row.package_id!==packageId||!Number.isInteger(row.version_number)||Number(row.version_number)<1||versions.has(Number(row.version_number))||!Number.isInteger(row.matrix_width)||Number(row.matrix_width)<2||Number(row.matrix_width)>100||!Number.isInteger(row.placement_depth)||Number(row.placement_depth)<1||Number(row.placement_depth)>50||!Number.isInteger(row.matrix_depth)||Number(row.matrix_depth)<1||Number(row.matrix_depth)>50||typeof row.is_active!=='boolean'||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||!Array.isArray(row.levels)||row.levels.length!==row.matrix_depth)throw new Error('Matrix plan record contains invalid fields.');
   const levels=new Set<number>();
   for(const rawLevel of row.levels){
    if(!rawLevel||typeof rawLevel!=='object'||Array.isArray(rawLevel))throw new Error('Matrix plan level is malformed.');
@@ -21,7 +21,7 @@ function parseMatrixPlans(value:unknown,packageId:string):MatrixPlan[]{
    levels.add(Number(level.level));
   }
   if(levels.size!==Number(row.matrix_depth))throw new Error('Matrix plan levels are incomplete.');
-  ids.add(row.id);return row as unknown as MatrixPlan;
+  ids.add(row.id);versions.add(Number(row.version_number));if(row.is_active){activeCount++;if(activeCount>1)throw new Error('A package cannot have more than one active Matrix plan.');}return row as unknown as MatrixPlan;
  });
 }
 
@@ -76,7 +76,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
    }
   }catch(e){setMessage(e instanceof Error?e.message:'Invalid Matrix level configuration.');return;}
   setBusy(true);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_save_matrix_plan_draft',{p_package_id:packageId,p_matrix_width:w,p_placement_depth:Number(placementDepth),p_matrix_depth:d,p_rules:payload});if(error)throw error;if(!data?.plan_id)throw new Error('The server did not confirm a saved draft.');setMessage('Matrix plan draft v'+data.version_number+' saved. It is not active.');await loadPlans(packageId);}
+  try{const{data,error}=await supabase.rpc('admin_save_matrix_plan_draft',{p_package_id:packageId,p_matrix_width:w,p_placement_depth:Number(placementDepth),p_matrix_depth:d,p_rules:payload});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix draft result.');const result=data as Record<string,unknown>;if(typeof result.plan_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.plan_id)||!Number.isInteger(result.version_number)||Number(result.version_number)<1||result.matrix_width!==w||result.placement_depth!==pd||result.matrix_depth!==d||result.is_active!==false)throw new Error('The saved Matrix draft result did not match the submitted package configuration. Refresh the plan directory before retrying.');setMessage('Matrix plan draft v'+result.version_number+' saved. It is not active.');await loadPlans(packageId);}
   catch(e){setMessage(e instanceof Error?e.message:'Matrix plan draft could not be saved.');}
   finally{setBusy(false);}
  }
@@ -85,7 +85,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
   if(selectedPackage?.is_active){setMessage('This package is already published. The backend prevents changing its Matrix plan.');return;}
   if(!window.confirm('Activate Matrix plan v'+plan.version_number+' for this package?'))return;
   setBusy(true);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_activate_matrix_plan',{p_package_id:packageId,p_plan_version_id:plan.id});if(error)throw error;if(data?.success!==true)throw new Error('The server did not confirm activation.');setMessage('Matrix plan v'+plan.version_number+' is now active for this package.');await loadPlans(packageId);}
+  try{const{data,error}=await supabase.rpc('admin_activate_matrix_plan',{p_package_id:packageId,p_plan_version_id:plan.id});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix activation result.');const result=data as Record<string,unknown>;if(result.success!==true||result.plan_id!==plan.id||result.matrix_width!==plan.matrix_width||result.matrix_depth!==plan.matrix_depth)throw new Error('The Matrix activation result did not match the selected plan. Refresh the plan directory before retrying.');setMessage('Matrix plan v'+plan.version_number+' is now active for this package.');await loadPlans(packageId);}
   catch(e){setMessage(e instanceof Error?e.message:'Matrix plan could not be activated.');}
   finally{setBusy(false);}
  }
@@ -94,7 +94,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
   <p>Configure placement width independently from commission depth. Sponsor Referral plans remain separate. Saving creates a new inactive version; activating is available only while the package is unpublished.</p>
   {message&&<div className="notice" role="status">{message}</div>}
   <div className="adminModuleDetail">
-   <label>Package<select value={packageId} onChange={e=>{setPackageId(e.target.value);setMessage('');}}><option value="">Select a package</option>{packages.map(p=><option key={p.id} value={p.id}>{p.name}{p.is_active?' · Published':''}</option>)}</select></label>
+   <label>Package<select value={packageId} disabled={busy} onChange={e=>{setPackageId(e.target.value);setMessage('');}}><option value="">Select a package</option>{packages.map(p=><option key={p.id} value={p.id}>{p.name}{p.is_active?' · Published':''}</option>)}</select></label>
    {selectedPackage?.is_active&&<div className="notice">This package is published. Existing Matrix plan history is read-only.</div>}
    <div className="sponsorAdminForm">
     <label>Matrix Width (1:X)<input type="number" min="2" max="100" step="1" value={width} onChange={e=>setWidth(e.target.value)}/><small>Predefined widths: 1:3, 1:4, 1:5, 1:6, 1:7. Custom width: any whole number from 2 to 100.</small></label>
