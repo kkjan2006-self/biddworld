@@ -1,3 +1,12 @@
+## 2026-11-20 — Admin Main ID lifecycle response integrity
+
+- Hardened the Admin Main ID status mutation client contract. A response is accepted only when `success=true`, the returned Main ID matches the submitted member identity (case-insensitive), the returned status matches the requested status, and the linked Duplicate ID change count is a non-negative integer.
+- The check is compatible with the latest SQL RPC's replay/reconciliation response, which includes the status and a count even when no Main ID row itself needed changing.
+- Added source-only assertions in `tests/admin-main-member-status-mutation-safety.test.ts`; not executed.
+- Commits: `808bf9a9bcf6109837a320c5cb172f1ec0e77645`, `446f6afaf467e8ad6063abec809a383fb63fbb92`.
+
+---
+
 ## 2026-11-20 — Main ID lifecycle guidance copy
 
 - Replaced outdated Admin member-directory helper text that described the already-implemented Main ID status and linked Duplicate ID reconciliation workflow as pending. The copy now describes the audited lifecycle action accurately.
