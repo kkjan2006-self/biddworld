@@ -23,7 +23,7 @@ const PAGE_SIZE=50;
 function parseCampaignPage(value:unknown):Campaign[]{
  if(!Array.isArray(value)||value.length>PAGE_SIZE)throw new Error('The campaign catalogue returned an invalid page. Refresh before continuing.');
  const ids=new Set<string>();
- return value.map(raw=>{
+ const items=value.map(raw=>{
   if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The campaign catalogue contains a malformed record.');
   const row=raw as Record<string,unknown>;
   if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||typeof row.title!=='string'||!row.title.trim()
@@ -63,6 +63,8 @@ function parseCampaignPage(value:unknown):Campaign[]{
   ids.add(row.id);
   return row as unknown as Campaign;
  });
+ if(!isStrictlyDescendingCampaignPage(items))throw new Error('The campaign catalogue is not in strict descending (created_at,id) order. Refresh before continuing.');
+ return items;
 }
 const sampleFixedCampaigns:Campaign[]=[
 {id:'sample-fixed-1',title:'Smartphone Mega Fixed Bid',description:'Sample campaign preview with entry amount, winner payment and campaign limits. Display-only; no entry or payment is processed.',status:'preview',created_at:new Date().toISOString(),configuration:{entry_amount:50,winner_payment_amount:12000,max_entries_per_member:3,max_entries_total:500,winner_count:1,starts_at:new Date(Date.now()-3600000).toISOString(),ends_at:new Date(Date.now()+5*86400000).toISOString(),refund_non_winners:false},product:{name:'5G Smartphone · 128 GB',description:'Sample product details.',category:'Electronics',image_path:null,image_paths:[],product_details:{Brand:'Sample brand',Condition:'New',Storage:'128 GB'}}},

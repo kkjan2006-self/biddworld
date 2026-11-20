@@ -7,7 +7,10 @@ describe('Fixed Bid catalogue pagination',()=>{
   expect(source).toContain('const PAGE_SIZE=50');
   expect(source).toContain("rpc('public_list_fixed_bid_campaigns_page',{p_search:searchTerm.trim()||null,p_status:status,p_limit:PAGE_SIZE,p_offset:offset})");
   expect(source).not.toContain("from('fixed_bid_campaigns').select(");
-  expect(source).toContain('setHasMore(batch.length===PAGE_SIZE)');
+  expect(source).toContain('setHasMore(batch.length===PAGE_SIZE&&(reset||added>0))');
+  expect(source).toContain('isStrictlyDescendingCampaignPage(items)');
+  expect(source).toContain('isCampaignBefore(batch[0],rows[rows.length-1])');
+  expect(source).toContain('strict descending (created_at,id) order');
  });
  it('offers continuation and sends participation through the idempotent server workflow',()=>{
   expect(source).toContain('Load more campaigns');

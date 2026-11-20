@@ -95,3 +95,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - The Admin pending-activation client now validates row identity and payment/receipt fields, strict descending `(submitted_at,id)` ordering, full continuation pages and exact cursor-to-final-row agreement. Load-more responses must be strictly older than the previous cursor and may not overlap loaded IDs.
 - Added source-only assertions in `tests/admin-package-activation-keyset-pagination.test.ts`; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## Latest Fixed Bid catalogue integrity update
+
+- The Fixed Bid campaign client now validates strict descending `(created_at,id)` ordering in every page and enforces the same tuple boundary between offset pages before appending. This detects page shifts/overlaps caused by concurrent catalogue changes and directs the member to refresh.
+- Reconciled the pagination test's `hasMore` assertion with the current source and added source-only ordering/boundary assertions. No test/build/type-check/E2E/browser QA/deployment/database operation was performed.

@@ -1,3 +1,11 @@
+## 2026-11-20 — Fixed Bid catalogue ordering and page-boundary integrity hardened
+
+- Source audit found the Fixed Bid catalogue rejected duplicate IDs across offset pages but did not independently enforce the SQL's descending `(created_at,id)` order or verify that a continuation page began strictly before the last loaded row.
+- Added strict per-page tuple ordering validation and cross-page boundary validation before appending. A shifted/overlapping offset page now fails closed and asks the member to refresh rather than displaying duplicate or out-of-order campaigns.
+- Reconciled the pagination source test's stale `hasMore` assertion with the actual conditional implementation and added regression assertions. Source-only tests not executed; no SQL or database change required.
+
+---
+
 ## 2026-11-20 — Admin package activation keyset response integrity hardened
 
 - Source audit found the Admin pending-activation queue validated duplicate IDs but did not independently verify strict descending `(submitted_at,id)` ordering, full continuation-page/cursor agreement, or that continuation rows stayed strictly before the loaded cursor.
