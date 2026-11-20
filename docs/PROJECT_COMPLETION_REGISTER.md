@@ -3083,3 +3083,10 @@
 - Restricted Staff package activation queue rows now require valid UUID identities, bounded activation numbers and text/numeric fields, ISO currency codes, valid payment-reference format, and a receipt object path matching the existing member-UUID/32-hex-generated-filename upload contract before any signed URL is requested.
 - Keyset pages now verify that `has_more` implies a full 50-row page and that the returned cursor exactly matches the final row. Completed pages must have null cursors; every page must be in descending `(submitted_at,id)` order. Existing duplicate/overlap detection across pages remains.
 - Added source-only assertions in `tests/staff-package-activation-review-contract.test.ts`; not executed. No SQL change required; validation mirrors the existing package submission and receipt-storage contract. No database access, migration replay, tests, build, type-check or deployment.
+
+
+## 2026-11-20 — Admin withdrawal queue response validation
+
+- Admin withdrawal first-page and Load More responses now share one strict parser. It validates UUID request/reviewer identities, bounded member/name/reason fields, positive bounded numeric amounts, ISO currency, allowed lifecycle statuses, timestamps, and the exact supported UPI / Bank Transfer payout-detail shape before records reach the review UI.
+- Subsequent pages now reject any overlap with already-loaded request IDs instead of silently filtering duplicate rows and advancing the offset. Existing refresh-generation and single-flight guards remain.
+- Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration required because this closes a client response-integrity gap against the existing withdrawal RPC contract.

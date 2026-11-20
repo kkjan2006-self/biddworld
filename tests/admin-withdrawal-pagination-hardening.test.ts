@@ -20,4 +20,19 @@ describe('Admin withdrawal queue pagination hardening',()=>{
   expect(component).toContain("admin_list_withdrawal_requests");
   expect(component).toContain('exportPagedReport<WithdrawalRequest>');
  });
+ it('validates every Admin withdrawal field and exact supported payout-detail shape',()=>{
+  expect(component).toContain('function validAdminWithdrawal(value:unknown):value is WithdrawalRequest');
+  expect(component).toContain('WITHDRAWAL_UUID.test(row.request_id)');
+  expect(component).toContain("['pending','approved','rejected','paid'].includes(row.status)");
+  expect(component).toContain("payout.method==='UPI'");
+  expect(component).toContain("payout.method==='Bank Transfer'");
+  expect(component).toContain("payout.account_holder_name.trim().length<2");
+  expect(component).toContain("row.rejection_reason.length<=500");
+ });
+ it('uses one shared parser for first and subsequent pages and rejects cross-page overlap',()=>{
+  expect(component).toContain('const batch=parseAdminWithdrawals(withdrawalResult.data??[])');
+  expect(component).toContain('const batch=parseAdminWithdrawals(data)');
+  expect(component).toContain('batch.some(item=>seen.has(item.request_id))');
+  expect(component).toContain('setWithdrawalRequests(current=>[...current,...batch])');
+ });
 });

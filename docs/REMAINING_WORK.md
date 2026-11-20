@@ -619,3 +619,10 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Added a ref-backed single-flight lock for cleanup retries so rapid duplicate taps cannot issue overlapping delete requests or race the review action.
 - Extended `tests/admin-auction-submission-media-cleanup-recovery.test.ts` with source-only assertions. No tests/build/type-check were executed.
 - No SQL migration was needed; no database was accessed, no Preview deployment was created, and `main` was not modified. Development remains 95% provisional.
+
+
+## 2026-11-20 — Admin withdrawal queue response validation
+
+- Admin withdrawal first-page and Load More responses now share one strict parser. It validates UUID request/reviewer identities, bounded member/name/reason fields, positive bounded numeric amounts, ISO currency, allowed lifecycle statuses, timestamps, and the exact supported UPI / Bank Transfer payout-detail shape before records reach the review UI.
+- Subsequent pages now reject any overlap with already-loaded request IDs instead of silently filtering duplicate rows and advancing the offset. Existing refresh-generation and single-flight guards remain.
+- Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration required because this closes a client response-integrity gap against the existing withdrawal RPC contract.
