@@ -1,8 +1,8 @@
-# BiddWorld — Development Complete Checkpoint (2026-11-19)
+# BiddWorld — Historical Development Checkpoint (2026-11-19; superseded 2026-11-20)
 
 ## Status
 
-**Source development: 100% complete** on branch `completion-work`.
+**Historical estimate: 100% complete. This claim is superseded by the 2026-11-20 source reconciliation; current development is 95% provisional, not complete.**
 
 This is a development checkpoint only. It does not claim that automated tests, type-check, build, database replay, runtime integration, browser/mobile/PWA checks or user acceptance have passed.
 
@@ -25,7 +25,7 @@ This is a development checkpoint only. It does not claim that automated tests, t
 - Final static check: no duplicate timestamp prefixes, no missing/uncovered migration paths, no overlap, unique manifest entries and strict lexical order.
 - 14 visible Admin feature switches match the feature-settings response, server allowlist and server enabled-key set.
 
-## Verification still pending
+## Verification still pending (historical list; current source reconciliation also remains open)
 
 1. Explicit approval to apply forward migrations to isolated TEST `yoaauthwejdgaevfvwpo` only.
 2. Candidate baseline/dependency reconciliation and ordered TEST migration replay.
