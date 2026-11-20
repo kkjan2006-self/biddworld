@@ -3045,3 +3045,11 @@
 - Preserved Admin authorization, request state validation, reservation/release ledger consistency checks, immutable ledger behavior and audit logging.
 - Added `tests/admin-withdrawal-review-lifecycle-serialization.test.ts`; source-only and not executed. Registered the migration in the clean-install forward manifest.
 - Inventory: **149 forward + 16 excluded = 165 timestamped migration paths**, plus 3 legacy/unversioned SQL files. No DB replay, tests, build, type-check, deployment or Production/TEST changes.
+
+
+## 2026-11-20 — Notification inbox recipient ownership validation
+
+- Found that `parseNoticePage` already supported an expected member user ID, but the member inbox never supplied it; the realtime handler also trusted the subscription's user filter without independently checking row ownership.
+- Member first and subsequent pages now validate each notification's `user_id` against the authenticated session. Realtime INSERT and UPDATE events perform the same owner check before changing the inbox. Admin history continues using its Admin-only recipient projection.
+- Added source-only regression assertions in `tests/notifications-response-integrity.test.ts`; not executed. No SQL migration was required.
+- No tests/build/type-check, database access, migration replay, deployment or `main` changes. Production and TEST remain untouched.
