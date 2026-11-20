@@ -1,3 +1,11 @@
+## 2026-11-20 — Staff package activation numeric response contract
+
+- Reconciled the Staff package activation keyset response with the original submission RPC and SQL column type. PostgreSQL integer is emitted as a JSON number, while the Staff client incorrectly required a numeric string, causing valid queue rows to fail validation before receipt signing.
+- Updated the Staff activation row type and parser to accept only positive safe integers. Added a source-only regression assertion tying the client type to the SQL integer declaration and JSON projection.
+- No schema change or migration required. The source-only test was added but not executed; no build, type-check, database access or deployment was performed.
+
+---
+
 ## 2026-11-20 — Admin Income Wallet funding queue response and cursor integrity
 
 - The restricted Admin/Staff Add Money queue now validates request UUIDs, INR currency, bounded positive amount, payment-reference format and the exact authenticated-user `wallet-funding` receipt path before requesting signed URLs.

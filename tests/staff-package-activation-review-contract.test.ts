@@ -3,6 +3,7 @@ import {describe,it,expect} from 'vitest';
 const staff=readFileSync('src/components/AdminStaff.tsx','utf8');
 const page=readFileSync('supabase/migrations/20261119410000_admin_pending_activation_keyset_pagination.sql','utf8');
 const review=readFileSync('supabase/migrations/20261119640000_staff_package_activation_review.sql','utf8');
+const submission=readFileSync('supabase/migrations/20261116200000_lock_package_activation_submission.sql','utf8');
 describe('Staff package activation review permission contract',()=>{
  it('uses bounded keyset pages and validates each activation before signing receipts',()=>{
   expect(staff).toContain("rpc('admin_list_pending_activations_page'");
@@ -31,5 +32,12 @@ describe('Staff package activation review permission contract',()=>{
   expect(staff).toContain("page.length!==50||page[page.length-1].id!==payload.next_id||page[page.length-1].submitted_at!==payload.next_submitted_at");
   expect(staff).toContain('previous.id.localeCompare(current.id)<0');
   expect(staff).toContain('payload.next_submitted_at!==null||payload.next_id!==null');
+ });
+ it('matches the SQL integer activation_number JSON value instead of rejecting valid rows',()=>{
+  expect(staff).toContain("type Activation={id:string;activation_number:number;");
+  expect(staff).toContain("typeof row.activation_number==='number'&&Number.isSafeInteger(row.activation_number)&&row.activation_number>=1");
+  expect(submission).toContain('v_activation_number integer');
+  expect(submission).toContain("'activation_number', v_activation_number");
+  expect(page).toContain("'activation_number',activation_number");
  });
 });

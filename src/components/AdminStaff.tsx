@@ -5,7 +5,7 @@ import AdminWalletFundingReview from './AdminWalletFundingReview';
 import AdminAuctionSubmissionReview from './AdminAuctionSubmissionReview';
 
 type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review';
-type Activation={id:string;activation_number:string;member_code:string;member_name:string|null;package_name:string;amount_paid:number;currency:string;bid_wallet_credit:number;payment_reference:string;receipt_path:string|null;submitted_at:string};
+type Activation={id:string;activation_number:number;member_code:string;member_name:string|null;package_name:string;amount_paid:number;currency:string;bid_wallet_credit:number;payment_reference:string;receipt_path:string|null;submitted_at:string};
 type ActivationCursor={submitted_at:string;id:string};
 const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function validActivationReceiptPath(value:unknown):value is string{
@@ -17,7 +17,7 @@ function validActivation(value:unknown):value is Activation{
  if(!value||typeof value!=='object'||Array.isArray(value))return false;
  const row=value as Record<string,unknown>;
  return typeof row.id==='string'&&UUID_PATTERN.test(row.id)
-  &&typeof row.activation_number==='string'&&/^[1-9][0-9]{0,8}$/.test(row.activation_number)
+  &&typeof row.activation_number==='number'&&Number.isSafeInteger(row.activation_number)&&row.activation_number>=1
   &&typeof row.member_code==='string'&&row.member_code.trim().length>0&&row.member_code.length<=80
   &&(row.member_name===null||(typeof row.member_name==='string'&&row.member_name.length<=200))
   &&typeof row.package_name==='string'&&row.package_name.trim().length>0&&row.package_name.length<=120
