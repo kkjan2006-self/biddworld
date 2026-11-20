@@ -1,3 +1,12 @@
+## 2026-11-20 — Idempotent Referral/Matrix reversal replay compatibility
+
+- **Commission reversal replay compatibility fixed:** the Referral and Matrix SQL RPCs intentionally return `success=true,status='reversed',replayed=true` without a commission ID when a previously reversed record is replayed. Admin clients previously rejected this valid idempotent response as a mismatch. Both screens now accept that exact replay shape (while still requiring the selected ID on first-time reversals and rejecting a conflicting ID), and show an accurate “already reversed; existing ledger state confirmed” message instead of claiming a new audit event. Extended `tests/admin-commission-mutation-result-integrity.test.ts`; source-only, not executed. Commits: `06d5685233b5fc4e02da766dbf965e8f9f15d151`, `350b78fe31fa3ba04548f57cb982ba165dc10acc`, test `938c09e7dc94727e10e1029feaa17a7c9c897308`.
+
+- This corrects a client/server response-contract mismatch without changing commission balances, posting, reversal behavior, or database state.
+- No tests/build/type-check, database access/replay, or deployment was performed.
+
+---
+
 ## 2026-11-20 — Referral and Matrix commission mutation response validation
 
 - **Referral/Matrix commission mutation responses hardened:** Admin posting actions now require a JSON object with `success=true`, the exact requested activation ID, and a non-negative integer posted count; reversal actions require `success=true`, the exact commission ID and `status='reversed'`. Applied to both Referral and Matrix commission screens and matched the expected SQL return contracts. Added `tests/admin-commission-mutation-result-integrity.test.ts` (source only; not executed). Commits: `8bfefc3207b7fc497a55cbe8cd2249fd11d7e9f7`, `542d07d9ad61033c4a2a8948c6ebe30003e2104b`, test `6c1103d290c62816a29cf5db2aabc86dabfe69a5`.
