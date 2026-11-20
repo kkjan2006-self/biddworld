@@ -1,3 +1,15 @@
+## 2026-11-20 — Admin wallet adjustment idempotent replay response
+
+- Fixed a real retry contract gap in `admin_adjust_member_wallet`: the previous idempotent replay response omitted member, wallet, direction, amount and balance fields, while the UI fell back to a zero balance and cleared the idempotency key without validating the response.
+- Added forward migration `20261120130000_wallet_adjustment_idempotent_response_integrity.sql`. Replays now return the complete original adjustment identity and values, including the original `wallet_transactions.balance_after` snapshot linked by idempotency key and adjustment reference; no current/live balance is substituted.
+- Admin UI now validates success, adjustment ID, member identity, wallet type, direction, amount, non-negative balance and replay flag before clearing the request key or showing success. Ambiguous or malformed responses retain the same key for safe retry.
+- Added `tests/admin-wallet-adjustment-response-contract.test.ts`; source-only, not executed.
+- Registered the migration in `supabase/clean-install/forward-migrations.txt`. Manifest now contains 141 forward + 16 excluded timestamped entries; three legacy/unversioned SQL files remain outside the clean-install chain.
+- Commits: `1319b0f9f9c4a5ba516d293ff3f1ef390fcfb5ee`, `1b4d6e7b33a36b0c8a42593f57dd1f30af1c1065`, `c66aa3e84c8b41fcd141e29bca8933b3b5125ec0`, `73225a2fac62fa34d619abccf8f12e2b000378f9`, `5e48e5cffc1d744f1fcddec3e991b091bd289923`.
+- No tests/build/type-check, SQL replay, Supabase access or deployment was performed.
+
+---
+
 ## 2026-11-20 — Duplicate ID lifecycle mutation response integrity
 
 - Admin Duplicate ID status changes now validate the RPC response's exact Duplicate ID, non-empty member code, requested status, supported previous status and boolean `changed` flag. The client rejects inconsistent no-op/change combinations and refreshes only after an actual state change.
