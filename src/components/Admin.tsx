@@ -565,7 +565,7 @@ async function saveDefaultSponsor(){if(!supabase||savingSponsor||sponsorSaveInFl
   if(!supabase||!selectedMemberCode||memberStatusBusy||memberStatusSaveInFlight.current)return;
   const reason=memberStatusReason.trim();
   if(reason.length<5){setMemberStatusMessage('Provide a reason of at least 5 characters.');return;}
-  if(!['active','inactive','closed'].includes(memberStatusValue)){setMemberStatusMessage('Choose a supported Main ID status.');return;}
+  if(!['active','suspended','closed'].includes(memberStatusValue)){setMemberStatusMessage('Choose a supported Main ID status.');return;}
   if(memberStatusValue==='closed'&&!window.confirm('Close this Main ID and close its linked Duplicate IDs? This action cannot be reversed.'))return;
   const memberCodeAtSubmit=selectedMemberCode;
   memberStatusSaveInFlight.current=true;setMemberStatusBusy(true);setMemberStatusMessage('');
