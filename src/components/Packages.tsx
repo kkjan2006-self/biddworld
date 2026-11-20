@@ -12,6 +12,34 @@ type PackageItem = {
   bid_wallet_credit: number;
 };
 
+const RECEIPT_CLEANUP_LIMIT=20;
+function validReceiptCleanupPath(value:unknown,userId:string):value is string{
+ if(typeof value!=='string'||value.length>300||!value.startsWith(userId+'/'))return false;
+ const parts=value.split('/');
+ return parts.length===2&&parts[0]===userId&&/^[a-f0-9]{32}-[a-z0-9._-]{1,110}$/i.test(parts[1]);
+}
+function readReceiptCleanupQueue(userId:string):string[]{
+ try{
+  const raw=localStorage.getItem('biddworld.package-receipt-cleanup.v1.'+userId);
+  if(!raw)return [];
+  const value:unknown=JSON.parse(raw);
+  if(!Array.isArray(value))return [];
+  return [...new Set(value.filter((path):path is string=>validReceiptCleanupPath(path,userId)))].slice(0,RECEIPT_CLEANUP_LIMIT);
+ }catch{return [];}
+}
+function persistReceiptCleanupPath(userId:string,path:string):boolean{
+ if(!validReceiptCleanupPath(path,userId))return false;
+ try{
+  const queue=readReceiptCleanupQueue(userId);
+  if(!queue.includes(path)&&queue.length>=RECEIPT_CLEANUP_LIMIT)return false;
+  localStorage.setItem('biddworld.package-receipt-cleanup.v1.'+userId,JSON.stringify([...new Set([...queue,path])]));
+  return true;
+ }catch{return false;}
+}
+function clearReceiptCleanupQueue(userId:string):void{
+ try{localStorage.removeItem('biddworld.package-receipt-cleanup.v1.'+userId);}catch{/* Retry on the next visit if storage is unavailable. */}
+}
+
 export default function Packages() {
   const [items, setItems] = useState<PackageItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,9 +50,29 @@ export default function Packages() {
   const [receiptFile,setReceiptFile]=useState<File|null>(null);
   const [activationBusy,setActivationBusy]=useState(false);
   const [activationMessage,setActivationMessage]=useState('');
+  const [receiptCleanupCount,setReceiptCleanupCount]=useState(0);
+  const [receiptCleanupBusy,setReceiptCleanupBusy]=useState(false);
+  const receiptCleanupInFlight=useRef(false);
   const mountedRef = useRef(false);
   const requestIdRef = useRef(0);
   const activationInFlight = useRef(false);
+
+  async function retryReceiptCleanup(userId:string){
+    if(!supabase||receiptCleanupInFlight.current)return;
+    const paths=readReceiptCleanupQueue(userId);
+    setReceiptCleanupCount(paths.length);
+    if(!paths.length)return;
+    receiptCleanupInFlight.current=true;setReceiptCleanupBusy(true);
+    try{
+      const{error:cleanupError}=await supabase.storage.from('package-receipts').remove(paths);
+      if(cleanupError)throw cleanupError;
+      clearReceiptCleanupQueue(userId);setReceiptCleanupCount(0);
+      setActivationMessage('Previously uploaded orphaned receipt files were cleaned up successfully.');
+    }catch(e){
+      setReceiptCleanupCount(readReceiptCleanupQueue(userId).length);
+      setActivationMessage('Some previously uploaded receipt files still need cleanup: '+(e instanceof Error?e.message:'Storage cleanup failed. Please retry.'));
+    }finally{receiptCleanupInFlight.current=false;setReceiptCleanupBusy(false);}
+  }
 
   async function load() {
     const requestId = ++requestIdRef.current;
@@ -47,7 +95,9 @@ export default function Packages() {
       } else setItems((data ?? []) as PackageItem[]);
       const {data:sessionData}=await supabase.auth.getSession();
       if(!isCurrent())return;
-      if(!sessionData.session){setActivationEnabled(false);return;}
+      if(!sessionData.session){setActivationEnabled(false);setReceiptCleanupCount(0);return;}
+      await retryReceiptCleanup(sessionData.session.user.id);
+      if(!isCurrent())return;
       const{data:activationSetting,error:activationSettingError}=await supabase.from('app_settings').select('setting_value').eq('setting_key','package_activations_enabled').maybeSingle();
       if(!isCurrent())return;
       setActivationEnabled(!activationSettingError&&activationSetting?.setting_value===true);
@@ -92,10 +142,16 @@ export default function Packages() {
     }catch(e){
       const message=e instanceof Error?e.message:'Package activation request could not be completed. Check your connection and retry.';
       if(uploadedReceiptPath&&!activationSubmitted&&activationRpcRejected){
+        let cleanupFailed=false;
         try{
           const{error:cleanupError}=await supabase.storage.from('package-receipts').remove([uploadedReceiptPath]);
-          setActivationMessage(cleanupError?message+' The uploaded receipt could not be removed automatically; please contact support.':message);
-        }catch{setActivationMessage(message+' The uploaded receipt could not be removed automatically; please contact support.');}
+          cleanupFailed=!!cleanupError;
+        }catch{cleanupFailed=true;}
+        if(cleanupFailed){
+          const queued=persistReceiptCleanupPath((await supabase.auth.getUser()).data.user?.id??'',uploadedReceiptPath);
+          if(queued)setReceiptCleanupCount(readReceiptCleanupQueue((await supabase.auth.getUser()).data.user?.id??'').length);
+          setActivationMessage(queued?message+' The orphaned receipt was saved in a private retry queue. Use Retry receipt cleanup or revisit this page.':message+' Receipt cleanup could not be queued; please contact support.');
+        }else setActivationMessage(message);
       }else setActivationMessage(message);
     }
     finally{activationInFlight.current=false;setActivationBusy(false);}
@@ -114,6 +170,7 @@ export default function Packages() {
     <div className="packageIntro"><span className="workspaceIcon"><Gift /></span>
       <div><h3>Membership packages</h3><p>Free member registration is available. {activationEnabled?'Published packages are available for activation requests.':'Paid package activation is currently locked.'}</p></div>
     </div>
+    {receiptCleanupCount>0&&<div className="notice" role="status">{receiptCleanupCount} uploaded receipt file(s) still need cleanup. <button className="outline small" type="button" disabled={receiptCleanupBusy} onClick={async()=>{const{data}=await supabase!.auth.getUser();if(data.user)await retryReceiptCleanup(data.user.id);}}>{receiptCleanupBusy?'Retrying…':'Retry receipt cleanup'}</button></div>}
     {!configured && <div className="notice"><b>Database not connected:</b> Configure the intended Preview or separate Test environment to view package information. Do not connect Production for testing.</div>}
     {!activationEnabled && <div className="notice" role="status"><ShieldCheck size={16}/> <b>Package activation is temporarily locked.</b> Payment references, activation requests and wallet credits are unavailable while this feature remains disabled.</div>}
     {activationEnabled&&<section className="packageActivationForm"><h3>Request Package Activation</h3><p>Select a package, scan the KRFSI UPI QR, pay the displayed package amount, then submit your UTR and payment receipt.</p><div className="walletFundingQr"><img src="/payment/biddworld-main-wallet-qr.svg" alt="KRFSI UPI payment QR code"/><b>Payee: KRFSI</b><span>UPI ID: krindia@bpunity</span><small>Scan with any UPI app. Enter the selected package amount before paying.</small></div><label>Package<select value={selectedPackage} onChange={e=>setSelectedPackage(e.target.value)}><option value="">Select package</option>{items.map(item=><option key={item.id} value={item.id}>{item.name} · {money(Number(item.price),item.currency||'INR')}</option>)}</select></label><label>Payment Reference / UTR<input value={paymentReference} onChange={e=>setPaymentReference(e.target.value)} maxLength={80} placeholder="Enter payment reference"/></label><label>Payment Screenshot / Receipt (JPG, PNG or PDF · max 5 MB)<input id="package-activation-receipt" type="file" required accept="image/jpeg,image/png,application/pdf" onChange={e=>setReceiptFile(e.target.files?.[0]??null)}/></label><button type="button" className="primary" disabled={activationBusy||!selectedPackage} onClick={()=>void submitActivation()}>{activationBusy?'Submitting…':'Submit Activation Request'}</button>{activationMessage&&<div className="notice" role="status">{activationMessage}</div>}</section>}
