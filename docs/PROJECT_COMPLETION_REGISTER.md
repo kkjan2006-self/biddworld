@@ -1,3 +1,13 @@
+## 2026-11-20 — Fixed Bid catalogue response integrity
+
+- Added strict client-side parsing for the public Fixed Bid catalogue: bounded page size, unique campaign IDs, supported lifecycle status, valid timestamps, positive entry/winner-payment amounts, positive integer limits/counts, valid percentage range, timestamp fields, refund flag, and product/gallery/detail shape.
+- Replaced the prior shallow identity-only validation before appending campaign cards. This keeps malformed RPC data from producing invalid progress widths, broken details dialogs or inconsistent campaign cards.
+- Added source-only regression coverage in `tests/fixed-bid-catalogue-integrity.test.ts`; it was not executed.
+- Commits: parser `0e8225d9743be1beff2676cbd25167a1a7f2c7be`; test `1dfa9318a51decde760a5565abbc33e03fdb38ff`; assertion correction `edfb04123ba3f77ae4adc1a8d3724be1e53886bb`.
+- No tests/build/type-check, database access or migration replay.
+
+---
+
 ## 2026-11-20 — Recent Winners schema contract repair and latest UI reconciliation
 
 - Confirmed post-prompt UI updates in source: Fixed Bid cards have single-line title/subtitle, full Product Details gallery dialog, entry amount, percentage progress and BID NOW action; Auction cards have one-line title/category, Auction Details, current bid/time/target progress and PLACE A BID; Homepage Recent Winners shows auction item recipients; member-facing network wording is My Team.
