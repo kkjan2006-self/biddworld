@@ -1685,3 +1685,16 @@ At every development batch/chat end, update this file with the actual verified b
 - Development commits: migration/UI/manifest `ea727d9c34cb99ebddc77964208960415564bc4a`; schema alignment correction `a038904b241babb16d6f81e1150cff0dd850c0a7`; regression contract `e72c969a3a5ce15d57b9ca1e22db8aa9b2907e01`.
 - Source-only development. The new migration has NOT been applied; no TEST/Production schema or data was changed. No tests, type-check, build, browser QA or Preview deployment were run in this development-only batch.
 - Overall source development estimate remains **95% provisional**; final source reconciliation and remaining module gaps are not yet closed.
+
+
+## 2026-11-20 — Auction moderation contract and current source gap reconciliation
+
+- Found and fixed the missing Admin/Staff auction approval RPC contract after the Expected Price lifecycle migration removed the obsolete fixed-end-time signature. Added migration `20261119680000_admin_auction_submission_expected_price_review.sql` with the exact frontend signature, role/permission checks, Expected Price validation, complete submitter-owned public image gallery verification, open-ended auction creation and audit events.
+- Aligned Admin title validation to the 5–180 character server contract and required the approved public image gallery to match the original submission image count.
+- Added `tests/admin-auction-submission-expected-price-rpc.test.ts` source coverage and registered the migration. Clean-install inventory now has 136 forward + 16 excluded = 152 timestamped migrations.
+- Verified the latest Admin.tsx product-image upload/preview JSX and MemberPlaceAuction image preflight/duplicate-submit guard against their existing source contracts; retained those implementations.
+- Refreshed the opening summary in `docs/REMAINING_WORK.md` so it distinguishes current source implementation, remaining development work, external integrations and verification deferred until 100%. Historical audit notes remain preserved below.
+- Commits in this batch: `ea727d9c34cb99ebddc77964208960415564bc4a`, `a038904b241babb16d6f81e1150cff0dd850c0a7`, `e72c969a3a5ce15d57b9ca1e22db8aa9b2907e01`, `06a8a42ab8f85688dc9a352647a530680cde3c9b`, `309d035d0a12079a8ccf782d6d7493ceb5887d3d`.
+- Latest branch head before this documentation commit: `309d035d0a12079a8ccf782d6d7493ceb5887d3d`.
+- Development only: no migration was applied, no Supabase data/schema was changed, no tests/build/type-check/browser QA was run, no Preview deployment occurred, and `main`/Production remain untouched.
+- Overall source development estimate remains **95% provisional**; do not mark complete until remaining source reconciliation is closed.
