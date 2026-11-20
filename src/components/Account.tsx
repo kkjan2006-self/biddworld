@@ -104,7 +104,7 @@ async function fetchAllWithdrawalPages(fetchPage:(cursor:WithdrawalRow|null)=>Pr
   const {data,error}=await fetchPage(cursor);
   if(error)throw new Error(error.message);
   const batch=validateWithdrawalPage(data??[],all);
-  if(batch.length===0)return all;
+  if(batch.length===0){if(cursor)throw new Error('Withdrawal history ended before its continuation was satisfied. Export stopped to avoid an incomplete report. Please retry.');return all;}
   all.push(...batch);
   if(batch[batch.length-1].has_more!==true)return all;
   cursor=batch[batch.length-1];

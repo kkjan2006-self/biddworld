@@ -30,6 +30,7 @@ describe('complete personal activity report', () => {
   expect(account).toContain('p_before_requested_at:cursor?.requested_at??null');
   expect(account).toContain('p_before_id:cursor?.request_id??null');
   expect(account).toContain('validateWithdrawalPage(data??[],all)');
+  expect(account).toContain('if(batch.length===0){if(cursor)throw new Error');
   expect(account).toContain('allWithdrawals.forEach');
   expect(account).not.toContain("withdrawals.forEach(x=>rows.push(['Withdrawal request'");
  });
