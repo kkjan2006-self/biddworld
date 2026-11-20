@@ -14,6 +14,11 @@ describe('member auction submission editing contract',()=>{
   expect(sql).toContain("o.bucket_id='auction-submission-media' and o.name=v_path");
   expect(sql).toContain('p_expected_price<p_starting_price');
  });
+ it('validates the returned UUID and preserves edit identity before clearing the form',()=>{
+  expect(ui).toContain('submissionId');
+  expect(ui).toContain('editingId&&submissionId!==editingId');
+  expect(ui).toContain('The outcome may already be recorded; refresh your submission history before retrying.');
+ });
  it('resets edited submissions to pending review and audits the change',()=>{
   expect(sql).toContain("status='pending',review_note=null,reviewed_by=null,reviewed_at=null");
   expect(sql).toContain("'auction.submission_edited_for_review'");
