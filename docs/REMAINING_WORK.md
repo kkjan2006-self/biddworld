@@ -472,3 +472,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - [x] Members can edit and resubmit their own Pending or Rejected product submissions. Existing private images can be retained or replaced; corrected submissions return to Pending Admin review.
 - [x] Added owner-scoped RPC migration `20261119450000_member_product_submission_editing.sql`, registered in the clean-install forward manifest, plus source-only regression coverage.
 - [ ] Apply and validate the migration only in the isolated TEST database during the final testing phase; do not use Production for this task.
+
+
+## 2026-11-20 — Current TEST backend reconciliation
+
+- Read-only check confirms BiddWorld-TEST is ACTIVE_HEALTHY. Current source forward manifest: 135 migrations. TEST migration history: 89 rows; one duplicate historical entry for 20261118230000_recover_admin_read_rpc_sources; latest applied migration: 20261119170000_admin_open_ended_auction_status.
+- 48 forward migrations remain unapplied in TEST, beginning with 20261119180000_fix_auction_image_path_regex. The product_submissions table and product-submission-media Storage bucket are not present yet; the current product submission UI therefore cannot be fully exercised against this schema.
+- No migration, schema, Storage or data changes were made. Apply the missing migrations to TEST only after explicit owner approval. Never apply these to Production.
+- The previous checklist item requesting the two-argument Duplicate ID creation RPC is superseded: 20261119300000_automatic_duplicate_matrix_placement.sql intentionally replaces it with a one-argument automatic-placement RPC that uses the active Matrix plan and second package activation. The Duplicate ID activation RPC already requires an active linked Main ID and active placement parent (20261118270000); Main-ID child reconciliation is implemented in 20261119370000 and 20261119380000.

@@ -1662,3 +1662,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Preview URL: https://kkjan2006-self.github.io/biddworld-preview/ . This confirms deployment only; Member/Admin end-to-end feature testing and TEST schema/RLS/Storage migration replay remain unverified.
 - No automated test suite or browser/mobile QA was run. No Supabase migration was applied, no TEST or Production data was changed, and protected main was not modified.
 - Overall source development estimate remains 95% provisional pending remaining source reconciliation and final functional verification.
+
+
+## 2026-11-20 — Isolated TEST migration and Storage readiness audit (read-only)
+
+- Confirmed BiddWorld-TEST project yoaauthwejdgaevfvwpo is ACTIVE_HEALTHY (PostgreSQL 17, ap-south-1). No Production project was queried.
+- Current clean-install forward manifest contains 135 migrations. TEST migration history contains 89 rows, including one duplicate entry for 20261118230000_recover_admin_read_rpc_sources. The latest recorded migration is 20261119170000_admin_open_ended_auction_status. **48 current forward migrations are not applied** (starting at 20261119180000_fix_auction_image_path_regex).
+- Read-only Storage inspection found four buckets: auction-submission-media, package-receipts, product-media and wallet-funding-receipts. The required product-submission-media bucket is absent. The public schema table inventory also does not yet contain the product_submissions table.
+- The latest application source therefore builds and deploys, but full Member/Admin backend functionality is not yet verified and modules depending on the 48 missing migrations cannot be treated as ready.
+- No migrations were applied; no TEST rows, buckets or schema objects were changed. No Production reads or writes occurred. Applying the 48 missing migrations to TEST requires explicit owner approval first.
+- Older remaining-work notes about the two-argument Duplicate ID creation RPC are superseded by 20261119300000_automatic_duplicate_matrix_placement.sql, which intentionally replaces it with a one-argument automatic-placement RPC. The active Duplicate ID status guard in 20261118270000_duplicate_id_approval_placement_guard.sql validates both the linked Main ID and placement parent as active before activation; Main-ID child reconciliation is covered by 20261119370000 and 20261119380000.
+- Automated tests and browser/mobile functional QA remain pending. Overall source development estimate remains 95% provisional; Preview backend readiness is blocked by the 48 unapplied TEST migrations and required schema/storage objects.
