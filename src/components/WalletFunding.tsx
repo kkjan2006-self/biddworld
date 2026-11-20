@@ -52,7 +52,7 @@ export default function WalletFunding(){
    if(uploadError)throw uploadError;uploadedReceiptPath=path;
    rpcAttempted=true;const{data,error}=await supabase.rpc('member_submit_wallet_fund_request',{p_amount:value,p_payment_reference:reference,p_receipt_path:path});
    if(error){rpcDefinitelyRejected=typeof (error as {code?:unknown}).code==='string';throw error;}
-   const result=data as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||typeof result.request_id!=='string'||!result.request_id.trim()||result.status!=='pending')throw new Error('The server returned an invalid Add Money request result. The uploaded receipt is preserved; refresh your history before retrying.');
+   const result=data as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||typeof result.request_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.request_id)||result.status!=='pending')throw new Error('The server returned an invalid Add Money request result. The uploaded receipt is preserved; refresh your history before retrying.');
    setAmount('');setUtr('');setReceipt(null);
    const input=document.getElementById('wallet-funding-receipt') as HTMLInputElement|null;if(input)input.value='';
    setMessage('Request submitted. Your Income Wallet will be credited after Admin verifies the payment.');
