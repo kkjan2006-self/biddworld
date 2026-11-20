@@ -1819,3 +1819,12 @@ At every development batch/chat end, update this file with the actual verified b
 - Updated the member navigation label from **My Network** to **My Team**, changed the section heading to **My Team**, and renamed **My MLM Dashboard** to **My Team Dashboard**. Updated administrator-facing overview diagnostics to use Team terminology.
 - Internal RPC names and database identifiers were intentionally preserved for compatibility; the change is to user-facing wording only.
 - Commit: `f405d2ae85038b204cc769cb86f75d94560cfdb1`.
+
+
+## 2026-11-20 — Admin Auction submission media path and retry hardening
+
+- Tightened Admin Auction queue validation so every private image path must match the submitting member UUID folder and the exact UUID-based JPG/PNG/WebP object naming used by the member uploader. Malformed or cross-member paths are rejected before signed-URL generation.
+- Tightened persisted cleanup recovery by validating private and public paths against their respective bucket contracts, including the SQL-approved public auction image filename format. Invalid persisted entries are discarded rather than passed to Storage deletion.
+- Added a ref-backed single-flight lock for cleanup retries so rapid duplicate taps cannot issue overlapping delete requests or race the review action.
+- Extended `tests/admin-auction-submission-media-cleanup-recovery.test.ts` with source-only assertions. No tests/build/type-check were executed.
+- No SQL migration was needed; no database was accessed, no Preview deployment was created, and `main` was not modified. Development remains 95% provisional.
