@@ -8,7 +8,10 @@ describe('safe cleanup for unreferenced submission media',()=>{
  it('allows members to remove only their own unreferenced private auction and product uploads',()=>{
   expect(sql).toContain("bucket_id='auction-submission-media'");
   expect(sql).toContain("bucket_id='product-submission-media'");
-  expect(sql).toContain('s.submitted_by=(select auth.uid()) and name=any(s.image_paths)');
+  expect(sql).toContain('public.can_delete_member_submission_media(bucket_id,name)');
+  expect(sql).toContain('s.submitted_by=v_uid and p_name=any(s.image_paths)');
+  expect(sql).toContain("set search_path=''");
+  expect(sql).toContain('grant execute on function public.can_delete_member_submission_media(text,text) to authenticated');
   expect(auctionUi).toContain("storage.from('auction-submission-media').remove(uploadedPaths)");
   expect(productUi).toContain("storage.from('product-submission-media').remove(uploaded)");
  });
