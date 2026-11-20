@@ -2549,3 +2549,15 @@
 - Latest branch head before this documentation commit: `309d035d0a12079a8ccf782d6d7493ceb5887d3d`.
 - Development only: no migration was applied, no Supabase data/schema was changed, no tests/build/type-check/browser QA was run, no Preview deployment occurred, and `main`/Production remain untouched.
 - Overall source development estimate remains **95% provisional**; do not mark complete until remaining source reconciliation is closed.
+
+
+## 2026-11-20 — Auction submission integrity and Member form reconciliation
+
+- Re-read the current branch after the prior checkpoint; no newer upstream development commits were present at that point. Continued only on `completion-work`.
+- Fixed a Member Auction Submission edit round-trip defect: extra optional-detail rows were joined with a literal backslash+n sequence instead of real newline characters. The form now serializes the actual newline delimiter so re-editing and resubmitting optional fields preserves them.
+- Tightened Member auction history validation to require a numeric Expected Price greater than or equal to Starting Price; the current schema no longer treats Expected Price as nullable. Added source-contract regression coverage.
+- Added forward migration `20261119690000_prevent_duplicate_pending_auction_submissions.sql`: owner-scoped pending-title index plus a database trigger that takes a transaction advisory lock and rejects duplicate normalized pending auction titles across inserts and edits/resubmissions. Added `tests/auction-duplicate-pending-submission-guard.test.ts` and registered the migration.
+- Clean-install inventory: **137 forward + 16 excluded = 153 timestamped SQL migrations**. Updated the clean-install README counts.
+- Commits: `a3a0b7c799f7f2bab7f08351a53a614239712c41` (NOT VALID constraint compatibility); `744bd117f0aa7d949db0aad85fe1216d5a413099` (Member auction form/history contract); `95b9281e5fcaaa6cce27a8b6a8fe5fe65859f220` (database duplicate pending guard).
+- Source-only development: no tests/build/type-check, database replay, TEST or Production writes, or Preview publish were performed. `main` was not changed.
+- Overall source development estimate remains **95% provisional**; final module-wide RPC/schema/RLS reconciliation and remaining source gaps are still open.

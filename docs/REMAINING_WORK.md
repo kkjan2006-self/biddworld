@@ -484,3 +484,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - The new RPC validates 1–8 unique public image paths belonging to the submitting member, verifies the objects exist in `product-media`, publishes the complete gallery, creates the auction with `ends_at = NULL`, and writes approval/rejection audit events. Pending submissions require Expected Price >= Starting Price.
 - Added source regression test `tests/admin-auction-submission-expected-price-rpc.test.ts`, aligned Admin title preflight, and registered the migration in the clean-install forward manifest.
 - Current manifest: 136 forward + 16 excluded = 152 timestamped migrations. This is source-only; no SQL was applied and tests/build/browser QA remain deferred until development is complete.
+
+
+## 2026-11-20 — Latest source-only auction integrity batch
+
+- Fixed Member Auction Submission optional-detail editing so line breaks round-trip as actual newlines. Tightened history response validation so Expected Price is required and must be >= Starting Price.
+- Added forward migration #137 `20261119690000_prevent_duplicate_pending_auction_submissions.sql`: transaction-advisory-lock serialization and a database BEFORE INSERT/UPDATE guard reject duplicate normalized pending auction titles for the same submitter. Added static regression-contract test.
+- Current clean-install inventory: 137 forward + 16 excluded = 153 timestamped migrations.
+- No tests/build/QA or SQL replay were run; TEST and Production remain unchanged. Continue source-only development until the 100% development gate.
