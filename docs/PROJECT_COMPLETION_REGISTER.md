@@ -1,3 +1,11 @@
+## 2026-11-20 — Support export response integrity
+
+- Full Support CSV export now validates that every fetched page is an array of at most 500 complete ticket records before adding any row to the export. Malformed server responses stop the export rather than being cast into trusted records.
+- Added source-only regression assertions in `tests/support-ticket-keyset-pagination.test.ts`; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Income Wallet funding receipt recovery
 
 - Failed deletion of a private Add Money receipt after a definite RPC rejection is now persisted in a bounded, account-scoped retry queue; only UUID-owned `wallet-funding` paths are eligible. The queue retries when the member account returns and offers a manual Retry action.
