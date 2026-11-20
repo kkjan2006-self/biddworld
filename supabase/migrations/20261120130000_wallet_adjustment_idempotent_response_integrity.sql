@@ -12,6 +12,7 @@ declare
  v_adjustment public.wallet_adjustments%rowtype;
  v_key text:=btrim(coalesce(p_idempotency_key,''));
  v_new_balance numeric(14,2);
+ v_member_code text;
 begin
  if v_uid is null or coalesce(auth.jwt()->'app_metadata'->>'role','')<>'admin' then
   raise exception 'Administrator access required' using errcode='42501';
@@ -54,7 +55,7 @@ begin
    raise exception 'The original wallet adjustment result is unavailable; contact an administrator before retrying' using errcode='55000';
   end if;
 
-  select member_code into v_member.member_code
+  select member_code into v_member_code
   from public.member_ids where id=v_adjustment.member_id;
   if not found then
    raise exception 'The original wallet adjustment member is unavailable' using errcode='55000';
@@ -63,7 +64,7 @@ begin
   return jsonb_build_object(
    'success',true,
    'adjustment_id',v_adjustment.id,
-   'member_code',v_member.member_code,
+   'member_code',v_member_code,
    'wallet_type',v_adjustment.wallet_type,
    'direction',v_adjustment.direction,
    'amount',v_adjustment.amount,
