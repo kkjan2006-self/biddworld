@@ -13,6 +13,8 @@ describe('Staff and notification mutation response integrity',()=>{
   expect(staff).toContain('result.app_role!==expectedRole');
   expect(staff).toContain('expectedPermissions.some(permission=>!result.permissions.includes(permission))');
   expect(staffSql).toContain("'app_role',case when p_enabled then 'admin_staff' else 'member' end");
+  expect(staffSql).toContain("jsonb_build_array('package_activation_review','wallet_funding_review','auction_submission_review')");
+  expect(staff).toContain("const expectedPermissions=enabled?['package_activation_review','wallet_funding_review','auction_submission_review']:[]");
  });
  it('validates permission updates against the selected Staff member and exact permission set',()=>{
   expect(staff).toContain('result.email?.toString().toLowerCase()!==row.email?.toLowerCase()');
