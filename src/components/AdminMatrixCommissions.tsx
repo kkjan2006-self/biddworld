@@ -10,6 +10,19 @@ type MatrixCommissionRow={
  amount:number;status:'pending'|'credited'|'reversed';created_at:string;has_more?:boolean;
 };
 const PAGE_SIZE=100;
+type MatrixCursor={created_at:string;commission_id:string};
+function isStrictlyDescendingMatrixPage(rows:MatrixCommissionRow[]):boolean{
+ for(let index=1;index<rows.length;index++){
+  const previous=rows[index-1],current=rows[index];
+  const timeDelta=Date.parse(previous.created_at)-Date.parse(current.created_at);
+  if(timeDelta<0||(timeDelta===0&&previous.commission_id.localeCompare(current.commission_id)<=0))return false;
+ }
+ return true;
+}
+function isBeforeMatrixCursor(row:MatrixCommissionRow,cursor:MatrixCursor):boolean{
+ const timeDelta=Date.parse(row.created_at)-Date.parse(cursor.created_at);
+ return timeDelta<0||(timeDelta===0&&row.commission_id.localeCompare(cursor.commission_id)<0);
+}
 type MatrixSummary={total_count:number;total_amount:number;pending_count:number;pending_amount:number;credited_count:number;credited_amount:number;reversed_count:number;reversed_amount:number};
 const emptySummary:MatrixSummary={total_count:0,total_amount:0,pending_count:0,pending_amount:0,credited_count:0,credited_amount:0,reversed_count:0,reversed_amount:0};
 function validSummary(value:unknown):value is MatrixSummary{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;if(!Object.keys(emptySummary).every(key=>typeof row[key]==='number'&&Number.isFinite(row[key])&&Number(row[key])>=0))return false;const counts=['total_count','pending_count','credited_count','reversed_count'];if(!counts.every(key=>Number.isSafeInteger(row[key])))return false;return Number(row.total_count)===Number(row.pending_count)+Number(row.credited_count)+Number(row.reversed_count)&&Math.abs(Number(row.total_amount)-(Number(row.pending_amount)+Number(row.credited_amount)+Number(row.reversed_amount)))<0.01;}
@@ -50,9 +63,12 @@ export default function AdminMatrixCommissions(){
   if(!Array.isArray(data)||data.length>PAGE_SIZE||!data.every(validRow))throw new Error('The Matrix commission report returned an invalid or oversized page. Refresh before continuing.');
   if(data.length&&data.some(row=>row.has_more!==data[0].has_more))throw new Error('The Matrix commission page returned inconsistent continuation metadata. Refresh the report.');
   if(data.length<PAGE_SIZE&&data.some(row=>row.has_more))throw new Error('The Matrix commission page returned an invalid continuation flag. Refresh the report.');
+  const page=data as MatrixCommissionRow[];
+  if(!isStrictlyDescendingMatrixPage(page))throw new Error('The Matrix commission page is not in strict descending (created_at, commission_id) order. Refresh the report.');
+  if(cursor&&page.some(row=>!isBeforeMatrixCursor(row,cursor)))throw new Error('The next Matrix report page crossed or repeated the previous page cursor. Refresh the report.');
   const ids=new Set<string>();
-  for(const row of data as MatrixCommissionRow[]){if(ids.has(row.commission_id))throw new Error('The Matrix report returned duplicate commission IDs.');ids.add(row.commission_id);}
-  return data as MatrixCommissionRow[];
+  for(const row of page){if(ids.has(row.commission_id))throw new Error('The Matrix report returned duplicate commission IDs.');ids.add(row.commission_id);}
+  return page;
  },[]);
  useEffect(()=>{
   const request=++reportRequest.current;
@@ -74,7 +90,9 @@ export default function AdminMatrixCommissions(){
   loadMoreBusy.current=true;setMore(true);setMessage('');
   const request=reportRequest.current;
   try{
-   const batch=await fetchPage(rows.length,status,level);
+   const lastLoaded=rows[rows.length-1];
+   if(!lastLoaded)throw new Error('Refresh the Matrix report before loading another page.');
+   const batch=await fetchPage(rows.length,status,level,{created_at:lastLoaded.created_at,commission_id:lastLoaded.commission_id});
    if(request!==reportRequest.current)return;
    const known=new Set(rows.map(r=>r.commission_id));
    if(batch.some(r=>known.has(r.commission_id)))throw new Error('The next Matrix report page overlaps records already loaded. Refresh the report.');
@@ -94,11 +112,12 @@ const filtered=useMemo(()=>{
  async function exportAll(){
   if(exportBusy)return;setExportBusy(true);setMessage('');
   try{
-   const all:MatrixCommissionRow[]=[];const ids=new Set<string>();
+   const all:MatrixCommissionRow[]=[];const ids=new Set<string>();let cursor:MatrixCursor|undefined;
    for(let offset=0;offset<100000;offset+=PAGE_SIZE){
-    const batch=await fetchPage(offset,status,level);
+    const batch=await fetchPage(offset,status,level,cursor);
     if(!batch.length)break;
     for(const row of batch){if(ids.has(row.commission_id))throw new Error('Duplicate report rows detected. Export stopped.');ids.add(row.commission_id);all.push(row);}
+    const lastRow=batch[batch.length-1];cursor={created_at:lastRow.created_at,commission_id:lastRow.commission_id};
     if(all.length>=100000)throw new Error('Export safety limit reached (100,000 rows). Narrow the filters and retry.');
     if(batch.length<PAGE_SIZE||batch[batch.length-1]?.has_more!==true)break;
    }

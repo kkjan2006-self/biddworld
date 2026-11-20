@@ -23,4 +23,12 @@ describe('Admin Matrix commissions component source integrity',()=>{
   expect(source).toContain("Math.abs(Number(row.total_amount)-(Number(row.pending_amount)+Number(row.credited_amount)+Number(row.reversed_amount)))<0.01");
   expect(source).toContain("Number.isSafeInteger(row[key])");
  });
+ it('validates strict descending tuple order within every page and across continuation boundaries',()=>{
+  expect(source).toContain('function isStrictlyDescendingMatrixPage(rows:MatrixCommissionRow[]):boolean');
+  expect(source).toContain('function isBeforeMatrixCursor(row:MatrixCommissionRow,cursor:MatrixCursor):boolean');
+  expect(source).toContain('if(!isStrictlyDescendingMatrixPage(page))');
+  expect(source).toContain('page.some(row=>!isBeforeMatrixCursor(row,cursor))');
+  expect(source).toContain('fetchPage(rows.length,status,level,{created_at:lastLoaded.created_at,commission_id:lastLoaded.commission_id})');
+  expect(source).toContain('fetchPage(offset,status,level,cursor)');
+ });
 });

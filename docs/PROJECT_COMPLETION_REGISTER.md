@@ -3260,3 +3260,11 @@
 - Member Wallet History now validates strict descending `(created_at,id)` order on every loaded page and requires each continuation page to fall strictly before the previous page cursor. A reordered or shifted page fails closed instead of silently displaying a misleading transaction sequence.
 - The full wallet CSV export applies the same per-page ordering and cursor-boundary checks, in addition to its existing duplicate transaction-ID detection, so export cannot silently skip or repeat rows when the underlying page order changes.
 - Added source-only assertions in `tests/wallet-history-keyset-pagination.test.ts`; not executed. No SQL migration or database operation was required.
+
+
+## 2026-11-20 — Admin Matrix commission report page and export ordering integrity
+
+- The Admin Matrix commission RPC orders records by descending `(created_at,id)`, but its client previously checked only duplicate IDs and continuation metadata. It did not independently validate each page's tuple ordering or ensure the next offset page was strictly older than the previous page cursor.
+- Added strict per-page descending tuple validation and cursor-boundary validation to Load More and complete CSV export. Shifted, overlapping or reordered pages now fail closed rather than silently omitting or repeating commission records.
+- Added source-only assertions in `tests/admin-matrix-commissions-source-integrity.test.ts`; not executed. No SQL migration or database operation was required.
+- No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
