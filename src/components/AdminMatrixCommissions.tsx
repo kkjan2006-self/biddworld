@@ -116,7 +116,7 @@ const filtered=useMemo(()=>{
   if(!supabase||actionBusy)return;
   if(!window.confirm('Post all pending Matrix commissions for this package activation to eligible Main ID Income Wallets?'))return;
   setActionBusy(activationId);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_post_matrix_commissions',{p_activation_id:activationId});if(error)throw error;if(data?.success!==true)throw new Error('The server did not confirm Matrix commission posting.');setMessage('Posted '+Number(data.posted_count??0)+' Matrix commission(s).');setReloadToken(value=>value+1);await loadSummary();}
+  try{const{data,error}=await supabase.rpc('admin_post_matrix_commissions',{p_activation_id:activationId});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix commission posting result. Refresh the register before retrying.');const result=data as {success?:unknown;activation_id?:unknown;posted_count?:unknown};if(result.success!==true||result.activation_id!==activationId||typeof result.posted_count!=='number'||!Number.isInteger(result.posted_count)||result.posted_count<0)throw new Error('The Matrix commission posting result did not match this activation. Refresh the register to confirm its recorded state.');setMessage('Posted '+result.posted_count+' Matrix commission(s).');setReloadToken(value=>value+1);await loadSummary();}
   catch(e){setMessage(e instanceof Error?e.message:'Matrix commissions could not be posted.');}
   finally{setActionBusy('');}
  }
@@ -127,7 +127,7 @@ const filtered=useMemo(()=>{
   if(reason.trim().length<5){setMessage('Enter a reversal reason of at least 5 characters.');return;}
   if(!window.confirm('Reverse this Matrix commission and its matching Income Wallet ledger credit?'))return;
   setActionBusy(commissionId);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_reverse_matrix_commission',{p_commission_id:commissionId,p_reason:reason.trim()});if(error)throw error;if(data?.success!==true)throw new Error('The server did not confirm the reversal.');setMessage('Matrix commission reversed.');setReloadToken(value=>value+1);await loadSummary();}
+  try{const{data,error}=await supabase.rpc('admin_reverse_matrix_commission',{p_commission_id:commissionId,p_reason:reason.trim()});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix commission reversal result. Refresh the register before retrying.');const result=data as {success?:unknown;commission_id?:unknown;status?:unknown};if(result.success!==true||result.commission_id!==commissionId||result.status!=='reversed')throw new Error('The Matrix commission reversal result did not match the selected record. Refresh the register to confirm its state.');setMessage('Matrix commission reversed.');setReloadToken(value=>value+1);await loadSummary();}
   catch(e){setMessage(e instanceof Error?e.message:'Matrix commission could not be reversed.');}
   finally{setActionBusy('');}
  }
