@@ -1,3 +1,14 @@
+## 2026-11-20 — Product and Auction draft response validation
+
+- Admin Product draft save validates the returned Product UUID and ensures an edit returns the same Product ID before clearing form state.
+- Product publication validates success, exact Product ID and the requested `published` or `draft` state.
+- Admin Auction draft save validates the returned Auction UUID and ensures an edit returns the same Auction ID before clearing form state.
+- Added `tests/admin-product-auction-draft-response-integrity.test.ts`; source-only, not executed.
+- Commits: `bce4924ebce433967a64ca7d104ee85fa8982eda`, `5620eb00ba6248062abb2aa21983b5f805ad10a0`.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Secondary Admin mutation response validation
 
 - Package activation review now validates success, action-specific status, non-negative Bid Wallet credit and resulting wallet balance before confirming approval/rejection.
