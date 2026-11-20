@@ -28,6 +28,10 @@ describe('Recent auction winner public projection contract',()=>{
   expect(award).toContain('if new.auction_id is not null then return new; end if;');
   expect(award).not.toContain('insert into public.winning_item_payments(auction_id');
   expect(app).toContain('public_list_recent_auction_winners');
+  expect(app).toContain('function parseRecentAuctionWinners(value:unknown)');
+  expect(app).toContain('seen.has(row.auction_id)');
+  expect(app).toContain('!row.winner_name.trim()');
+  expect(app).toContain('amount<=0');
   expect(app).toContain('Recent Winners');
  });
 });
