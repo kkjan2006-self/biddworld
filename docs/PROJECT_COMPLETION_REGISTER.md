@@ -3036,3 +3036,12 @@
 - Preserved the graph-wide lock, Admin-only role check, lifecycle validation, linked Duplicate-ID propagation, audit event and authenticated-only function grant.
 - Added `tests/admin-main-member-financial-lifecycle-serialization.test.ts`; source-only and not executed. Registered the migration in the clean-install forward manifest.
 - Inventory: **148 forward + 16 excluded = 164 timestamped migration paths**, plus 3 legacy/unversioned SQL files. No DB replay, tests, build, type-check, deployment or Production/TEST changes.
+
+
+## 2026-11-20 — Admin withdrawal review lifecycle serialization
+
+- Added `20261120210000_serialize_admin_withdrawal_review_lifecycle.sql` after finding Admin withdrawal review did not participate in the shared Main-ID lifecycle/financial-action advisory lock.
+- Approve, reject/release and mark-paid now acquire the same per-Main-ID transaction lock before active-profile/Main-ID validation or wallet reservation/release/payout confirmation. This serializes review with member financial actions and Admin Main-ID lifecycle mutations.
+- Preserved Admin authorization, request state validation, reservation/release ledger consistency checks, immutable ledger behavior and audit logging.
+- Added `tests/admin-withdrawal-review-lifecycle-serialization.test.ts`; source-only and not executed. Registered the migration in the clean-install forward manifest.
+- Inventory: **149 forward + 16 excluded = 165 timestamped migration paths**, plus 3 legacy/unversioned SQL files. No DB replay, tests, build, type-check, deployment or Production/TEST changes.
