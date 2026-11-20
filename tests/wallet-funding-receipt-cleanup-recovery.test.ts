@@ -21,6 +21,7 @@ describe('Wallet funding receipt cleanup recovery',()=>{
  it('queues only definite RPC rejections and preserves ambiguous receipt outcomes',()=>{
   expect(source).toContain('rpcDefinitelyRejected');
   expect(source).toContain('persistWalletReceiptCleanupPath');
-  expect(source).toContain('if(uploadedReceiptPath&&rpcAttempted&&rpcDefinitelyRejected)');
+  expect(source).toContain('if(uploadedReceiptPath&&(!rpcAttempted||rpcDefinitelyRejected))');
+  expect(source).toContain('uploadedReceiptPath=path;');
  });
 });
