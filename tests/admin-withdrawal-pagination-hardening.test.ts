@@ -23,6 +23,7 @@ describe('Admin withdrawal queue pagination hardening',()=>{
   expect(component).toContain("withdrawalRequests.filter(r=>r.status==='cancelled').length");
   expect(component).toContain("(r.status==='pending'||r.status==='approved')&&<div");
  });
+ it('matches SQL rejection reason bounds using PostgreSQL-compatible Unicode character counts',()=>{expect(component).toContain('const normalizedReason=reason.trim();const reasonLength=Array.from(normalizedReason).length;if(reasonLength<5||reasonLength>500)');expect(component).toContain('reason=normalizedReason;');});
  it('preserves the existing withdrawal review actions and paged export contract',()=>{
   expect(component).toContain("admin_review_withdrawal_request");
   expect(component).toContain("admin_list_withdrawal_requests");

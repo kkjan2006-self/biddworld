@@ -41,6 +41,7 @@ describe('Under ID Matrix commission engine contract',()=>{
   expect(migration).toContain('credited_main_member_code');
   expect(migration).toContain('has_more');
  });
+ it('matches Matrix reversal reason bounds using PostgreSQL-compatible Unicode character counts',()=>{const ui=readFileSync(resolve(process.cwd(),'src/components/AdminMatrixCommissions.tsx'),'utf8');expect(ui).toContain('const normalizedReason=reason.trim();const reasonLength=Array.from(normalizedReason).length;if(reasonLength<5||reasonLength>500)');expect(migration).toContain("length(trim(coalesce(p_reason,'')))<5 or length(p_reason)>500");expect(ui).toContain('{p_commission_id:commissionId,p_reason:normalizedReason}');});
  it('keeps direct table access revoked and the feature switch OFF/locked until completion',()=>{
   expect(migration).toContain('enable row level security');
   expect(migration).toContain('revoke all on table public.matrix_commissions from public, anon, authenticated');
