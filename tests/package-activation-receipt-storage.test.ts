@@ -25,6 +25,8 @@ describe('Private package receipt storage contract',()=>{
   expect(member).toContain('retryReceiptCleanup(sessionData.session.user.id)');
   expect(member).toContain('Retry receipt cleanup');
   expect(member).toContain('persistReceiptCleanupPath');
+  expect(member).toContain('if(uploadedReceiptPath&&!activationSubmitted&&(!activationRpcAttempted||activationRpcRejected))');
+  expect(member).toContain('uploadedReceiptPath=receiptPath;');
   expect(admin).toContain("storage.from('package-receipts').createSignedUrl");
   expect(migration).not.toContain('for select to authenticated using (bucket_id=');
  });
