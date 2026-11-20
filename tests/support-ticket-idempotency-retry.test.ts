@@ -19,4 +19,11 @@ describe('support ticket idempotent retry behavior', () => {
   it('clears the payload fingerprint after a successful submission', () => {
     expect(source).toContain("submitKey.current='';submitKeyPayload.current='';setSubject('');setMessage('')");
   });
+  it('validates support ticket submit and admin update RPC result identity before showing success', () => {
+    expect(source).toContain('result.success!==true');
+    expect(source).toContain('result.ticket_id!==id');
+    expect(source).toContain('result.status!==nextStatus');
+    expect(source).toContain('typeof result.replayed!==\'boolean\'');
+    expect(source).toContain('same request key is retained');
+  });
 });
