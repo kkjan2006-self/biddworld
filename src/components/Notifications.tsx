@@ -4,6 +4,16 @@ import {supabase} from '../lib/supabase';
 
 type Notice={id:string;user_id:string;recipient_member_code?:string;recipient_name?:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
+function parseNoticePage(value:unknown,expectedUserId?:string):Notice[]{
+ if(!Array.isArray(value)||value.length>PAGE_SIZE+1)throw new Error('The notification inbox returned an invalid page. Refresh and retry.');
+ const ids=new Set<string>();
+ return value.map(raw=>{
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The notification inbox contains an invalid record.');
+  const row=raw as Record<string,unknown>;
+  if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||typeof row.user_id!=='string'||!row.user_id.trim()||(expectedUserId&&row.user_id!==expectedUserId)||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at as string)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||(row.recipient_member_code!==undefined&&typeof row.recipient_member_code!=='string')||(row.recipient_name!==undefined&&typeof row.recipient_name!=='string'))throw new Error('The notification inbox contains malformed or duplicate records.');
+  ids.add(row.id);return row as unknown as Notice;
+ });
+}
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  const requestSeq=useRef(0),recipientLookupSeq=useRef(0),loadMoreBusy=useRef(false),markReadBusy=useRef(new Set<string>()),markAllBusy=useRef(false),sendKey=useRef<{key:string;fingerprint:string}|null>(null);
  const [items,setItems]=useState<Notice[]>([]),[userId,setUserId]=useState(''),[recipientSearch,setRecipientSearch]=useState(''),[recipientOptions,setRecipientOptions]=useState<{user_id:string;member_code:string;display_name:string;phone:string}[]>([]),[recipientLookupBusy,setRecipientLookupBusy]=useState(false),[title,setTitle]=useState(''),[message,setMessage]=useState(''),[category,setCategory]=useState('general'),[busy,setBusy]=useState(false),[markingAll,setMarkingAll]=useState(false),[unreadOnly,setUnreadOnly]=useState(false),[search,setSearch]=useState(''),[categoryFilter,setCategoryFilter]=useState('all'),[error,setError]=useState(''),[notice,setNotice]=useState(''),[hasMore,setHasMore]=useState(false);
@@ -16,7 +26,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
    if(isAdmin){
     const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_keyset_page',{p_limit:PAGE_SIZE+1,p_cursor_created_at:null,p_cursor_id:null,p_category:categoryFilter});
     if(loadError)throw loadError;
-    rows=(data??[]) as Notice[];
+    rows=parseNoticePage(data);
    }else{
     const{data:{user},error:userError}=await supabase.auth.getUser();
     if(userError||!user)throw new Error('Please sign in again to view your notifications.');
@@ -25,11 +35,10 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     if(categoryFilter!=='all')request=request.eq('category',categoryFilter);
     const{data,error:loadError}=await request.limit(PAGE_SIZE+1);
     if(loadError)throw loadError;
-    rows=(data??[]) as Notice[];
+    rows=parseNoticePage(data);
    }
    if(seq!==requestSeq.current)return;
-   if(!Array.isArray(rows))throw new Error('The notification inbox response was invalid. Please refresh.');
-   const ids=new Set<string>();for(const item of rows){if(!item||typeof item.id!=='string'||!item.id.trim()||ids.has(item.id))throw new Error('The notification inbox returned invalid or duplicate notification IDs. Refresh before continuing.');ids.add(item.id);}
+   if(!Array.isArray(rows)||rows.length>PAGE_SIZE+1)throw new Error('The notification inbox response was invalid. Please refresh.');
    setItems(rows.slice(0,PAGE_SIZE));setHasMore(rows.length>PAGE_SIZE);
   }catch(e){if(seq===requestSeq.current)setError(e instanceof Error?e.message:'Notifications could not be loaded. Please retry.');}
   finally{if(seq===requestSeq.current)setBusy(false);}
@@ -42,7 +51,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
    if(isAdmin){
     const{data,error:loadError}=await supabase.rpc('admin_list_member_notifications_keyset_page',{p_limit:PAGE_SIZE+1,p_cursor_created_at:cursor.created_at,p_cursor_id:cursor.id,p_category:categoryFilter});
     if(loadError)throw loadError;
-    rows=(data??[]) as Notice[];
+    rows=parseNoticePage(data);
    }else{
     const{data:{user},error:userError}=await supabase.auth.getUser();
     if(userError||!user)throw new Error('Please sign in again to view your notifications.');
@@ -52,13 +61,12 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     request=request.or(`created_at.lt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.lt.${cursor.id})`);
     const{data,error:loadError}=await request.limit(PAGE_SIZE+1);
     if(loadError)throw loadError;
-    rows=(data??[]) as Notice[];
+    rows=parseNoticePage(data);
    }
    if(seq!==requestSeq.current)return;
-   if(!Array.isArray(rows))throw new Error('The notification page response was invalid. Refresh the inbox.');
-   const known=new Set(items.map(item=>item.id));const pageIds=new Set<string>();const fresh:Notice[]=[];let duplicateFound=false,invalidFound=false;
-   for(const item of rows){if(!item||typeof item.id!=='string'||!item.id.trim()){invalidFound=true;continue;}if(known.has(item.id)||pageIds.has(item.id)){duplicateFound=true;continue;}pageIds.add(item.id);fresh.push(item);}
-   if(invalidFound||duplicateFound){setHasMore(false);setError('The notification inbox returned invalid or duplicate notification IDs. Refresh the inbox before loading more.');return;}
+   if(!Array.isArray(rows)||rows.length>PAGE_SIZE+1)throw new Error('The notification page response was invalid. Refresh the inbox.');
+   const known=new Set(items.map(item=>item.id));const fresh:Notice[]=[];
+   for(const item of rows){if(known.has(item.id))throw new Error('The notification inbox returned an overlapping page. Refresh before continuing.');fresh.push(item);}
    
    setItems(current=>[...current,...fresh.slice(0,PAGE_SIZE)]);
    setHasMore(rows.length>PAGE_SIZE);
@@ -81,7 +89,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
       if(!active)return;
       if(payload.eventType==='INSERT'){
        const row=payload.new as Notice;
-       if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||typeof row.title!=='string'||typeof row.message!=='string'||typeof row.category!=='string'||typeof row.created_at!=='string')return;
+       if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||!row.user_id.trim()||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))return;
        if(categoryFilter!=='all'&&row.category!==categoryFilter)return;
        if(unreadOnly&&row.read_at)return;
        setItems(current=>[row,...current.filter(item=>item.id!==row.id)].slice(0,PAGE_SIZE));
