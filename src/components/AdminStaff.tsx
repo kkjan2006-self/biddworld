@@ -39,8 +39,9 @@ export default function AdminStaff(){
   if(!reset&&pageLock.current)return;
   const after=reset?null:cursor.current;
   if(!reset&&!after){setHasMore(false);return;}
-  if(reset){pageLock.current=false;cursor.current=null;}else pageLock.current=true;
   const seq=reset?++loadSequence.current:loadSequence.current;
+  pageLock.current=true;
+  if(reset)cursor.current=null;
   if(reset){setQueueLoading(true);setLoadingMore(false);setHasMore(false);setRows([]);setUrls({});setReceiptErrors({});}
   else setLoadingMore(true);
   setMessage('');
@@ -75,8 +76,7 @@ export default function AdminStaff(){
    cursor.current=payload.has_more?{submitted_at:payload.next_submitted_at as string,id:payload.next_id as string}:null;
   }catch(e){if(seq===loadSequence.current)setMessage('Package activation queue could not be loaded: '+(e instanceof Error?e.message:'Please retry.'));}
   finally{
-   if(seq===loadSequence.current){setQueueLoading(false);setLoadingMore(false);}
-   pageLock.current=false;
+   if(seq===loadSequence.current){setQueueLoading(false);setLoadingMore(false);pageLock.current=false;}
   }
  }
 
