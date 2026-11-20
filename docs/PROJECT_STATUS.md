@@ -241,3 +241,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Fixed the package activation review queue request lock so both refresh/reset and continuation requests acquire the same lock before asynchronous work begins.
 - A superseded request can no longer release the lock owned by a newer refresh. Only the currently active request generation clears loading state and releases the lock; stale responses remain unable to update the queue.
 - Added source-only regression coverage in `tests/staff-package-activation-request-lock-integrity.test.ts`. Not executed. No database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — Admin Income Wallet funding queue concurrency hardening
+
+- Unified refresh and continuation request locking in the Admin Income Wallet funding review queue. Previously, a refresh could clear the continuation lock while an older page request was still running, allowing overlapping requests and cursor/state races.
+- Every queue load now acquires the same lock before asynchronous work; a concurrent refresh or continuation is ignored until the active request completes. Only the current request generation releases the lock, while stale responses remain blocked from changing the queue.
+- Added source-only regression coverage in `tests/admin-wallet-funding-request-lock-integrity.test.ts`. Not executed. No database, build, type-check, E2E, browser QA or deployment operation was performed.
