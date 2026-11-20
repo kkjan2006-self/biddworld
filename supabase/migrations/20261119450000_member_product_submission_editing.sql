@@ -19,7 +19,8 @@ begin
   if v_path !~ ('^'||v_uid::text||'/[A-Za-z0-9_-]+[.](jpg|jpeg|png|webp)$') or not exists(select 1 from storage.objects o where o.bucket_id='product-submission-media' and o.name=v_path) then
    raise exception 'An image path is invalid, missing or does not belong to your account' using errcode='22023';end if;
  end loop;
- if p_optional_details is null or jsonb_typeof(p_optional_details)<>'object' or pg_catalog.octet_length(p_optional_details::text)>12000 then raise exception 'Optional details must be a small JSON object' using errcode='22023';end if;
+ if p_optional_details is null or jsonb_typeof(p_optional_details)<>'object' or pg_catalog.octet_length(p_optional_details::text)>12000
+  or exists(select 1 from jsonb_each(p_optional_details) item where jsonb_typeof(item.value)<>'string') then raise exception 'Optional details must be a small JSON object' using errcode='22023';end if;
  update public.product_submissions set name=btrim(p_name),description=btrim(p_description),category=nullif(btrim(coalesce(p_category,'')),''),image_paths=p_image_paths,optional_details=p_optional_details,status='pending',review_note=null,reviewed_by=null,reviewed_at=null,updated_at=now() where id=p_submission_id;
  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details) values(v_uid,'product.edited_and_resubmitted','product_submission',p_submission_id,jsonb_build_object('member_id',v_member,'image_count',cardinality(p_image_paths)));
  return p_submission_id;
