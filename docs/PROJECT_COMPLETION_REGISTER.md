@@ -3076,3 +3076,10 @@
 - Matrix commission rows now require valid UUIDs for commission and activation identities and enforce the database-supported level range (1–50) before rendering, pagination or CSV export.
 - Matrix summary validation now requires safe integer counts, exact total-count reconciliation across pending/credited/reversed states, and cent-tolerant amount reconciliation across the three statuses. Inconsistent server aggregates fail closed rather than presenting contradictory report totals.
 - Extended `tests/admin-matrix-commissions-source-integrity.test.ts` with source-only response-contract assertions. Not executed. No SQL migration or database operation was needed.
+
+
+## 2026-11-20 — Staff package activation queue response and keyset integrity
+
+- Restricted Staff package activation queue rows now require valid UUID identities, bounded activation numbers and text/numeric fields, ISO currency codes, valid payment-reference format, and a receipt object path matching the existing member-UUID/32-hex-generated-filename upload contract before any signed URL is requested.
+- Keyset pages now verify that `has_more` implies a full 50-row page and that the returned cursor exactly matches the final row. Completed pages must have null cursors; every page must be in descending `(submitted_at,id)` order. Existing duplicate/overlap detection across pages remains.
+- Added source-only assertions in `tests/staff-package-activation-review-contract.test.ts`; not executed. No SQL change required; validation mirrors the existing package submission and receipt-storage contract. No database access, migration replay, tests, build, type-check or deployment.

@@ -7,19 +7,25 @@ import AdminAuctionSubmissionReview from './AdminAuctionSubmissionReview';
 type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review';
 type Activation={id:string;activation_number:string;member_code:string;member_name:string|null;package_name:string;amount_paid:number;currency:string;bid_wallet_credit:number;payment_reference:string;receipt_path:string|null;submitted_at:string};
 type ActivationCursor={submitted_at:string;id:string};
+const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function validActivationReceiptPath(value:unknown):value is string{
+ if(typeof value!=='string'||value.length>300)return false;
+ const parts=value.split('/');
+ return parts.length===2&&UUID_PATTERN.test(parts[0])&&/^[a-f0-9]{32}-[a-z0-9._-]{1,90}$/i.test(parts[1]);
+}
 function validActivation(value:unknown):value is Activation{
  if(!value||typeof value!=='object'||Array.isArray(value))return false;
  const row=value as Record<string,unknown>;
- return typeof row.id==='string'&&row.id.trim().length>0
-  &&typeof row.activation_number==='string'&&row.activation_number.trim().length>0
-  &&typeof row.member_code==='string'&&row.member_code.trim().length>0
-  &&(row.member_name===null||typeof row.member_name==='string')
-  &&typeof row.package_name==='string'&&row.package_name.trim().length>0
-  &&typeof row.amount_paid==='number'&&Number.isFinite(row.amount_paid)&&row.amount_paid>0
-  &&typeof row.currency==='string'&&row.currency.trim().length>0
-  &&typeof row.bid_wallet_credit==='number'&&Number.isFinite(row.bid_wallet_credit)&&row.bid_wallet_credit>=0
-  &&typeof row.payment_reference==='string'&&row.payment_reference.trim().length>0
-  &&(row.receipt_path===null||typeof row.receipt_path==='string')
+ return typeof row.id==='string'&&UUID_PATTERN.test(row.id)
+  &&typeof row.activation_number==='string'&&/^[1-9][0-9]{0,8}$/.test(row.activation_number)
+  &&typeof row.member_code==='string'&&row.member_code.trim().length>0&&row.member_code.length<=80
+  &&(row.member_name===null||(typeof row.member_name==='string'&&row.member_name.length<=200))
+  &&typeof row.package_name==='string'&&row.package_name.trim().length>0&&row.package_name.length<=120
+  &&typeof row.amount_paid==='number'&&Number.isFinite(row.amount_paid)&&row.amount_paid>0&&row.amount_paid<=100000000
+  &&typeof row.currency==='string'&&/^[A-Z]{3}$/.test(row.currency)
+  &&typeof row.bid_wallet_credit==='number'&&Number.isFinite(row.bid_wallet_credit)&&row.bid_wallet_credit>=0&&row.bid_wallet_credit<=100000000
+  &&typeof row.payment_reference==='string'&&/^[A-Za-z0-9./_-]{6,80}$/.test(row.payment_reference)
+  &&validActivationReceiptPath(row.receipt_path)
   &&typeof row.submitted_at==='string'&&Number.isFinite(Date.parse(row.submitted_at));
 }
 export default function AdminStaff(){
@@ -43,11 +49,15 @@ export default function AdminStaff(){
    if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The package activation queue returned an invalid response.');
    const payload=data as Record<string,unknown>;
    if(!Array.isArray(payload.items)||payload.items.length>50||typeof payload.has_more!=='boolean')throw new Error('The package activation queue returned an invalid page.');
-   if(payload.has_more&&(typeof payload.next_submitted_at!=='string'||!Number.isFinite(Date.parse(payload.next_submitted_at))||typeof payload.next_id!=='string'||!payload.next_id.trim()))throw new Error('The package activation queue cursor was incomplete.');
+   if(payload.has_more&&(typeof payload.next_submitted_at!=='string'||!Number.isFinite(Date.parse(payload.next_submitted_at))||typeof payload.next_id!=='string'||!UUID_PATTERN.test(payload.next_id)))throw new Error('The package activation queue cursor was incomplete.');
+   if(!payload.has_more&&(payload.next_submitted_at!==null||payload.next_id!==null))throw new Error('The completed package activation page returned an unexpected cursor.');
    const items=payload.items as unknown[];
    if(!items.every(validActivation))throw new Error('The package activation queue contains malformed activation records.');
+   const page=items as Activation[];
+   if(payload.has_more&&(page.length!==50||page[page.length-1].id!==payload.next_id||page[page.length-1].submitted_at!==payload.next_submitted_at))throw new Error('The package activation queue cursor does not match the final record on this page.');
+   for(let index=1;index<page.length;index++){const previous=page[index-1],current=page[index];if(Date.parse(previous.submitted_at)<Date.parse(current.submitted_at)||(previous.submitted_at===current.submitted_at&&previous.id.localeCompare(current.id)<0))throw new Error('The package activation queue is not in descending keyset order.');}
    const known=new Set(reset?[]:rows.map(row=>row.id));
-   for(const item of items as Activation[]){if(known.has(item.id))throw new Error('The next package activation page contains duplicate or overlapping requests. Refresh the queue.');known.add(item.id);}
+   for(const item of page){if(known.has(item.id))throw new Error('The next package activation page contains duplicate or overlapping requests. Refresh the queue.');known.add(item.id);}
    const next:Record<string,string>={},failures:Record<string,string>={};
    await Promise.all((items as Activation[]).map(async item=>{
     if(!item.receipt_path){failures[item.id]='No payment receipt is attached.';return;}
