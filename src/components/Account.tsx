@@ -55,6 +55,18 @@ type AuctionBid={id:string;bid_amount:number;status:string;created_at:string;auc
 type FixedBidRow={id:string;bid_amount:number;status:string;created_at:string;campaign:{title:string;status:string}|null};
 type CommissionRow={id:string;level_number:number;amount:number;status:string;created_at:string};
 type MatrixCommissionRow={commission_id:string;level_number:number;source_member_code:string;source_id_type:string;amount:number;status:string;created_at:string};
+const MATRIX_COMMISSION_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function validateMatrixCommissionPage(value:unknown,previous:MatrixCommissionRow[]=[],pageSize=100):MatrixCommissionRow[]{
+ if(!Array.isArray(value)||value.length>pageSize)throw new Error('Matrix commission history returned an invalid page. Refresh your account and retry.');
+ const page=value as MatrixCommissionRow[],seen=new Set(previous.map(row=>row.commission_id));let prior=previous[previous.length-1];
+ for(const raw of page){
+  if(!raw||typeof raw!=='object'||!MATRIX_COMMISSION_UUID.test(raw.commission_id)||!Number.isInteger(raw.level_number)||raw.level_number<1||typeof raw.source_member_code!=='string'||!raw.source_member_code.trim()||raw.source_member_code.length>80||!['main','duplicate'].includes(raw.source_id_type)||typeof raw.amount!=='number'||!Number.isFinite(raw.amount)||raw.amount<=0||!['pending','credited','reversed'].includes(raw.status)||typeof raw.created_at!=='string'||!Number.isFinite(Date.parse(raw.created_at)))throw new Error('Matrix commission history returned an invalid record. Refresh your account and retry.');
+  if(seen.has(raw.commission_id))throw new Error('Matrix commission history repeated an existing record. Refresh your account before continuing.');
+  if(prior){const delta=Date.parse(prior.created_at)-Date.parse(raw.created_at);if(delta<0||(delta===0&&prior.commission_id.localeCompare(raw.commission_id)<=0))throw new Error('Matrix commission history is not in strict descending (created_at,commission_id) order. Refresh your account and retry.');}
+  seen.add(raw.commission_id);prior=raw;
+ }
+ return page;
+}
 type WinningPayment={id:string;fixed_bid_campaign_id:string|null;amount:number;status:string;paid_at:string|null;created_at:string;auction:{title:string}|null;campaign:{title:string}|null};
 type DeliveryRow={id:string;winning_item_payment_id:string;carrier:string|null;tracking_number:string|null;status:string;shipped_at:string|null;delivered_at:string|null;updated_at:string};
 const REPORT_PAGE_SIZE=500;
@@ -136,7 +148,7 @@ export default function Account(){
     const memberRpcError=[m.error,wr.error,mc.error].find(error=>error&&rpcContractUnavailableMessage(error,'Member account details'));
     if(memberRpcError)setError(rpcContractUnavailableMessage(memberRpcError,'Member account details')!);
     else if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)setError('Some account history is unavailable because one or more database requests failed. You can retry loading your account.');
-    setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);const withdrawalRows=validateWithdrawalPage(wr.data??[]);setWithdrawals(withdrawalRows);setWithdrawalHasMore(withdrawalRows.length===50&&withdrawalRows[withdrawalRows.length-1]?.has_more===true);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);setMatrixCommissions((mc.data??[]) as MatrixCommissionRow[]);setMatrixHistoryHasMore((mc.data??[]).length===100);setMatrixHistoryLoading(false);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
+    setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);const withdrawalRows=validateWithdrawalPage(wr.data??[]);setWithdrawals(withdrawalRows);setWithdrawalHasMore(withdrawalRows.length===50&&withdrawalRows[withdrawalRows.length-1]?.has_more===true);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);const matrixRows=validateMatrixCommissionPage(mc.data??[]);setMatrixCommissions(matrixRows);setMatrixHistoryHasMore(matrixRows.length===100);setMatrixHistoryLoading(false);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
    }else{
     setMembers([]);setActivations([]);setWallets([]);setWithdrawals([]);setWithdrawalHasMore(false);setAuctionBids([]);setFixedBids([]);setCommissions([]);setMatrixCommissions([]);setMatrixHistoryHasMore(false);setMatrixHistoryLoading(false);setWinningPayments([]);setDeliveries([]);setHistoryHasMore({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
    }
@@ -191,12 +203,10 @@ async function loadMoreMatrixCommissions(){
   const {data,error}=await supabase.rpc('member_list_my_matrix_commissions_page',{p_limit:100,p_offset:offset});
   if(request!==loadRequest.current||!loadMounted.current)return;
   if(error)throw error;
-  if(!Array.isArray(data)||data.some((row:any)=>!row||typeof row.commission_id!=='string'||!row.commission_id||!Number.isInteger(row.level_number)||row.level_number<1||typeof row.source_member_code!=='string'||!['main','duplicate'].includes(row.source_id_type)||!Number.isFinite(Number(row.amount))||!['pending','credited','reversed'].includes(row.status)||!Number.isFinite(Date.parse(row.created_at))))throw new Error('Matrix commission history returned invalid data. Refresh your account and retry.');
-  const known=new Set(matrixCommissions.map(row=>row.commission_id));
-  if(data.some((row:MatrixCommissionRow)=>known.has(row.commission_id)))throw new Error('Matrix commission history repeated an existing record. Refresh your account before continuing.');
-  setMatrixCommissions(current=>[...current,...data as MatrixCommissionRow[]]);
-  setMatrixHistoryHasMore(data.length===100);
- }catch(e){if(request===loadRequest.current&&loadMounted.current)setError(e instanceof Error?e.message:'Could not load more Matrix commission history.');}
+  const page=validateMatrixCommissionPage(data,matrixCommissions);
+  setMatrixCommissions(current=>[...current,...page]);
+  setMatrixHistoryHasMore(page.length===100);
+ }catch(e){if(request===loadRequest.current&&loadMounted.current){setMatrixHistoryHasMore(false);setError(e instanceof Error?e.message:'Could not load more Matrix commission history.');}}
  finally{if(request===loadRequest.current&&loadMounted.current){matrixHistoryBusy.current=false;setMatrixHistoryLoading(false);}}
 }
 function loadMoreWinningPayments(){return loadHistoryPage<WinningPayment>('winningPayments',winningPayments.length,100,(client,id,from,to)=>client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),async(rows,client)=>{const ids=rows.map(row=>row.id);let deliveryRows:DeliveryRow[]=[];if(ids.length){const {data,error}=await client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',ids).order('updated_at',{ascending:false}).order('id',{ascending:false});if(error)throw error;deliveryRows=(data??[]) as DeliveryRow[];}setWinningPayments(current=>appendUniqueRows(current,rows));setDeliveries(current=>appendUniqueRows(current,deliveryRows));});}
