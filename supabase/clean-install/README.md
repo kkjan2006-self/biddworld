@@ -213,3 +213,9 @@ The forward migration `20261119230000_registration_email_verification_off_by_def
 ## Duplicate pending auction submission guard (#137)
 
 `20261119690000_prevent_duplicate_pending_auction_submissions.sql` adds an owner-scoped pending-title index and a `BEFORE INSERT OR UPDATE` trigger. It serializes writes per submitter with a transaction advisory lock and rejects a second pending auction submission with the same normalized title, including direct RPC or resubmission paths. This source migration has not been applied to TEST or Production.
+
+## 2026-11-20 — Fixed Bid card and details experience
+
+- Reworked Fixed Bid cards to show a single-line campaign title and product subtitle, a Product Details link, entry amount, percentage progress bar and prominent BID NOW action. Full details open in a responsive dialog with the complete published product attributes and all approved gallery images.
+- Extended the restricted public catalogue RPC projection to return the approved product image gallery and product details, plus a percentage-only campaign capacity indicator. The response does not expose raw entry or participant counts. Existing secure member entry RPC and feature controls remain unchanged.
+- Added source migration `20261120100000_public_fixed_bid_card_details_and_progress.sql` to the clean-install forward manifest. Source-only: no migration was applied and no tests/build/browser QA were run.

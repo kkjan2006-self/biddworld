@@ -59,3 +59,17 @@ describe('Fixed Bid public campaign rules projection',()=>{
   expect(fixedBidProjection).toContain('to anon, authenticated;');
  });
 });
+
+const richFixedBidProjection=readFileSync(resolve(process.cwd(),'supabase/migrations/20261120100000_public_fixed_bid_card_details_and_progress.sql'),'utf8');
+describe('Fixed Bid card details and progress projection',()=>{
+ it('returns approved product gallery and published product details for the detail dialog',()=>{
+  expect(richFixedBidProjection).toContain("'image_paths', coalesce(to_jsonb(p.image_paths),'[]'::jsonb)");
+  expect(richFixedBidProjection).toContain("'product_details', coalesce(p.product_details,'{}'::jsonb)");
+ });
+ it('returns only percentage progress, never raw entry counts',()=>{
+  expect(richFixedBidProjection).toContain("'progress_percent'");
+  expect(richFixedBidProjection).toContain('least(100,greatest(0,round(');
+  expect(richFixedBidProjection).not.toContain("'entry_count',");
+  expect(richFixedBidProjection).not.toContain("'participant_count',");
+ });
+});

@@ -1719,3 +1719,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Expanded `tests/admin-auction-submission-expected-price-rpc.test.ts` source assertions for the equal-price lifecycle. No tests were executed.
 - Commit: `a3b4dcf47685e9bdd9b4f94209c62b0c2beb70b4`.
 - No migrations applied, no TEST/Production changes, no Preview publish, and no main-branch changes. Source development remains 95% provisional.
+
+## 2026-11-20 — Fixed Bid card and details experience
+
+- Reworked Fixed Bid cards to show a single-line campaign title and product subtitle, a Product Details link, entry amount, percentage progress bar and prominent BID NOW action. Full details open in a responsive dialog with the complete published product attributes and all approved gallery images.
+- Extended the restricted public catalogue RPC projection to return the approved product image gallery and product details, plus a percentage-only campaign capacity indicator. The response does not expose raw entry or participant counts. Existing secure member entry RPC and feature controls remain unchanged.
+- Added source migration `20261120100000_public_fixed_bid_card_details_and_progress.sql` to the clean-install forward manifest. Source-only: no migration was applied and no tests/build/browser QA were run.
+
+- Commit for this batch: pending.
