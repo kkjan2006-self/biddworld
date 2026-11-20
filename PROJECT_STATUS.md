@@ -1,3 +1,16 @@
+# Current continuation checkpoint — 2026-11-20 (source-only)
+
+- Re-read this file and `docs/PROJECT_COMPLETION_REGISTER.md` against the current `completion-work` source files before continuing. Protected `main` was not written. No Supabase project was accessed or changed in this batch.
+- Confirmed the current forward migration manifest contains **139 unique ordered entries** and the excluded historical manifest contains **16 unique entries** (155 listed migration paths total). The clean-install README and earlier checkpoint documents still contain stale 137/124 counts; repository-wide migration-file accounting and dependency validation are not yet complete. Do not describe the 155 manifest entries as a verified complete source-tree inventory.
+- Confirmed the current frontend includes the Admin product image URL/storage-path helper, member auction submission preflight (trimmed title/description, 1–8 image bounds, MIME/5 MB validation, positive prices, Expected Price >= Starting Price, start-time validation and duplicate-submit lock), and the homepage Recent Winners cards.
+- Confirmed migration `20261120110000_auction_item_awards_and_homepage_winners.sql` finalizes the highest accepted auction bid as an item award and exposes recent winners. Auction winners do **not** enter the Fixed Bid winning-payment flow; that notification trigger explicitly ignores auction-linked records.
+- Preview repo README documents the GitHub Pages permission error correctly: enabling Pages through the workflow token is owner-only. The workflow already uses isolated TEST secrets and fails closed when they are missing or point anywhere other than the TEST project. Preview workflow source is `.github/workflows/deploy-preview.yml`; no new deployment or live backend functionality is claimed.
+- Admin product image JSX and URL helper were inspected. The existing code supports both absolute HTTP(S) URLs and product-media object paths; no safe, evidence-backed defect was identified to justify changing the rendering contract in this batch.
+- Remaining source work: complete frontend RPC signature/return/authorization reconciliation; reconcile the schema baseline, every migration file and clean-install dependencies; finish any cross-module workflow gaps and static contract coverage; correct stale documentation. Development-only gate remains in force: no tests/build/type-check, no migration replay, no DB access, no Preview deployment.
+- Overall development completion: **95% provisional**. This is a planning estimate only; 100% is not claimed until the remaining source reconciliation is complete.
+
+---
+
 - Restricted Payment Review Staff directory now enforces a bounded response, validates account identity/email/timestamps and unique allowed permissions, rejects malformed or duplicate permission drafts, and prevents overlapping role/permission mutations with a reliably released in-flight guard. Existing Primary Admin gating and server-side staff RPCs are preserved.
 - Added source-contract regression coverage in `tests/admin-payment-review-staff-integrity.test.ts` (not executed).
 - Commits: staff hardening `1c9940fb3cc2ec325a111379e443dacbfae9f0ba`; mutation-lock correction `a5d0c69cf8d6607ee92e412572dea8bffc774030`; regression source `32108e188b6ccdfabe6b4fa6abc9b9f141a3cadc`.
