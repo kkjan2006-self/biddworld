@@ -1,3 +1,11 @@
+## 2026-11-20 — Complete personal activity report integrity
+
+- The member complete personal report previously exported only the withdrawal rows already loaded in the Account screen (normally the first 50), despite labelling the output complete. It now drains the owner-scoped member_list_my_withdrawals_page RPC using the exact descending (requested_at,id) keyset cursor and validates every page against the full accumulated history before export.
+- All other personal report sources now validate strict descending timestamp/ID ordering within each 500-row page and across page boundaries, in addition to existing duplicate-ID and repeated-page checks. The source query ordering key is explicit for each table: submitted_at, created_at or updated_at.
+- Added source-only assertions in tests/member-report-complete-export.test.ts; not executed. No SQL migration or database operation was required. Tests/build/type-check/E2E/browser QA/deployment remain deferred.
+
+---
+
 ## 2026-11-20 — Admin wallet page response-contract hardening
 
 - Admin wallet account and ledger responses previously checked only identity presence and a subset of amount/balance fields. Added strict shared page parsers covering UUID identities, member ownership identifiers, wallet type/currency, transaction direction/type, timestamps, nullable reference fields and non-negative balances.

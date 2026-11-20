@@ -24,6 +24,14 @@ Restricted Staff Support ticket review was added end-to-end:
 
 Latest follow-up source work now also includes the Staff Support notification trigger, Matrix reversal replay identity, strict page-order/cursor validation across Fixed Bid, Admin Package Activation, Notifications, Wallet and withdrawal histories, and repaired source-only regression assertions. The three user-supplied Fixed Bid sample product images are present under `public/sample-products/`; the smartphone image was subsequently replaced with a higher-resolution version. Current branch HEAD is recorded in the latest verified commit and completion register.
 
+## Latest source-only batch — complete personal report integrity (2026-11-20)
+
+- The complete personal CSV previously included only the currently loaded first 50 withdrawal-history rows. It now retrieves every page through the owner-scoped member_list_my_withdrawals_page RPC, advances using the exact (requested_at,id) keyset cursor, validates each page against all prior rows, and stops only on a valid terminal page.
+- Other report sources (activations, auction bids, Fixed Bid entries, referral commissions, winning payments and delivery tracking) now validate strict descending (timestamp,id) ordering within and across every 500-row offset page, in addition to duplicate-ID checks. This rejects shifted/overlapping page boundaries before export.
+- Added source-only regression assertions in tests/member-report-complete-export.test.ts; not executed. No migration or database change. No tests, build, type-check, E2E, browser QA or deployment was run.
+- Remaining priorities: project-wide frontend RPC/signature reconciliation, full clean-install dependency/body reconciliation, remaining permission/RLS/Storage gaps and source-contract coverage.
+- Branch at batch start: faadfe50bb6b0932873565f75c1164aeee5b4899; this batch is committed only to completion-work.
+
 ## Next source-development priorities
 
 Continue source-based frontend ↔ SQL ↔ RPC ↔ permission ↔ RLS reconciliation without recreating completed features. Prioritize:

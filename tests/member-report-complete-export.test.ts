@@ -16,6 +16,23 @@ describe('complete personal activity report', () => {
   expect(account).toContain('without a valid ID');
   expect(account).toContain('batch.map(row=>row.id)');
  });
+ it('validates deterministic descending tuple order across report pages', () => {
+  expect(account).toContain("timestampKey:'created_at'|'submitted_at'|'updated_at'");
+  expect(account).toContain('strict descending (');
+  expect(account).toContain('prior.id.localeCompare(row.id)<=0');
+  expect(account).toContain(",'submitted_at')");
+  expect(account).toContain(",'created_at')");
+  expect(account).toContain(",'updated_at')");
+ });
+ it('exports every withdrawal history page through the owner-scoped keyset RPC', () => {
+  expect(account).toContain('async function fetchAllWithdrawalPages');
+  expect(account).toContain('member_list_my_withdrawals_page');
+  expect(account).toContain('p_before_requested_at:cursor?.requested_at??null');
+  expect(account).toContain('p_before_id:cursor?.request_id??null');
+  expect(account).toContain('validateWithdrawalPage(data??[],all)');
+  expect(account).toContain('allWithdrawals.forEach');
+  expect(account).not.toContain("withdrawals.forEach(x=>rows.push(['Withdrawal request'");
+ });
  it('re-verifies the signed-in Main ID and provides export feedback', () => {
   expect(account).toContain('client.auth.getUser()');
   expect(account).toContain('currentProfile?.main_member_id');

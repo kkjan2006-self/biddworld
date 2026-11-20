@@ -74,25 +74,42 @@ function appendUniqueRows<T extends {id:string}>(current:T[],incoming:T[]):T[]{
  const known=new Set(current.map(row=>row.id));
  return [...current,...incoming.filter(row=>!known.has(row.id))];
 }
-async function fetchAllPages<T extends {id:string}>(fetchPage:(from:number,to:number)=>PromiseLike<any>):Promise<T[]>{
+async function fetchAllPages<T extends {id:string}>(fetchPage:(from:number,to:number)=>PromiseLike<any>,timestampKey:'created_at'|'submitted_at'|'updated_at'):Promise<T[]>{
  const all:T[]=[];const seenPages=new Set<string>();const seenIds=new Set<string>();
  for(let from=0;from<REPORT_PAGE_SIZE*10000;from+=REPORT_PAGE_SIZE){
   const {data,error}=await fetchPage(from,from+REPORT_PAGE_SIZE-1);
   if(error)throw new Error(error.message);
+  if(data!==null&&data!==undefined&&!Array.isArray(data))throw new Error('The report service returned an invalid page. Export stopped to protect report accuracy.');
   const batch=(data??[]) as T[];
-  const fingerprint=JSON.stringify(batch.map(row=>row.id));
+  const fingerprint=JSON.stringify(batch.map(row=>row?.id));
   if(batch.length&&seenPages.has(fingerprint))throw new Error('The report service repeated a page. Export stopped to avoid an incomplete or duplicated report. Please retry.');
-  const pageIds=new Set<string>();
+  const pageIds=new Set<string>();let prior=all[all.length-1];
   for(const row of batch){
    if(!row||typeof row.id!=='string'||!row.id.trim())throw new Error('The report service returned a record without a valid ID. Export stopped to protect report accuracy.');
+   const timestamp=(row as Record<string,unknown>)[timestampKey];
+   if(typeof timestamp!=='string'||!Number.isFinite(Date.parse(timestamp)))throw new Error('The report service returned an invalid record timestamp. Export stopped to protect report accuracy.');
+   if(prior){const priorTimestamp=(prior as Record<string,unknown>)[timestampKey];const delta=Date.parse(String(priorTimestamp))-Date.parse(timestamp);if(delta<0||(delta===0&&prior.id.localeCompare(row.id)<=0))throw new Error('The report records are not in strict descending ('+timestampKey+',id) order. Export stopped because the page boundary may have shifted. Please retry.');}
    if(seenIds.has(row.id)||pageIds.has(row.id))throw new Error('The report service returned duplicate record IDs across pages. Export stopped to avoid an inaccurate CSV. Please retry.');
-   pageIds.add(row.id);
+   pageIds.add(row.id);prior=row;
   }
   for(const id of pageIds)seenIds.add(id);
   if(batch.length<REPORT_PAGE_SIZE){all.push(...batch);return all;}
   seenPages.add(fingerprint);all.push(...batch);
  }
  throw new Error('The report contains more pages than can be safely exported in one request. Narrow the report scope and retry.');
+}
+async function fetchAllWithdrawalPages(fetchPage:(cursor:WithdrawalRow|null)=>PromiseLike<any>):Promise<WithdrawalRow[]>{
+ const all:WithdrawalRow[]=[];let cursor:WithdrawalRow|null=null;
+ for(let page=0;page<10000;page++){
+  const {data,error}=await fetchPage(cursor);
+  if(error)throw new Error(error.message);
+  const batch=validateWithdrawalPage(data??[],all);
+  if(batch.length===0)return all;
+  all.push(...batch);
+  if(batch[batch.length-1].has_more!==true)return all;
+  cursor=batch[batch.length-1];
+ }
+ throw new Error('Withdrawal history contains more pages than can be safely exported in one request. Retry the report later.');
 }
 export default function Account(){
  const [profile,setProfile]=useState<{display_name:string|null;phone:string|null;status:string;main_member_id:string|null;created_at?:string|null;main_member_code?:string|null;sponsor_member_code?:string|null;sponsor_display_name?:string|null}|null>(null);const [profileName,setProfileName]=useState('');const [profilePhone,setProfilePhone]=useState('');const [profileSaving,setProfileSaving]=useState(false);const [profileMessage,setProfileMessage]=useState('');
@@ -235,17 +252,18 @@ async function saveProfile(e:{preventDefault:()=>void}){e.preventDefault();if(!s
   const {data:currentProfile,error:profileError}=await client.from('profiles').select('main_member_id').eq('id',user.id).maybeSingle();
   if(profileError||!currentProfile?.main_member_id)throw new Error('Your Main ID could not be verified for this report.');
   const memberId=currentProfile.main_member_id;
-  const [allActivations,allBids,allFixedBids,allCommissions,allWinningPayments]=await Promise.all([
-   fetchAllPages<Activation>((from,to)=>client.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,payment_reference,bid_wallet_credit,submitted_at,verified_at,package:packages(name)').eq('member_id',memberId).order('submitted_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<AuctionBid>((from,to)=>client.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<FixedBidRow>((from,to)=>client.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<CommissionRow>((from,to)=>client.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to)),
-   fetchAllPages<WinningPayment>((from,to)=>client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to))
+  const [allActivations,allBids,allFixedBids,allCommissions,allWinningPayments,allWithdrawals]=await Promise.all([
+   fetchAllPages<Activation>((from,to)=>client.from('package_activations').select('id,activation_number,amount_paid,currency,payment_status,activation_status,payment_reference,bid_wallet_credit,submitted_at,verified_at,package:packages(name)').eq('member_id',memberId).order('submitted_at',{ascending:false}).order('id',{ascending:false}).range(from,to),'submitted_at'),
+   fetchAllPages<AuctionBid>((from,to)=>client.from('bids').select('id,bid_amount,status,created_at,auction:auctions(title,status,starts_at,ends_at)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),'created_at'),
+   fetchAllPages<FixedBidRow>((from,to)=>client.from('fixed_bids').select('id,bid_amount,status,created_at,campaign:fixed_bid_campaigns(title,status)').eq('member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),'created_at'),
+   fetchAllPages<CommissionRow>((from,to)=>client.from('referral_commissions').select('id,level_number,amount,status,created_at').eq('credited_main_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),'created_at'),
+   fetchAllPages<WinningPayment>((from,to)=>client.from('winning_item_payments').select('id,amount,status,paid_at,created_at,auction:auctions(title),campaign:fixed_bid_campaigns(title)').eq('winner_member_id',memberId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,to),'created_at'),
+   fetchAllWithdrawalPages(cursor=>client.rpc('member_list_my_withdrawals_page',{p_limit:50,p_before_requested_at:cursor?.requested_at??null,p_before_id:cursor?.request_id??null}))
   ]);
   const allDeliveries:DeliveryRow[]=[];
   for(let index=0;index<allWinningPayments.length;index+=500){
    const paymentIds=allWinningPayments.slice(index,index+500).map(row=>row.id);
-   const batch=await fetchAllPages<DeliveryRow>((from,to)=>client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,to));
+   const batch=await fetchAllPages<DeliveryRow>((from,to)=>client.from('delivery_tracking').select('id,winning_item_payment_id,carrier,tracking_number,status,shipped_at,delivered_at,updated_at').in('winning_item_payment_id',paymentIds).order('updated_at',{ascending:false}).order('id',{ascending:false}).range(from,to),'updated_at');
    allDeliveries.push(...batch);
   }
   const rows:string[][]=[['Record Type','Date','Reference','Amount','Currency','Status','Details']];
@@ -255,7 +273,7 @@ async function saveProfile(e:{preventDefault:()=>void}){e.preventDefault();if(!s
   allBids.forEach(x=>rows.push(['Auction bid',x.created_at,x.auction?.title||x.id,String(x.bid_amount),'INR',x.status,'Auction status: '+(x.auction?.status||'Unavailable')]));
   allFixedBids.forEach(x=>rows.push(['Fixed Bid entry',x.created_at,x.campaign?.title||x.id,String(x.bid_amount),'INR',x.status,'Campaign status: '+(x.campaign?.status||'Unavailable')]));
   allCommissions.forEach(x=>rows.push(['Referral commission',x.created_at,'Level '+x.level_number,String(x.amount),'INR',x.status,x.id]));
-  withdrawals.forEach(x=>rows.push(['Withdrawal request',x.requested_at,x.request_id,String(x.amount),x.currency||'INR',x.status,x.rejection_reason||'']));
+  allWithdrawals.forEach(x=>rows.push(['Withdrawal request',x.requested_at,x.request_id,String(x.amount),x.currency||'INR',x.status,x.rejection_reason||'']));
   allWinningPayments.forEach(x=>rows.push(['Winning payment',x.created_at,x.auction?.title||x.campaign?.title||x.id,String(x.amount),'INR',x.status,x.paid_at||'Not paid']));
   allDeliveries.forEach(x=>rows.push(['Delivery',x.updated_at,x.tracking_number||x.winning_item_payment_id,'','',x.status,(x.carrier||'Courier not set')+' · '+(x.delivered_at?'Delivered':x.shipped_at?'Shipped':'Not shipped')]));
   const csv=csvDocument(rows);const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
