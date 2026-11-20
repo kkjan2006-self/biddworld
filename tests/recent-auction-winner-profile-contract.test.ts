@@ -12,7 +12,8 @@ describe('Recent auction winner public projection contract',()=>{
  it('uses the canonical member ownership column from the schema baseline',()=>{
   expect(baseline).toContain('create table public.member_ids');
   expect(baseline).toContain('owner_user_id uuid not null');
-  expect(baseline).not.toMatch(/create table public\.member_ids\s*\([\s\S]*?\buser_id\b/);
+  const memberIdsDefinition=baseline.match(/create table public\.member_ids\s*\(([\s\S]*?)\);/)?.[1]??'';
+  expect(memberIdsDefinition).not.toMatch(/\buser_id\b/);
   expect(repair).toContain('pr.id=m.owner_user_id');
   expect(repair).not.toContain('m.user_id');
  });
