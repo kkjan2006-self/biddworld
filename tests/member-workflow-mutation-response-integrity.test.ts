@@ -55,4 +55,15 @@ describe('Member and staff workflow mutation response integrity',()=>{
   expect(fundingSql).toContain("'request_id',v_request.id,'status','pending'");
   expect(fundingSql).toContain("'status','approved','wallet_type','income','balance_after',v_balance");
  });
+ it('uses Income Wallet terminology for all member-facing withdrawal, top-up and wallet balance surfaces',()=>{
+  expect(account).toContain("type==='bid'?'Bid Wallet':'Income Wallet'");
+  expect(account).toContain('Submit a request from your Income Wallet.');
+  expect(account).toContain('Pay from Income Wallet');
+  expect(funding).toContain('Add Money to Income Wallet');
+  expect(funding).toContain('Your Income Wallet will be credited');
+  expect(read('src/components/WalletHistory.tsx')).toContain('<option value="income">Income Wallet</option>');
+  expect(read('src/components/AdminWalletFundingReview.tsx')).toContain('Income Wallet');
+  expect(read('src/components/Admin.tsx')).toContain("label:'Income Wallet'");
+ });
+
 });
