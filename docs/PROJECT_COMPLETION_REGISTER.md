@@ -1,3 +1,14 @@
+## 2026-11-20 — Admin workflow mutation response validation
+
+- Added client-side response validation for five Admin mutations that previously treated an error-free RPC call as success without checking its JSON result: withdrawal review, Primary Admin role management, member profile editing, package publication and referral-plan activation.
+- Each response is now checked against the exact submitted record/action and its required result fields before local success messaging, local profile mutation or workspace refresh.
+- Corrected withdrawal review UI terminology from “Main Wallet” to “Income Wallet”; the SQL workflow reserves/release funds only from the Income Wallet.
+- Added `tests/admin-mutation-response-integrity.test.ts` with static UI/SQL contract assertions; not executed.
+- Commits: `85bae1ab125e7beb912b1e77086ea8d540253cef`, `450afd35be20f35946adae8b81ca3a0e1bbf8eb1`.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Admin wallet adjustment idempotent replay response
 
 - Fixed a real retry contract gap in `admin_adjust_member_wallet`: the previous idempotent replay response omitted member, wallet, direction, amount and balance fields, while the UI fell back to a zero balance and cleared the idempotency key without validating the response.
