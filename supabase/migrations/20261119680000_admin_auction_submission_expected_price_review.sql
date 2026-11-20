@@ -11,7 +11,7 @@ begin
  ) then
   alter table public.auction_submissions
    add constraint auction_submission_expected_price_check
-   check(expected_price is null or expected_price>=starting_price);
+   check(expected_price is null or expected_price>=starting_price) not valid;
  end if;
  if not exists(
   select 1 from pg_catalog.pg_constraint
@@ -20,7 +20,7 @@ begin
  ) then
   alter table public.auction_submissions
    add constraint auction_submission_pending_expected_price_required
-   check(status<>'pending' or expected_price is not null);
+   check(status<>'pending' or expected_price is not null) not valid;
  end if;
 end;
 $constraint$;

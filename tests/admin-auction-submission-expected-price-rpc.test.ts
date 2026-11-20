@@ -20,6 +20,8 @@ describe('Admin auction submission Expected Price RPC contract',()=>{
  });
  it('requires a valid Expected Price and keeps the auction open until the target lifecycle closes it',()=>{
   expect(migration).toContain('p_expected_price is null or p_expected_price<p_starting_price');
+  expect(migration).toContain('check(expected_price is null or expected_price>=starting_price) not valid');
+  expect(migration).toContain("check(status<>'pending' or expected_price is not null) not valid");
   expect(migration).toContain('expected_price,target_reached_at,status');
   expect(migration).toContain('p_expected_price,null,v_status');
   expect(migration).toContain('ends_at=null');
