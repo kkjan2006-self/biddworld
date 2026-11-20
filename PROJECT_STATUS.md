@@ -1726,4 +1726,4 @@ At every development batch/chat end, update this file with the actual verified b
 - Extended the restricted public catalogue RPC projection to return the approved product image gallery and product details, plus a percentage-only campaign capacity indicator. The response does not expose raw entry or participant counts. Existing secure member entry RPC and feature controls remain unchanged.
 - Added source migration `20261120100000_public_fixed_bid_card_details_and_progress.sql` to the clean-install forward manifest. Source-only: no migration was applied and no tests/build/browser QA were run.
 
-- Commit for this batch: pending.
+- Commit: `85b91cca4c8bec981204bf65f800dc5fdf1d2282`.
