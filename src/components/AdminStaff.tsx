@@ -83,7 +83,7 @@ export default function AdminStaff(){
 
  return <main className="adminDashboard" style={{padding:'18px 12px',maxWidth:1000,margin:'0 auto'}}>
   <header style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
-   <ShieldCheck/><div><h2>Payment Review Staff</h2><p>Restricted access · Package Payments, Main Wallet Add Money and Auction Listing Reviews</p></div>
+   <ShieldCheck/><div><h2>Payment Review Staff</h2><p>Restricted access · Package Payments, Income Wallet Add Money and Auction Listing Reviews</p></div>
    {permissions.includes('package_activation_review')&&<button className="outline small" onClick={()=>void load()} disabled={queueLoading}><RefreshCw size={14}/> Refresh</button>}
   </header>
   {!accessReady?<div className="empty">Checking your assigned review permissions…</div>:accessError?<div className="notice" role="alert">Staff access could not be verified: {accessError} <button type="button" className="outline small" onClick={()=>setAccessAttempt(value=>value+1)}>Retry access check</button></div>:permissions.length===0?<div className="empty">No review permissions are assigned to this Staff account. Contact the Primary Admin.</div>:null}
