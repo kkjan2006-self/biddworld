@@ -22,7 +22,7 @@ describe('member auction submission editing contract',()=>{
  it('restricts persisted cleanup retries and displayed image paths to generated UUID-owned objects',()=>{
   expect(ui).toContain('function validOwnedImagePath(value:unknown)');
   expect(ui).toContain('row.image_paths.every(validOwnedImagePath)');
-  expect(ui).toContain('validOwnedImagePath(path)&&path.startsWith(data.user.id+\'/\')');
+  expect(ui).toContain('validOwnedImagePath(path,data.user.id)');
   expect(ui).toContain('cleanupInFlight.current');
  });
  it('resets edited submissions to pending review and audits the change',()=>{
