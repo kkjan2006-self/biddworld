@@ -20,7 +20,7 @@ describe('member auction submission editing contract',()=>{
   expect(ui).toContain('The outcome may already be recorded; refresh your submission history before retrying.');
  });
  it('restricts persisted cleanup retries and displayed image paths to generated UUID-owned objects',()=>{
-  expect(ui).toContain('function validOwnedImagePath(value:unknown)');
+  expect(ui).toContain('function validOwnedImagePath(value:unknown,ownerId?:string)');
   expect(ui).toContain('row.image_paths.every(validOwnedImagePath)');
   expect(ui).toContain('validOwnedImagePath(path,data.user.id)');
   expect(ui).toContain('cleanupInFlight.current');
