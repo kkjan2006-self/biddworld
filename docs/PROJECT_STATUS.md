@@ -9,7 +9,7 @@ Active development branch: `completion-work`
 - Source-only development is in progress. Do not run tests, builds, type-checks, E2E, browser QA, deployment, or database replay until the owner declares development 100% complete.
 - Production Supabase project `hbqatszyzqobgtauyuzy` remains read-only. TEST project `yoaauthwejdgaevfvwpo` remains unused.
 - No preview deployments. All SQL changes remain forward migration source only; none are applied to a database.
-- Clean-install source inventory: **154 forward + 16 excluded historical = 170 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
+- Clean-install source inventory: **155 forward + 16 excluded historical = 171 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
 - Source-only regression tests may be added but must remain unexecuted.
 
 ## Latest source-only batch — withdrawal cancellation notification parity (2026-11-20)
@@ -27,6 +27,13 @@ Admin notification submission and recipient lookup now count Unicode code points
 - The Admin client now requires the exact commission UUID for fresh and replayed reversal results. The original SQL replay path for an already-reversed pending commission without wallet credit omitted commission_id; added a forward-only replacement returning the exact selected ID.
 - Registered migration candidate #154 and extended source-only assertions for Referral and Matrix replay identity. Not executed. No database replay, tests/build/type-check/E2E/browser QA or deployment.
 - Inventory: 154 forward + 16 excluded = 170 timestamped paths, plus 3 legacy/unversioned SQL files.
+
+## Latest source-only batch — canonical Admin notification recipient identity (2026-11-20)
+
+- The baseline permits multiple historical Main ID rows per owner; `profiles.main_member_id` identifies the canonical account Main ID. The Admin recipient lookup previously returned every Main ID joined to the same profile, creating duplicate account options.
+- Added a forward migration to join only the profile-linked Main ID with matching owner and `id_type='main'`. Client response validation now rejects duplicate user UUIDs/Main ID codes while preserving PostgreSQL Unicode character-count validation.
+- Added `tests/admin-notification-recipient-canonical-main.test.ts`; not executed. Registered migration candidate #155. No database replay, tests, build, type-check, E2E, browser QA or deployment.
+- Inventory: 155 forward + 16 excluded = 171 timestamped paths, plus 3 legacy/unversioned SQL files.
 
 ## Latest development batch
 ## Latest source-only batch — notification response contract hardening (2026-11-20)

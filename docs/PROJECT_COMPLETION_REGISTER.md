@@ -1,3 +1,11 @@
+## 2026-11-20 — Admin notification recipient canonical Main ID
+
+- The baseline permits multiple Main ID rows per owner; `profiles.main_member_id` identifies the canonical Main ID. The recipient lookup previously joined all Main ID rows to a profile and could show duplicate account options with the same Auth UUID.
+- Added `20261120270000_canonical_admin_notification_recipient_lookup.sql` to join only the profile-linked Main ID with matching owner and type. The client rejects duplicate user UUIDs/Main ID codes.
+- Added source-only coverage in `tests/admin-notification-recipient-canonical-main.test.ts`; not executed. Registered forward candidate #155. No database replay or runtime verification.
+
+---
+
 ## 2026-11-20 — Sponsor Referral reversal replay identity
 
 - The existing Admin client accepted an idempotent replay response with no commission UUID, while the successful fresh response returned one. This left the replay contract weaker than the Matrix reversal contract and allowed a status-only response to be treated as success.
