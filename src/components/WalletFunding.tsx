@@ -48,8 +48,9 @@ export default function WalletFunding(){
    const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again.');receiptOwnerId=user.id;
    const safe=receipt.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').slice(-80)||'receipt';
    const path=user.id+'/wallet-funding/'+crypto.randomUUID()+'-'+safe;
+   uploadedReceiptPath=path;
    const{error:uploadError}=await supabase.storage.from('wallet-funding-receipts').upload(path,receipt,{contentType:receipt.type,upsert:false});
-   if(uploadError)throw uploadError;uploadedReceiptPath=path;
+   if(uploadError)throw uploadError;
    rpcAttempted=true;const{data,error}=await supabase.rpc('member_submit_wallet_fund_request',{p_amount:value,p_payment_reference:reference,p_receipt_path:path});
    if(error){rpcDefinitelyRejected=typeof (error as {code?:unknown}).code==='string';throw error;}
    const result=data as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||typeof result.request_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.request_id)||result.status!=='pending')throw new Error('The server returned an invalid Add Money request result. The uploaded receipt is preserved; refresh your history before retrying.');
@@ -57,7 +58,7 @@ export default function WalletFunding(){
    const input=document.getElementById('wallet-funding-receipt') as HTMLInputElement|null;if(input)input.value='';
    setMessage('Request submitted. Your Income Wallet will be credited after Admin verifies the payment.');
    await load();
-  }catch(err){const message=(err instanceof Error?err.message:'Your request could not be submitted. Please retry.').replace(/Main Wallet/gi,'Income Wallet');if(uploadedReceiptPath&&rpcAttempted&&rpcDefinitelyRejected){let cleanupFailed=false;try{const{error:cleanupError}=await supabase.storage.from('wallet-funding-receipts').remove([uploadedReceiptPath]);cleanupFailed=!!cleanupError;}catch{cleanupFailed=true;}if(cleanupFailed){const queued=!!receiptOwnerId&&persistWalletReceiptCleanupPath(receiptOwnerId,uploadedReceiptPath);if(queued)setCleanupCount(readWalletReceiptCleanupQueue(receiptOwnerId!).length);setMessage(queued?message+' The orphaned receipt was saved in a private retry queue. Use Retry receipt cleanup or revisit Add Money.':message+' Receipt cleanup could not be queued; please contact support.');}else setMessage(message);}else setMessage(message);}
+  }catch(err){const message=(err instanceof Error?err.message:'Your request could not be submitted. Please retry.').replace(/Main Wallet/gi,'Income Wallet');if(uploadedReceiptPath&&(!rpcAttempted||rpcDefinitelyRejected)){let cleanupFailed=false;try{const{error:cleanupError}=await supabase.storage.from('wallet-funding-receipts').remove([uploadedReceiptPath]);cleanupFailed=!!cleanupError;}catch{cleanupFailed=true;}if(cleanupFailed){const queued=!!receiptOwnerId&&persistWalletReceiptCleanupPath(receiptOwnerId,uploadedReceiptPath);if(queued)setCleanupCount(readWalletReceiptCleanupQueue(receiptOwnerId!).length);setMessage(queued?message+' The orphaned receipt was saved in a private retry queue. Use Retry receipt cleanup or revisit Add Money.':message+' Receipt cleanup could not be queued; please contact support.');}else setMessage(message);}else setMessage(message);}
   finally{inFlight.current=false;setBusy(false);}
  }
  return <section className="walletFunding">
