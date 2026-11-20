@@ -13,6 +13,14 @@ describe('Packages catalogue request lifecycle', () => {
     expect(source).toContain('requestIdRef.current += 1');
   });
 
+  it('validates the public package catalogue response before rendering it',()=>{
+    expect(source).toContain('function parsePackageCatalogue(value:unknown)');
+    expect(source).toContain('value.length>100');
+    expect(source).toContain('ids.has(row.id)');
+    expect(source).toContain('setItems(parsePackageCatalogue(data))');
+    expect(source).toContain('Package catalogue contains invalid or duplicate package fields.');
+  });
+
   it('releases loading state only for the current mounted request', () => {
     expect(source).toContain('if (isCurrent()) setLoading(false)');
     expect(source).toContain("setError('Packages could not be loaded. Please try again later.')");
