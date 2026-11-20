@@ -13,6 +13,11 @@ Active development branch: `completion-work`
 - Source-only regression tests may be added but must remain unexecuted.
 
 ## Latest development batch
+## Latest source-only batch — Admin withdrawal lifecycle visibility (2026-11-20)
+
+- The Admin Withdrawal Management summary previously showed only total loaded requests and Pending review. It now separately counts Approved (reserved), Paid, Rejected and Cancelled rows as well, so all five persisted lifecycle states are visible without changing queue filtering, pagination or review behavior.
+- Terminal Rejected, Paid and Cancelled rows remain read-only; only Pending and Approved requests retain the existing review controls. Added source-only assertions for all lifecycle counts and terminal-state action gating in tests/admin-withdrawal-pagination-hardening.test.ts; not executed. No SQL migration or database change.
+
 
 Restricted Staff Support ticket review was added end-to-end:
 - Primary Admin can independently assign `support_ticket_review` through the existing Staff permission editor.

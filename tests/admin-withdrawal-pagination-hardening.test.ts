@@ -15,6 +15,14 @@ describe('Admin withdrawal queue pagination hardening',()=>{
   expect(component).toContain('p_offset:offset');
   expect(component).toContain('if(generation===withdrawalPageGeneration.current)');
  });
+ it('summarizes every persisted withdrawal lifecycle state in the loaded Admin queue',()=>{
+  expect(component).toContain("withdrawalRequests.filter(r=>r.status==='pending').length");
+  expect(component).toContain("withdrawalRequests.filter(r=>r.status==='approved').length");
+  expect(component).toContain("withdrawalRequests.filter(r=>r.status==='paid').length");
+  expect(component).toContain("withdrawalRequests.filter(r=>r.status==='rejected').length");
+  expect(component).toContain("withdrawalRequests.filter(r=>r.status==='cancelled').length");
+  expect(component).toContain("(r.status==='pending'||r.status==='approved')&&<div");
+ });
  it('preserves the existing withdrawal review actions and paged export contract',()=>{
   expect(component).toContain("admin_review_withdrawal_request");
   expect(component).toContain("admin_list_withdrawal_requests");

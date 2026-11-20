@@ -1,3 +1,10 @@
+## Latest source-only batch — Admin withdrawal lifecycle visibility (2026-11-20)
+
+- The Admin Withdrawal Management summary previously showed only total loaded requests and Pending review. It now separately counts Approved (reserved), Paid, Rejected and Cancelled rows as well, so all five persisted lifecycle states are visible without changing queue filtering, pagination or review behavior.
+- Terminal Rejected, Paid and Cancelled rows remain read-only; only Pending and Approved requests retain the existing review controls. Added source-only assertions for all lifecycle counts and terminal-state action gating in tests/admin-withdrawal-pagination-hardening.test.ts; not executed. No SQL migration or database change.
+
+---
+
 ## 2026-11-20 — Withdrawal lifecycle status contract reconciliation
 
 - Static source comparison found that `withdrawal_requests_status_check` in the canonical clean-install baseline permits `pending`, `approved`, `rejected`, `paid` and `cancelled`, and `admin_list_withdrawal_requests` returns all statuses. The member and Admin UI parsers previously accepted only the first four, so a valid cancelled row could invalidate the entire page and prevent history/queue loading.
