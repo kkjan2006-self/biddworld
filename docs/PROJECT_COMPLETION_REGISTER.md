@@ -3331,3 +3331,8 @@ The restricted Staff package-activation queue now rejects a continuation page wh
 ## Admin Income Wallet funding continuation cursor boundary (source-only, 2026-11-20)
 
 Admin wallet funding pagination now validates the first row of each continuation page against the prior cursor in ascending `(created_at,id)` order, rejecting overlap/regression even when returned IDs are not duplicated. Existing within-page ordering, final-row cursor equality, duplicate detection, bounded pages and request sequencing remain intact. Source-only regression assertions added; not executed. No database or SQL change.
+
+
+## Admin auction moderation cursor-boundary validation (source-only, 2026-11-20)
+
+The Admin auction submission queue now validates strict ascending continuation boundaries, full-page cursor equality and absence of terminal cursors. This supplements existing row validation, duplicate/overlap detection and request sequencing. Regression assertions added to the source-only test file; not executed. No database operation or migration was required.

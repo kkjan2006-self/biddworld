@@ -201,3 +201,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Hardened the Admin Income Wallet funding review queue so every continuation page must begin strictly after the previous page's final ascending `(created_at,id)` cursor. A page with unseen IDs but overlapping or regressing timestamp/ID range is now rejected before rows, receipt links or cursor state are appended.
 - Added source-only regression assertions in `tests/admin-wallet-funding-page-contract.test.ts`; not executed. No SQL migration or database operation was required.
+
+
+## Latest Admin auction submission pagination boundary integrity
+
+- Hardened the Admin auction moderation queue: continuation pages must start strictly after the previous `(created_at,id)` cursor; full pages must contain exactly 50 records and the returned cursor must match the final row; terminal pages must not return cursor values. Malformed pagination responses are rejected before image signing or queue updates.
+- Added source-only regression assertions in `tests/admin-auction-submission-page-runtime-contract.test.ts`; not executed. No SQL or database change.

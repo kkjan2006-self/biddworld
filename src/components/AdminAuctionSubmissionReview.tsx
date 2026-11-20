@@ -36,8 +36,12 @@ export default function AdminAuctionSubmissionReview(){
    const{data,error}=await supabase.rpc('admin_list_auction_submissions_page',{p_limit:50,p_after_created_at:after?.created_at??null,p_after_id:after?.id??null});
    if(error)throw error;
    if(!data||typeof data!=='object'||!Array.isArray(data.items)||typeof data.has_more!=='boolean')throw new Error('The auction review page response was invalid.');
-   if(data.has_more&&(!data.next_created_at||!Number.isFinite(Date.parse(data.next_created_at))||typeof data.next_id!=='string'||!data.next_id.trim()))throw new Error('The auction review cursor was incomplete.');
-   const list=data.items as unknown[];if(list.length>50||!list.every(validRow))throw new Error('The auction review page contains malformed submissions.');const ids=new Set<string>(),existing=new Set(reset?[]:rows.map(row=>row.id));
+   if(data.has_more&&(!data.next_created_at||!Number.isFinite(Date.parse(data.next_created_at))||typeof data.next_id!=='string'||!validUuid(data.next_id)))throw new Error('The auction review cursor was incomplete.');
+   if(!data.has_more&&(data.next_created_at!==null||data.next_id!==null))throw new Error('The final auction review page unexpectedly included a continuation cursor.');
+   const list=data.items as unknown[];if(list.length>50||!list.every(validRow))throw new Error('The auction review page contains malformed submissions.');
+   if(data.has_more&&(list.length!==50||list[list.length-1].created_at!==data.next_created_at||list[list.length-1].id!==data.next_id))throw new Error('The auction review cursor does not match the final record on this page.');
+   if(after&&list.length){const first=list[0] as Row;if(Date.parse(first.created_at)<Date.parse(after.created_at)||(first.created_at===after.created_at&&first.id.localeCompare(after.id)<=0))throw new Error('The next auction review page did not continue strictly after the previous cursor. Refresh the queue.');}
+   const ids=new Set<string>(),existing=new Set(reset?[]:rows.map(row=>row.id));
    for(const item of list){if(ids.has(item.id)||existing.has(item.id))throw new Error('The auction review page contains duplicate or overlapping submissions.');ids.add(item.id);}
    const next:Record<string,string[]>={},failures:Record<string,string>={};
    await Promise.all(list.map(async r=>{const signed=await Promise.all(r.image_paths.map(async path=>{const{data:signedData,error:signedError}=await supabase!.storage.from('auction-submission-media').createSignedUrl(path,300);if(signedError||!signedData?.signedUrl){failures[r.id]=signedError?.message||'One or more submitted images could not be opened.';return null;}return signedData.signedUrl;}));next[r.id]=signed.filter((url):url is string=>Boolean(url));}));
