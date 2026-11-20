@@ -76,7 +76,7 @@ export default function AdminStaff(){
   if(approve&&!urls[id]){setMessage('Open and verify the payment receipt before approving this activation.');return;}
   if(!window.confirm(approve?'Approve this verified package payment and activate the package?':'Reject this package payment?'))return;
   reviewInFlight.current=true;setBusy(id);setMessage('');
-  try{const{error}=await supabase.rpc('admin_review_package_activation',{p_activation_id:id,p_approve:approve});if(error)throw error;setMessage(approve?'Package payment approved. Package activation and Bid Wallet credit completed.':'Package payment rejected. No wallet credit was issued.');await load();}
+  try{const{data,error}=await supabase.rpc('admin_review_package_activation',{p_activation_id:id,p_approve:approve});if(error)throw error;const result=data as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||result.status!==(approve?'approved':'rejected')||(approve&&(typeof result.bid_wallet_credit!=='number'||!Number.isFinite(result.bid_wallet_credit)||result.bid_wallet_credit<0||typeof result.wallet_balance!=='number'||!Number.isFinite(result.wallet_balance)||result.wallet_balance<0)))throw new Error('The server returned a package activation result that does not match this review action. Refresh the activation queue before retrying.');setMessage(approve?'Package payment approved. Package activation and Bid Wallet credit completed.':'Package payment rejected. No wallet credit was issued.');await load();}
   catch(e){setMessage(e instanceof Error?e.message:'The package payment could not be reviewed.');}
   finally{reviewInFlight.current=false;setBusy('');}
  }
