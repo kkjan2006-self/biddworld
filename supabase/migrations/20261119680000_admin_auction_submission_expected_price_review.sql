@@ -56,7 +56,7 @@ declare
  v_product uuid;
  v_auction uuid;
  v_path text;
- v_status text;
+ v_status public.auction_status;
 begin
  if v_uid is null or not(
   v_role='admin'
@@ -120,7 +120,7 @@ begin
  )
  returning id into v_product;
 
- v_status:=case when p_starts_at<=now() then 'live' else 'scheduled' end;
+ v_status:=case when p_starts_at<=now() then 'live'::public.auction_status else 'scheduled'::public.auction_status end;
  insert into public.auctions(
   product_id,title,description,image_url,category,currency,
   starting_price,current_price,minimum_increment,starts_at,ends_at,
@@ -138,7 +138,7 @@ begin
  set status='approved',
      review_note=nullif(btrim(coalesce(p_review_note,'')),''),
      reviewed_by=v_uid,reviewed_at=now(),updated_at=now(),
-     auction_id=v_auction,product_id=v_product,
+     auction_id=v_auction,
      title=btrim(p_title),description=btrim(p_description),
      category=nullif(btrim(coalesce(p_category,'')),''),
      image_paths=p_image_paths,

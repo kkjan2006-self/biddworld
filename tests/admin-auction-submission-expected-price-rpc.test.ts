@@ -4,13 +4,16 @@ import {describe,expect,it} from 'vitest';
 const migration=readFileSync('supabase/migrations/20261119680000_admin_auction_submission_expected_price_review.sql','utf8');
 const admin=readFileSync('src/components/AdminAuctionSubmissionReview.tsx','utf8');
 const member=readFileSync('src/components/MemberPlaceAuction.tsx','utf8');
+const lifecycle=readFileSync('supabase/migrations/20261119150000_expected_price_48_hour_auction_lifecycle.sql','utf8');
 
 describe('Admin auction submission Expected Price RPC contract',()=>{
  it('replaces the removed fixed-end-time RPC with the exact current frontend signature',()=>{
   expect(migration).toContain('p_expected_price numeric');
   expect(migration).toContain('p_optional_details jsonb');
   expect(migration).toContain('drop function if exists public.admin_review_auction_submission');
-  expect(migration).toContain('admin_review_auction_submission(uuid,text,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text)');
+  expect(migration.replace(/\\s+/g,'')).toContain('admin_review_auction_submission(uuid,text,text,text,text,text[],numeric,numeric,numeric,timestamptz,jsonb,text)');
+  expect(lifecycle).toContain('p_starting_price numeric,p_expected_price numeric,p_minimum_increment numeric');
+  expect(lifecycle).toContain('insert into public.auction_submissions');
   expect(admin).toContain('p_expected_price:expected');
   expect(admin).toContain('p_starts_at:startsAt');
   expect(admin).not.toContain('p_ends_at:');
