@@ -76,4 +76,12 @@ describe('Member and staff workflow mutation response integrity',()=>{
   expect(paymentMigration).toContain('Auction winners receive the item only; no separate winner payment is required');
  });
 
+ it('validates Add Money history page size, cursor order and cross-page ownership',()=>{
+  expect(funding).toContain('function validateWalletFundingHistoryPage(value:unknown,previous:RequestRow[]=[]):RequestRow[]');
+  expect(funding).toContain('page[0]?.has_more&&page.length!==PAGE_SIZE');
+  expect(funding).toContain('prior.id.localeCompare(row.id)<=0');
+  expect(funding).toContain('validateWalletFundingHistoryPage(data,reset?[]:rows)');
+  expect(funding).toContain('FUND_REQUEST_UUID.test(row.id)');
+  expect(funding).toContain("['pending','approved','rejected'].includes(row.status)");
+ });
 });

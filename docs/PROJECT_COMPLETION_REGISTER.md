@@ -1,3 +1,10 @@
+## 2026-11-20 — Member Income Wallet Add Money history pagination integrity
+
+- Reconciled `WalletFunding` with the SQL descending keyset query. Initial and continuation pages now share strict UUID, amount, currency, payment-reference, status, review-note and timestamp validation, consistent continuation metadata, full 50-row continuation pages, strict descending `(created_at,id)` order and cross-page duplicate checks.
+- Added source-only regression coverage; not executed. No schema change or migration required.
+
+---
+
 ## 2026-11-20 — Member withdrawal history pagination integrity
 
 - Reconciled Account UI pagination with `member_list_my_withdrawals_page`: initial and continuation pages now validate strict row shape, allowed lifecycle statuses, parsed timestamps, payout-method-only projection, consistent `has_more`, full continuation pages and strict descending `(requested_at,id)` order across page boundaries.

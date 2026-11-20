@@ -5,7 +5,34 @@ import {supabase} from '../lib/supabase';
 import {money} from '../lib/format';
 type RequestRow={id:string;amount:number;currency:string;payment_reference:string;status:string;review_note:string|null;created_at:string;reviewed_at:string|null;has_more:boolean};
 const PAGE_SIZE=50;
-function validRequest(value:unknown):value is RequestRow{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;return typeof row.id==='string'&&row.id.trim().length>0&&typeof row.amount==='number'&&Number.isFinite(row.amount)&&row.amount>0&&typeof row.currency==='string'&&/^[A-Z]{3}$/.test(row.currency)&&typeof row.payment_reference==='string'&&row.payment_reference.trim().length>=6&&typeof row.status==='string'&&['pending','approved','rejected'].includes(row.status)&&(row.review_note===null||typeof row.review_note==='string')&&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))&&(row.reviewed_at===null||(typeof row.reviewed_at==='string'&&Number.isFinite(Date.parse(row.reviewed_at))))&&typeof row.has_more==='boolean';}
+const FUND_REQUEST_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function validRequest(value:unknown):value is RequestRow{
+ if(!value||typeof value!=='object'||Array.isArray(value))return false;
+ const row=value as Record<string,unknown>;
+ return typeof row.id==='string'&&FUND_REQUEST_UUID.test(row.id)
+  &&typeof row.amount==='number'&&Number.isFinite(row.amount)&&row.amount>0&&row.amount<=10000000
+  &&typeof row.currency==='string'&&/^[A-Z]{3}$/.test(row.currency)
+  &&typeof row.payment_reference==='string'&&/^[A-Za-z0-9./_-]{6,80}$/.test(row.payment_reference)
+  &&typeof row.status==='string'&&['pending','approved','rejected'].includes(row.status)
+  &&(row.review_note===null||(typeof row.review_note==='string'&&row.review_note.length<=500))
+  &&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))
+  &&(row.reviewed_at===null||(typeof row.reviewed_at==='string'&&Number.isFinite(Date.parse(row.reviewed_at))))
+  &&typeof row.has_more==='boolean;
+}
+function validateWalletFundingHistoryPage(value:unknown,previous:RequestRow[]=[]):RequestRow[]{
+ if(!Array.isArray(value)||value.length>PAGE_SIZE||!value.every(validRequest))throw new Error('The Add Money history returned an invalid page.');
+ const page=value as RequestRow[];
+ if(page.some(row=>row.has_more!==page[0]?.has_more))throw new Error('The Add Money history returned inconsistent pagination metadata. Refresh the list.');
+ if(page[0]?.has_more&&page.length!==PAGE_SIZE)throw new Error('The Add Money history returned a short page with a continuation cursor. Refresh the list.');
+ const seen=new Set(previous.map(row=>row.id));
+ for(let index=0;index<page.length;index++){
+  const row=page[index],prior=index?page[index-1]:previous[previous.length-1];
+  if(seen.has(row.id))throw new Error('The Add Money history returned duplicate or overlapping requests. Refresh the list.');
+  seen.add(row.id);
+  if(prior){const delta=Date.parse(prior.created_at)-Date.parse(row.created_at);if(delta<0||(delta===0&&prior.id.localeCompare(row.id)<=0))throw new Error('The Add Money history is not in strict descending (created_at,id) order. Refresh the list.');}
+ }
+ return page;
+}
 const WALLET_RECEIPT_CLEANUP_LIMIT=20;
 function validWalletReceiptCleanupPath(value:unknown,userId:string):value is string{
  if(typeof value!=='string'||value.length>300||!value.startsWith(userId+'/wallet-funding/'))return false;
@@ -34,7 +61,7 @@ export default function WalletFunding(){
   catch(e){setCleanupCount(readWalletReceiptCleanupQueue(ownerId).length);setMessage('Some uploaded Add Money receipts still need cleanup: '+(e instanceof Error?e.message:'Storage cleanup failed. Please retry.'));}
   finally{cleanupInFlight.current=false;setCleanupBusy(false);}
  }
- async function load(reset=true){if(reset)pageBusy.current=false;if(!supabase||!userId){setRows([]);setHistoryHasMore(false);setHistoryLoading(false);setHistoryLoadingMore(false);return;}if(!reset&&pageBusy.current)return;if(!reset&&!rows.length)return;const seq=reset?++historyRequest.current:historyRequest.current;const cursor=reset?null:rows[rows.length-1];if(!reset&&!cursor)return;pageBusy.current=true;if(reset){setHistoryLoading(true);setRows([]);setHistoryHasMore(false);}else setHistoryLoadingMore(true);setHistoryError('');try{const{data,error}=await supabase.rpc('member_list_my_wallet_fund_requests_page',{p_limit:PAGE_SIZE,p_before_created_at:cursor?.created_at??null,p_before_id:cursor?.id??null});if(error)throw error;if(!Array.isArray(data)||data.length>PAGE_SIZE||!data.every(validRequest))throw new Error('The Add Money history returned an invalid page.');const page=data as RequestRow[];if(page.some(row=>row.has_more!==page[0]?.has_more))throw new Error('The Add Money history returned inconsistent pagination metadata. Refresh the list.');const known=new Set(reset?[]:rows.map(row=>row.id));for(const row of page){if(known.has(row.id))throw new Error('The Add Money history returned duplicate or overlapping requests. Refresh the list.');known.add(row.id);}if(seq===historyRequest.current){setRows(current=>reset?page:[...current,...page]);setHistoryHasMore(page.length===PAGE_SIZE&&page[page.length-1]?.has_more===true);}}catch(e){if(seq===historyRequest.current)setHistoryError(e instanceof Error?e.message:'Add Money requests could not be loaded. Please retry.');}finally{if(seq===historyRequest.current){pageBusy.current=false;setHistoryLoading(false);setHistoryLoadingMore(false);}}}
+ async function load(reset=true){if(reset)pageBusy.current=false;if(!supabase||!userId){setRows([]);setHistoryHasMore(false);setHistoryLoading(false);setHistoryLoadingMore(false);return;}if(!reset&&pageBusy.current)return;if(!reset&&!rows.length)return;const seq=reset?++historyRequest.current:historyRequest.current;const cursor=reset?null:rows[rows.length-1];if(!reset&&!cursor)return;pageBusy.current=true;if(reset){setHistoryLoading(true);setRows([]);setHistoryHasMore(false);}else setHistoryLoadingMore(true);setHistoryError('');try{const{data,error}=await supabase.rpc('member_list_my_wallet_fund_requests_page',{p_limit:PAGE_SIZE,p_before_created_at:cursor?.created_at??null,p_before_id:cursor?.id??null});if(error)throw error;const page=validateWalletFundingHistoryPage(data,reset?[]:rows);if(seq===historyRequest.current){setRows(current=>reset?page:[...current,...page]);setHistoryHasMore(page.length===PAGE_SIZE&&page[page.length-1]?.has_more===true);}}catch(e){if(seq===historyRequest.current)setHistoryError(e instanceof Error?e.message:'Add Money requests could not be loaded. Please retry.');}finally{if(seq===historyRequest.current){pageBusy.current=false;setHistoryLoading(false);setHistoryLoadingMore(false);}}}
  useEffect(()=>{setRows([]);setHistoryError('');setHistoryHasMore(false);setHistoryLoading(Boolean(userId));if(userId)void retryReceiptCleanup(userId);void load(true);return()=>{historyRequest.current++;};},[userId]);
  async function submit(e:FormEvent){
   e.preventDefault();if(!supabase||busy||inFlight.current)return;
