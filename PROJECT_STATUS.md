@@ -1627,3 +1627,15 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: migration `6a81d30a918ddd12b8a4ab669ebdaeff6dc920ab`; test `f4751eef26001bc680eba41a3e2b0310d02fe2b7`.
 - Migration inventory: **135 forward + 16 excluded = 151 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
 - No migrations applied, no data changes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Notification history and live-event integrity
+
+- Added a shared notification-page parser that rejects malformed records, empty identities/content, invalid timestamps, invalid read timestamps, duplicate IDs, invalid optional recipient fields, and pages larger than the supported 101-row fetch bound.
+- Applied validation to Admin/member initial and subsequent notification pages; overlapping IDs across keyset pages now stop pagination with a refresh message instead of silently dropping records.
+- Tightened Realtime notification event validation so malformed identity, title, category, read timestamp, or created timestamp payloads are ignored before state updates.
+- Added source regression coverage in `tests/notifications-response-integrity.test.ts`. Not executed.
+- Commits: UI `541f2707be11e6238aa5cdd02486d3e163eef634`; test `182d7fc8b75e42185d04a4676aae96b17b020873`.
+- Current branch head after this batch: `182d7fc8b75e42185d04a4676aae96b17b020873`. Migration inventory remains **135 forward + 16 excluded = 151 timestamped SQL files**; this UI-only batch adds no migration.
+- Development-only: no test/build/type-check/browser QA, no database migration or data writes, no Preview deployment, and no protected `main` changes.
+- Overall source development estimate: **95% provisional**; remaining source/RPC/RLS/Storage reconciliation and unclosed development gaps remain open.
