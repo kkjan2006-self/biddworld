@@ -51,7 +51,7 @@ export default function AdminAuctionSubmissionReview(){
  async function retryOrphanedMediaCleanup(){if(!supabase||!orphanedMedia.length||busy)return;const pending=[...orphanedMedia],failed:PendingMediaCleanup[]=[];setBusy('cleanup');setMessage('');for(const bucket of ['auction-submission-media','product-media'] as const){const paths=pending.filter(item=>item.bucket===bucket).map(item=>item.path);if(!paths.length)continue;try{const{error}=await supabase.storage.from(bucket).remove(paths);if(error)failed.push(...pending.filter(item=>item.bucket===bucket));}catch{failed.push(...pending.filter(item=>item.bucket===bucket));}}setOrphanedMedia(current=>[...current.filter(item=>!pending.some(done=>done.bucket===item.bucket&&done.path===item.path)),...failed].slice(0,100));setMessage(failed.length?'Some temporary auction images still need cleanup. Retry when Storage is available.':'Temporary auction image cleanup completed.');setBusy('');}
  function val(r:Row,key:keyof Row){return (edit[r.id]?.[key]??r[key]) as never}
  async function decide(r:Row,decision:'approve'|'reject'){
-  if(!supabase||reviewInFlight.current)return;
+  if(!supabase||reviewInFlight.current||busy)return;
   if(!window.confirm(decision==='approve'?'Approve and publish this auction with the edited details?':'Reject this auction submission?'))return;
   reviewInFlight.current=true;setBusy(r.id);setMessage('');
   const publishedPaths:string[]=[];let rpcAttempted=false;let rpcDefinitelyRejected=false;
