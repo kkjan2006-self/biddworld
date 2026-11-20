@@ -1,3 +1,13 @@
+## 2026-11-20 — Matrix plan mutation and directory integrity
+
+- Matrix plan directory parsing now rejects duplicate version numbers, multiple active versions for one package, and fixed reward values above the SQL contract maximum.
+- Matrix draft-save responses are checked against the submitted plan UUID, version, width, placement depth, commission depth and inactive state before success is reported.
+- Matrix activation responses are checked against the exact selected plan identity and dimensions before success is reported.
+- The package selector is locked during a plan mutation to prevent switching context while the selected package's save/activation is in flight.
+- Added source-only regression assertions in `tests/admin-matrix-plan-directory-integrity.test.ts`; not executed. No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Clean-install inventory documentation guard
 
 - Reconciled current source-tree inventory: 143 forward migrations, 16 excluded timestamped migrations and 3 legacy/unversioned SQL files (162 SQL files total; 159 timestamped paths).
