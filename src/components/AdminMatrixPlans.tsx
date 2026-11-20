@@ -17,7 +17,7 @@ function parseMatrixPlans(value:unknown,packageId:string):MatrixPlan[]{
   for(const rawLevel of row.levels){
    if(!rawLevel||typeof rawLevel!=='object'||Array.isArray(rawLevel))throw new Error('Matrix plan level is malformed.');
    const level=rawLevel as Record<string,unknown>;
-   if(!Number.isInteger(level.level)||Number(level.level)<1||Number(level.level)>Number(row.matrix_depth)||levels.has(Number(level.level))||typeof level.enabled!=='boolean'||!['fixed','percentage'].includes(String(level.reward_type))||!Number.isFinite(Number(level.reward_value))||Number(level.reward_value)<0||(level.reward_type==='percentage'&&Number(level.reward_value)>100)||!level.eligibility_rule||typeof level.eligibility_rule!=='object'||Array.isArray(level.eligibility_rule))throw new Error('Matrix plan level contains invalid fields.');
+   if(!Number.isInteger(level.level)||Number(level.level)<1||Number(level.level)>Number(row.matrix_depth)||levels.has(Number(level.level))||typeof level.enabled!=='boolean'||!['fixed','percentage'].includes(String(level.reward_type))||!Number.isFinite(Number(level.reward_value))||Number(level.reward_value)<0||(level.reward_type==='percentage'&&Number(level.reward_value)>100)||(level.reward_type==='fixed'&&Number(level.reward_value)>10000000)||!level.eligibility_rule||typeof level.eligibility_rule!=='object'||Array.isArray(level.eligibility_rule))throw new Error('Matrix plan level contains invalid fields.');
    levels.add(Number(level.level));
   }
   if(levels.size!==Number(row.matrix_depth))throw new Error('Matrix plan levels are incomplete.');
