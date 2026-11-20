@@ -3061,3 +3061,11 @@
 - UPDATE events remove an existing loaded row when it no longer matches the active category/unread filter instead of leaving stale filtered results. DELETE events validate the ID and reject an explicitly mismatched member recipient when the old row includes user ownership metadata; minimal DELETE payloads remain compatible with the already owner-validated member inbox.
 - Extended `tests/notifications-response-integrity.test.ts` with source-only assertions for full realtime validation and DELETE ownership. Not executed. No SQL migration or database operation was needed.
 - No tests, build, type-check, E2E, deployment, Production access or TEST access were performed. `main` was not modified.
+
+
+## 2026-11-20 — Support history, pagination and export owner integrity
+
+- Strengthened the shared Support ticket row validator to enforce database UUID identity types, authenticated member ownership, subject/message/admin-response length constraints, supported status values and valid chronological timestamps.
+- Initial member history and keyset continuation pages now validate every returned row against the authenticated user ID in addition to the existing owner-scoped query and RLS. Admin reads retain the separate Admin queue contract.
+- CSV export validates every page against the authenticated member ID before any export is generated; Admin export remains unfiltered by member while still validating all ticket fields. Malformed or cross-owner records fail closed.
+- Extended source-only regression coverage in `tests/support-pagination-integrity.test.ts` and `tests/member-support-inbox-owner-scope.test.ts`. Not executed. No SQL migration was required because the checks mirror the existing support table constraints. No database, TEST or Production access/writes, build, type-check, E2E or deployment.

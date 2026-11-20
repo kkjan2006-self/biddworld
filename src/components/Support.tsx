@@ -5,7 +5,7 @@ import {csvDocument} from '../lib/csv';
 
 type Ticket={id:string;user_id:string;subject:string;message:string;status:'open'|'in_progress'|'resolved'|'closed';admin_response:string|null;created_at:string;updated_at:string};
 const PAGE_SIZE=100;
-function validTicket(value:unknown):value is Ticket{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;return typeof row.id==='string'&&row.id.length>0&&typeof row.user_id==='string'&&row.user_id.length>0&&typeof row.subject==='string'&&typeof row.message==='string'&&['open','in_progress','resolved','closed'].includes(String(row.status))&&(row.admin_response===null||typeof row.admin_response==='string')&&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))&&typeof row.updated_at==='string'&&Number.isFinite(Date.parse(row.updated_at));}
+function validTicket(value:unknown,expectedUserId?:string):value is Ticket{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;return typeof row.id==='string'&&uuid.test(row.id)&&typeof row.user_id==='string'&&uuid.test(row.user_id)&&(!expectedUserId||row.user_id===expectedUserId)&&typeof row.subject==='string'&&row.subject.trim().length>=4&&row.subject.trim().length<=120&&typeof row.message==='string'&&row.message.trim().length>=10&&row.message.trim().length<=5000&&['open','in_progress','resolved','closed'].includes(String(row.status))&&(row.admin_response===null||(typeof row.admin_response==='string'&&row.admin_response.length<=5000))&&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))&&typeof row.updated_at==='string'&&Number.isFinite(Date.parse(row.updated_at))&&Date.parse(row.updated_at)>=Date.parse(row.created_at);}
 
 export default function Support({isAdmin=false}:{isAdmin?:boolean}){
  const requestSeq=useRef(0),loadMoreBusy=useRef(false),submitBusy=useRef(false),saveBusy=useRef(new Set<string>()),submitKey=useRef(''),submitKeyPayload=useRef('');
@@ -30,11 +30,11 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
   setBusy(true);setError('');
   try{
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
-   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
+   let expectedUserId:string|undefined;if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');expectedUserId=user.id;request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
    const {data,error:loadError}=await request.range(0,PAGE_SIZE);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
-   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(validTicket))throw new Error('The support queue returned malformed ticket records. Refresh and retry.');const page=rows.slice(0,PAGE_SIZE);const ids=new Set<string>();for(const row of page){if(ids.has(row.id))throw new Error('The support queue returned duplicate ticket IDs. Refresh and retry.');ids.add(row.id);}
+   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(row=>validTicket(row,expectedUserId)))throw new Error('The support queue returned malformed ticket records. Refresh and retry.');const page=rows.slice(0,PAGE_SIZE);const ids=new Set<string>();for(const row of page){if(ids.has(row.id))throw new Error('The support queue returned duplicate ticket IDs. Refresh and retry.');ids.add(row.id);}
    setTickets(page);setHasMore(rows.length>PAGE_SIZE);
    setStatus(Object.fromEntries(page.map(row=>[row.id,row.status])));
    setResponse(Object.fromEntries(page.map(row=>[row.id,row.admin_response??''])));
@@ -48,12 +48,12 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
    const cursor=tickets[tickets.length-1];
    if(!cursor){setHasMore(false);return;}
    let request=supabase.from('support_tickets').select('id,user_id,subject,message,status,admin_response,created_at,updated_at').order('updated_at',{ascending:false}).order('id',{ascending:false});
-   if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
+   let expectedUserId:string|undefined;if(!isAdmin){const{data:{user},error:userError}=await supabase.auth.getUser();if(userError||!user)throw new Error('Please sign in again to view your support requests.');expectedUserId=user.id;request=request.eq('user_id',user.id);}if(statusFilter!=='all')request=request.eq('status',statusFilter);
    request=request.or(`updated_at.lt.${cursor.updated_at},and(updated_at.eq.${cursor.updated_at},id.lt.${cursor.id})`);
    const {data,error:loadError}=await request.limit(PAGE_SIZE+1);
    if(loadError)throw loadError;
    if(seq!==requestSeq.current)return;
-   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(validTicket))throw new Error('The next support page returned malformed ticket records. Refresh the list.');
+   const rows=(data??[]) as Ticket[];if(!Array.isArray(data)||rows.length>PAGE_SIZE+1||!rows.every(row=>validTicket(row,expectedUserId)))throw new Error('The next support page returned malformed ticket records. Refresh the list.');
    const known=new Set(tickets.map(ticket=>ticket.id));const page=rows.slice(0,PAGE_SIZE);const pageIds=new Set<string>();const fresh:Ticket[]=[];
    for(const ticket of page){if(known.has(ticket.id)||pageIds.has(ticket.id))throw new Error('The support queue returned duplicate or overlapping ticket IDs. Refresh the list before loading more.');pageIds.add(ticket.id);fresh.push(ticket);}
    setTickets(current=>[...current,...fresh.filter(ticket=>!current.some(existing=>existing.id===ticket.id))]);
@@ -96,7 +96,7 @@ export default function Support({isAdmin=false}:{isAdmin?:boolean}){
     if(userId)request=request.eq('user_id',userId);if(statusFilter!=='all')request=request.eq('status',statusFilter);
     if(cursor)request=request.or(`updated_at.lt.${cursor.updated_at},and(updated_at.eq.${cursor.updated_at},id.lt.${cursor.id})`);
     const{data,error:loadError}=await request.limit(500);if(loadError)throw loadError;
-    if(!Array.isArray(data)||data.length>500||!data.every(validTicket))throw new Error('The support export returned malformed ticket records. Export stopped to avoid an inaccurate CSV.');
+    if(!Array.isArray(data)||data.length>500||!data.every(row=>validTicket(row,userId)))throw new Error('The support export returned malformed ticket records. Export stopped to avoid an inaccurate CSV.');
     const batch=data as Ticket[];
     if(batch.length===500){
      const fingerprint=JSON.stringify(batch.map(ticket=>ticket.id));
