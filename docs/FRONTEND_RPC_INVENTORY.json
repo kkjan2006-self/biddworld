@@ -1,7 +1,7 @@
 {
-  "generated_from": "completion-work frontend source inspection at commit 1ca9e6a95eebfccd73605ef90834934f58c03045",
-  "snapshot_commit": "1ca9e6a95eebfccd73605ef90834934f58c03045",
-  "note": "This inventory records all 105 unique literal frontend RPC call sites across App.tsx and all React component surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
+  "generated_from": "completion-work frontend source inspection at commit e592f726d2348a4982d091a29488c3f2a6fe6e0d",
+  "snapshot_commit": "e592f726d2348a4982d091a29488c3f2a6fe6e0d",
+  "note": "This inventory records all 105 literal frontend RPC call-site entries across App.tsx and all React component surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
       "name": "admin_activate_matrix_plan",
@@ -360,7 +360,7 @@
       "ui": "src/components/Account.tsx"
     },
     {
-      "name": "member_list_own_auction_submissions",
+      "name": "member_list_own_auction_submissions_page",
       "ui": "src/components/MemberPlaceAuction.tsx"
     },
     {
