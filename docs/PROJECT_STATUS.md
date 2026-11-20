@@ -9,7 +9,7 @@ Active development branch: `completion-work`
 - Source-only development is in progress. Do not run tests, builds, type-checks, E2E, browser QA, deployment, or database replay until the owner declares development 100% complete.
 - Production Supabase project `hbqatszyzqobgtauyuzy` remains read-only. TEST project `yoaauthwejdgaevfvwpo` remains unused.
 - No preview deployments. All SQL changes remain forward migration source only; none are applied to a database.
-- Clean-install source inventory: **151 forward + 16 excluded historical = 167 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
+- Clean-install source inventory: **152 forward + 16 excluded historical = 168 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
 - Source-only regression tests may be added but must remain unexecuted.
 
 ## Latest development batch
@@ -21,6 +21,8 @@ Restricted Staff Support ticket review was added end-to-end:
 - The existing Support workspace is reused for Staff reviewers; member ticket submission controls are not shown to Staff.
 - Forward migration: `20261120220000_restricted_staff_support_ticket_review.sql`.
 - Source-only regression file: `tests/restricted-staff-support-ticket-review.test.ts` (not executed).
+
+Latest follow-up source work now also includes the Staff Support notification trigger, Matrix reversal replay identity, strict page-order/cursor validation across Fixed Bid, Admin Package Activation, Notifications, Wallet and withdrawal histories, and repaired source-only regression assertions. The three user-supplied Fixed Bid sample product images are present under `public/sample-products/`; the smartphone image was subsequently replaced with a higher-resolution version. Current branch HEAD at this checkpoint: `a30ae80e702dc45a562eca969b077725013a2af3`.
 
 ## Next source-development priorities
 
@@ -39,7 +41,7 @@ These are review targets, not assertions that every item is incomplete. Confirm 
 
 - The Support Staff permission rollout initially left the existing Support notification trigger Admin-only. Added `20261120230000_staff_support_ticket_notifications.sql` so only Admin or Staff with `support_ticket_review` can cause the existing member status/reply notification; the global notification feature switch remains enforced.
 - Source-only regression coverage: `tests/staff-support-ticket-notifications.test.ts` (not executed).
-- Clean-install inventory: **151 forward + 16 excluded = 167 timestamped paths**, plus 3 legacy/unversioned SQL files.
+- Clean-install inventory: **152 forward + 16 excluded = 168 timestamped paths**, plus 3 legacy/unversioned SQL files.
 
 ## Completion measurement
 
