@@ -9,7 +9,7 @@ Active development branch: `completion-work`
 - Source-only development is in progress. Do not run tests, builds, type-checks, E2E, browser QA, deployment, or database replay until the owner declares development 100% complete.
 - Production Supabase project `hbqatszyzqobgtauyuzy` remains read-only. TEST project `yoaauthwejdgaevfvwpo` remains unused.
 - No preview deployments. All SQL changes remain forward migration source only; none are applied to a database.
-- Clean-install source inventory: **150 forward + 16 excluded historical = 166 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
+- Clean-install source inventory: **151 forward + 16 excluded historical = 167 timestamped migration paths**, plus 3 legacy/unversioned SQL files.
 - Source-only regression tests may be added but must remain unexecuted.
 
 ## Latest development batch
@@ -44,3 +44,10 @@ These are review targets, not assertions that every item is incomplete. Confirm 
 ## Completion measurement
 
 No defensible overall percentage is recorded here. A percentage must be calculated only after the remaining feature inventory is reconciled against implemented frontend, SQL/RPC, authorization/RLS, migration registration and source-contract coverage. Do not infer completion from migration counts or documentation entries alone.
+
+
+## Latest source integrity fix
+
+- Admin Withdrawal CSV export now applies the existing strict withdrawal parser to every page and rejects repeated Request IDs across pages even when a row's other fields change.
+- Shared paged exports accept an optional stable identity key; other reports retain their existing row-content duplicate detection.
+- Source-only regression assertions updated in `tests/admin-withdrawal-pagination-hardening.test.ts` (not executed). No migration or database operation was required.
