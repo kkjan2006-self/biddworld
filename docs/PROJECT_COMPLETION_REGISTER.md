@@ -1,3 +1,12 @@
+## 2026-11-20 — Member Auction structured-detail protection
+
+- Applied case-insensitive reserved-key protection to the member auction Additional Features parser. Structured Brand, Model, Condition, Age, Warranty, Ownership and Location fields cannot be overwritten by free-form extras; custom non-reserved fields remain supported.
+- Added source-only coverage in `tests/member-auction-submission-details-integrity.test.ts`; it was not executed.
+- Commits: UI `c24610c5df0d2d0ee961fee6760418801b2d0b3a`; source test `822a5e03767acbaebafc3351bc8ac57d297ec079`.
+- No tests/build/type-check or database access/replay.
+
+---
+
 ## 2026-11-20 — Member Product structured-detail protection
 
 - Fixed an input-precedence issue in Member Product submission: free-form Additional Features could previously overwrite structured fields such as `Price` after the numeric price validation. Extras now cannot override reserved structured keys (case-insensitive); valid custom attributes remain supported.
