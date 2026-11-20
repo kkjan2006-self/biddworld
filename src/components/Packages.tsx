@@ -119,7 +119,7 @@ export default function Packages() {
       if(!isCurrent())return;
       setActivationEnabled(!activationSettingError&&activationSetting?.setting_value===true);
       if(activationSettingError)setError('Package activation availability could not be verified. Activation requests remain unavailable.');
-    } catch {
+    } catch (e) {
       if (!isCurrent()) return;
       setItems([]);
       setError(e instanceof Error&&e.message.startsWith('Package catalogue')?e.message:'A network error prevented packages from loading. Please retry.');
