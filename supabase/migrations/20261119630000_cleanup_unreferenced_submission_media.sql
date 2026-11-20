@@ -41,3 +41,23 @@ using(
  and not exists(select 1 from public.products p where p.image_path=name or name=any(p.image_paths))
  and not exists(select 1 from public.auctions a where a.image_url=name)
 );
+
+-- Admin and authorized Auction Review Staff may remove private source images only
+-- after approval has replaced the submission's private paths with public paths.
+drop policy if exists auction_submission_media_review_cleanup on storage.objects;
+create policy auction_submission_media_review_cleanup on storage.objects
+for delete to authenticated
+using(
+ bucket_id='auction-submission-media'
+ and (
+  coalesce(auth.jwt()->'app_metadata'->>'role','')='admin'
+  or (coalesce(auth.jwt()->'app_metadata'->>'role','')='admin_staff'
+   and coalesce(auth.jwt()->'app_metadata'->'permissions','[]'::jsonb) ? 'auction_submission_review')
+ )
+ and exists(
+  select 1 from public.auction_submissions s
+  where s.status='approved'
+   and s.submitted_by::text=(storage.foldername(name))[1]
+ )
+ and not exists(select 1 from public.auction_submissions s where name=any(s.image_paths))
+);
