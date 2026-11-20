@@ -139,6 +139,7 @@ export default function Packages() {
     let uploadedReceiptPath:string|null=null;
     let receiptOwnerId:string|null=null;
     let activationSubmitted=false;
+    let activationRpcAttempted=false;
     let activationRpcRejected=false;
     try{
       const{data:authData,error:authError}=await supabase.auth.getUser();
@@ -149,10 +150,11 @@ export default function Packages() {
       if(receiptFile){
         const safeName=receiptFile.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').slice(-90)||'payment-receipt';
         const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);const fileId=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');receiptPath=authData.user.id+'/'+fileId+'-'+safeName;
+        uploadedReceiptPath=receiptPath;
         const{error:uploadError}=await supabase.storage.from('package-receipts').upload(receiptPath,receiptFile,{contentType:receiptFile.type,upsert:false});
         if(uploadError)throw uploadError;
-        uploadedReceiptPath=receiptPath;
       }
+      activationRpcAttempted=true;
       const{data:activationResult,error}=await supabase.rpc('submit_package_activation_with_receipt',{p_package_id:selectedPackage,p_payment_reference:reference,p_receipt_path:receiptPath});
       if(error){activationRpcRejected=typeof (error as {code?:unknown}).code==='string';throw error;}
       const result=activationResult as Record<string,unknown>|null;
@@ -164,7 +166,7 @@ export default function Packages() {
       setPaymentReference('');setReceiptFile(null);setSelectedPackage('');const receiptInput=document.getElementById('package-activation-receipt') as HTMLInputElement|null;if(receiptInput)receiptInput.value='';
     }catch(e){
       const message=e instanceof Error?e.message:'Package activation request could not be completed. Check your connection and retry.';
-      if(uploadedReceiptPath&&!activationSubmitted&&activationRpcRejected){
+      if(uploadedReceiptPath&&!activationSubmitted&&(!activationRpcAttempted||activationRpcRejected)){
         let cleanupFailed=false;
         try{
           const{error:cleanupError}=await supabase.storage.from('package-receipts').remove([uploadedReceiptPath]);
