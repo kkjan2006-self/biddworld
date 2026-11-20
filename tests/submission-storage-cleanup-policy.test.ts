@@ -1,11 +1,16 @@
 import {readFileSync} from 'node:fs';
 import {describe,it,expect} from 'vitest';
 const sql=readFileSync('supabase/migrations/20261119630000_cleanup_unreferenced_submission_media.sql','utf8');
+const packagesUi=readFileSync('src/components/Packages.tsx','utf8');
 const auctionUi=readFileSync('src/components/MemberPlaceAuction.tsx','utf8');
 const productUi=readFileSync('src/components/MemberProductSubmission.tsx','utf8');
 const auctionReview=readFileSync('src/components/AdminAuctionSubmissionReview.tsx','utf8');
 describe('safe cleanup for unreferenced submission media',()=>{
  it('allows members to remove only their own unreferenced private auction and product uploads',()=>{
+  expect(sql).toContain("bucket_id='package-receipts'");
+  expect(sql).toContain('public.can_delete_unreferenced_package_receipt(name)');
+  expect(sql).toContain('a.receipt_path=p_name');
+  expect(packagesUi).toContain("storage.from('package-receipts').remove([uploadedReceiptPath])");
   expect(sql).toContain("bucket_id='auction-submission-media'");
   expect(sql).toContain("bucket_id='product-submission-media'");
   expect(sql).toContain('public.can_delete_member_submission_media(bucket_id,name)');
