@@ -1,3 +1,13 @@
+## 2026-11-20 — Auction item-only winner rule enforced in payment workflow
+
+- Added forward migration `20261120140000_restrict_winner_payment_to_fixed_bid.sql`: `member_pay_winning_item_payment` rejects a new payment when the winning-payment record has no Fixed Bid campaign link. A previously paid transaction with a valid matching ledger entry remains replay-compatible; historical records are not deleted or rewritten.
+- Member Winner & Delivery History now fetches the Fixed Bid campaign ID, displays Pay from Income Wallet only for Fixed Bid winners, and explicitly tells Auction winners that the item is awarded without a separate payment.
+- Extended `tests/member-workflow-mutation-response-integrity.test.ts`; source-only, not executed. Registered the migration in the clean-install forward manifest.
+- Commits: `2d2628591f76fce4ba4ce22725d3fdf7fa8c505c`, `129c1a292b8c9a401625e817c9179828cad5e661`, `ab881865802fb5e4a3a6ae836968a714221fb044`, `699b60dd996b36605fc34828afb628e6533e3ab0`.
+- No tests/build/type-check, SQL replay, Supabase access or deployment was performed.
+
+---
+
 ## 2026-11-20 — Member and staff workflow response integrity / wallet terminology
 
 - Fixed Bid entry now validates success, entry ID, positive amount, non-negative Bid Wallet and Income Wallet debit amounts, exact debit reconciliation and replay flag before clearing its idempotency key. The confirmation shows the verified split.
