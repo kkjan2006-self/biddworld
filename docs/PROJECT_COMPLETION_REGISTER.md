@@ -1,3 +1,12 @@
+## 2026-11-20 — Income Wallet Add Money active-profile eligibility
+
+- Found that the Add Money submission RPC checked the Main ID status but did not check the authenticated profile status, unlike other member financial actions. A profile marked inactive/suspended while its Main ID remained active could still submit a funding request.
+- Added `20261120180000_require_active_profile_for_wallet_funding.sql`. The RPC now requires the profile to belong to the authenticated user, requires both profile and Main ID to be active, and locks both rows while validating eligibility. Existing receipt ownership, Income Wallet feature gate, UTR checks, insert/audit contract and authenticated-only grants are preserved.
+- Added `tests/member-wallet-funding-active-profile.test.ts`; source-only and not executed. Inventory: 146 forward + 16 excluded = 162 timestamped paths, plus 3 legacy SQL files.
+- Commits: migration `51276bb1081d85126370ae1d678db13291f6a28c`; source test `6ff40a5141900892912f469b4cd0c2429a6ac354`.
+
+---
+
 ## 2026-11-20 — Global payment reference uniqueness across payment workflows
 
 - Found a race between Package Activation and Income Wallet Add Money: each workflow checked the other table before insert, but concurrent transactions could both pass those independent checks and submit the same UTR.
