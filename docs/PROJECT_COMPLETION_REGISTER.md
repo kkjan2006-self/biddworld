@@ -1,3 +1,10 @@
+## 2026-11-20 — Member withdrawal history pagination integrity
+
+- Reconciled Account UI pagination with `member_list_my_withdrawals_page`: initial and continuation pages now validate strict row shape, allowed lifecycle statuses, parsed timestamps, payout-method-only projection, consistent `has_more`, full continuation pages and strict descending `(requested_at,id)` order across page boundaries.
+- Repeated/overlapping IDs and non-advancing cursors are rejected before state is appended. Added source-only regression assertions; not executed. No schema change or migration required.
+
+---
+
 ## 2026-11-20 — Staff package activation nullable receipt compatibility
 
 - Reconciled the Staff queue parser with the SQL projection and existing UI behavior for nullable `package_activations.receipt_path`. A null receipt no longer invalidates the entire pending queue; the row remains reviewable for rejection, while approval remains disabled unless a valid receipt URL is available.

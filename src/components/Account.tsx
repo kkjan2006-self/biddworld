@@ -12,7 +12,38 @@ type Member={id:string;member_code:string;id_type:string;status:string;created_a
 type Activation={id:string;activation_number:number;amount_paid:number;currency:string;payment_status:string;activation_status:string;payment_reference:string|null;bid_wallet_credit:number;submitted_at:string;verified_at:string|null;package:{name:string}|null};
 type WalletRow={wallet_type:string;balance:number;currency:string};
 type WithdrawalRow={request_id:string;amount:number;currency:string;status:string;payout_details:Record<string,unknown>|null;requested_at:string;reviewed_at:string|null;rejection_reason:string|null;has_more:boolean};
-function validWithdrawal(value:unknown):value is WithdrawalRow{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;return typeof row.request_id==='string'&&row.request_id.length>0&&typeof row.amount==='number'&&Number.isFinite(row.amount)&&row.amount>0&&typeof row.currency==='string'&&typeof row.status==='string'&&(row.payout_details===null||(typeof row.payout_details==='object'&&!Array.isArray(row.payout_details)))&&typeof row.requested_at==='string'&&Number.isFinite(Date.parse(row.requested_at))&&(row.reviewed_at===null||typeof row.reviewed_at==='string')&&(row.rejection_reason===null||typeof row.rejection_reason==='string')&&typeof row.has_more==='boolean';}
+const WITHDRAWAL_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function validWithdrawal(value:unknown):value is WithdrawalRow{
+ if(!value||typeof value!=='object'||Array.isArray(value))return false;
+ const row=value as Record<string,unknown>;
+ if(typeof row.request_id!=='string'||!WITHDRAWAL_UUID.test(row.request_id)
+  ||typeof row.amount!=='number'||!Number.isFinite(row.amount)||row.amount<=0
+  ||typeof row.currency!=='string'||!/^[A-Z]{3}$/.test(row.currency)
+  ||typeof row.status!=='string'||!['pending','approved','rejected','paid'].includes(row.status)
+  ||typeof row.requested_at!=='string'||!Number.isFinite(Date.parse(row.requested_at))
+  ||(row.reviewed_at!==null&&(typeof row.reviewed_at!=='string'||!Number.isFinite(Date.parse(row.reviewed_at))))
+  ||(row.rejection_reason!==null&&(typeof row.rejection_reason!=='string'||row.rejection_reason.length>500))
+  ||typeof row.has_more!=='boolean'
+  ||!row.payout_details||typeof row.payout_details!=='object'||Array.isArray(row.payout_details))return false;
+ const payout=row.payout_details as Record<string,unknown>;
+ return Object.keys(payout).every(key=>key==='method')
+  &&(payout.method===undefined||(typeof payout.method==='string'&&payout.method.length<=40));
+}
+function validateWithdrawalPage(value:unknown,previous:WithdrawalRow[]=[]):WithdrawalRow[]{
+ if(!Array.isArray(value)||value.length>50||!value.every(validWithdrawal))throw new Error('Withdrawal history returned an invalid page. Refresh your account and retry.');
+ const page=value as WithdrawalRow[];
+ if(page.some(row=>row.has_more!==page[0]?.has_more))throw new Error('Withdrawal history returned inconsistent pagination metadata. Refresh your account and retry.');
+ if(page[0]?.has_more&&page.length!==50)throw new Error('Withdrawal history returned a short page with a continuation cursor. Refresh your account and retry.');
+ const seen=new Set(previous.map(row=>row.request_id));
+ for(let index=0;index<page.length;index++){
+  const row=page[index],prior=index?page[index-1]:previous[previous.length-1];
+  if(seen.has(row.request_id))throw new Error('Withdrawal history repeated an existing request. Refresh your account before continuing.');
+  seen.add(row.request_id);
+  if(prior){const delta=Date.parse(prior.requested_at)-Date.parse(row.requested_at);if(delta<0||(delta===0&&prior.request_id.localeCompare(row.request_id)<=0))throw new Error('Withdrawal history is not in strict descending (requested_at,id) order. Refresh your account and retry.');}
+ }
+ return page;
+}
+
 type AuctionBid={id:string;bid_amount:number;status:string;created_at:string;auction:{title:string;status:string;starts_at:string|null;ends_at:string}|null};
 type FixedBidRow={id:string;bid_amount:number;status:string;created_at:string;campaign:{title:string;status:string}|null};
 type CommissionRow={id:string;level_number:number;amount:number;status:string;created_at:string};
@@ -98,7 +129,7 @@ export default function Account(){
     const memberRpcError=[m.error,wr.error,mc.error].find(error=>error&&rpcContractUnavailableMessage(error,'Member account details'));
     if(memberRpcError)setError(rpcContractUnavailableMessage(memberRpcError,'Member account details')!);
     else if(m.error||a.error||w.error||wr.error||b.error||fb.error||rc.error||wp.error||deliveryResult.error)setError('Some account history is unavailable because one or more database requests failed. You can retry loading your account.');
-    setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);const withdrawalRows=(wr.data??[]) as WithdrawalRow[];if(!Array.isArray(wr.data??[])||withdrawalRows.some(row=>!validWithdrawal(row)))throw new Error('Withdrawal history returned invalid records.');setWithdrawals(withdrawalRows);setWithdrawalHasMore(withdrawalRows.length===50&&withdrawalRows[withdrawalRows.length-1]?.has_more===true);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);setMatrixCommissions((mc.data??[]) as MatrixCommissionRow[]);setMatrixHistoryHasMore((mc.data??[]).length===100);setMatrixHistoryLoading(false);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
+    setMembers((m.data??[]) as Member[]);setActivations((a.data??[]) as unknown as Activation[]);setWallets((w.data??[]) as WalletRow[]);const withdrawalRows=validateWithdrawalPage(wr.data??[]);setWithdrawals(withdrawalRows);setWithdrawalHasMore(withdrawalRows.length===50&&withdrawalRows[withdrawalRows.length-1]?.has_more===true);setAuctionBids((b.data??[]) as unknown as AuctionBid[]);setFixedBids((fb.data??[]) as unknown as FixedBidRow[]);setCommissions((rc.data??[]) as CommissionRow[]);setMatrixCommissions((mc.data??[]) as MatrixCommissionRow[]);setMatrixHistoryHasMore((mc.data??[]).length===100);setMatrixHistoryLoading(false);setWinningPayments((wp.data??[]) as unknown as WinningPayment[]);setDeliveries((deliveryResult.data??[]) as DeliveryRow[]);setHistoryHasMore({activations:(a.data??[]).length===50,auctionBids:(b.data??[]).length===100,fixedBids:(fb.data??[]).length===100,commissions:(rc.data??[]).length===100,winningPayments:(wp.data??[]).length===100});
    }else{
     setMembers([]);setActivations([]);setWallets([]);setWithdrawals([]);setWithdrawalHasMore(false);setAuctionBids([]);setFixedBids([]);setCommissions([]);setMatrixCommissions([]);setMatrixHistoryHasMore(false);setMatrixHistoryLoading(false);setWinningPayments([]);setDeliveries([]);setHistoryHasMore({activations:false,auctionBids:false,fixedBids:false,commissions:false,winningPayments:false});
    }
@@ -123,9 +154,8 @@ async function loadMoreWithdrawals(){
  try{
   const{data,error}=await supabase.rpc('member_list_my_withdrawals_page',{p_limit:50,p_before_requested_at:cursor.requested_at,p_before_id:cursor.request_id});
   if(request!==loadRequest.current||!loadMounted.current)return;if(error)throw error;
-  if(!Array.isArray(data)||data.length>50||!data.every(validWithdrawal))throw new Error('Withdrawal history returned an invalid page. Refresh your account and retry.');
-  const known=new Set(withdrawals.map(row=>row.request_id));if(data.some((row:WithdrawalRow)=>known.has(row.request_id)))throw new Error('Withdrawal history repeated an existing request. Refresh your account before continuing.');
-  setWithdrawals(current=>[...current,...data as WithdrawalRow[]]);setWithdrawalHasMore(data.length===50&&data[data.length-1]?.has_more===true);
+  const page=validateWithdrawalPage(data,withdrawals);
+  setWithdrawals(current=>[...current,...page]);setWithdrawalHasMore(page.length===50&&page[page.length-1]?.has_more===true);
  }catch(e){if(request===loadRequest.current)setError(e instanceof Error?e.message:'Could not load more withdrawal history.');}
  finally{historyPageInFlight.current.delete('withdrawals');if(request===loadRequest.current)setWithdrawalLoadingMore(false);}
 }
