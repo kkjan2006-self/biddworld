@@ -38,8 +38,14 @@ describe('Admin withdrawal queue pagination hardening',()=>{
  });
  it('uses one shared parser for first and subsequent pages and rejects cross-page overlap',()=>{
   expect(component).toContain('const batch=parseAdminWithdrawals(withdrawalResult.data??[])');
-  expect(component).toContain('const batch=parseAdminWithdrawals(data)');
+  expect(component).toContain('const batch=parseAdminWithdrawals(data,withdrawalRequests)');
   expect(component).toContain('batch.some(item=>seen.has(item.request_id))');
   expect(component).toContain('setWithdrawalRequests(current=>[...current,...batch])');
+ });
+ it('validates strict descending request-time and UUID ordering within and across pages',()=>{
+  expect(component).toContain('function parseAdminWithdrawals(value:unknown,previous:WithdrawalRequest[]=[]):WithdrawalRequest[]');
+  expect(component).toContain('Date.parse(prior.requested_at)-Date.parse(row.requested_at)');
+  expect(component).toContain('prior.request_id.localeCompare(row.request_id)<=0');
+  expect(component).toContain('strict descending (requested_at,id) order');
  });
 });

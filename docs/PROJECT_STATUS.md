@@ -101,3 +101,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - The Fixed Bid campaign client now validates strict descending `(created_at,id)` ordering in every page and enforces the same tuple boundary between offset pages before appending. This detects page shifts/overlaps caused by concurrent catalogue changes and directs the member to refresh.
 - Reconciled the pagination test's `hasMore` assertion with the current source and added source-only ordering/boundary assertions. No test/build/type-check/E2E/browser QA/deployment/database operation was performed.
+
+
+## 2026-11-20 — Admin withdrawal queue ordering and cursor-boundary integrity
+
+- The Admin withdrawal RPC returns rows ordered by descending `(requested_at,id)`. The UI previously rejected duplicate request IDs across offset pages but did not independently verify that the server preserved this ordering or that a continuation page began strictly before the last loaded request.
+- Extended the shared withdrawal response parser to validate strict descending tuple order within every page and across the loaded-page boundary before appending. Out-of-order or shifted pages now fail closed and require a refresh.
+- Added source-only regression assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration, manifest, database, build, type-check, E2E, browser QA or deployment operation was performed.
