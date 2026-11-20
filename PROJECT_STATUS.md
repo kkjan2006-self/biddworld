@@ -1506,3 +1506,14 @@ At every development batch/chat end, update this file with the actual verified b
 - Commits: App lifecycle display `5a4e87b8019cf63fa5d2e4224a0fd4de7bbb0546`; SQL migration `48b2aac165e157fdb029b71b3b7846e626d5f6ae`; test `fc65ff2a18e2e81340baa3fd5525a06720dd0118`; trigger/grant hardening `a26973509fcdf5af0047670e07a281259d783142`; App countdown label `3f22efcc6806c6463b0ffe727c7ed712f52d37f4`; automatic scheduled refresh `7f98b64b04d731217759656c2583856111006f9b`; test update `a91ded362696493ae205b0125f82fc5a3f98b4ad`; manifest `eac09eb95228ef53764f5d07ca1a511c62d9e41f`.
 - Clean-install inventory: **129 forward + 16 excluded = 145 timestamped SQL files**; exact tree/manifest reconciliation has no missing, orphaned or overlapping entries, no duplicate forward entries, and strict sort order.
 - No tests/build/type-check, Supabase migration execution or data changes, Preview deployment, or protected `main` changes. Overall source development estimate remains **94% provisional**; full source/RPC/RLS/Storage and canonical migration reconciliation remains open.
+
+
+## 2026-11-20 — Open-ended auction catalogue pagination
+
+- Updated the public auction catalogue RPC in `20261119620000_public_auction_catalogue_has_more.sql` to retain open-ended auctions (`ends_at IS NULL`) until the expected-price lifecycle supplies the 48-hour deadline. It returns Expected Price, target-reached time, scheduled start and end-time data, and preserves the existing scheduled-to-live transition.
+- The RPC now fetches one extra row internally and returns a server-derived `has_more` flag while returning at most 100 rows. The Member/Public frontend uses that flag for both initial and subsequent pages; it no longer incorrectly assumes that exactly 100 rows always means another page exists.
+- Updated the existing auction catalogue source-contract test to assert the open-ended filter, lifecycle fields, bounded page size and exact pagination marker. Test source only; not executed.
+- Migration manifest reconciliation: **130 forward + 16 excluded = 146 timestamped SQL files**, no missing/orphaned/overlapping entries, no duplicates, and strict sort order.
+- Commits: auction RPC migration `f913d6ae243eda93d93d9866d2a03b373c220c96`; frontend pagination `2b45f006d177de89adc4198d42ac038baf98efcd`; test `ea9542a2eb9857b216dbcc32873000ca90f8f301`.
+- No Supabase migration executed; no database writes, no Preview deployment, and no changes to protected `main`.
+- Overall source development estimate remains **94% provisional** pending the remaining frontend/RPC/RLS/Storage integration reconciliation.
