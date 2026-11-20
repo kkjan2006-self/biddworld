@@ -20,5 +20,8 @@ describe('safe cleanup for unreferenced submission media',()=>{
   expect(sql).toContain('not exists(select 1 from public.products p where p.image_path=name or name=any(p.image_paths))');
   expect(sql).toContain('not exists(select 1 from public.auctions a where a.image_url=name)');
   expect(auctionReview).toContain("storage.from('product-media').remove(publishedPaths)");
+  expect(auctionReview).toContain("storage.from('auction-submission-media').remove(r.image_paths)");
+  expect(auctionUi).toContain("storage.from('auction-submission-media').remove(stale)");
+  expect(productUi).toContain("storage.from('product-submission-media').remove(stale)");
  });
 });
