@@ -3069,3 +3069,10 @@
 - Initial member history and keyset continuation pages now validate every returned row against the authenticated user ID in addition to the existing owner-scoped query and RLS. Admin reads retain the separate Admin queue contract.
 - CSV export validates every page against the authenticated member ID before any export is generated; Admin export remains unfiltered by member while still validating all ticket fields. Malformed or cross-owner records fail closed.
 - Extended source-only regression coverage in `tests/support-pagination-integrity.test.ts` and `tests/member-support-inbox-owner-scope.test.ts`. Not executed. No SQL migration was required because the checks mirror the existing support table constraints. No database, TEST or Production access/writes, build, type-check, E2E or deployment.
+
+
+## 2026-11-20 — Admin Matrix report response consistency
+
+- Matrix commission rows now require valid UUIDs for commission and activation identities and enforce the database-supported level range (1–50) before rendering, pagination or CSV export.
+- Matrix summary validation now requires safe integer counts, exact total-count reconciliation across pending/credited/reversed states, and cent-tolerant amount reconciliation across the three statuses. Inconsistent server aggregates fail closed rather than presenting contradictory report totals.
+- Extended `tests/admin-matrix-commissions-source-integrity.test.ts` with source-only response-contract assertions. Not executed. No SQL migration or database operation was needed.

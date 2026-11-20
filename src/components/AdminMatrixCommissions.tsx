@@ -12,16 +12,17 @@ type MatrixCommissionRow={
 const PAGE_SIZE=100;
 type MatrixSummary={total_count:number;total_amount:number;pending_count:number;pending_amount:number;credited_count:number;credited_amount:number;reversed_count:number;reversed_amount:number};
 const emptySummary:MatrixSummary={total_count:0,total_amount:0,pending_count:0,pending_amount:0,credited_count:0,credited_amount:0,reversed_count:0,reversed_amount:0};
-function validSummary(value:unknown):value is MatrixSummary{if(!value||typeof value!=='object')return false;const row=value as Record<string,unknown>;return Object.keys(emptySummary).every(key=>typeof row[key]==='number'&&Number.isFinite(row[key])&&Number(row[key])>=0);}
+function validSummary(value:unknown):value is MatrixSummary{if(!value||typeof value!=='object'||Array.isArray(value))return false;const row=value as Record<string,unknown>;if(!Object.keys(emptySummary).every(key=>typeof row[key]==='number'&&Number.isFinite(row[key])&&Number(row[key])>=0))return false;const counts=['total_count','pending_count','credited_count','reversed_count'];if(!counts.every(key=>Number.isSafeInteger(row[key])))return false;return Number(row.total_count)===Number(row.pending_count)+Number(row.credited_count)+Number(row.reversed_count)&&Math.abs(Number(row.total_amount)-(Number(row.pending_amount)+Number(row.credited_amount)+Number(row.reversed_amount)))<0.01;}
 const formatINR=(value:number)=>'₹'+Number(value).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const validStatuses=['pending','credited','reversed'] as const;
 function validRow(value:unknown):value is MatrixCommissionRow{
  if(!value||typeof value!=='object')return false;
  const r=value as Record<string,unknown>;
- return typeof r.commission_id==='string'&&r.commission_id.length>0
-  &&typeof r.activation_id==='string'&&r.activation_id.length>0
-  &&typeof r.activated_member_code==='string'&&r.activated_member_code.length>0
-  &&Number.isInteger(r.level_number)&&Number(r.level_number)>0
+ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ return typeof r.commission_id==='string'&&uuid.test(r.commission_id)
+  &&typeof r.activation_id==='string'&&uuid.test(r.activation_id)
+  &&typeof r.activated_member_code==='string'&&r.activated_member_code.trim().length>0
+  &&Number.isInteger(r.level_number)&&Number(r.level_number)>=1&&Number(r.level_number)<=50
   &&typeof r.source_member_code==='string'&&r.source_member_code.length>0
   &&typeof r.source_id_type==='string'&&['main','duplicate'].includes(r.source_id_type)
   &&typeof r.credited_main_member_code==='string'&&r.credited_main_member_code.length>0
