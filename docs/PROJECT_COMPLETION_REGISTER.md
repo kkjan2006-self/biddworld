@@ -1,3 +1,12 @@
+## 2026-11-20 — Member package activation response contract
+
+- Member package activation submission now validates the exact returned activation UUID, positive activation number, pending payment/activation states and receipt object path before clearing the form or showing success.
+- A malformed/ambiguous success response preserves the uploaded receipt and instructs the member to refresh activation history before retrying; cleanup remains restricted to definite RPC rejection.
+- Added `tests/member-package-activation-response-integrity.test.ts` with source/SQL response contract assertions; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Package catalogue and receipt recovery integrity
 
 - Member package catalogue responses are now validated for page bounds, UUID identity, duplicate IDs, names, descriptions, currency, price and Bid Wallet credit before rendering.
