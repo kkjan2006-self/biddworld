@@ -1,3 +1,10 @@
+## Latest source development batch — Admin Main ID lifecycle contract
+
+- Fixed a real UI/RPC mismatch: the Admin Main ID status form exposed Suspended but the client validation rejected it, while accepting unsupported `inactive`. Client validation now matches SQL's `active | suspended | closed` enum.
+- Added static regression assertions to `tests/admin-main-member-status-mutation-safety.test.ts`; not executed.
+- Commits: `432de61aa9103d0db85ef8a0552fbec5d6d5734f`, `3abb51231f118c1e38c29eb09d714f0f62861f53`.
+- Continue with complete RPC/schema/authorization reconciliation and remaining source integration gaps. No runtime verification has been run.
+
 ## Latest source-only development batch — 2026-11-20 (Admin media recovery)
 
 - Admin Product temporary image cleanup now survives page reloads through account-scoped browser storage, generated-path validation, a 100-entry cap and successful-retry removal.
