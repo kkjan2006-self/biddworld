@@ -1,3 +1,11 @@
+## 2026-11-21 — Sponsor Referral reversal replay identity parity repair
+
+- Source audit found one of the two successful idempotent replay paths (existing credit plus verified reversal ledger) still omitted `commission_id`, despite the earlier migration note and frontend contract requiring the exact commission UUID.
+- Corrected the second replay response to return `commission_id=p_commission_id` just like the pending-only replay and fresh reversal responses. Ledger validation, locking, balance mutation and audit behavior are unchanged.
+- Strengthened `tests/admin-commission-mutation-result-integrity.test.ts` to require exactly two identity-bearing successful replay returns. Source-only; test not executed. No new migration or manifest entry; existing forward migration #154 was corrected in place.
+
+---
+
 ## 2026-11-20 — My Team response contract precision
 
 - Hardened `parseDashboard` to require safe non-negative integer counts, supported member statuses (`pending|active|suspended|closed`), safe integer depths within the SQL recursion limit (1–20), and non-empty optional sponsor codes.
