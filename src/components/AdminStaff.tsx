@@ -34,7 +34,7 @@ export default function AdminStaff(){
   if(!reset&&!after){setHasMore(false);return;}
   if(reset){pageLock.current=false;cursor.current=null;}else pageLock.current=true;
   const seq=reset?++loadSequence.current:loadSequence.current;
-  if(reset){setQueueLoading(true);setLoadingMore(false);setRows([]);setUrls({});setReceiptErrors({});}
+  if(reset){setQueueLoading(true);setLoadingMore(false);setHasMore(false);setRows([]);setUrls({});setReceiptErrors({});}
   else setLoadingMore(true);
   setMessage('');
   try{
