@@ -1,3 +1,12 @@
+## 2026-11-20 — Member/Admin submission RPC contract reconciliation
+
+- reconciled Member Product create/edit/history, Member Auction edit/history, Admin Product image publication, and all four Member/Admin product/auction moderation pagination call sites against their declared SQL signatures, result shapes, keyset ordering and grants. No argument-name/type or return-shape mismatch was found in this scoped batch. Added `tests/member-admin-submission-rpc-contracts.test.ts` to lock these contracts; it was not executed. This is a scoped reconciliation, not completion of the full project-wide RPC audit. Commits: test `5dff1102585f31abfb4e5814271be23bf062f719`, regex correction `9006ef30171c524eb5f597c262542fced55868ac`.
+
+- Reviewed the SQL contracts for the Member Product create/edit/history flows, Member Auction edit/history flows, Admin Product image publication, and all four bounded product/auction moderation queues. Frontend argument names and SQL parameter names, positional SQL signatures, return shapes, keyset directions and execute grants agree in this inspected scope.
+- No production or TEST database was accessed; no migration, test, build, type-check, browser/mobile QA or Preview deployment was run.
+
+---
+
 ## 2026-11-20 — Member Auction structured-detail protection
 
 - Applied case-insensitive reserved-key protection to the member auction Additional Features parser. Structured Brand, Model, Condition, Age, Warranty, Ownership and Location fields cannot be overwritten by free-form extras; custom non-reserved fields remain supported.
