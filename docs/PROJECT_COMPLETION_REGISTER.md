@@ -1,3 +1,12 @@
+## 2026-11-20 — Admin Main ID status RPC contract repair
+
+- Corrected a real frontend/SQL enum mismatch in Admin Main ID status changes. The visible UI and `admin_set_main_member_status(text,text,text)` support `active`, `suspended`, and `closed`; the frontend guard incorrectly accepted `inactive` instead of `suspended`, blocking the visible Suspended action. The guard now matches the SQL contract.
+- Extended `tests/admin-main-member-status-mutation-safety.test.ts` to assert the UI choices, client guard and SQL allowed values remain aligned. Source-only; not executed.
+- Commits: `432de61aa9103d0db85ef8a0552fbec5d6d5734f`, `3abb51231f118c1e38c29eb09d714f0f62861f53`.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Persistent Admin product and auction media cleanup recovery
 
 - Admin Product draft uploads now persist failed `product-media` object deletions in account-scoped browser storage, validate restored paths against the generated UUID-prefixed object format, cap the queue at 100, and clear entries after successful retry. In-memory recovery remains available when local storage is unavailable. Source-only regression assertions added in `tests/admin-product-media-cleanup-recovery.test.ts` (not executed). Commit: `1a0d63be3f8edd4e561c6021cf5784949d9868b3`.
