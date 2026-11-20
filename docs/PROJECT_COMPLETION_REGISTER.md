@@ -2460,3 +2460,12 @@
 - The Staff receipt access follow-up now explicitly drops the legacy quoted policy `"Admins read package receipts"` created by the earlier private-receipt migrations, as well as the unquoted compatibility policy name. This prevents PostgreSQL's permissive-policy OR behavior from leaving the older broader Staff read rule active.
 - The resulting effective rule is: Admin can read receipts; Staff can read only receipts attached to pending activations and only with `package_activation_review`; members cannot read private receipt objects.
 - Commits: policy correction `1659b73501d92f2557ed42acc465560f682c191e`; regression assertion `41dd7af9381fd569a43d95a49acab7129012348d`.
+
+
+## 2026-11-20 — Staff wallet funding receipt authorization
+
+- Added `20261119660000_staff_wallet_funding_receipt_access.sql`. Admin retains full private wallet-funding receipt access; Staff with `wallet_funding_review` can read only receipts attached to pending funding requests. The existing broad Staff policy is replaced, and members/other Staff cannot read these objects.
+- Added source-only Storage policy regression coverage. Not executed.
+- Commits: migration `b13a09ccf7a0c5481e6c727ac8ac9e24511f1e7e`; test `cc5add9daa07956eaaaf7f1a9b75b1cd924ed13b`.
+- Migration inventory: **134 forward + 16 excluded = 150 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
+- No migrations applied, no data changes, no Preview deployment, and no protected `main` changes.
