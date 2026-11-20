@@ -24,10 +24,23 @@ function isAfterTeamCursor(row:TreeMember,cursor:TreeMember):boolean{return comp
 function parseDashboard(value:unknown):Dashboard{
  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('The team dashboard response was malformed.');
  const row=value as Record<string,unknown>;
- const numeric=['direct_referrals','total_downline','active_members','active_activations','commission_total','bid_wallet','income_wallet','tree_total'];
- if(typeof row.main_member_code!=='string'||!row.main_member_code.trim()||numeric.some(key=>typeof row[key]!=='number'||!Number.isFinite(row[key])||Number(row[key])<0)||!Number.isInteger(row.tree_total)||typeof row.has_more!=='boolean'||!Array.isArray(row.tree)||row.tree.length>50||Number(row.tree_total)<row.tree.length)throw new Error('The team dashboard returned invalid totals or pagination metadata.');
+ const numeric=['commission_total','bid_wallet','income_wallet'];
+ const counts=['direct_referrals','total_downline','active_members','active_activations','tree_total'];
+ if(typeof row.main_member_code!=='string'||!row.main_member_code.trim()
+  ||numeric.some(key=>typeof row[key]!=='number'||!Number.isFinite(row[key])||Number(row[key])<0)
+  ||counts.some(key=>typeof row[key]!=='number'||!Number.isSafeInteger(row[key])||Number(row[key])<0)
+  ||typeof row.has_more!=='boolean'||!Array.isArray(row.tree)||row.tree.length>50||Number(row.tree_total)<row.tree.length)throw new Error('The team dashboard returned invalid totals or pagination metadata.');
  const seen=new Set<string>();
- const tree=row.tree.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The team dashboard contains a malformed member.');const member=raw as Record<string,unknown>;if(typeof member.member_code!=='string'||!member.member_code.trim()||seen.has(member.member_code)||typeof member.display_name!=='string'||typeof member.status!=='string'||typeof member.created_at!=='string'||!Number.isFinite(Date.parse(member.created_at))||!Number.isInteger(member.depth)||Number(member.depth)<1||(member.sponsor_code!==null&&typeof member.sponsor_code!=='string'))throw new Error('The team dashboard contains an invalid or duplicate member.');seen.add(member.member_code);return member as unknown as TreeMember;});
+ const tree=row.tree.map(raw=>{
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The team dashboard contains a malformed member.');
+  const member=raw as Record<string,unknown>;
+  if(typeof member.member_code!=='string'||!member.member_code.trim()||seen.has(member.member_code)
+   ||typeof member.display_name!=='string'||!['pending','active','suspended','closed'].includes(String(member.status))
+   ||typeof member.created_at!=='string'||!Number.isFinite(Date.parse(member.created_at))
+   ||typeof member.depth!=='number'||!Number.isSafeInteger(member.depth)||member.depth<1||member.depth>20
+   ||(member.sponsor_code!==null&&(typeof member.sponsor_code!=='string'||!member.sponsor_code.trim())))throw new Error('The team dashboard contains an invalid or duplicate member.');
+  seen.add(member.member_code);return member as unknown as TreeMember;
+ });
  if(row.has_more&&tree.length!==50)throw new Error('The team dashboard returned a short page with a continuation flag. Refresh and retry.');
  if(!isStrictlyAscendingTeamPage(tree))throw new Error('The team dashboard page is not in strict ascending (depth,created_at,member_code) order. Refresh and retry.');
  return {...row,tree} as unknown as Dashboard;
@@ -36,7 +49,7 @@ function parseMatrixSummary(value:unknown):MatrixSummary{
  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('The Matrix commission summary was malformed.');
  const row=value as Record<string,unknown>;const keys=['credited_total','pending_total','reversed_total','credited_count','pending_count'];
  if(keys.some(key=>typeof row[key]!=='number'||!Number.isFinite(row[key])||Number(row[key])<0))throw new Error('The Matrix commission summary contains invalid totals.');
- if(!Number.isInteger(row.credited_count)||!Number.isInteger(row.pending_count))throw new Error('The Matrix commission summary contains invalid counts.');
+ if(!Number.isSafeInteger(row.credited_count)||!Number.isSafeInteger(row.pending_count))throw new Error('The Matrix commission summary contains invalid counts.');
  return row as unknown as MatrixSummary;
 }
 

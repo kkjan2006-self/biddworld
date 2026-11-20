@@ -1,3 +1,11 @@
+## 2026-11-20 — My Team response contract precision
+
+- Hardened `parseDashboard` to require safe non-negative integer counts, supported member statuses (`pending|active|suspended|closed`), safe integer depths within the SQL recursion limit (1–20), and non-empty optional sponsor codes.
+- Matrix commission summary counts now require safe integers instead of merely integral finite numbers.
+- Added source-only assertions in `tests/member-team-matrix-summary-isolation.test.ts`; not executed. No SQL migration or database operation required.
+
+---
+
 ## 2026-11-20 — Admin report stable identity integrity
 
 - The shared Admin CSV pagination helper previously used the full serialized row as a fallback identity when a caller omitted a key. A repeated record whose mutable status/content changed between offset pages could therefore evade duplicate detection.

@@ -10,6 +10,12 @@
 - Made stable identity keys mandatory and wired every complete report to its immutable record ID (payment, tracking, member code, activation, Duplicate ID, commission, auction, campaign, audit or wallet transaction). Withdrawal exports retain their request UUID key.
 - Added `tests/admin-report-stable-identity-export.test.ts`; not executed. No SQL migration or database change. Tests/build/type-check/E2E/browser QA/deployment remain deferred.
 
+## Latest source-only batch — My Team response contract precision (2026-11-20)
+
+- The My Team parser previously accepted fractional/unsafe dashboard counts, any non-empty member status string and depths above the SQL recursion limit. It now requires safe integer counts, the canonical member lifecycle statuses and depth 1–20; optional sponsor codes must be non-empty when present.
+- Matrix summary counts now require safe integers. Existing strict tuple pagination and fail-closed cursor handling remain intact.
+- Added source-only assertions in `tests/member-team-matrix-summary-isolation.test.ts`; not executed. No SQL migration or database change.
+
 # BiddWorld Development Status
 
 Last updated: 2026-11-20  

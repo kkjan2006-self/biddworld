@@ -28,6 +28,13 @@ describe('My Team and Matrix summary RPC isolation',()=>{
   expect(source).toContain('cursor=page.tree[page.tree.length-1]');
   expect(source).not.toContain('if(repeatedRows)setError');
  });
+ it('validates integer summary counts and supported member lifecycle/depth values',()=>{
+  expect(source).toContain("const counts=['direct_referrals','total_downline','active_members','active_activations','tree_total']");
+  expect(source).toContain('!Number.isSafeInteger(row[key])');
+  expect(source).toContain("!['pending','active','suspended','closed'].includes(String(member.status))");
+  expect(source).toContain('member.depth>20');
+  expect(source).toContain('!Number.isSafeInteger(row.credited_count)');
+ });
  it('keeps the Matrix summary tied to its own validated response',()=>{
   expect(source).toContain('setMatrixSummary(parseMatrixSummary(matrixResult.value.data))');
   expect(source).toContain('function parseMatrixSummary(value:unknown):MatrixSummary');
