@@ -1850,3 +1850,10 @@ At every development batch/chat end, update this file with the actual verified b
 - Preserved existing reservation/release ledger idempotency checks, state transitions, Admin authorization and audit event. Added `tests/admin-withdrawal-review-lifecycle-serialization.test.ts`; source-only, not executed.
 - Registered migration in clean-install manifest. Inventory: **149 forward + 16 excluded = 165 timestamped paths**, plus 3 legacy/unversioned SQL files.
 - No tests/build/type-check, DB operations, migration replay, deployment or `main` changes. Production and TEST remain untouched.
+
+
+## 2026-11-20 — Notification inbox recipient ownership validation
+
+- Closed a client-side trust gap: the member page parser accepted an optional expected user ID, but member page calls did not pass it, and realtime INSERT/UPDATE handlers relied only on the subscription filter.
+- Initial and keyset member pages now validate each row against the authenticated user; realtime INSERT/UPDATE events reject records for any other user. Admin history continues using the Admin-only recipient projection.
+- Added source-only assertions; not executed. No migration was required. No tests/build/type-check, DB operations, deployment or `main` changes. Production and TEST remain untouched.
