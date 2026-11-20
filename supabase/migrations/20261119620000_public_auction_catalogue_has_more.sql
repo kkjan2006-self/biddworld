@@ -1,4 +1,8 @@
 -- Return an exact has_more flag without changing the public catalogue's stable ordering.
+create index if not exists auctions_public_catalogue_start_idx
+ on public.auctions(starts_at asc,id desc)
+ where status in ('live','scheduled');
+
 drop function if exists public.public_list_active_auctions_page(integer,integer);
 create function public.public_list_active_auctions_page(
  p_limit integer default 100,p_offset integer default 0
