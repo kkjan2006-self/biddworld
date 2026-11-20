@@ -26,7 +26,7 @@ export default function AdminWalletFundingReview(){
   if(append&&pageBusy.current)return;
   if(append)pageBusy.current=true;else pageBusy.current=false;
   const seq=++requestSeq.current;
-  if(!supabase){setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);setLoadingMore(false);return;}
+  if(!supabase){pageBusy.current=false;setRows([]);setUrls({});setError('Supabase is not configured for this environment.');setLoading(false);setLoadingMore(false);return;}
   if(append){setLoadingMore(true);}else{cursor.current=null;seenIds.current=new Set();setRows([]);setUrls({});setReceiptErrors({});setHasMore(false);setLoading(true);}
   setError('');
   try{
