@@ -14,6 +14,8 @@ describe('safe cleanup for unreferenced submission media',()=>{
  });
  it('limits Staff public-image cleanup to pending auction submissions and unreferenced objects',()=>{
   expect(sql).toContain("? 'auction_submission_review'");
+  expect(sql).toContain("s.status='approved'");
+  expect(sql).toContain('not exists(select 1 from public.auction_submissions s where name=any(s.image_paths))');
   expect(sql).toContain("s.status='pending'");
   expect(sql).toContain('not exists(select 1 from public.products p where p.image_path=name or name=any(p.image_paths))');
   expect(sql).toContain('not exists(select 1 from public.auctions a where a.image_url=name)');
