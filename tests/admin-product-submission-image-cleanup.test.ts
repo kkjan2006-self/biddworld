@@ -12,6 +12,10 @@ describe('Admin product image cleanup after moderation',()=>{
   expect(ui).toContain('result.image_count!==publicPaths.length');
   expect(ui).toContain('result.product_id');
  });
+ it('tracks each generated public image before upload for pre-RPC failure cleanup',()=>{
+  expect(ui.indexOf('publicPaths.push(publicPath)')).toBeGreaterThan(-1);
+  expect(ui.indexOf("client.storage.from('product-media').upload")).toBeGreaterThan(ui.indexOf('publicPaths.push(publicPath)'));
+ });
  it('cleans uploaded images only before RPC or after a definite server rejection',()=>{
   expect(ui).toContain('publicPaths.length&&(!rpcAttempted||rpcDefinitelyRejected)');
  });
