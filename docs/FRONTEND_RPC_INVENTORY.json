@@ -1,7 +1,7 @@
 {
-  "generated_from": "completion-work frontend source inspection at commit e592f726d2348a4982d091a29488c3f2a6fe6e0d",
-  "snapshot_commit": "e592f726d2348a4982d091a29488c3f2a6fe6e0d",
-  "note": "This inventory records all 105 literal frontend RPC call-site entries across App.tsx and all React component surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
+  "generated_from": "completion-work frontend source inspection at commit ca9dfb21fafd1373fd9fc39ff6cef5986b82ff52",
+  "snapshot_commit": "ca9dfb21fafd1373fd9fc39ff6cef5986b82ff52",
+  "note": "This inventory records 105 literal frontend RPC call-site entries across App.tsx and all React component surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
       "name": "admin_activate_matrix_plan",
