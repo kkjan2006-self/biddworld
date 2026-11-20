@@ -23,4 +23,13 @@ describe('Notifications response and realtime integrity',()=>{
   expect(ui).toContain('Number.isFinite(Date.parse(row.read_at))');
   expect(ui).toContain('Number.isFinite(Date.parse(row.created_at))');
  });
+ it('reuses full row validation for realtime INSERT and UPDATE payloads',()=>{
+  expect(ui).toContain('function parseNoticeRow(value:unknown,expectedUserId?:string):Notice');
+  expect(ui).toContain('parseNoticeRow(payload.new,isAdmin?undefined:user.id)');
+  expect(ui).toContain("if(!matchesCategory||(unreadOnly&&row.read_at))return current.filter(item=>item.id!==row.id)");
+ });
+ it('checks available recipient ownership on realtime DELETE events',()=>{
+  expect(ui).toContain("if(!isAdmin&&row.user_id!==undefined&&row.user_id!==user.id)return");
+  expect(ui).toContain("if(typeof row.id!=='string'||!row.id.trim())return");
+ });
 });

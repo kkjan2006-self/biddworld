@@ -1857,3 +1857,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Closed a client-side trust gap: the member page parser accepted an optional expected user ID, but member page calls did not pass it, and realtime INSERT/UPDATE handlers relied only on the subscription filter.
 - Initial and keyset member pages now validate each row against the authenticated user; realtime INSERT/UPDATE events reject records for any other user. Admin history continues using the Admin-only recipient projection.
 - Added source-only assertions; not executed. No migration was required. No tests/build/type-check, DB operations, deployment or `main` changes. Production and TEST remain untouched.
+
+
+## 2026-11-20 — Notification realtime payload integrity
+
+- Realtime INSERT and UPDATE events now pass through the same complete notification-row validator used by paginated inbox responses, including UUID-independent identity presence, recipient ownership, required text fields, timestamps and optional Admin recipient fields.
+- UPDATE events remove an existing loaded row when it no longer matches the active category/unread filter instead of leaving stale filtered results. DELETE events validate the ID and reject an explicitly mismatched member recipient when the old row includes user ownership metadata; minimal DELETE payloads remain compatible with the already owner-validated member inbox.
+- Extended `tests/notifications-response-integrity.test.ts` with source-only assertions for full realtime validation and DELETE ownership. Not executed. No SQL migration or database operation was needed.
+- No tests, build, type-check, E2E, deployment, Production access or TEST access were performed. `main` was not modified.

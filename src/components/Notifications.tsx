@@ -4,15 +4,16 @@ import {supabase} from '../lib/supabase';
 
 type Notice={id:string;user_id:string;recipient_member_code?:string;recipient_name?:string;title:string;message:string;category:string;read_at:string|null;created_at:string};
 const PAGE_SIZE=100;
+function parseNoticeRow(value:unknown,expectedUserId?:string):Notice{
+ if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('The notification inbox contains an invalid record.');
+ const row=value as Record<string,unknown>;
+ if(typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||!row.user_id.trim()||(expectedUserId&&row.user_id!==expectedUserId)||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at as string)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||(row.recipient_member_code!==undefined&&typeof row.recipient_member_code!=='string')||(row.recipient_name!==undefined&&typeof row.recipient_name!=='string'))throw new Error('The notification inbox contains malformed records.');
+ return row as unknown as Notice;
+}
 function parseNoticePage(value:unknown,expectedUserId?:string):Notice[]{
  if(!Array.isArray(value)||value.length>PAGE_SIZE+1)throw new Error('The notification inbox returned an invalid page. Refresh and retry.');
  const ids=new Set<string>();
- return value.map(raw=>{
-  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The notification inbox contains an invalid record.');
-  const row=raw as Record<string,unknown>;
-  if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||typeof row.user_id!=='string'||!row.user_id.trim()||(expectedUserId&&row.user_id!==expectedUserId)||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at as string)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||(row.recipient_member_code!==undefined&&typeof row.recipient_member_code!=='string')||(row.recipient_name!==undefined&&typeof row.recipient_name!=='string'))throw new Error('The notification inbox contains malformed or duplicate records.');
-  ids.add(row.id);return row as unknown as Notice;
- });
+ return value.map(raw=>{const row=parseNoticeRow(raw,expectedUserId);if(ids.has(row.id))throw new Error('The notification inbox contains duplicate records.');ids.add(row.id);return row;});
 }
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  const client=supabase;
@@ -89,19 +90,25 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
      .on('postgres_changes',config,(payload)=>{
       if(!active)return;
       if(payload.eventType==='INSERT'){
-       const row=payload.new as Notice;
-       if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||!row.user_id.trim()||(!isAdmin&&row.user_id!==user.id)||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))return;
+       let row:Notice;
+       try{row=parseNoticeRow(payload.new,isAdmin?undefined:user.id);}catch{return;}
        if(categoryFilter!=='all'&&row.category!==categoryFilter)return;
        if(unreadOnly&&row.read_at)return;
        setItems(current=>[row,...current.filter(item=>item.id!==row.id)].slice(0,PAGE_SIZE));
        setNotice('A new notification has arrived.');
       }else if(payload.eventType==='UPDATE'){
-       const row=payload.new as Notice;
-       if(!row||typeof row.id!=='string'||!row.id.trim()||(!isAdmin&&row.user_id!==user.id))return;
-       setItems(current=>unreadOnly&&row.read_at?current.filter(item=>item.id!==row.id):current.map(item=>item.id===row.id?{...item,...row}:item));
+       let row:Notice;
+       try{row=parseNoticeRow(payload.new,isAdmin?undefined:user.id);}catch{return;}
+       setItems(current=>{
+        const matchesCategory=categoryFilter==='all'||row.category===categoryFilter;
+        if(!matchesCategory||(unreadOnly&&row.read_at))return current.filter(item=>item.id!==row.id);
+        return current.map(item=>item.id===row.id?row:item);
+       });
       }else if(payload.eventType==='DELETE'){
        const row=payload.old as Partial<Notice>;
-       if(typeof row.id==='string')setItems(current=>current.filter(item=>item.id!==row.id));
+       if(typeof row.id!=='string'||!row.id.trim())return;
+       if(!isAdmin&&row.user_id!==undefined&&row.user_id!==user.id)return;
+       setItems(current=>current.filter(item=>item.id!==row.id));
       }
      }).subscribe((status)=>{
       if(active&&status==='CHANNEL_ERROR')setError('Live notifications are temporarily unavailable. Use Refresh to check for updates.');
