@@ -1,3 +1,12 @@
+## 2026-11-20 — Admin Product moderation Storage recovery
+
+- Failed deletion of temporary public `product-media` objects after a definite Product moderation RPC rejection or pre-RPC failure is now persisted in an Admin-account-scoped queue, validated against generated UUID image paths and capped at 100 entries.
+- The Product Review screen exposes a Retry image cleanup action and retains the queue across page reloads; ambiguous moderation outcomes continue to preserve uploaded images to avoid breaking a possibly published product.
+- Added source-only assertions in `tests/admin-product-submission-image-cleanup.test.ts`; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Wallet history, Admin templates and member submission contracts
 
 - Wallet History now treats the wallet-account FK embed as its to-one object shape, validates bounded transaction rows and Matrix source records, and resolves complete Matrix attribution in 200-ID chunks to respect the SQL RPC cap during full CSV export.
