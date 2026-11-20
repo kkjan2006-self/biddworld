@@ -1,3 +1,15 @@
+## 2026-11-20 — Recent Winners schema contract repair and latest UI reconciliation
+
+- Confirmed post-prompt UI updates in source: Fixed Bid cards have single-line title/subtitle, full Product Details gallery dialog, entry amount, percentage progress and BID NOW action; Auction cards have one-line title/category, Auction Details, current bid/time/target progress and PLACE A BID; Homepage Recent Winners shows auction item recipients; member-facing network wording is My Team.
+- Confirmed auction finalization now records an item award only, with no new auction-linked winning-payment record. Fixed Bid winner-payment remains a separate workflow.
+- Found a concrete RPC/schema mismatch: the Recent Winners function in `20261120110000_auction_item_awards_and_homepage_winners.sql` joined `member_ids.user_id`, while the canonical clean-install baseline defines `member_ids.owner_user_id`. Added `20261120120000_fix_recent_auction_winner_profile_join.sql` to replace the public RPC with the canonical join and preserve the 1–12 result bound and anon/authenticated grants.
+- Added `tests/recent-auction-winner-profile-contract.test.ts` as source-only regression coverage; it was not executed.
+- Registered the new migration in `supabase/clean-install/forward-migrations.txt`. Manifest count is now 140 forward + 16 excluded = 156 listed paths; exact migration-directory accounting remains unverified until the development-completion QA phase.
+- Admin strict-TypeScript follow-up commits inspected: `38fe63c0dd14427e65995826d0829232e7edb056` and `4e34dc4f147434903643bd9f6717d18e488b90fa`. Preview workflow uses corrected Pages base path and `npm run build`; no deployment is claimed.
+- No tests/build/type-check/browser/mobile QA, Supabase reads/writes, migration replay, or Preview deployment were run. No intended `main` source change.
+
+---
+
 ## 2026-11-20 — Current source and Preview reconciliation checkpoint
 
 - Re-inspected `completion-work` source for Admin product image rendering, member auction submission preflight, open-ended Expected Price lifecycle, auction finalization, homepage Recent Winners, and the Preview Pages workflow.
