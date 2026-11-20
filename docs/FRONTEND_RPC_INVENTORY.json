@@ -1,6 +1,6 @@
 {
-  "generated_from": "completion-work frontend source inspection at commit f93a5dd61131672536dd57a34b97fdb3cf6a441d",
-  "snapshot_commit": "f93a5dd61131672536dd57a34b97fdb3cf6a441d",
+  "generated_from": "completion-work frontend source inspection at commit 3313af8725bbe5ebaa231625af800a8c6c72111c",
+  "snapshot_commit": "3313af8725bbe5ebaa231625af800a8c6c72111c",
   "note": "This inventory records 105 literal frontend RPC call-site entries across App.tsx and all React component surfaces at the snapshot commit. It does not certify live Production function availability, signatures, response compatibility, authorization, or migration equivalence.",
   "rpc_calls": [
     {
