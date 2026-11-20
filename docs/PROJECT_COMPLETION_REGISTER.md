@@ -1,3 +1,11 @@
+## 2026-11-20 — Persistent Admin product and auction media cleanup recovery
+
+- Admin Product draft uploads now persist failed `product-media` object deletions in account-scoped browser storage, validate restored paths against the generated UUID-prefixed object format, cap the queue at 100, and clear entries after successful retry. In-memory recovery remains available when local storage is unavailable. Source-only regression assertions added in `tests/admin-product-media-cleanup-recovery.test.ts` (not executed). Commit: `1a0d63be3f8edd4e561c6021cf5784949d9868b3`.
+- Admin Auction Submission Review now persists failed cleanup of private `auction-submission-media` originals after approval and temporary public `product-media` objects after definite RPC rejection. Queue entries retain the bucket and path, are validated and capped at 100, and can be retried from the review UI. Ambiguous RPC outcomes continue to preserve potentially committed media. Added `tests/admin-auction-submission-media-cleanup-recovery.test.ts` (not executed). Commits: `3e89f0ded12dfa34380d2ac4d6831a91f462e87f`, `03ce3269951399a89d8046ded353b108c7a34181`, `9cf833a6927d4124d285f88f54afedd90988221e`.
+- No test, build, type-check, Supabase access, migration replay or deployment was performed. These are browser-side recovery changes; no SQL migration or schema change was added.
+
+---
+
 ## 2026-11-20 — Persistent member submission media cleanup recovery
 
 - **Member Product/Auction media cleanup now survives page reloads:** failed image-object removals and definite-rejection upload cleanup paths are persisted in account-scoped browser storage, restored only for the signed-in account, constrained to that account's storage prefix, capped at 100 paths, and removed from the queue after successful retry. In-memory retry remains available if browser storage is unavailable. Added/extended `tests/member-submission-media-cleanup-recovery.test.ts`; source-only, not executed. Commits: Product retry `667205ff0512076556394ac6e455d9da8478f3a0`, Auction retry `36b5253e30615411d35750cca51c902ce269470e`, persistence Product `49ef130bbb0b76aac4f6f2308c791de3ccf6ba80`, Auction `fdbd78a5292fcf3297222140144a5e3cee523a75`, test `3ea16cb108394d964053faf209b2c0deba82771c`.
