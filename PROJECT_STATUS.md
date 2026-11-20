@@ -1582,3 +1582,13 @@ At every development batch/chat end, update this file with the actual verified b
 - Rebuilt the Expected Price Auction regression source after finding malformed assertions in the previous test file; updated product-gallery review contract coverage. Source only; tests not executed.
 - Commits: auction migration `34a022ba9fd1cadeea702d6f75b89513de81d0be`; auction test `4a8916474abe4ee57f1b424981c111077ee09a58`; product review migration `0237506c7125ade951df3430021610fe33c7d832`; product review test `48c1f9f2bc3cb6e9dcb86063f37ee29c19090b0d`; product submission/edit guards `87ea033edda27b0772cfc2bdaa7537d7f74b3dca`, `0c86c95a39d1187bb7041b250b08b10b25c294a7`, `d185daa4e311bad1b04b17741d25a38d88cc3a25`.
 - No tests/build/type-check/QA run; no Supabase migrations applied, no data writes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Permissioned Staff package activation review
+
+- Fixed a Staff portal mismatch: Staff accounts with `package_activation_review` were shown the review queue but the UI called an Admin-only list RPC, and the approval RPC also rejected Staff. The Staff portal now uses the bounded keyset page RPC, validates activation rows and cursor metadata, signs receipts page-by-page and exposes Load More.
+- Updated the page RPC to allow only Primary Admin or `admin_staff` with the exact `package_activation_review` permission. Added follow-up migration `20261119640000_staff_package_activation_review.sql` to apply the same narrow role guard to the atomic activation review/credit RPC for existing environments. Other Staff permissions do not grant package approval.
+- Updated the frontend RPC inventory to replace the obsolete Staff queue call with the paginated RPC. Added source-only regression coverage; not executed.
+- Commits: page guard `eb57399495d68c2221c14a38f0cbc57d4c9f282f`; follow-up migration `b68bc67ddb3576b1fa86e237d250328a2ae71dd9`; Staff portal `9205ddd07e45a7b412ee9d368c329336d506c2e6`, pagination reset `d96f785162b0a81c92175a93575c8570b3c1a726`; regression source `7aeb7133aed2a8427431f4d03c45f5657ac6c198`.
+- Migration inventory: **132 forward + 16 excluded = 148 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
+- No migration applied, no data changes, no Preview deployment, and no protected `main` changes.
