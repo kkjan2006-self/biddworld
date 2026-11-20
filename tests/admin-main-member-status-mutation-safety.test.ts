@@ -31,4 +31,11 @@ describe('Admin Main ID status mutation safety',()=>{
   expect(source).not.toContain('Account status changes and suspension workflows remain separate pending work.');
  });
 
+ it('validates the returned member identity, requested status and linked-ID count',()=>{
+  expect(source).toContain("result.success!==true");
+  expect(source).toContain("result.member_code.trim().toUpperCase()!==memberCodeAtSubmit.trim().toUpperCase()");
+  expect(source).toContain('result.status!==memberStatusValue');
+  expect(source).toContain('result.linked_duplicate_ids_changed');
+ });
+
 });
