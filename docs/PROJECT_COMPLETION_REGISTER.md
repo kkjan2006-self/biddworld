@@ -3169,3 +3169,11 @@
 - Extended the shared paged-export helper with an optional stable row identity. Withdrawal export now rejects a repeated Request ID across pages even if other returned fields changed, rather than relying only on byte-for-byte row equality.
 - Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration was required because this closes a client-side report-integrity gap against the existing Admin withdrawal RPC contract.
 - No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
+
+
+## 2026-11-20 — Member withdrawal creation response contract
+
+- The member withdrawal submission UI now validates the complete success payload returned by `member_create_withdrawal_request`: canonical UUID request ID, exact `pending` status, and finite bounded server-returned minimum amount.
+- The form is cleared only after the response matches the SQL RPC contract; malformed or incomplete success payloads fail closed and direct the member to refresh history before retrying.
+- Added `tests/member-withdrawal-create-response-integrity.test.ts` as source-only regression coverage. Not executed. No SQL migration was needed; the client validator now matches the existing authoritative response shape.
+- No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
