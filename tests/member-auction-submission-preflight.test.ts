@@ -54,4 +54,11 @@ describe('member auction submission preflight', () => {
     expect(source).toContain('invalid or duplicate records');
   });
 
+  it('round-trips optional detail lines as actual newlines and enforces the required Expected Price', () => {
+    expect(source).toContain(".join('\\n')");
+    expect(source).toContain("expected_price:number");
+    expect(source).not.toContain('expected_price:number|null');
+    expect(source).toContain("typeof row.expected_price==='number'&&Number.isFinite(row.expected_price)&&row.expected_price>=row.starting_price");
+  });
+
 });
