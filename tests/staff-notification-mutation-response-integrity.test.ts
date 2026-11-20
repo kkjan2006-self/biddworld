@@ -31,4 +31,11 @@ describe('Staff and notification mutation response integrity',()=>{
   expect(notifications).toContain('item.member_code');
   expect(notifications).toContain('item.user_id');
  });
+ it('validates package activation review results in the restricted Staff portal',()=>{
+  const staffPortal=read('src/components/AdminStaff.tsx');
+  expect(staffPortal).toContain("result.status!==(approve?'approved':'rejected')");
+  expect(staffPortal).toContain('result.bid_wallet_credit');
+  expect(staffPortal).toContain('result.wallet_balance');
+ });
+
 });
