@@ -57,6 +57,8 @@ declare
  v_auction uuid;
  v_path text;
  v_status public.auction_status;
+ v_target_reached_at timestamptz;
+ v_deadline timestamptz;
 begin
  if v_uid is null or not(
   v_role='admin'
@@ -122,6 +124,12 @@ begin
  returning id into v_product;
 
  v_status:=case when p_starts_at<=now() then 'live'::public.auction_status else 'scheduled'::public.auction_status end;
+ -- If Expected Price equals Starting Price, the target is already reached:
+ -- start the 48-hour clock at the scheduled start, or immediately for a live auction.
+ if p_expected_price<=p_starting_price then
+  v_target_reached_at:=greatest(p_starts_at,clock_timestamp());
+  v_deadline:=v_target_reached_at+interval '48 hours';
+ end if;
  insert into public.auctions(
   product_id,title,description,image_url,category,currency,
   starting_price,current_price,minimum_increment,starts_at,ends_at,
@@ -131,7 +139,7 @@ begin
   v_product,btrim(p_title),btrim(p_description),p_image_paths[1],
   nullif(btrim(coalesce(p_category,'')),''),'INR',
   p_starting_price,p_starting_price,p_minimum_increment,p_starts_at,null,
-  p_expected_price,null,v_status
+  p_expected_price,v_target_reached_at,v_status
  )
  returning id into v_auction;
 
@@ -144,7 +152,7 @@ begin
      category=nullif(btrim(coalesce(p_category,'')),''),
      image_paths=p_image_paths,
      starting_price=p_starting_price,expected_price=p_expected_price,
-     minimum_increment=p_minimum_increment,starts_at=p_starts_at,ends_at=null,
+     minimum_increment=p_minimum_increment,starts_at=p_starts_at,ends_at=v_deadline,
      optional_details=p_optional_details
  where id=v_s.id;
 
@@ -159,7 +167,7 @@ begin
 
  return jsonb_build_object(
   'success',true,'status','approved','auction_id',v_auction,
-  'product_id',v_product,'expected_price',p_expected_price
+  'product_id',v_product,'expected_price',p_expected_price,'target_reached_at',v_target_reached_at,'ends_at',v_deadline
  );
 end;
 $function$;

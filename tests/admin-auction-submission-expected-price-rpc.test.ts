@@ -23,8 +23,11 @@ describe('Admin auction submission Expected Price RPC contract',()=>{
   expect(migration).toContain('check(expected_price is null or expected_price>=starting_price) not valid');
   expect(migration).toContain("check(status<>'pending' or expected_price is not null) not valid");
   expect(migration).toContain('expected_price,target_reached_at,status');
-  expect(migration).toContain('p_expected_price,null,v_status');
-  expect(migration).toContain('ends_at=null');
+  expect(migration).toContain('p_expected_price,v_target_reached_at,v_status');
+  expect(migration).toContain('if p_expected_price<=p_starting_price then');
+  expect(migration).toContain('v_target_reached_at:=greatest(p_starts_at,clock_timestamp())');
+  expect(migration).toContain("v_deadline:=v_target_reached_at+interval '48 hours'");
+  expect(migration).toContain('ends_at=v_deadline');
  });
  it('authorizes Admin and only Staff with the explicit auction review permission',()=>{
   expect(migration).toContain("v_role='admin'");
