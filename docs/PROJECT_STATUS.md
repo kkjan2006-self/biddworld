@@ -220,3 +220,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Hardened the shared member history loader used by package activations, auction bids, Fixed Bid entries, sponsor commissions and winning-payment history. Every continuation page now validates record identity and timestamp, strict descending (timestamp,id) ordering within the page and against the previously loaded boundary, and rejects any duplicate/overlap before appending.
 - Package activations use their actual `submitted_at` ordering key; the other four histories use `created_at`. Invalid pages stop pagination and require a refresh rather than being silently filtered while the offset advances.
 - Added `tests/member-account-history-pagination-integrity.test.ts` as source-only regression coverage; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — Member Matrix commission history integrity
+
+- Reconciled the member Matrix history client with the authoritative `member_list_my_matrix_commissions_page` SQL ordering (`created_at DESC, id DESC`). Initial and continuation pages now share one strict parser that validates UUID identity, level, source attribution, positive finite amount, status and timestamp; it also rejects duplicate IDs and ordering regressions within/across pages before display.
+- Invalid continuation pages now stop further pagination and require a refresh instead of leaving a repeatedly failing cursor active. The initial page is validated before being placed into member state.
+- Added `tests/member-matrix-commission-history-integrity.test.ts` as source-only regression coverage; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
