@@ -27,4 +27,14 @@ describe('Restricted payment-review staff directory integrity',()=>{
   expect(source).toContain("supabase.rpc('admin_set_payment_review_staff'");
   expect(source).toContain("supabase.rpc('admin_update_payment_review_staff_permissions'");
  });
+ it('validates Staff grant/revoke identity and the exact default permission set',()=>{
+  expect(source).toContain('result.email.toLowerCase()!==expectedEmail');
+  expect(source).toContain('result.app_role!==expectedRole');
+  expect(source).toContain("const expectedPermissions=enabled?['package_activation_review','wallet_funding_review','auction_submission_review']:[]");
+  expect(source).toContain('result.permissions.length!==expectedPermissions.length');
+ });
+ it('validates individual permission update identity and exact selection',()=>{
+  expect(source).toContain('result.email?.toString().toLowerCase()!==row.email?.toLowerCase()');
+  expect(source).toContain('selected.some(permission=>!result.permissions.includes(permission))');
+ });
 });
