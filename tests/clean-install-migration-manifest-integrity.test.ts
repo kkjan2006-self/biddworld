@@ -11,6 +11,7 @@ const excluded=readFileSync(resolve(root,'supabase/clean-install/excluded-histor
 const all=readdirSync(migrationDir).filter(x=>/^\d{14}_.+\.sql$/.test(x))
  .map(x=>'supabase/migrations/'+x).sort();
 const baseline=readFileSync(resolve(root,'supabase/clean-install/production_schema_baseline_candidate.sql'),'utf8');
+const cleanInstallReadme=readFileSync(resolve(root,'supabase/clean-install/README.md'),'utf8');
 
 describe('Clean-install migration manifest safety',()=>{
  it('accounts for every timestamped migration exactly once between forward and excluded lists',()=>{
@@ -27,6 +28,11 @@ describe('Clean-install migration manifest safety',()=>{
    const version=Number(p.split('/').pop().slice(0,14));
    return version<=20261115163218 || p.endsWith('20261115180000_admin_audit_log_pagination.sql');
   })).toBe(true);
+ });
+ it('keeps clean-install documentation counts synchronized with the actual manifests',()=>{
+  expect(cleanInstallReadme).toContain(`**${forward.length} unique entries at the latest inspected completion-work manifest checkpoint**`);
+  expect(cleanInstallReadme).toContain(`**${forward.length} forward + ${excluded.length} excluded = ${all.length} timestamped SQL migration paths**`);
+  expect(all.length).toBe(forward.length+excluded.length);
  });
  it('keeps the baseline explicitly marked as a schema-only candidate, not an approved executable migration',()=>{
   expect(baseline).toContain('CANDIDATE ONLY');
