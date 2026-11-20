@@ -17,6 +17,7 @@ import {parseDuplicateIdCreationResult} from '../lib/duplicate-id-result';
 
 type Counts={members:number;packages:number;pendingActivations:number;pendingWithdrawals:number;auctions:number;campaigns:number};
 function adminProductImageUrl(path:string|null|undefined){if(!path)return '';if(/^https?:\/\//i.test(path))return path;return supabase?.storage.from('product-media').getPublicUrl(path).data.publicUrl??'';}
+function isAdminProductCleanupPath(value:unknown):value is string{return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}-[a-z0-9._-]{1,100}$/i.test(value);}
 
 type SponsorMember={member_code:string;display_name:string;phone:string;sponsor_code:string;created_at:string};
 function parseSponsorMemberPage(value:unknown):SponsorMember[]{if(!Array.isArray(value)||value.length>100)throw new Error('Invalid member directory page.');const ids=new Set<string>();return value.map((raw)=>{if(!raw||typeof raw!=='object')throw new Error('Malformed member directory record.');const row=raw as Record<string,unknown>;if(typeof row.member_code!=='string'||!row.member_code.trim()||ids.has(row.member_code)||typeof row.display_name!=='string'||typeof row.created_at!=='string'||Number.isNaN(Date.parse(row.created_at))||(row.phone!==null&&row.phone!==undefined&&typeof row.phone!=='string')||(row.sponsor_code!==null&&row.sponsor_code!==undefined&&typeof row.sponsor_code!=='string'))throw new Error('Malformed or duplicate member directory records.');ids.add(row.member_code);return row as unknown as SponsorMember;});}
@@ -230,7 +231,7 @@ export default function Admin(){
  const [deliveryRows,setDeliveryRows]=useState<DeliveryRow[]>([]),[deliveryPayment,setDeliveryPayment]=useState(''),[deliveryCarrier,setDeliveryCarrier]=useState(''),[deliveryTrackingNo,setDeliveryTrackingNo]=useState(''),[deliveryStatus,setDeliveryStatus]=useState('pending'),[deliveryMessage,setDeliveryMessage]=useState(''),[deliveryBusy,setDeliveryBusy]=useState(false),[deliveryMoreBusy,setDeliveryMoreBusy]=useState(false),[deliveryHasMore,setDeliveryHasMore]=useState(true);
  const [fixedCampaigns,setFixedCampaigns]=useState<FixedBidCampaign[]>([]),[fixedProductId,setFixedProductId]=useState(''),[fixedTitle,setFixedTitle]=useState(''),[fixedDescription,setFixedDescription]=useState(''),[fixedEntryAmount,setFixedEntryAmount]=useState(''),[fixedWinnerPayment,setFixedWinnerPayment]=useState(''),[fixedMaxPerMember,setFixedMaxPerMember]=useState('1'),[fixedMaxTotal,setFixedMaxTotal]=useState('1000'),[fixedWinnerCount,setFixedWinnerCount]=useState('1'),[fixedStartsAt,setFixedStartsAt]=useState(''),[fixedEndsAt,setFixedEndsAt]=useState(''),[fixedRefundNonWinners,setFixedRefundNonWinners]=useState(false),[editingFixedCampaignId,setEditingFixedCampaignId]=useState(''),[fixedMessage,setFixedMessage]=useState(''),[fixedBusy,setFixedBusy]=useState(false);
  const [auctionReportSearch,setAuctionReportSearch]=useState(''),[auctionReportStatus,setAuctionReportStatus]=useState('all'),[fixedReportSearch,setFixedReportSearch]=useState(''),[fixedReportStatus,setFixedReportStatus]=useState('all');
- const [productName,setProductName]=useState(''),[productDescription,setProductDescription]=useState(''),[productImage,setProductImage]=useState(''),[productCategory,setProductCategory]=useState(''),[editingProductId,setEditingProductId]=useState(''),[productUploadBusy,setProductUploadBusy]=useState(false),[stagedProductImagePath,setStagedProductImagePath]=useState(''),[orphanedProductImagePaths,setOrphanedProductImagePaths]=useState<string[]>([]);
+ const [productName,setProductName]=useState(''),[productDescription,setProductDescription]=useState(''),[productImage,setProductImage]=useState(''),[productCategory,setProductCategory]=useState(''),[editingProductId,setEditingProductId]=useState(''),[productUploadBusy,setProductUploadBusy]=useState(false),[stagedProductImagePath,setStagedProductImagePath]=useState(''),[orphanedProductImagePaths,setOrphanedProductImagePaths]=useState<string[]>([]),[cleanupOwner,setCleanupOwner]=useState('');
  const [auctionProductId,setAuctionProductId]=useState(''),[editingAuctionId,setEditingAuctionId]=useState(''),[auctionTitle,setAuctionTitle]=useState(''),[auctionDescription,setAuctionDescription]=useState(''),[auctionImage,setAuctionImage]=useState(''),[auctionCategory,setAuctionCategory]=useState(''),[auctionStartingPrice,setAuctionStartingPrice]=useState('0'),[auctionExpectedPrice,setAuctionExpectedPrice]=useState('0'),[auctionIncrement,setAuctionIncrement]=useState('1'),[auctionStarts,setAuctionStarts]=useState(''),[auctionMessage,setAuctionMessage]=useState(''),[auctionBusy,setAuctionBusy]=useState(false);
  const [withdrawalReportSearch,setWithdrawalReportSearch]=useState(''),[withdrawalReportStatus,setWithdrawalReportStatus]=useState('all'),[withdrawalReportFrom,setWithdrawalReportFrom]=useState(''),[withdrawalReportTo,setWithdrawalReportTo]=useState('');
  const [winningReportSearch,setWinningReportSearch]=useState(''),[winningReportStatus,setWinningReportStatus]=useState('all'),[winningReportFrom,setWinningReportFrom]=useState(''),[winningReportTo,setWinningReportTo]=useState('');
@@ -252,6 +253,22 @@ export default function Admin(){
   });
   return()=>{active=false;subscription.unsubscribe();};
  },[]);
+ useEffect(()=>{
+  let active=true;
+  void supabase?.auth.getUser().then(({data,error})=>{
+   if(!active||error||!data.user)return;
+   const owner=data.user.id;
+   setCleanupOwner(owner);
+   try{const raw=localStorage.getItem('biddworld:admin-product-media-cleanup:'+owner);if(raw){const parsed:unknown=JSON.parse(raw);if(Array.isArray(parsed))setOrphanedProductImagePaths(Array.from(new Set(parsed.filter(isAdminProductCleanupPath))).slice(0,100));}}
+   catch{/* In-memory retry remains available when browser storage is unavailable or malformed. */}
+  }).catch(()=>{if(active)setCleanupOwner('');});
+  return()=>{active=false;};
+ },[]);
+ useEffect(()=>{
+  if(!cleanupOwner)return;
+  try{const key='biddworld:admin-product-media-cleanup:'+cleanupOwner;if(orphanedProductImagePaths.length)localStorage.setItem(key,JSON.stringify(orphanedProductImagePaths.filter(isAdminProductCleanupPath).slice(0,100)));else localStorage.removeItem(key);}
+  catch{/* Persistent recovery is best-effort; the in-memory retry action remains available. */}
+ },[cleanupOwner,orphanedProductImagePaths]);
  useEffect(()=>{
   let active=true;
   const memberRequestAtStart=memberSearchRequest.current;
