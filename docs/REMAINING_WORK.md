@@ -37,8 +37,8 @@ This file keeps the historical audit notes below, but the opening status is the 
 ## Current checkpoint
 
 - Branch: `completion-work`
-- Current migration inventory at this checkpoint: 136 forward + 16 excluded = 152 timestamped SQL files.
-- Latest auction moderation repair: `20261119680000_admin_auction_submission_expected_price_review.sql`.
+- Current migration inventory at this checkpoint: 137 forward + 16 excluded = 153 timestamped SQL files.
+- Latest auction source repairs: `20261119680000_admin_auction_submission_expected_price_review.sql` and `20261119690000_prevent_duplicate_pending_auction_submissions.sql`.
 - Source development estimate: 95% provisional. This is not a verified completion percentage.
 
 ## Historical audit notes
