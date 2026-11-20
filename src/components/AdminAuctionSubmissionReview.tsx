@@ -2,6 +2,24 @@ import {useEffect,useRef,useState} from 'react';
 import {RefreshCw,CheckCircle2,XCircle,Save} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 type Row={id:string;title:string;description:string;category:string|null;image_paths:string[];starting_price:number;expected_price:number;minimum_increment:number;starts_at:string;ends_at:string|null;optional_details:Record<string,string>;created_at:string;submitted_by:string};
+function validRow(value:unknown):value is Row{
+ if(!value||typeof value!=='object'||Array.isArray(value))return false;
+ const row=value as Record<string,unknown>;
+ return typeof row.id==='string'&&row.id.trim().length>0
+  &&typeof row.title==='string'&&row.title.trim().length>=5&&row.title.length<=180
+  &&typeof row.description==='string'&&row.description.trim().length>=20&&row.description.length<=10000
+  &&(row.category===null||typeof row.category==='string')
+  &&Array.isArray(row.image_paths)&&row.image_paths.length>=1&&row.image_paths.length<=8&&row.image_paths.every(path=>typeof path==='string'&&path.trim().length>0)
+  &&typeof row.starting_price==='number'&&Number.isFinite(row.starting_price)&&row.starting_price>0
+  &&typeof row.expected_price==='number'&&Number.isFinite(row.expected_price)&&row.expected_price>=row.starting_price
+  &&typeof row.minimum_increment==='number'&&Number.isFinite(row.minimum_increment)&&row.minimum_increment>0
+  &&typeof row.starts_at==='string'&&Number.isFinite(Date.parse(row.starts_at))
+  &&(row.ends_at===null||(typeof row.ends_at==='string'&&Number.isFinite(Date.parse(row.ends_at))))
+  &&!!row.optional_details&&typeof row.optional_details==='object'&&!Array.isArray(row.optional_details)
+  &&Object.entries(row.optional_details as Record<string,unknown>).every(([key,item])=>key.trim().length>0&&typeof item==='string')
+  &&typeof row.created_at==='string'&&Number.isFinite(Date.parse(row.created_at))
+  &&typeof row.submitted_by==='string'&&row.submitted_by.trim().length>0;
+}
 export default function AdminAuctionSubmissionReview(){
  const[rows,setRows]=useState<Row[]>([]),[urls,setUrls]=useState<Record<string,string[]>>({}),[edit,setEdit]=useState<Record<string,Partial<Row>>>({}),[notes,setNotes]=useState<Record<string,string>>({}),[busy,setBusy]=useState(''),[message,setMessage]=useState(''),[queueLoading,setQueueLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[imageErrors,setImageErrors]=useState<Record<string,string>>({});const reviewInFlight=useRef(false),loadSequence=useRef(0),pageLock=useRef(false),cursor=useRef<{created_at:string;id:string}|null>(null);
  async function load(reset=true){
@@ -15,9 +33,9 @@ export default function AdminAuctionSubmissionReview(){
    const{data,error}=await supabase.rpc('admin_list_auction_submissions_page',{p_limit:50,p_after_created_at:after?.created_at??null,p_after_id:after?.id??null});
    if(error)throw error;
    if(!data||typeof data!=='object'||!Array.isArray(data.items)||typeof data.has_more!=='boolean')throw new Error('The auction review page response was invalid.');
-   if(data.has_more&&(!data.next_created_at||!data.next_id))throw new Error('The auction review cursor was incomplete.');
-   const list=data.items as Row[],ids=new Set<string>(),existing=new Set(reset?[]:rows.map(row=>row.id));
-   for(const item of list){if(!item||typeof item.id!=='string'||!item.id.trim()||ids.has(item.id)||existing.has(item.id)||typeof item.created_at!=='string'||!Number.isFinite(new Date(item.created_at).getTime())||!Array.isArray(item.image_paths))throw new Error('The auction review page contains malformed or duplicate submissions.');ids.add(item.id);}
+   if(data.has_more&&(!data.next_created_at||!Number.isFinite(Date.parse(data.next_created_at))||typeof data.next_id!=='string'||!data.next_id.trim()))throw new Error('The auction review cursor was incomplete.');
+   const list=data.items as unknown[];if(list.length>50||!list.every(validRow))throw new Error('The auction review page contains malformed submissions.');const ids=new Set<string>(),existing=new Set(reset?[]:rows.map(row=>row.id));
+   for(const item of list){if(ids.has(item.id)||existing.has(item.id))throw new Error('The auction review page contains duplicate or overlapping submissions.');ids.add(item.id);}
    const next:Record<string,string[]>={},failures:Record<string,string>={};
    await Promise.all(list.map(async r=>{const signed=await Promise.all(r.image_paths.map(async path=>{const{data:signedData,error:signedError}=await supabase!.storage.from('auction-submission-media').createSignedUrl(path,300);if(signedError||!signedData?.signedUrl){failures[r.id]=signedError?.message||'One or more submitted images could not be opened.';return null;}return signedData.signedUrl;}));next[r.id]=signed.filter((url):url is string=>Boolean(url));}));
    if(seq!==loadSequence.current)return;
