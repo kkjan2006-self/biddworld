@@ -1,3 +1,16 @@
+## 2026-11-20 — Current source and Preview reconciliation checkpoint
+
+- Re-inspected `completion-work` source for Admin product image rendering, member auction submission preflight, open-ended Expected Price lifecycle, auction finalization, homepage Recent Winners, and the Preview Pages workflow.
+- Member auction preflight currently validates normalized title/description, image count/type/size before upload, Starting Price, Expected Price, minimum increment and a future start time; a synchronous in-flight guard prevents duplicate taps.
+- Homepage Recent Winners consumes `public_list_recent_auction_winners`. The new auction award migration records the highest accepted bidder as the item winner and explicitly keeps auction awards separate from Fixed Bid winning-payment records/notifications.
+- Admin product image helper accepts absolute HTTP(S) URLs and resolves relative object paths from the public `product-media` bucket. JSX preview includes a broken-image hide fallback. No unsupported rendering change was made.
+- Current manifest counts: 139 unique forward entries + 16 excluded historical entries = 155 listed paths. The clean-install README and older completion checkpoint contain stale counts; a complete source-tree file-accounting/dependency reconciliation is still required.
+- Preview workflow uses `deploy-preview.yml`, checks out `completion-work`, builds in TEST mode, and rejects missing or non-TEST Supabase secrets. The `Resource not accessible by integration` issue is the documented Pages repository-settings permission boundary; Pages must be enabled once by the repository owner. No deployment is claimed in this batch.
+- No tests, build, type-check, browser/mobile QA, Supabase reads/writes, migration replay, or Preview deployment were run. No protected `main` change.
+- Remaining development focus: frontend RPC-to-migration contract reconciliation, baseline/forward-chain dependency accounting, and remaining cross-module source gaps. **95% provisional; not runtime verified.**
+
+---
+
 - Restricted Payment Review Staff directory now enforces a bounded response, validates account identity/email/timestamps and unique allowed permissions, rejects malformed or duplicate permission drafts, and prevents overlapping role/permission mutations with a reliably released in-flight guard. Existing Primary Admin gating and server-side staff RPCs are preserved.
 - Added source-contract regression coverage in `tests/admin-payment-review-staff-integrity.test.ts` (not executed).
 - Commits: staff hardening `1c9940fb3cc2ec325a111379e443dacbfae9f0ba`; mutation-lock correction `a5d0c69cf8d6607ee92e412572dea8bffc774030`; regression source `32108e188b6ccdfabe6b4fa6abc9b9f141a3cadc`.
