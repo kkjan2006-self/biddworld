@@ -1,3 +1,16 @@
+## 2026-11-20 — Member and staff workflow response integrity / wallet terminology
+
+- Fixed Bid entry now validates success, entry ID, positive amount, non-negative Bid Wallet and Income Wallet debit amounts, exact debit reconciliation and replay flag before clearing its idempotency key. The confirmation shows the verified split.
+- Fixed Bid winner payment validates success, exact payment ID, paid status and replay state; a new payment also requires a valid non-negative Income Wallet balance. The payment key is retained if the result is malformed or ambiguous.
+- Member withdrawal creation validates success, returned request ID and pending status before clearing form state. Member profile update validates exact returned name and phone. Member support submission validates ticket ID/status/replay before clearing its request key; Admin support update validates ticket ID/status.
+- Add Money submission validates request ID/status before clearing receipt/form state. Admin Add Money review validates the approved/rejected result and Income Wallet balance before confirming.
+- Replaced legacy “Main Wallet” labels with “Income Wallet” across member wallet balances, withdrawal, winning-payment, Add Money, wallet history, Admin wallet controls, withdrawal review and Fixed Bid refund descriptions where the underlying wallet type is `income`.
+- Added `tests/member-workflow-mutation-response-integrity.test.ts`; source-only, not executed.
+- Commits: `4c2017d70f68cfcc9fbdc564b74658d9f31063fc`, `f2cc4a580f9ae58133c6524530955956fbd0cd37`, `7a10458c5a61c476234696c593b7b1b8c3325fbb`, `030415b2711ca80ec4b41efcd6b6f4c86f30ae58`, `19893ba84c66645cf7eba831f3db4a2ea8cf80b6`, `6bc5aeebdbdc73093432b0b80c0c05d2f74c6b08`, `8ba1f5475df0c7a734a3b1eb40691650931d20c5`, `699c732b34f0f017993cfeb254d5731ad9d340f4`, `3cdac6f9f550f6a6caac6a3301d3b901e7349320`, `9960ffee7b62884fc7e2df92731a3d8a2dda71ec`, `349dcd58e21b881124278c44c57f1cd1d0be5c96`.
+- No tests/build/type-check, database access/replay or deployment was performed.
+
+---
+
 ## 2026-11-20 — Admin workflow mutation response validation
 
 - Added client-side response validation for five Admin mutations that previously treated an error-free RPC call as success without checking its JSON result: withdrawal review, Primary Admin role management, member profile editing, package publication and referral-plan activation.
