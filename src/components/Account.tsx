@@ -86,9 +86,9 @@ async function fetchAllPages<T extends {id:string}>(fetchPage:(from:number,to:nu
   const pageIds=new Set<string>();let prior=all[all.length-1];
   for(const row of batch){
    if(!row||typeof row.id!=='string'||!row.id.trim())throw new Error('The report service returned a record without a valid ID. Export stopped to protect report accuracy.');
-   const timestamp=(row as Record<string,unknown>)[timestampKey];
+   const timestamp=(row as unknown as Record<string,unknown>)[timestampKey];
    if(typeof timestamp!=='string'||!Number.isFinite(Date.parse(timestamp)))throw new Error('The report service returned an invalid record timestamp. Export stopped to protect report accuracy.');
-   if(prior){const priorTimestamp=(prior as Record<string,unknown>)[timestampKey];const delta=Date.parse(String(priorTimestamp))-Date.parse(timestamp);if(delta<0||(delta===0&&prior.id.localeCompare(row.id)<=0))throw new Error('The report records are not in strict descending ('+timestampKey+',id) order. Export stopped because the page boundary may have shifted. Please retry.');}
+   if(prior){const priorTimestamp=(prior as unknown as Record<string,unknown>)[timestampKey];const delta=Date.parse(String(priorTimestamp))-Date.parse(timestamp);if(delta<0||(delta===0&&prior.id.localeCompare(row.id)<=0))throw new Error('The report records are not in strict descending ('+timestampKey+',id) order. Export stopped because the page boundary may have shifted. Please retry.');}
    if(seenIds.has(row.id)||pageIds.has(row.id))throw new Error('The report service returned duplicate record IDs across pages. Export stopped to avoid an inaccurate CSV. Please retry.');
    pageIds.add(row.id);prior=row;
   }
