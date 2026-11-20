@@ -1742,3 +1742,9 @@ At every development batch/chat end, update this file with the actual verified b
 - Added static source-contract assertions and registered migration `20261120110000_auction_item_awards_and_homepage_winners.sql`.
 - Commit: `20fc530cea4e171bc3502ad23d49b63c7e6d3bb4`. No SQL was applied and no tests/build/browser QA were run.
 - Clean-install inventory: **139 forward + 16 excluded = 155 timestamped SQL migrations**.
+
+## 2026-11-20 — Member team terminology
+
+- Updated the member navigation label from **My Network** to **My Team**, changed the section heading to **My Team**, and renamed **My MLM Dashboard** to **My Team Dashboard**. Updated administrator-facing overview diagnostics to use Team terminology.
+- Internal RPC names and database identifiers were intentionally preserved for compatibility; the change is to user-facing wording only.
+- Commit: `f405d2ae85038b204cc769cb86f75d94560cfdb1`.
