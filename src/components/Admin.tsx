@@ -235,12 +235,13 @@ function parseAdminWalletTransactionPage(value:unknown):WalletTransaction[]{
 
 type DeliveryRow={tracking_id:string;payment_id:string;member_code:string;winner_name:string|null;item_title:string|null;amount:number;payment_status:string;carrier:string|null;tracking_number:string|null;status:string;shipped_at:string|null;delivered_at:string|null;updated_at:string};
 
-function parseReferralCommissionPage(value:unknown):{items:ReferralCommissionRow[];hasMore:boolean}{
- if(!Array.isArray(value))throw new Error('Commission register returned an invalid page.');
- const items=value as ReferralCommissionRow[];const ids=new Set<string>();
+function parseReferralCommissionPage(value:unknown,previous:ReferralCommissionRow[]=[]):{items:ReferralCommissionRow[];hasMore:boolean}{
+ if(!Array.isArray(value)||value.length>100)throw new Error('Commission register returned an invalid page.');
+ const items=value as ReferralCommissionRow[];const ids=new Set(previous.map(row=>row.commission_id));let prior=previous[previous.length-1];
  for(const row of items){
-  if(!row||typeof row!=='object'||typeof row.commission_id!=='string'||!row.commission_id.trim()||ids.has(row.commission_id)||typeof row.activation_id!=='string'||!row.activation_id.trim()||!Number.isInteger(Number(row.level_number))||Number(row.level_number)<1||typeof row.beneficiary_member_code!=='string'||!row.beneficiary_member_code.trim()||!['main','duplicate'].includes(row.beneficiary_id_type)||typeof row.credited_main_member_code!=='string'||!row.credited_main_member_code.trim()||!Number.isFinite(Number(row.amount))||Number(row.amount)<=0||typeof row.status!=='string'||!row.status.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||typeof row.has_more!=='boolean')throw new Error('Commission register contains a malformed or duplicate record. Refresh the register before continuing.');
-  ids.add(row.commission_id);
+  if(!row||typeof row!=='object'||typeof row.commission_id!=='string'||!/^([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i.test(row.commission_id)||ids.has(row.commission_id)||typeof row.activation_id!=='string'||!/^([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i.test(row.activation_id)||!Number.isInteger(Number(row.level_number))||Number(row.level_number)<1||Number(row.level_number)>20||typeof row.beneficiary_member_code!=='string'||!row.beneficiary_member_code.trim()||!['main','duplicate'].includes(row.beneficiary_id_type)||typeof row.credited_main_member_code!=='string'||!row.credited_main_member_code.trim()||!Number.isFinite(Number(row.amount))||Number(row.amount)<=0||!['pending','credited','reversed'].includes(row.status)||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||typeof row.has_more!=='boolean')throw new Error('Commission register contains a malformed, duplicate or invalid record. Refresh the register before continuing.');
+  if(prior){const delta=Date.parse(prior.created_at)-Date.parse(row.created_at);if(delta<0||(delta===0&&prior.commission_id.localeCompare(row.commission_id)<=0))throw new Error('Commission register is not in strict descending (created_at,commission_id) order. Refresh the register.');}
+  ids.add(row.commission_id);prior=row;
  }
  const hasMore=items.length>0&&items[0].has_more===true;
  if(items.some(row=>row.has_more!==hasMore))throw new Error('Commission register page metadata is inconsistent. Refresh the register.');
@@ -369,7 +370,7 @@ export default function Admin(){
    activationPageInFlight.current=false;setPendingActivationMoreBusy(false);
    if(!supabase||role!=='admin'){if(active)setLoading(false);return;}
    try{
-    const [memberResult,overviewResult,structureResult,pendingResult,auditResult,settingsResult,duplicateResult,packageResult,referralResult,commissionResult,withdrawalResult,minimumWithdrawalResult,auctionProductResult,auctionResult,fixedCampaignResult,winningPaymentResult,deliveryResult,walletAccountResult,walletTransactionResult,notificationResult,adminAccountsResult]=await Promise.all([supabase.rpc('admin_list_members_sponsors_page',{p_search:null,p_limit:100,p_offset:0}),supabase.rpc('admin_get_mlm_overview'),supabase.rpc('admin_get_member_structure'),supabase.rpc('admin_list_pending_activations_page',{p_limit:50,p_after_submitted_at:null,p_after_id:null}),supabase.rpc('admin_list_audit_logs_page',{p_limit:100,p_offset:0}),supabase.rpc('admin_get_feature_settings'),supabase.rpc('admin_list_duplicate_ids_page',{p_search:appliedDuplicateSearch.trim()||null,p_limit:50,p_offset:0}),supabase.rpc('admin_list_packages'),supabase.rpc('admin_list_referral_plans'),supabase.rpc('admin_list_referral_commissions_page',{p_limit:100,p_offset:0,p_status:null,p_level:null}),supabase.rpc('admin_list_withdrawal_requests',{p_limit:100,p_offset:0}),supabase.rpc('admin_get_minimum_withdrawal_amount'),supabase.rpc('admin_list_auction_products'),supabase.rpc('admin_list_auctions'),supabase.rpc('admin_list_fixed_bid_campaigns'),supabase.rpc('admin_list_winning_item_payments',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_delivery_tracking',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_wallet_accounts',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_notification_templates'),supabase.rpc('admin_list_admin_accounts')]);
+    const [memberResult,overviewResult,structureResult,pendingResult,auditResult,settingsResult,duplicateResult,packageResult,referralResult,commissionResult,withdrawalResult,minimumWithdrawalResult,auctionProductResult,auctionResult,fixedCampaignResult,winningPaymentResult,deliveryResult,walletAccountResult,walletTransactionResult,notificationResult,adminAccountsResult]=await Promise.all([supabase.rpc('admin_list_members_sponsors_page',{p_search:null,p_limit:100,p_offset:0}),supabase.rpc('admin_get_mlm_overview'),supabase.rpc('admin_get_member_structure'),supabase.rpc('admin_list_pending_activations_page',{p_limit:50,p_after_submitted_at:null,p_after_id:null}),supabase.rpc('admin_list_audit_logs_page',{p_limit:100,p_offset:0}),supabase.rpc('admin_get_feature_settings'),supabase.rpc('admin_list_duplicate_ids_page',{p_search:appliedDuplicateSearch.trim()||null,p_limit:50,p_offset:0}),supabase.rpc('admin_list_packages'),supabase.rpc('admin_list_referral_plans'),supabase.rpc('admin_list_referral_commissions_page',{p_limit:100,p_offset:0,p_status:commissionStatusFilter==='all'?null:commissionStatusFilter,p_level:commissionLevelFilter==='all'?null:Number(commissionLevelFilter)}),supabase.rpc('admin_list_withdrawal_requests',{p_limit:100,p_offset:0}),supabase.rpc('admin_get_minimum_withdrawal_amount'),supabase.rpc('admin_list_auction_products'),supabase.rpc('admin_list_auctions'),supabase.rpc('admin_list_fixed_bid_campaigns'),supabase.rpc('admin_list_winning_item_payments',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_delivery_tracking',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_wallet_accounts',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_wallet_transactions',{p_limit:100,p_offset:0}),supabase.rpc('admin_list_notification_templates'),supabase.rpc('admin_list_admin_accounts')]);
    if(!active||activationGeneration!==activationPageGeneration.current)return;
    const loadIssues=[
     ['Member directory',memberResult.error],['Team overview',overviewResult.error],['Member structure',structureResult.error],
@@ -433,7 +434,7 @@ export default function Admin(){
    }
   }
   void load();return()=>{active=false;};
- },[role,refresh,appliedDuplicateSearch]);
+ },[role,refresh,appliedDuplicateSearch,commissionStatusFilter,commissionLevelFilter]);
  useEffect(()=>{
   const request=++memberSearchRequest.current;
   memberPageInFlight.current=false;
@@ -583,10 +584,9 @@ async function loadMoreReferralCommissions(){
  if(!supabase||commissionBusy||commissionPageInFlight.current||!commissionHasMore)return;
  commissionPageInFlight.current=true;const generation=commissionPageGeneration.current,offset=commissionRows.length;setCommissionBusy(true);setCommissionMessage('');
  try{
-  const{data,error}=await supabase.rpc('admin_list_referral_commissions_page',{p_limit:100,p_offset:offset,p_status:null,p_level:null});
+  const{data,error}=await supabase.rpc('admin_list_referral_commissions_page',{p_limit:100,p_offset:offset,p_status:commissionStatusFilter==='all'?null:commissionStatusFilter,p_level:commissionLevelFilter==='all'?null:Number(commissionLevelFilter)});
   if(error)throw error;if(generation!==commissionPageGeneration.current)return;
-  const page=parseReferralCommissionPage(data??[]),known=new Set(commissionRows.map(row=>row.commission_id));
-  if(page.items.some(row=>known.has(row.commission_id)))throw new Error('The commission register returned records already loaded. Refresh the register before loading more.');
+  const page=parseReferralCommissionPage(data??[],commissionRows);
   setCommissionRows(current=>[...current,...page.items]);setCommissionHasMore(page.hasMore);
  }catch(e){if(generation===commissionPageGeneration.current)setCommissionMessage(e instanceof Error?e.message:'More commission records could not be loaded.');}
  finally{if(generation===commissionPageGeneration.current){commissionPageInFlight.current=false;setCommissionBusy(false);}}
