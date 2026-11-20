@@ -2375,3 +2375,14 @@
 - Reconciled the existing Admin complete activation-history export test with the actual UI implementation: the export captures the current status/search/date filters into local variables before fetching all RPC pages, rather than using the old inline expression expected by the stale assertions.
 - Updated only the regression source assertions; the report UI and database workflow were not changed. No test run was performed in this development-only phase.
 - Commit: `8301455e8ec0bbe2bf0d461862a57a467b7f2cb4`.
+
+
+## 2026-11-20 — Public catalogue contracts and auction image storage integrity
+
+- Added runtime response validation for public Auction and Product catalogue pages: malformed records, invalid prices/timestamps/status, duplicate IDs, and inconsistent page-level `has_more` markers are rejected before they enter UI state. Initial and continuation pages use the same validators.
+- Added the exact server-derived `has_more` marker to the public Auction RPC and a partial `(starts_at ASC,id DESC)` index for the public live/scheduled catalogue query. The previous client-side `page.length === 100` heuristic is removed.
+- Corrected both image-path regexes in the Expected Price Auction migration to use `[.]` for a literal filename extension. Member auction submission now verifies every referenced object exists in the private `auction-submission-media` bucket. Admin/authorized Staff approval now verifies every published image path exists in the public `product-media` bucket and belongs to the submitting member's folder before creating the public listing.
+- Updated source-contract tests for Auction/Product page parsing, auction pagination/indexing and auction image ownership/publication. Tests remain source-only and were not executed.
+- Commits: Auction runtime parser `ce182ffffcc9131e721740b749f8b974a17a22fa`; Product runtime parser `829c385becdee0cc13281ff53453e462e84072ed`; Auction catalogue index `405cdcaa4da4a288e6b0df12f197fab4ce459203`; Auction image regex/storage checks `670ac733f7607a06775a5543cdecfb60869dabb0` and `2d56a1438f6c3d384cd468dbc98128e8982f54a7`.
+- Clean-install manifest remains **130 forward + 16 excluded = 146 timestamped SQL files**; exact tree reconciliation has no missing, orphaned, overlapping or duplicate entries.
+- No Supabase migration executed, no database writes, no Preview deployment, and no protected `main` changes.
