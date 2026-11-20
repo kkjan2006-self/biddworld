@@ -31,7 +31,7 @@ describe('Admin withdrawal queue pagination hardening',()=>{
  });
  it('validates every CSV export page and detects repeated request IDs even when row contents change',()=>{
   expect(component).toContain('data:parseAdminWithdrawals(data??[])');
-  expect(component).toContain('},x=>x.request_id);');
+  expect(component).toContain(']),x=>x.request_id);');
   expect(component).toContain('getRowKey?:(row:T)=>string');
   expect(component).toContain('const key=getRowKey?getRowKey(row):JSON.stringify(row)');
   expect(component).toContain('repeated record identity across pages');
