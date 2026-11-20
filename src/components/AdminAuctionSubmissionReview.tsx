@@ -57,7 +57,7 @@ export default function AdminAuctionSubmissionReview(){
    const starting=Number(v.starting_price??r.starting_price),expected=Number(v.expected_price??r.expected_price),increment=Number(v.minimum_increment??r.minimum_increment);
    const startsAt=String(v.starts_at??r.starts_at);
    if(decision==='approve'){
-    if(title.length<3||title.length>180)throw new Error('Auction title must be 3 to 180 characters.');
+    if(title.length<5||title.length>180)throw new Error('Auction title must be 5 to 180 characters.');
     if(description.length<20||description.length>10000)throw new Error('Description must be 20 to 10,000 characters.');
     if(!Number.isFinite(starting)||starting<=0)throw new Error('Starting Price must be greater than zero.');
     if(!Number.isFinite(expected)||expected<starting)throw new Error('Expected Price must be equal to or greater than Starting Price.');
