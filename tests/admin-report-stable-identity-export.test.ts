@@ -9,7 +9,7 @@ describe('Admin complete report stable row identity',()=>{
   expect(source).not.toContain('getRowKey?getRowKey(row):JSON.stringify(row)');
  });
  it('uses immutable record IDs for all non-withdrawal complete reports',()=>{
-  for(const key of ['x.payment_id','x.tracking_id','m.member_code','x.activation_id','x.id','x.commission_id','x.auction_id','x.campaign_id','String(item.id)','x.transaction_id']) expect(source).toContain(key);
+  for(const key of ['x.payment_id','x.tracking_id','x.member_code','x.activation_id','x.id','x.commission_id','x.auction_id','x.campaign_id','String(item.id)','x.transaction_id']) expect(source).toContain(key);
  });
  it('retains the already stable withdrawal request identity',()=>{
   expect(source).toContain('x=>x.request_id);');
