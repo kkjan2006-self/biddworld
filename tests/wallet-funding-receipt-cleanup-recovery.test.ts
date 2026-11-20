@@ -14,7 +14,7 @@ describe('Wallet funding receipt cleanup recovery',()=>{
   expect(source).toContain("storage.from('wallet-funding-receipts').remove(paths)");
  });
  it('validates the returned wallet funding request UUID before clearing the form',()=>{
-  expect(source).toContain('result.request_id!==\'string\'');
+  expect(source).toContain('typeof result.request_id!==\'string\'');
   expect(source).toContain('test(result.request_id)');
   expect(source).toContain('result.status!==\'pending\'');
  });
