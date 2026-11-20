@@ -1,3 +1,12 @@
+## 2026-11-20 — Member Product/Auction media cleanup recovery
+
+- **Member Product/Auction submission media recovery:** failed removal of replaced draft images and definitely rejected upload batches is now retained in an in-session cleanup queue in both member submission screens, with a visible Retry image cleanup action. This prevents a transient Storage deletion failure from silently losing the paths needed to retry. Ambiguous network/RPC outcomes are deliberately not deleted because the submission may already have committed. Added `tests/member-submission-media-cleanup-recovery.test.ts`; source-only, not executed.
+
+- The cleanup queue is held in page state and does not survive a full reload; persistent cleanup inventory remains a separate future hardening item.
+- No test/build/type-check, database access/replay, or deployment was performed.
+
+---
+
 ## 2026-11-20 — Idempotent Referral/Matrix reversal replay compatibility
 
 - **Commission reversal replay compatibility fixed:** the Referral and Matrix SQL RPCs intentionally return `success=true,status='reversed',replayed=true` without a commission ID when a previously reversed record is replayed. Admin clients previously rejected this valid idempotent response as a mismatch. Both screens now accept that exact replay shape (while still requiring the selected ID on first-time reversals and rejecting a conflicting ID), and show an accurate “already reversed; existing ledger state confirmed” message instead of claiming a new audit event. Extended `tests/admin-commission-mutation-result-integrity.test.ts`; source-only, not executed. Commits: `06d5685233b5fc4e02da766dbf965e8f9f15d151`, `350b78fe31fa3ba04548f57cb982ba165dc10acc`, test `938c09e7dc94727e10e1029feaa17a7c9c897308`.
