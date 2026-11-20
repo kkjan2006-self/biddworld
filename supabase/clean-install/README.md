@@ -1,3 +1,7 @@
+## Sponsor Referral reversal replay identity parity repair (source-only, 2026-11-21)
+
+A follow-up source audit found that the credited-and-reversed idempotent replay branch in `20261120260000_referral_commission_reversal_replay_identity.sql` still omitted `commission_id`, even though the pending-only replay and Admin client contract required it. Corrected the second replay response and strengthened source-only coverage to require both successful replay paths to return the exact selected commission UUID. Existing migration #154 was corrected in place; no new manifest entry, migration replay or database write. Inventory remains **155 forward + 16 excluded = 171 timestamped paths**, plus 3 legacy/unversioned SQL files.
+
 ## Admin notification recipient canonical Main ID (source-only, 2026-11-20)
 
 The baseline permits multiple historical Main ID rows per owner, while `profiles.main_member_id` identifies the canonical account Main ID. The Admin recipient lookup previously returned every Main ID joined to the same profile, creating duplicate recipient options. The lookup now joins only the profile-linked Main ID and confirms ownership/type; the client rejects duplicate user UUIDs and Main ID codes. Added `20261120270000_canonical_admin_notification_recipient_lookup.sql` and source-only coverage in `tests/admin-notification-recipient-canonical-main.test.ts`; not executed. Inventory: **155 forward + 16 excluded = 171 timestamped paths**, plus 3 legacy/unversioned SQL files.
