@@ -33,3 +33,16 @@ describe('Notifications response and realtime integrity',()=>{
   expect(ui).toContain("if(typeof row.id!=='string'||!row.id.trim())return");
  });
 });
+
+describe('Notification keyset page ordering',()=>{
+ it('validates strict descending created_at and UUID tie-break order for every page',()=>{
+  expect(ui).toContain('function isStrictlyDescendingNoticePage(rows:Notice[]):boolean');
+  expect(ui).toContain('previousTime===currentTime&&previous.id.toLowerCase()<=current.id.toLowerCase()');
+  expect(ui).toContain('if(!isStrictlyDescendingNoticePage(rows))');
+ });
+ it('rejects continuation rows at or beyond the existing cursor',()=>{
+  expect(ui).toContain('function isBeforeNoticeCursor(row:Notice,cursor:Notice):boolean');
+  expect(ui).toContain('rows.some(row=>!isBeforeNoticeCursor(row,cursor))');
+  expect(ui).toContain('crossed or repeated its keyset cursor');
+ });
+});

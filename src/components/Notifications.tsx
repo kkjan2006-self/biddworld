@@ -10,10 +10,24 @@ function parseNoticeRow(value:unknown,expectedUserId?:string):Notice{
  if(typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||!row.user_id.trim()||(expectedUserId&&row.user_id!==expectedUserId)||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at as string)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))||(row.recipient_member_code!==undefined&&typeof row.recipient_member_code!=='string')||(row.recipient_name!==undefined&&typeof row.recipient_name!=='string'))throw new Error('The notification inbox contains malformed records.');
  return row as unknown as Notice;
 }
+function isStrictlyDescendingNoticePage(rows:Notice[]):boolean{
+ for(let index=1;index<rows.length;index++){
+  const previous=rows[index-1],current=rows[index];
+  const previousTime=Date.parse(previous.created_at),currentTime=Date.parse(current.created_at);
+  if(previousTime<currentTime||(previousTime===currentTime&&previous.id.toLowerCase()<=current.id.toLowerCase()))return false;
+ }
+ return true;
+}
+function isBeforeNoticeCursor(row:Notice,cursor:Notice):boolean{
+ const rowTime=Date.parse(row.created_at),cursorTime=Date.parse(cursor.created_at);
+ return rowTime<cursorTime||(rowTime===cursorTime&&row.id.toLowerCase()<cursor.id.toLowerCase());
+}
 function parseNoticePage(value:unknown,expectedUserId?:string):Notice[]{
  if(!Array.isArray(value)||value.length>PAGE_SIZE+1)throw new Error('The notification inbox returned an invalid page. Refresh and retry.');
  const ids=new Set<string>();
- return value.map(raw=>{const row=parseNoticeRow(raw,expectedUserId);if(ids.has(row.id))throw new Error('The notification inbox contains duplicate records.');ids.add(row.id);return row;});
+ const rows=value.map(raw=>{const row=parseNoticeRow(raw,expectedUserId);if(ids.has(row.id))throw new Error('The notification inbox contains duplicate records.');ids.add(row.id);return row;});
+ if(!isStrictlyDescendingNoticePage(rows))throw new Error('The notification inbox returned records outside the required descending order. Refresh and retry.');
+ return rows;
 }
 export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
  const client=supabase;
@@ -67,6 +81,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
    }
    if(seq!==requestSeq.current)return;
    if(!Array.isArray(rows)||rows.length>PAGE_SIZE+1)throw new Error('The notification page response was invalid. Refresh the inbox.');
+   if(rows.some(row=>!isBeforeNoticeCursor(row,cursor)))throw new Error('The notification page crossed or repeated its keyset cursor. Refresh the inbox before continuing.');
    const known=new Set(items.map(item=>item.id));const fresh:Notice[]=[];
    for(const item of rows){if(known.has(item.id))throw new Error('The notification inbox returned an overlapping page. Refresh before continuing.');fresh.push(item);}
    

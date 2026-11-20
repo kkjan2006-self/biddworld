@@ -1,3 +1,11 @@
+## 2026-11-20 — Notification keyset response ordering hardening
+
+- Source audit found the inbox rejected duplicate/overlapping notification IDs but did not independently validate strict descending (created_at,id) ordering or ensure continuation rows were strictly older than the loaded cursor.
+- Added client-side validation for strict descending order on every initial/continuation page and strict cursor-boundary validation before appending a continuation page. Invalid server responses now fail closed and require refresh.
+- Added source-only regression assertions in tests/notifications-response-integrity.test.ts; not executed. No SQL migration required.
+
+---
+
 ## 2026-11-20 — Clean-install manifest regression source syntax repair
 
 - Source inspection found literal backslash-n characters embedded between statements in `tests/clean-install-migration-manifest-integrity.test.ts`, making the version-uniqueness assertion block invalid TypeScript source.

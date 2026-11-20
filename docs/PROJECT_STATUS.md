@@ -77,3 +77,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 
 - Repaired literal backslash-n characters embedded in the migration-manifest version-uniqueness test block; real source line breaks now separate the TypeScript statements.
 - Assertion behavior and the existing 151-forward / 16-excluded migration inventory are unchanged. Test remains unexecuted.
+
+
+## 2026-11-20 — Notification keyset response ordering hardening
+
+- Initial and continuation inbox pages now require strict descending (created_at,id) order; continuation rows must also fall strictly before the existing cursor before they can be appended.
+- Added source-only assertions to tests/notifications-response-integrity.test.ts; not executed. No migration or database change required.
