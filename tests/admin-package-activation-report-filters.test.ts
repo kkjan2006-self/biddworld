@@ -19,9 +19,10 @@ describe('Admin package activation report filters',()=>{
  });
 
  it('filters complete activation history by server payment status and inclusive submitted date/search',()=>{
-  expect(admin).toContain("activationHistoryStatus==='all'?null:activationHistoryStatus");
+  expect(admin).toContain('status=activationHistoryStatus');
+  expect(admin).toContain("p_payment_status:status==='all'?null:status");
   expect(admin).toContain('activationHistorySearch.trim().toLowerCase()');
-  expect(admin).toContain('activationHistoryFrom,activationHistoryTo');
+  expect(admin).toContain('from=activationHistoryFrom,to=activationHistoryTo');
   expect(admin).toContain("option value=\"refunded\">Refunded</option>");
   expect(admin).toContain('Export Filtered Complete Activation History CSV');
   expect(admin).toContain('x.payment_status,x.activation_status');
