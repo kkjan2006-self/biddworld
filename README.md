@@ -16,8 +16,10 @@ Never put a service-role or secret key in `VITE_*` variables or frontend code. T
 ## Supabase setup
 The SQL files in `supabase/migrations` describe a fresh-project baseline. Your BiddWorld Supabase project already has a database foundation. **Do not blindly execute these migrations against that existing project.** Compare table definitions, policies, grants and functions first, then apply only missing changes through reviewed migrations.
 
-## Important
-This is a development baseline, not a launch-ready financial platform. Read `docs/PRODUCTION_CHECKLIST.md`. Undecided money, referral, duplicate-ID, fixed-bid and winner-selection rules are intentionally not guessed. Those features must remain disabled until implemented and reviewed.
+## Project scope
+This repository contains the current BiddWorld development source: public product and auction catalogues; member registration, profiles and dashboards; private product and auction submissions with Admin review; expected-price open-ended auctions and idempotent bidding; Fixed Bid campaigns; package activation and receipt review; Bid Wallet and Income Wallet workflows; configurable Sponsor Referral and Matrix plans; Main/Duplicate IDs and automatic placement; withdrawals; winner payments; notifications; support; Admin/staff permissions; reports; audit history; and the installable PWA.
+
+Feature switches are managed through the Admin portal and enforced again by the database workflows. The source migration chain is registered in `supabase/clean-install/forward-migrations.txt`; the candidate schema baseline is documentation/source material and must not be treated as an approved Production migration. The isolated TEST project is the intended place for later migration reconciliation and functional QA. The Production project remains outside this development workflow.
 
 ## Environment isolation and email confirmation
 
