@@ -1,3 +1,11 @@
+## 2026-11-20 — My Team genealogy pagination integrity
+
+- The member dashboard RPC orders genealogy rows by `(depth,created_at,member_code)`, but the frontend previously filtered duplicate IDs on Load More and still appended the remaining rows from an overlapping page. That could hide a shifted offset page and leave a gap in the displayed/exported team.
+- Added strict ascending per-page tuple validation, full-page continuation validation, and cross-page cursor checks for both Load More and complete CSV export. Any overlap or cursor regression now fails closed before append/export.
+- Added source-only assertions in `tests/member-team-matrix-summary-isolation.test.ts`; not executed. No SQL migration or database operation required.
+
+---
+
 ## 2026-11-20 — Admin notification recipient canonical Main ID
 
 - The baseline permits multiple Main ID rows per owner; `profiles.main_member_id` identifies the canonical Main ID. The recipient lookup previously joined all Main ID rows to a profile and could show duplicate account options with the same Auth UUID.

@@ -9,6 +9,18 @@ import { rpcContractUnavailableMessage } from '../lib/rpc-errors';
 type TreeMember={member_code:string;display_name:string;status:string;created_at:string;depth:number;sponsor_code:string|null};
 type Dashboard={main_member_code:string;direct_referrals:number;total_downline:number;active_members:number;active_activations:number;commission_total:number;bid_wallet:number;income_wallet:number;tree:TreeMember[];tree_total:number;has_more:boolean};
 type MatrixSummary={credited_total:number;pending_total:number;reversed_total:number;credited_count:number;pending_count:number};
+function compareTeamMembers(left:TreeMember,right:TreeMember):number{
+ if(left.depth!==right.depth)return left.depth-right.depth;
+ const time=Date.parse(left.created_at)-Date.parse(right.created_at);
+ if(time!==0)return time;
+ return left.member_code<right.member_code?-1:left.member_code>right.member_code?1:0;
+}
+function isStrictlyAscendingTeamPage(rows:TreeMember[]):boolean{
+ for(let i=1;i<rows.length;i++)if(compareTeamMembers(rows[i-1],rows[i])>=0)return false;
+ return true;
+}
+function isAfterTeamCursor(row:TreeMember,cursor:TreeMember):boolean{return compareTeamMembers(row,cursor)>0;}
+
 function parseDashboard(value:unknown):Dashboard{
  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('The team dashboard response was malformed.');
  const row=value as Record<string,unknown>;
@@ -16,7 +28,8 @@ function parseDashboard(value:unknown):Dashboard{
  if(typeof row.main_member_code!=='string'||!row.main_member_code.trim()||numeric.some(key=>typeof row[key]!=='number'||!Number.isFinite(row[key])||Number(row[key])<0)||!Number.isInteger(row.tree_total)||typeof row.has_more!=='boolean'||!Array.isArray(row.tree)||row.tree.length>50||Number(row.tree_total)<row.tree.length)throw new Error('The team dashboard returned invalid totals or pagination metadata.');
  const seen=new Set<string>();
  const tree=row.tree.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The team dashboard contains a malformed member.');const member=raw as Record<string,unknown>;if(typeof member.member_code!=='string'||!member.member_code.trim()||seen.has(member.member_code)||typeof member.display_name!=='string'||typeof member.status!=='string'||typeof member.created_at!=='string'||!Number.isFinite(Date.parse(member.created_at))||!Number.isInteger(member.depth)||Number(member.depth)<1||(member.sponsor_code!==null&&typeof member.sponsor_code!=='string'))throw new Error('The team dashboard contains an invalid or duplicate member.');seen.add(member.member_code);return member as unknown as TreeMember;});
- if(row.has_more&&tree.length===0)throw new Error('The team dashboard pagination cursor cannot continue from an empty page.');
+ if(row.has_more&&tree.length!==50)throw new Error('The team dashboard returned a short page with a continuation flag. Refresh and retry.');
+ if(!isStrictlyAscendingTeamPage(tree))throw new Error('The team dashboard page is not in strict ascending (depth,created_at,member_code) order. Refresh and retry.');
  return {...row,tree} as unknown as Dashboard;
 }
 function parseMatrixSummary(value:unknown):MatrixSummary{
@@ -59,17 +72,19 @@ export default function Referrals(){
  async function exportTeam(){
   const client=supabase;if(!client||!userId||exportBusy)return;setExportBusy(true);setExportMessage('');
   try{
-   const all:TreeMember[]=[];const seen=new Set<string>();let offset=0;let pages=0;
+   const all:TreeMember[]=[];const seen=new Set<string>();let offset=0;let pages=0;let cursor:TreeMember|null=null;
    for(;;){
     pages+=1;if(pages>10000)throw new Error('The team report exceeded the safe export limit. Please narrow the filters and retry.');
     const {data:result,error:loadError}=await client.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:offset,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)});
     if(loadError)throw loadError;
     const page=parseDashboard(result);
+    if(cursor&&page.tree.length&&!isAfterTeamCursor(page.tree[0],cursor))throw new Error('The team report crossed or repeated its previous (depth,created_at,member_code) cursor. Export stopped to prevent missing records.');
     const fresh=page.tree.filter(member=>{if(seen.has(member.member_code))return false;seen.add(member.member_code);return true;});
     if(fresh.length!==page.tree.length)throw new Error('The team report returned duplicate member IDs. Export stopped to prevent an incomplete CSV. Please refresh and retry.');
     all.push(...fresh);offset+=page.tree.length;
     if(!page.has_more)break;
     if(page.tree.length===0||fresh.length===0)throw new Error('The team report repeated a page and could not continue safely. Please narrow the filters and retry.');
+    cursor=page.tree[page.tree.length-1];
    }
    if(!all.length){setExportMessage('No matching team members are available to export.');return;}
    const rows=[['Member Name','Member ID','Sponsor ID','Account Status','Level','Joined Date'],...all.map(member=>[member.display_name,member.member_code,member.sponsor_code??'',member.status,member.depth,member.created_at])];
@@ -87,11 +102,12 @@ export default function Referrals(){
    if(seq!==request.current)return;
    if(loadError)throw loadError;
    const page=parseDashboard(next);
+   const cursor=data.tree[data.tree.length-1];
+   if(!cursor)throw new Error('Refresh the team dashboard before loading another page.');
+   if(page.tree.length&&!isAfterTeamCursor(page.tree[0],cursor))throw new Error('The next team page crossed or repeated the previous (depth,created_at,member_code) cursor. Refresh the dashboard before continuing.');
    const knownCodes=new Set(data.tree.map(member=>member.member_code));
-   const fresh=page.tree.filter(member=>{if(knownCodes.has(member.member_code))return false;knownCodes.add(member.member_code);return true;});
-   const repeatedRows=fresh.length!==page.tree.length;
-   if(repeatedRows)setError('The team list returned duplicate member IDs. Refresh the dashboard before loading more.');
-   setData(current=>{if(!current)return page;const currentCodes=new Set(current.tree.map(member=>member.member_code));const additions=fresh.filter(member=>!currentCodes.has(member.member_code));return {...page,tree:[...current.tree,...additions],has_more:page.has_more&&additions.length>0&&!repeatedRows};});
+   if(page.tree.some(member=>knownCodes.has(member.member_code)))throw new Error('The next team page overlaps previously loaded member IDs. Refresh the dashboard before continuing.');
+   setData(current=>current?{...page,tree:[...current.tree,...page.tree]}:page);
   }catch(e){if(seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'More team members could not be loaded. Please retry.'));}
   finally{if(seq===request.current){loadMoreBusy.current=false;setLoadingMore(false);}}
  }

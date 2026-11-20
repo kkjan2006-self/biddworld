@@ -35,6 +35,12 @@ Admin notification submission and recipient lookup now count Unicode code points
 - Added `tests/admin-notification-recipient-canonical-main.test.ts`; not executed. Registered migration candidate #155. No database replay, tests, build, type-check, E2E, browser QA or deployment.
 - Inventory: 155 forward + 16 excluded = 171 timestamped paths, plus 3 legacy/unversioned SQL files.
 
+## Latest source-only batch — My Team genealogy pagination integrity (2026-11-20)
+
+- Source audit found that My Team Load More filtered overlapping member IDs but still appended the remaining rows from a shifted page, potentially leaving gaps. Team genealogy pages now validate strict ascending `(depth,created_at,member_code)` order and require 50 rows whenever `has_more=true`.
+- Load More and complete CSV export now verify every continuation starts strictly after the previous tuple cursor and reject the entire page on overlap/regression instead of partially appending it.
+- Added source-only regression assertions in `tests/member-team-matrix-summary-isolation.test.ts`; not executed. No SQL migration or database change. Tests/build/type-check/E2E/browser QA/deployment remain deferred.
+
 ## Latest development batch
 ## Latest source-only batch — notification response contract hardening (2026-11-20)
 
