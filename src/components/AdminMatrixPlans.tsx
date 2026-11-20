@@ -44,10 +44,10 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
   setRules(current=>Array.from({length:depthNumber},(_,i)=>current[i]??makeRules(depthNumber)[i]));
  },[depthNumber]);
 
- async function loadPlans(id=packageId){
+ async function loadPlans(id=packageId,clearMessage=true){
   const request=++requestGeneration.current;
   if(!supabase||!id){setPlans([]);setLoading(false);return;}
-  setLoading(true);setMessage('');
+  setLoading(true);if(clearMessage)setMessage('');
   try{const{data,error}=await supabase.rpc('admin_list_matrix_plans',{p_package_id:id});if(error)throw error;const parsed=parseMatrixPlans(data,id);if(request!==requestGeneration.current)return;setPlans(parsed);}
   catch(e){if(request===requestGeneration.current){setPlans([]);setMessage(e instanceof Error?e.message:'Matrix plans could not be loaded. Apply the Matrix plan migration before using this module.');}}
   finally{if(request===requestGeneration.current)setLoading(false);}
@@ -76,7 +76,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
    }
   }catch(e){setMessage(e instanceof Error?e.message:'Invalid Matrix level configuration.');return;}
   setBusy(true);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_save_matrix_plan_draft',{p_package_id:packageId,p_matrix_width:w,p_placement_depth:Number(placementDepth),p_matrix_depth:d,p_rules:payload});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix draft result.');const result=data as Record<string,unknown>;if(typeof result.plan_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.plan_id)||!Number.isInteger(result.version_number)||Number(result.version_number)<1||result.matrix_width!==w||result.placement_depth!==pd||result.matrix_depth!==d||result.is_active!==false)throw new Error('The saved Matrix draft result did not match the submitted package configuration. Refresh the plan directory before retrying.');setMessage('Matrix plan draft v'+result.version_number+' saved. It is not active.');await loadPlans(packageId);}
+  try{const{data,error}=await supabase.rpc('admin_save_matrix_plan_draft',{p_package_id:packageId,p_matrix_width:w,p_placement_depth:Number(placementDepth),p_matrix_depth:d,p_rules:payload});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix draft result.');const result=data as Record<string,unknown>;if(typeof result.plan_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.plan_id)||!Number.isInteger(result.version_number)||Number(result.version_number)<1||result.matrix_width!==w||result.placement_depth!==pd||result.matrix_depth!==d||result.is_active!==false)throw new Error('The saved Matrix draft result did not match the submitted package configuration. Refresh the plan directory before retrying.');setMessage('Matrix plan draft v'+result.version_number+' saved. It is not active.');await loadPlans(packageId,false);}
   catch(e){setMessage(e instanceof Error?e.message:'Matrix plan draft could not be saved.');}
   finally{setBusy(false);}
  }
@@ -85,7 +85,7 @@ export default function AdminMatrixPlans({packages}:{packages:PackageOption[]}){
   if(selectedPackage?.is_active){setMessage('This package is already published. The backend prevents changing its Matrix plan.');return;}
   if(!window.confirm('Activate Matrix plan v'+plan.version_number+' for this package?'))return;
   setBusy(true);setMessage('');
-  try{const{data,error}=await supabase.rpc('admin_activate_matrix_plan',{p_package_id:packageId,p_plan_version_id:plan.id});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix activation result.');const result=data as Record<string,unknown>;if(result.success!==true||result.plan_id!==plan.id||result.matrix_width!==plan.matrix_width||result.matrix_depth!==plan.matrix_depth)throw new Error('The Matrix activation result did not match the selected plan. Refresh the plan directory before retrying.');setMessage('Matrix plan v'+plan.version_number+' is now active for this package.');await loadPlans(packageId);}
+  try{const{data,error}=await supabase.rpc('admin_activate_matrix_plan',{p_package_id:packageId,p_plan_version_id:plan.id});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid Matrix activation result.');const result=data as Record<string,unknown>;if(result.success!==true||result.plan_id!==plan.id||result.matrix_width!==plan.matrix_width||result.matrix_depth!==plan.matrix_depth)throw new Error('The Matrix activation result did not match the selected plan. Refresh the plan directory before retrying.');setMessage('Matrix plan v'+plan.version_number+' is now active for this package.');await loadPlans(packageId,false);}
   catch(e){setMessage(e instanceof Error?e.message:'Matrix plan could not be activated.');}
   finally{setBusy(false);}
  }
