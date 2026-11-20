@@ -397,13 +397,14 @@ export default function Admin(){
    fixedBidSaveInFlight.current=true;setFixedBusy(true);setFixedMessage('');
    const wasEditing=Boolean(editingFixedCampaignId);
    try{
-    const{error}=await supabase.rpc('admin_save_fixed_bid_campaign',{
+    const{data,error}=await supabase.rpc('admin_save_fixed_bid_campaign',{
      p_campaign_id:editingFixedCampaignId||null,p_product_id:fixedProductId,p_title:fixedTitle,p_description:fixedDescription,
      p_entry_amount:entry,p_winner_payment_amount:winnerPayment,p_max_entries_per_member:perMember,
      p_max_entries_total:total,p_winner_count:winners,p_starts_at:start.toISOString(),p_ends_at:end.toISOString(),
      p_refund_non_winners:fixedRefundNonWinners
     });
     if(error)throw error;
+    if(typeof data!=='string'||!data.trim()||(wasEditing&&data!==editingFixedCampaignId))throw new Error('The server returned an invalid Fixed Bid campaign ID. Refresh the campaign list before retrying.');
     clearFixedBidDraft();setFixedMessage(wasEditing?'Fixed Bid campaign rules saved. The campaign remains a draft.':'Fixed Bid campaign draft and participation rules saved.');
     setRefresh(v=>v+1);
    }catch(e){setFixedMessage(e instanceof Error?e.message:'Fixed Bid campaign could not be saved. Please retry.');}
@@ -412,7 +413,7 @@ export default function Admin(){
   async function changeFixedBidStatus(c:FixedBidCampaign,status:'scheduled'|'live'|'paused'|'ended'|'cancelled'){
    if(!supabase||fixedBusy||fixedBidSaveInFlight.current)return;
    fixedBidSaveInFlight.current=true;setFixedBusy(true);setFixedMessage('');
-   try{const{error}=await supabase.rpc('admin_set_fixed_bid_campaign_status',{p_campaign_id:c.campaign_id,p_status:status});if(error)throw error;setFixedMessage('Campaign status updated to '+status.toUpperCase()+'.');setRefresh(v=>v+1);}
+   try{const{data,error}=await supabase.rpc('admin_set_fixed_bid_campaign_status',{p_campaign_id:c.campaign_id,p_status:status});if(error)throw error;const result=data as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.campaign_id!==c.campaign_id||result.status!==status||typeof result.refunded_entries!=='number'||!Number.isInteger(result.refunded_entries)||result.refunded_entries<0)throw new Error('The server returned a Fixed Bid status result that does not match this campaign. Refresh the campaign list before retrying.');setFixedMessage('Campaign status updated to '+status.toUpperCase()+'. Refunded entries: '+result.refunded_entries+'.');setRefresh(v=>v+1);}
    catch(e){setFixedMessage(e instanceof Error?e.message:'Campaign status could not be changed.');}
    finally{fixedBidSaveInFlight.current=false;setFixedBusy(false);}
   }
@@ -428,7 +429,7 @@ export default function Admin(){
    if(!supabase||auctionBusy||auctionSaveInFlight.current)return;
    if(status==='cancelled'&&!window.confirm('Cancel this auction and refund accepted bids to their original wallet sources?'))return;
    auctionSaveInFlight.current=true;setAuctionBusy(true);setAuctionMessage('');
-   try{const{error}=await supabase.rpc('admin_set_auction_status',{p_auction_id:auction.auction_id,p_status:status});if(error)throw error;setAuctionMessage('Auction status changed to '+status.toUpperCase()+'.');setRefresh(v=>v+1);}
+   try{const{data,error}=await supabase.rpc('admin_set_auction_status',{p_auction_id:auction.auction_id,p_status:status});if(error)throw error;const result=data as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||result.auction_id!==auction.auction_id||result.status!==status||typeof result.refunded_bids!=='number'||!Number.isInteger(result.refunded_bids)||result.refunded_bids<0)throw new Error('The server returned an Auction status result that does not match this auction. Refresh the auction list before retrying.');setAuctionMessage('Auction status changed to '+status.toUpperCase()+'. Refunded bids: '+result.refunded_bids+'.');setRefresh(v=>v+1);}
    catch(e){setAuctionMessage(e instanceof Error?e.message:'Auction status could not be changed.');}
    finally{auctionSaveInFlight.current=false;setAuctionBusy(false);}
   }
