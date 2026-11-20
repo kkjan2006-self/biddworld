@@ -470,7 +470,7 @@ async function publishPackage(item:AdminPackage,publish:boolean){
 async function postReferralCommissions(activationId:string){
  if(!supabase||commissionBusy)return;
  setCommissionBusy(true);setCommissionMessage('');
- try{const{data,error}=await supabase.rpc('admin_post_referral_commissions',{p_activation_id:activationId});if(error)throw error;const result=(data??{}) as {posted_count?:number};setCommissionMessage('Posted '+Number(result.posted_count??0)+' pending commission(s).');setRefresh(v=>v+1);}
+ try{const{data,error}=await supabase.rpc('admin_post_referral_commissions',{p_activation_id:activationId});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid referral commission posting result. Refresh the register before retrying.');const result=data as {success?:unknown;activation_id?:unknown;posted_count?:unknown};if(result.success!==true||result.activation_id!==activationId||typeof result.posted_count!=='number'||!Number.isInteger(result.posted_count)||result.posted_count<0)throw new Error('The referral commission posting result did not match this activation. Refresh the register to confirm its recorded state.');setCommissionMessage('Posted '+result.posted_count+' pending commission(s).');setRefresh(v=>v+1);}
  catch(e){setCommissionMessage(e instanceof Error?e.message:'Pending commissions could not be posted.');}
  finally{setCommissionBusy(false);}
 }
@@ -492,7 +492,7 @@ async function reverseReferralCommission(commissionId:string){
  if(reason===null)return;
  if(reason.trim().length<5){setCommissionMessage('A reversal reason of at least 5 characters is required.');return;}
  setCommissionBusy(true);setCommissionMessage('');
- try{const{error}=await supabase.rpc('admin_reverse_referral_commission',{p_commission_id:commissionId,p_reason:reason.trim()});if(error)throw error;setCommissionMessage('Referral commission reversed with an audit record.');setRefresh(v=>v+1);}
+ try{const{data,error}=await supabase.rpc('admin_reverse_referral_commission',{p_commission_id:commissionId,p_reason:reason.trim()});if(error)throw error;if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('The server returned an invalid referral commission reversal result. Refresh the register before retrying.');const result=data as {success?:unknown;commission_id?:unknown;status?:unknown};if(result.success!==true||result.commission_id!==commissionId||result.status!=='reversed')throw new Error('The referral commission reversal result did not match the selected record. Refresh the register to confirm its state.');setCommissionMessage('Referral commission reversed with an audit record.');setRefresh(v=>v+1);}
  catch(e){setCommissionMessage(e instanceof Error?e.message:'Commission reversal could not be completed.');}
  finally{setCommissionBusy(false);}
 }
