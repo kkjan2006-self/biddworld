@@ -20,6 +20,50 @@ type Campaign={
  product:{name:string;description:string|null;category:string|null;image_path:string|null;image_paths?:string[];product_details?:Record<string,string>}|null
 };
 const PAGE_SIZE=50;
+function parseCampaignPage(value:unknown):Campaign[]{
+ if(!Array.isArray(value)||value.length>PAGE_SIZE)throw new Error('The campaign catalogue returned an invalid page. Refresh before continuing.');
+ const ids=new Set<string>();
+ return value.map(raw=>{
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('The campaign catalogue contains a malformed record.');
+  const row=raw as Record<string,unknown>;
+  if(typeof row.id!=='string'||!row.id.trim()||ids.has(row.id)||typeof row.title!=='string'||!row.title.trim()
+   ||(row.description!==null&&typeof row.description!=='string')
+   ||!['scheduled','live','ended'].includes(String(row.status))
+   ||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))
+   ||(row.configuration!==null&&(typeof row.configuration!=='object'||Array.isArray(row.configuration)))
+   ||(row.product!==null&&(typeof row.product!=='object'||Array.isArray(row.product))))
+   throw new Error('The campaign catalogue contains invalid identity or status fields.');
+  if(row.configuration&&typeof row.configuration==='object'){
+   const config=row.configuration as Record<string,unknown>;
+   for(const key of ['entry_amount','winner_payment_amount'] as const){
+    const item=config[key];
+    if(item!==null&&item!==undefined&&(!Number.isFinite(Number(item))||Number(item)<=0))throw new Error('The campaign catalogue contains an invalid '+key+'.');
+   }
+   for(const key of ['max_entries_per_member','max_entries_total','winner_count'] as const){
+    const item=config[key];
+    if(item!==null&&item!==undefined&&(!Number.isInteger(Number(item))||Number(item)<=0))throw new Error('The campaign catalogue contains an invalid '+key+'.');
+   }
+   if(config.progress_percent!==null&&config.progress_percent!==undefined&&(!Number.isInteger(Number(config.progress_percent))||Number(config.progress_percent)<0||Number(config.progress_percent)>100))throw new Error('The campaign catalogue contains an invalid progress percentage.');
+   for(const key of ['starts_at','ends_at'] as const){
+    const item=config[key];
+    if(item!==null&&item!==undefined&&(typeof item!=='string'||!Number.isFinite(Date.parse(item))))throw new Error('The campaign catalogue contains an invalid '+key+'.');
+   }
+   if(config.refund_non_winners!==null&&config.refund_non_winners!==undefined&&typeof config.refund_non_winners!=='boolean')throw new Error('The campaign catalogue contains an invalid refund rule.');
+  }
+  if(row.product&&typeof row.product==='object'){
+   const product=row.product as Record<string,unknown>;
+   if(typeof product.name!=='string'||!product.name.trim()
+    ||(product.description!==null&&typeof product.description!=='string')
+    ||(product.category!==null&&typeof product.category!=='string')
+    ||(product.image_path!==null&&typeof product.image_path!=='string')
+    ||(product.image_paths!==undefined&&(!Array.isArray(product.image_paths)||product.image_paths.length>8||!product.image_paths.every(path=>typeof path==='string'&&path.trim().length>0)))
+    ||(product.product_details!==undefined&&(!product.product_details||typeof product.product_details!=='object'||Array.isArray(product.product_details)||!Object.values(product.product_details as Record<string,unknown>).every(item=>typeof item==='string'))))
+    throw new Error('The campaign catalogue contains invalid product details.');
+  }
+  ids.add(row.id);
+  return row as unknown as Campaign;
+ });
+}
 const sampleFixedCampaigns:Campaign[]=[
 {id:'sample-fixed-1',title:'Smartphone Mega Fixed Bid',description:'Sample campaign preview with entry amount, winner payment and campaign limits. Display-only; no entry or payment is processed.',status:'preview',created_at:new Date().toISOString(),configuration:{entry_amount:50,winner_payment_amount:12000,max_entries_per_member:3,max_entries_total:500,winner_count:1,starts_at:new Date(Date.now()-3600000).toISOString(),ends_at:new Date(Date.now()+5*86400000).toISOString(),refund_non_winners:false},product:{name:'5G Smartphone · 128 GB',description:'Sample product details.',category:'Electronics',image_path:null,image_paths:[],product_details:{Brand:'Sample brand',Condition:'New',Storage:'128 GB'}}},
 {id:'sample-fixed-2',title:'Home Appliances Fixed Bid',description:'Sample campaign preview with a different product and entry limit. No payment or entry is processed.',status:'preview',created_at:new Date().toISOString(),configuration:{entry_amount:25,winner_payment_amount:6500,max_entries_per_member:5,max_entries_total:800,winner_count:2,starts_at:new Date(Date.now()-7200000).toISOString(),ends_at:new Date(Date.now()+7*86400000).toISOString(),refund_non_winners:true},product:{name:'Smart Mixer Grinder',description:'Sample product details.',category:'Home & Kitchen',image_path:null,image_paths:[],product_details:{Condition:'New'}}},
@@ -49,13 +93,9 @@ export default function FixedBid({compact=false}:{compact?:boolean}){
    if(error)throw error;
    if(!mounted.current||request!==requestId.current)return;
    if(!Array.isArray(data??[]))throw new Error('The campaign catalogue response was invalid. Please refresh.');
-   const batch=(data??[]) as unknown as Campaign[];
-   const pageIds=new Set<string>(),knownIds=new Set(reset?[]:rows.map(row=>row.id));
-   for(const campaign of batch){
-    if(!campaign||typeof campaign.id!=='string'||!campaign.id.trim()||typeof campaign.title!=='string'||!campaign.title.trim()||(campaign.configuration!==null&&typeof campaign.configuration!=='object'))throw new Error('The campaign catalogue contains an incomplete record. Refresh before continuing.');
-    if(pageIds.has(campaign.id)||knownIds.has(campaign.id))throw new Error('The campaign catalogue returned duplicate campaign IDs. Refresh before loading more.');
-    pageIds.add(campaign.id);
-   }
+   const batch=parseCampaignPage(data??[]);
+   const knownIds=new Set(reset?[]:rows.map(row=>row.id));
+   if(batch.some(campaign=>knownIds.has(campaign.id)))throw new Error('The campaign catalogue returned duplicate campaign IDs. Refresh before loading more.');
    let added=batch.length;
    setRows(current=>{if(reset)return batch;added=batch.length;return [...current,...batch];});
    setHasMore(batch.length===PAGE_SIZE&&(reset||added>0));
