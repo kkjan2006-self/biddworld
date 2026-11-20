@@ -28,24 +28,29 @@ function parseMatrixSummary(value:unknown):MatrixSummary{
 }
 
 export default function Referrals(){
- const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[matrixSummary,setMatrixSummary]=useState<MatrixSummary|null>(null),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all'),[exportBusy,setExportBusy]=useState(false),[exportMessage,setExportMessage]=useState('');
+ const [userId,setUserId]=useState<string|null>(null),[data,setData]=useState<Dashboard|null>(null),[matrixSummary,setMatrixSummary]=useState<MatrixSummary|null>(null),[matrixSummaryError,setMatrixSummaryError]=useState(false),[loading,setLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0),[query,setQuery]=useState(''),[depth,setDepth]=useState('all'),[exportBusy,setExportBusy]=useState(false),[exportMessage,setExportMessage]=useState('');
  const request=useRef(0),loadMoreBusy=useRef(false);
  useEffect(()=>{if(!supabase){setLoading(false);return}let active=true,authEventObserved=false;const{data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{authEventObserved=true;if(active)setUserId(s?.user?.id??null)});void supabase.auth.getUser().then(({data,error})=>{if(active&&!authEventObserved){if(error)throw error;setUserId(data.user?.id??null)}}).catch(()=>{if(active&&!authEventObserved){setError('Your sign-in session could not be verified. Please sign in again.');setLoading(false)}});return()=>{active=false;subscription.unsubscribe()}},[]);
  useEffect(()=>{
   let active=true;
   const seq=++request.current;loadMoreBusy.current=false;
-  setData(null);setMatrixSummary(null);setError('');setLoading(true);setLoadingMore(false);
+  setData(null);setMatrixSummary(null);setMatrixSummaryError(false);setError('');setLoading(true);setLoadingMore(false);
   const timer=window.setTimeout(async()=>{
    if(!supabase||!userId){if(active)setLoading(false);return;}
    try{
-    const [{data:result,error:loadError},{data:matrix,error:matrixError}]=await Promise.all([
+    const [dashboardResult,matrixResult]=await Promise.allSettled([
      supabase.rpc('get_my_mlm_dashboard_page',{p_limit:50,p_offset:0,p_search:query.trim()||null,p_depth:depth==='all'?null:Number(depth)}),
      supabase.rpc('member_get_my_matrix_commission_summary')
     ]);
     if(!active||seq!==request.current)return;
-    if(loadError)throw loadError;
-    setData(parseDashboard(result));
-    if(!matrixError&&matrix)setMatrixSummary(parseMatrixSummary(matrix));
+    if(dashboardResult.status==='rejected')throw dashboardResult.reason;
+    if(dashboardResult.value.error)throw dashboardResult.value.error;
+    setData(parseDashboard(dashboardResult.value.data));
+    if(matrixResult.status==='fulfilled'&&!matrixResult.value.error&&matrixResult.value.data!==null){
+     setMatrixSummary(parseMatrixSummary(matrixResult.value.data));
+    }else if(matrixResult.status==='rejected'||matrixResult.value.error){
+     setMatrixSummaryError(true);
+    }
    }catch(e){if(active&&seq===request.current)setError(rpcContractUnavailableMessage(e,'Your team dashboard')??(e instanceof Error?e.message:'Your team dashboard could not be loaded. Please retry.'));}
    finally{if(active&&seq===request.current)setLoading(false);}
   },query.trim()||depth!=='all'?250:0);
@@ -95,6 +100,7 @@ export default function Referrals(){
   <div className="packageIntro"><span className="workspaceIcon"><Network/></span><div><h3>My Team Dashboard</h3><p>Your Sponsor team, Matrix commission summary, team members and wallets.</p></div><button className="outline small" onClick={()=>setRefresh(v=>v+1)}><RefreshCw size={14}/> Refresh</button></div>
   {loading&&!data?<p className="packageState">Loading your team dashboard…</p>:error?<div className="notice">{error} <button className="outline small" onClick={()=>setRefresh(v=>v+1)}>Retry</button></div>:data&&<>
    <div className="mlmCards">{cards.map(([label,value,Icon])=><article key={label}><Icon size={19}/><small>{label}</small><b>{value}</b></article>)}</div>
+   {matrixSummaryError&&<p className="memberModuleState" role="status">Matrix commission summary is temporarily unavailable. Your Sponsor team data is still available; refresh to retry the summary.</p>}
    <div className="genealogyHead"><div><h4>My Team Genealogy</h4><p>Members are grouped under the Sponsor Main ID recorded at registration or last admin correction.</p></div><span>{data.tree_total} matching members</span><button className="outline small" type="button" onClick={()=>void exportTeam()} disabled={exportBusy||loading}><RefreshCw size={14}/>{exportBusy?"Preparing report…":"Export Team CSV"}</button></div>{exportMessage&&<p className="memberModuleState" role="status">{exportMessage}</p>}
    <div className="genealogyTools"><label className="search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search all team members"/></label><label className="depthSelect">Level <select value={depth} onChange={e=>setDepth(e.target.value)}><option value="all">All levels</option>{Array.from({length:20},(_,i)=><option key={i+1} value={String(i+1)}>Level {i+1}</option>)}</select><ChevronDown size={14}/></label></div>
    {loading?<p className="packageState">Updating team results…</p>:data.tree.length===0?<div className="empty">No team members match this view yet.</div>:<div className="genealogyList">{data.tree.map(m=><article className="genealogyMember" key={m.member_code} style={{'--tree-depth':Math.min(m.depth,8)} as CSSProperties}><span className="genealogyLine"/><div className="genealogyAvatar"><Users size={16}/></div><div className="genealogyInfo"><b>{m.display_name}</b><small>{m.member_code} · Joined {new Date(m.created_at).toLocaleDateString('en-IN')}</small><small>Sponsor: {m.sponsor_code??'Not assigned'}</small></div><span className="genealogyLevel">Level {m.depth}</span><span className={m.status==='active'?'memberActive':'memberStatus'}>{m.status}</span></article>)}</div>}

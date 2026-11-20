@@ -3239,3 +3239,10 @@
 - The Admin withdrawal RPC returns rows ordered by descending `(requested_at,id)`. The UI previously rejected duplicate request IDs across offset pages but did not independently verify that the server preserved this ordering or that a continuation page began strictly before the last loaded request.
 - Extended the shared withdrawal response parser to validate strict descending tuple order within every page and across the loaded-page boundary before appending. Out-of-order or shifted pages now fail closed and require a refresh.
 - Added source-only regression assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration, manifest, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — My Team and Matrix summary failure isolation
+
+- The My Team dashboard and its optional Matrix commission summary are now treated as independent RPC contracts. A rejected/failed Matrix summary request no longer discards a successfully loaded Sponsor team dashboard.
+- Matrix summary failures are surfaced as a non-blocking status message; the dashboard retains its own error handling and retry behavior. Refresh resets the summary warning and retries both requests.
+- Added source-only regression coverage in `tests/member-team-matrix-summary-isolation.test.ts`; not executed. No SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
