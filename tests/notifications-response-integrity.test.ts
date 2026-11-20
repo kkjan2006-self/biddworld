@@ -6,8 +6,8 @@ describe('Notifications response and realtime integrity',()=>{
   expect(ui).toContain('NOTIFICATION_UUID.test(row.id)');
   expect(ui).toContain('NOTIFICATION_UUID.test(row.user_id)');
   expect(ui).toContain('NOTICE_CATEGORIES');
-  expect(ui).toContain('row.title.trim().length<3||row.title.length>120');
-  expect(ui).toContain('row.message.trim().length<5||row.message.length>2000');
+  expect(ui).toContain('databaseCharLength(row.title.trim())<3||databaseCharLength(row.title.trim())>120');
+  expect(ui).toContain('databaseCharLength(row.message.trim())<5||databaseCharLength(row.message.trim())>2000');
   expect(ui).toContain('row.recipient_name.length>200');
  });
  it('validates complete notification rows, timestamps and optional recipient fields',()=>{
