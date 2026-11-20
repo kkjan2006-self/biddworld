@@ -1,3 +1,12 @@
+## 2026-11-20 — Matrix commission report pagination contract
+
+- Matrix commission report pages now reject responses over the requested 100-row bound, require numeric summary/amount fields and require a boolean, consistent `has_more` flag on every returned row.
+- A short page cannot claim additional records; malformed pagination metadata fails closed instead of silently truncating or duplicating the report.
+- Added source-only assertions in `tests/admin-matrix-commissions-source-integrity.test.ts`; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Support export response integrity
 
 - Full Support CSV export now validates that every fetched page is an array of at most 500 complete ticket records before adding any row to the export. Malformed server responses stop the export rather than being cast into trusted records.
