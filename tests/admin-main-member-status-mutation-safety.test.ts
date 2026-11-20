@@ -25,4 +25,10 @@ describe('Admin Main ID status mutation safety',()=>{
   expect(migration).toContain("p_status not in ('active','suspended','closed')");
  });
 
+ it('describes the implemented lifecycle actions accurately in the member directory',()=>{
+  expect(source).toContain('Main ID status changes use a separate audited lifecycle action');
+  expect(source).toContain('synchronize eligible linked Duplicate IDs');
+  expect(source).not.toContain('Account status changes and suspension workflows remain separate pending work.');
+ });
+
 });
