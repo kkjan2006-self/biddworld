@@ -82,7 +82,7 @@ export default function AdminAuctionSubmissionReview(){
    const{error}=await supabase.rpc('admin_review_auction_submission',{p_submission_id:r.id,p_decision:decision,p_title:title,p_description:description,p_category:v.category??r.category,p_image_paths:approvedImagePaths,p_starting_price:starting,p_expected_price:expected,p_minimum_increment:increment,p_starts_at:startsAt,p_optional_details:v.optional_details??r.optional_details,p_review_note:notes[r.id]??null});
    if(error){rpcDefinitelyRejected=typeof (error as {code?:unknown}).code==='string';throw error;}
    setEdit(current=>{const next={...current};delete next[r.id];return next;});setNotes(current=>{const next={...current};delete next[r.id];return next;});
-   setMessage(decision==='approve'?'Auction approved and published.':'Auction rejected.');
+   let cleanupWarning='';if(decision==='approve'&&r.image_paths.length){try{const{error:cleanupError}=await supabase.storage.from('auction-submission-media').remove(r.image_paths);if(cleanupError)cleanupWarning=' Original private images could not be cleaned up automatically.';}catch{cleanupWarning=' Original private images could not be cleaned up automatically.';}}setMessage((decision==='approve'?'Auction approved and published.':'Auction rejected.')+cleanupWarning);
    await load();
   }catch(e){
    const reason=e instanceof Error?e.message:'Review action failed.';
