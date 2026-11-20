@@ -1,3 +1,11 @@
+## 2026-11-20 — Admin wallet page response-contract hardening
+
+- Admin wallet account and ledger responses previously checked only identity presence and a subset of amount/balance fields. Added strict shared page parsers covering UUID identities, member ownership identifiers, wallet type/currency, transaction direction/type, timestamps, nullable reference fields and non-negative balances.
+- Both initial and continuation loads now use the same parsers. Any duplicate ID overlapping already loaded pages fails closed and requires a refresh; it is no longer silently filtered out.
+- Added source-only assertions in `tests/admin-wallet-page-response-integrity.test.ts`; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+---
+
 ## 2026-11-20 — Support ticket pagination ordering and cursor integrity
 
 - The Support inbox previously relied on the database's descending `(updated_at,id)` ordering without independently validating initial pages, continuation pages or complete CSV export batches.

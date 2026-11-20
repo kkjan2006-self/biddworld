@@ -176,3 +176,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Source audit found Support initial, continuation and full CSV export pages trusted the database's descending `(updated_at,id)` order without independently validating page order or the continuation cursor boundary.
 - Added strict descending tuple validation to every Support page and export batch; continuation pages must start strictly before the prior cursor. Existing owner scoping, Staff/Admin review scope, duplicate-ID checks and full-page continuation behavior are preserved.
 - Added `tests/support-ticket-pagination-integrity.test.ts` as source-only regression coverage; not executed. No SQL migration or database operation was required.
+
+
+## Latest Admin wallet response-contract hardening
+
+- Admin wallet account and ledger pages previously validated only record IDs and a subset of numeric values. Added strict response parsers for UUID identities, Main ID references, wallet type, currency, transaction direction/type, timestamps, nullable references and non-negative balances.
+- Initial and continuation pages now use the same parsers; continuation pages fail closed on any overlap with already loaded IDs instead of silently dropping repeated rows.
+- Added source-only regression coverage in `tests/admin-wallet-page-response-integrity.test.ts`; not executed. No SQL migration or database operation was required.
