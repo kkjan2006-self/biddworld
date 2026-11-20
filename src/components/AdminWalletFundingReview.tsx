@@ -67,22 +67,23 @@ const client=supabase;
   if(approve&&!urls[id]){setError('Open and verify the payment receipt before approving this request. Refresh the queue to retry the receipt link.');return;}
   reviewBusy.current=true;setBusy(id);setError('');setMessage('');
   try{
-   const{error:reviewError}=await client.rpc('admin_review_wallet_fund_request',{p_request_id:id,p_approve:approve,p_review_note:note[id]??null});
+   const{data:reviewResult,error:reviewError}=await client.rpc('admin_review_wallet_fund_request',{p_request_id:id,p_approve:approve,p_review_note:note[id]??null});
    if(reviewError)throw reviewError;
-   setMessage(approve?'Payment approved. The amount has been credited to the member Main Wallet.':'Payment request rejected. No wallet credit was made.');
+   const result=reviewResult as Record<string,unknown>|null;if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||result.status!==(approve?'approved':'rejected')||(approve&&(result.wallet_type!=='income'||typeof result.balance_after!=='number'||!Number.isFinite(result.balance_after)||result.balance_after<0)))throw new Error('The server returned a wallet funding review result that does not match this request. Refresh the queue before retrying.');
+   setMessage(approve?'Payment approved. The amount has been credited to the member Income Wallet.':'Payment request rejected. No wallet credit was made.');
    await load();
   }catch(e){setError(e instanceof Error?e.message:'The request could not be reviewed. Please retry.');}
   finally{reviewBusy.current=false;setBusy('');}
  }
  return <section className="adminModuleDetail" style={{marginTop:18}}>
-  <h4>Main Wallet Add Money Reviews</h4><p>Check the UTR and payment receipt before approving. Approval credits the member Main Wallet and records the wallet ledger entry.</p>
+  <h4>Income Wallet Add Money Reviews</h4><p>Check the UTR and payment receipt before approving. Approval credits the member Income Wallet and records the wallet ledger entry.</p>
   {error&&<div className="notice" role="alert">{error} <button type="button" className="outline small" onClick={()=>void load()} disabled={loading||loadingMore}>Retry</button></div>}
   {message&&<div className="notice" role="status">{message}</div>}
   {loading?<div className="empty">Loading pending Add Money requests…</div>:error&&!rows.length?null:rows.length===0?<div className="empty">No pending Add Money requests.</div>:<div className="referralList">{rows.map(row=><article key={row.id} style={{display:'flex',flexDirection:'column',gap:8,padding:14}}>
    <b>{row.member_code} · {row.member_name||'Member'}</b><strong>{money(Number(row.amount),row.currency||'INR')}</strong><small>UTR: {row.payment_reference}</small><small>Submitted: {new Date(row.created_at).toLocaleString('en-IN')}</small>
    {urls[row.id]?<a href={urls[row.id]} target="_blank" rel="noreferrer"><ExternalLink size={14}/> View payment receipt</a>:<small role="alert">{receiptErrors[row.id]||'Preparing secure receipt link…'}</small>}
    <label>Review note (optional)<input value={note[row.id]??''} maxLength={500} onChange={e=>setNote(v=>({...v,[row.id]:e.target.value}))}/></label>
-   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="primary small" disabled={busy!==''||!urls[row.id]} onClick={()=>void review(row.id,true)}>{busy===row.id?'Saving…':'Approve & Credit Main Wallet'}</button><button type="button" className="outline small" disabled={busy!==''} onClick={()=>void review(row.id,false)}>Reject</button></div>
+   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" className="primary small" disabled={busy!==''||!urls[row.id]} onClick={()=>void review(row.id,true)}>{busy===row.id?'Saving…':'Approve & Credit Income Wallet'}</button><button type="button" className="outline small" disabled={busy!==''} onClick={()=>void review(row.id,false)}>Reject</button></div>
   </article>)}</div>}
   {hasMore&&<button type="button" className="outline small" onClick={()=>void load(true)} disabled={loading||loadingMore||busy!==''}><RefreshCw size={14}/>{loadingMore?'Loading more…':'Load more requests'}</button>}
   <button type="button" className="outline small" onClick={()=>void load(false)} disabled={loading||loadingMore||busy!==''}><RefreshCw size={14}/> Refresh queue</button>
