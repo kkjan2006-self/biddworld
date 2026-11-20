@@ -3161,3 +3161,11 @@
 - Admin withdrawal first-page and Load More responses now share one strict parser. It validates UUID request/reviewer identities, bounded member/name/reason fields, positive bounded numeric amounts, ISO currency, allowed lifecycle statuses, timestamps, and the exact supported UPI / Bank Transfer payout-detail shape before records reach the review UI.
 - Subsequent pages now reject any overlap with already-loaded request IDs instead of silently filtering duplicate rows and advancing the offset. Existing refresh-generation and single-flight guards remain.
 - Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration required because this closes a client response-integrity gap against the existing withdrawal RPC contract.
+
+
+## 2026-11-20 — Admin withdrawal CSV export integrity
+
+- Admin withdrawal CSV export now runs every first and subsequent page through the same strict withdrawal response parser used by the review queue, validating request/reviewer UUIDs, lifecycle status, amount, timestamps and payout-detail shape before generating a file.
+- Extended the shared paged-export helper with an optional stable row identity. Withdrawal export now rejects a repeated Request ID across pages even if other returned fields changed, rather than relying only on byte-for-byte row equality.
+- Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration was required because this closes a client-side report-integrity gap against the existing Admin withdrawal RPC contract.
+- No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
