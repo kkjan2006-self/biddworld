@@ -3343,3 +3343,10 @@ The Admin auction submission queue now validates strict ascending continuation b
 - The complete Admin withdrawal CSV export already validated each row and rejected repeated request IDs, but parsed every 100-row page independently. A shifted or reordered page with previously unseen IDs could therefore cross the preceding `(requested_at,id)` boundary without being rejected.
 - The export now carries the immediately preceding page into the shared strict descending parser. Every export page must continue strictly before the previous page's final tuple, while preserving the existing stable-ID duplicate guard, filters and complete export flow.
 - Added source-only regression assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration or database change required.
+
+
+## 2026-11-20 — Member account history page-boundary integrity
+
+- Hardened the shared member history loader used by package activations, auction bids, Fixed Bid entries, sponsor commissions and winning-payment history. Every continuation page now validates record identity and timestamp, strict descending (timestamp,id) ordering within the page and against the previously loaded boundary, and rejects any duplicate/overlap before appending.
+- Package activations use their actual `submitted_at` ordering key; the other four histories use `created_at`. Invalid pages stop pagination and require a refresh rather than being silently filtered while the offset advances.
+- Added `tests/member-account-history-pagination-integrity.test.ts` as source-only regression coverage; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
