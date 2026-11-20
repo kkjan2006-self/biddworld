@@ -1,3 +1,11 @@
+## 2026-11-20 — Staff Support notification delivery
+
+- Follow-up integration review found the existing `notify_member_on_support_ticket_update()` trigger still returned early for every non-Admin JWT. After restricted Staff gained the `support_ticket_review` permission, Staff could update tickets through the audited RPC but the member received no in-app status/reply notification.
+- Added forward migration `20261120230000_staff_support_ticket_notifications.sql` to allow only Admin or `admin_staff` with the exact `support_ticket_review` permission, while preserving the `notifications_enabled` feature switch, member recipient, message limits and existing trigger attachment.
+- Added `tests/staff-support-ticket-notifications.test.ts` as source-only coverage; not executed. Registered migration and reconciled clean-install counts to **151 forward + 16 excluded = 167 timestamped paths**, plus 3 legacy/unversioned SQL files. No database migration was applied.
+
+---
+
 ## 2026-11-20 — Restricted Staff Support ticket review
 
 - Identified that the existing Support workspace and audited update RPC were Admin-only, while restricted Staff had no independently assignable Support permission. This left Support tickets outside the Staff access model despite the existing member and Admin workflow.
