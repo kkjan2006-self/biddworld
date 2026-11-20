@@ -36,7 +36,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     if(categoryFilter!=='all')request=request.eq('category',categoryFilter);
     const{data,error:loadError}=await request.limit(PAGE_SIZE+1);
     if(loadError)throw loadError;
-    rows=parseNoticePage(data);
+    rows=parseNoticePage(data,user.id);
    }
    if(seq!==requestSeq.current)return;
    if(!Array.isArray(rows)||rows.length>PAGE_SIZE+1)throw new Error('The notification inbox response was invalid. Please refresh.');
@@ -62,7 +62,7 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
     request=request.or(`created_at.lt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.lt.${cursor.id})`);
     const{data,error:loadError}=await request.limit(PAGE_SIZE+1);
     if(loadError)throw loadError;
-    rows=parseNoticePage(data);
+    rows=parseNoticePage(data,user.id);
    }
    if(seq!==requestSeq.current)return;
    if(!Array.isArray(rows)||rows.length>PAGE_SIZE+1)throw new Error('The notification page response was invalid. Refresh the inbox.');
@@ -90,14 +90,14 @@ export default function Notifications({isAdmin=false}:{isAdmin?:boolean}){
       if(!active)return;
       if(payload.eventType==='INSERT'){
        const row=payload.new as Notice;
-       if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||!row.user_id.trim()||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))return;
+       if(!row||typeof row.id!=='string'||!row.id.trim()||typeof row.user_id!=='string'||!row.user_id.trim()||(!isAdmin&&row.user_id!==user.id)||typeof row.title!=='string'||!row.title.trim()||typeof row.message!=='string'||typeof row.category!=='string'||!row.category.trim()||(row.read_at!==null&&typeof row.read_at!=='string')||(row.read_at!==null&&!Number.isFinite(Date.parse(row.read_at)))||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))return;
        if(categoryFilter!=='all'&&row.category!==categoryFilter)return;
        if(unreadOnly&&row.read_at)return;
        setItems(current=>[row,...current.filter(item=>item.id!==row.id)].slice(0,PAGE_SIZE));
        setNotice('A new notification has arrived.');
       }else if(payload.eventType==='UPDATE'){
        const row=payload.new as Notice;
-       if(!row||typeof row.id!=='string'||!row.id.trim())return;
+       if(!row||typeof row.id!=='string'||!row.id.trim()||(!isAdmin&&row.user_id!==user.id))return;
        setItems(current=>unreadOnly&&row.read_at?current.filter(item=>item.id!==row.id):current.map(item=>item.id===row.id?{...item,...row}:item));
       }else if(payload.eventType==='DELETE'){
        const row=payload.old as Partial<Notice>;
