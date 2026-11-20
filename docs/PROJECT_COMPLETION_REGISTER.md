@@ -1,3 +1,10 @@
+## 2026-11-20 — Admin Auction Review source declaration repair
+
+- Corrected a literal backslash-n embedded between `validUuid` and `validCleanupPath` in `AdminAuctionSubmissionReview.tsx`; it was source text rather than a line break and could prevent the module from parsing.
+- Added a source-only regression assertion to prevent the malformed declaration separator from returning. No SQL/schema change required. Test not executed; no build or type-check was run.
+
+---
+
 ## 2026-11-20 — Staff package activation numeric response contract
 
 - Reconciled the Staff package activation keyset response with the original submission RPC and SQL column type. PostgreSQL integer is emitted as a JSON number, while the Staff client incorrectly required a numeric string, causing valid queue rows to fail validation before receipt signing.

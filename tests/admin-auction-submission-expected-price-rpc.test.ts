@@ -49,4 +49,9 @@ describe('Admin auction submission Expected Price RPC contract',()=>{
   expect(admin).toContain('minLength={5} maxLength={180}');
   expect(member).toContain('p_expected_price:Number(expected)');
  });
+ it('keeps adjacent helper declarations on real source lines',()=>{
+  expect(admin).not.toContain(';}\\nfunction validCleanupPath');
+  expect(admin).toContain('function validUuid(value:unknown):value is string');
+  expect(admin).toContain('function validCleanupPath(value:unknown,bucket:PendingMediaCleanup');
+ });
 });
