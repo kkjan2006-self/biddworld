@@ -1,3 +1,13 @@
+## 2026-11-20 — Member Product/Auction media ownership and cleanup concurrency
+
+- Member Product and Auction submission history now validates every returned image path against the same authenticated-user-folder and safe filename contract enforced by the forward SQL RPCs; submission IDs are validated as UUIDs before signed URLs are requested.
+- Persisted cleanup queues are filtered against the authenticated user's exact folder and SQL-compatible filename rules, preventing malformed or cross-account paths from reaching Storage removal.
+- Manual cleanup retries are single-flight and share the submission busy state, preventing duplicate cleanup and overlapping uploads/submissions.
+- Added source-only assertions in `tests/member-product-submission-editing.test.ts` and `tests/member-auction-submission-editing.test.ts`; not executed.
+- No database access, migration replay, tests, build, type-check or deployment was performed.
+
+---
+
 ## 2026-11-20 — Upload failure orphan tracking across receipt and listing workflows
 
 - Package Activation and Income Wallet receipt paths are now recorded before the Storage upload call; a failed/ambiguous upload is treated as a pre-RPC orphan candidate and removed or persisted for retry. Cleanup still does not run after an ambiguous activation RPC outcome.
