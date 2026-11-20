@@ -13,6 +13,11 @@ describe('member product submission editing contract',()=>{
   expect(sql).toContain("m.id_type='main' and m.status='active' and p.status='active'");
   expect(sql).toContain("o.bucket_id='product-submission-media' and o.name=v_path");
  });
+ it('validates the returned UUID and preserves edit identity before clearing the form',()=>{
+  expect(ui).toContain('submissionId');
+  expect(ui).toContain('editingId&&submissionId!==editingId');
+  expect(ui).toContain('The outcome may already be recorded; refresh your submission history before retrying.');
+ });
  it('resets a corrected submission to pending review and records an audit event',()=>{
   expect(sql).toContain("status='pending',review_note=null,reviewed_by=null,reviewed_at=null");
   expect(sql).toContain("'product.edited_and_resubmitted'");
