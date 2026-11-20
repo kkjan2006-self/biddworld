@@ -248,3 +248,10 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Unified refresh and continuation request locking in the Admin Income Wallet funding review queue. Previously, a refresh could clear the continuation lock while an older page request was still running, allowing overlapping requests and cursor/state races.
 - Every queue load now acquires the same lock before asynchronous work; a concurrent refresh or continuation is ignored until the active request completes. Only the current request generation releases the lock, while stale responses remain blocked from changing the queue.
 - Added source-only regression coverage in `tests/admin-wallet-funding-request-lock-integrity.test.ts`. Not executed. No database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-20 — Admin auction submission queue concurrency hardening
+
+- Serialized refresh and Load More requests in the Admin auction submission review queue with a single shared request lock. A refresh can no longer clear an in-flight pagination lock and allow overlapping requests or cursor races.
+- The active request generation alone releases the lock. Component cleanup invalidates pending load generations so responses completing after unmount cannot update the queue.
+- Added source-only regression coverage in `tests/admin-auction-review-request-lock-integrity.test.ts`. Not executed. No database, build, type-check, E2E, browser QA or deployment operation was performed.
