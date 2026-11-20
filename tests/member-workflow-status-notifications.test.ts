@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 const sql=readFileSync('supabase/migrations/20261119420000_member_workflow_status_notifications.sql','utf8');
+const cancellationSql=readFileSync('supabase/migrations/20261120250000_notify_member_on_withdrawal_cancellation.sql','utf8');
 describe('member workflow status notifications',()=>{
  it('uses one private trigger function with fixed search_path and no client execution',()=>{
   expect(sql).toContain('create or replace function private.notify_member_workflow_status_change()');
@@ -19,11 +20,14 @@ describe('member workflow status notifications',()=>{
   expect(sql).toContain("v_status = 'paid'");
  });
  it('notifies the member when a withdrawal reaches the cancelled terminal status',()=>{
-  expect(sql).toContain("elsif v_status = 'cancelled' then");
-  expect(sql).toContain("v_title := 'Withdrawal request cancelled'");
-  expect(sql).toContain('No payout will be made for this request.');
-  expect(sql).toContain('create trigger notify_member_withdrawal_status');
-  expect(sql).toContain('after update of status on public.withdrawal_requests');
+  expect(cancellationSql).toContain('create or replace function private.notify_member_workflow_status_change()');
+  expect(cancellationSql).toContain("elsif v_status = 'cancelled' then");
+  expect(cancellationSql).toContain("v_title := 'Withdrawal request cancelled'");
+  expect(cancellationSql).toContain('No payout will be made for this request.');
+  expect(cancellationSql).toContain("set search_path = ''");
+  expect(cancellationSql).toContain('revoke all on function private.notify_member_workflow_status_change() from public, anon, authenticated;');
+  expect(cancellationSql).toContain('create trigger notify_member_withdrawal_status');
+  expect(cancellationSql).toContain('after update of status on public.withdrawal_requests');
  });
  it('writes only to the existing in-app notification inbox',()=>{
   expect(sql).toContain('insert into public.member_notifications(user_id, title, message, category)');
