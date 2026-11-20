@@ -13,6 +13,11 @@ describe('Wallet funding receipt cleanup recovery',()=>{
   expect(source).toContain('Retry receipt cleanup');
   expect(source).toContain("storage.from('wallet-funding-receipts').remove(paths)");
  });
+ it('validates the returned wallet funding request UUID before clearing the form',()=>{
+  expect(source).toContain('result.request_id!==\'string\'');
+  expect(source).toContain('test(result.request_id)');
+  expect(source).toContain('result.status!==\'pending\'');
+ });
  it('queues only definite RPC rejections and preserves ambiguous receipt outcomes',()=>{
   expect(source).toContain('rpcDefinitelyRejected');
   expect(source).toContain('persistWalletReceiptCleanupPath');
