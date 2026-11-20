@@ -1902,3 +1902,11 @@ At every development batch/chat end, update this file with the actual verified b
 - Subsequent pages now reject any overlap with already-loaded request IDs instead of silently filtering duplicate rows and advancing the offset. Existing refresh-generation and single-flight guards remain.
 - Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration required because this closes a client response-integrity gap against the existing withdrawal RPC contract.
 - **Matrix placement regression source repaired:** the final upline traversal assertions now use the existing `migration` binding instead of an undeclared `sql` identifier. Source-only correction; test not executed and no runtime/SQL behavior changed.
+
+
+## 2026-11-20 — Matrix commission reversal replay identity
+
+- Idempotent reversal replay responses now include the exact commission UUID. Admin UI validates the UUID for both new reversals and replays instead of accepting an omitted identity.
+- Forward migration: `20261120240000_matrix_commission_reversal_replay_identity.sql`; registered in clean-install manifest. Source-only coverage added to `tests/admin-matrix-commission-actions.test.ts` and not executed.
+- Inventory: 152 forward + 16 excluded = 168 timestamped migration paths, plus 3 legacy/unversioned SQL files. No migration was applied; Production remains read-only and TEST remains unused.
+- Tests, builds, type-check, E2E, browser QA and database replay were not run.

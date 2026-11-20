@@ -1,10 +1,10 @@
 ## Clean-install manifest regression source repair (source-only, 2026-11-20)
 
-Repaired `tests/clean-install-migration-manifest-integrity.test.ts`: literal backslash-n sequences embedded in the migration version-prefix uniqueness assertion block are now actual source line breaks. This restores valid test-source structure without changing assertions, manifests, baseline or migration inventory. Test remains unexecuted. Inventory remains **151 forward + 16 excluded = 167 timestamped paths**, plus 3 legacy/unversioned SQL files.
+Repaired `tests/clean-install-migration-manifest-integrity.test.ts`: literal backslash-n sequences embedded in the migration version-prefix uniqueness assertion block are now actual source line breaks. This restores valid test-source structure without changing assertions, manifests, baseline or migration inventory. Test remains unexecuted. Inventory remains **152 forward + 16 excluded = 168 timestamped paths**, plus 3 legacy/unversioned SQL files.
 
 ## Staff Support notification delivery (source-only, 2026-11-20)
 
-Migration `20261120230000_staff_support_ticket_notifications.sql` updates the existing Support-ticket notification trigger to accept Admin changes and Staff changes carrying the explicit `support_ticket_review` app-metadata permission. This closes the event-delivery gap introduced when the Support review RPC was extended to restricted Staff: member ticket status/reply notifications now follow the same feature switch and existing in-app inbox. Source-only regression coverage: `tests/staff-support-ticket-notifications.test.ts`; not executed. Inventory: **151 forward + 16 excluded = 167 timestamped paths**, plus 3 legacy/unversioned SQL files.
+Migration `20261120230000_staff_support_ticket_notifications.sql` updates the existing Support-ticket notification trigger to accept Admin changes and Staff changes carrying the explicit `support_ticket_review` app-metadata permission. This closes the event-delivery gap introduced when the Support review RPC was extended to restricted Staff: member ticket status/reply notifications now follow the same feature switch and existing in-app inbox. Source-only regression coverage: `tests/staff-support-ticket-notifications.test.ts`; not executed. Inventory: **152 forward + 16 excluded = 168 timestamped paths**, plus 3 legacy/unversioned SQL files.
 
 # BiddWorld clean-install reconstruction (candidate)
 

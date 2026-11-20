@@ -139,3 +139,11 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Added strict per-page descending tuple validation and cursor-boundary validation to Load More and complete CSV export. Shifted, overlapping or reordered pages now fail closed rather than silently omitting or repeating commission records.
 - Added source-only assertions in `tests/admin-matrix-commissions-source-integrity.test.ts`; not executed. No SQL migration or database operation was required.
 - No tests/build/type-check/E2E/browser QA, database access or migration replay, deployment or `main` changes. Production remains read-only and TEST remains unused.
+
+
+## 2026-11-20 — Matrix commission reversal replay identity
+
+- Idempotent reversal replay responses now include the exact commission UUID. Admin UI validates the UUID for both new reversals and replays instead of accepting an omitted identity.
+- Forward migration: `20261120240000_matrix_commission_reversal_replay_identity.sql`; registered in clean-install manifest. Source-only coverage added to `tests/admin-matrix-commission-actions.test.ts` and not executed.
+- Inventory: 152 forward + 16 excluded = 168 timestamped migration paths, plus 3 legacy/unversioned SQL files. No migration was applied; Production remains read-only and TEST remains unused.
+- Tests, builds, type-check, E2E, browser QA and database replay were not run.

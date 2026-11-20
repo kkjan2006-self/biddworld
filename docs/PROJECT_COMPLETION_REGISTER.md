@@ -1,3 +1,11 @@
+## 2026-11-20 — Matrix commission reversal replay identity
+
+- Source audit found the idempotent SQL replay for an already-reversed Matrix commission omitted `commission_id`, while the normal reversal response included it. The Admin client therefore accepted a replay without independently confirming which commission the server had replayed.
+- Added forward migration `20261120240000_matrix_commission_reversal_replay_identity.sql` so every successful reversal replay returns the exact `commission_id`; the Admin client now requires an exact identity match for both first-time and replayed results.
+- Added source-only assertions in `tests/admin-matrix-commission-actions.test.ts`; not executed. Clean-install inventory: **152 forward + 16 excluded = 168 timestamped paths**, plus 3 legacy/unversioned SQL files. No database migration was applied.
+
+---
+
 ## 2026-11-20 — Fixed Bid catalogue ordering and page-boundary integrity hardened
 
 - Source audit found the Fixed Bid catalogue rejected duplicate IDs across offset pages but did not independently enforce the SQL's descending `(created_at,id)` order or verify that a continuation page began strictly before the last loaded row.

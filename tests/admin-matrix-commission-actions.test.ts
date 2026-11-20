@@ -13,5 +13,8 @@ describe('Admin Matrix commission actions',()=>{
   expect(ui).toContain('reason.trim().length<5');
   expect(ui).toContain('Reverse this Matrix commission and its matching Income Wallet ledger credit?');
   expect(sql).toContain('Matrix reversal exists without original credit; reconciliation required');
+  expect(sql).toContain("jsonb_build_object('success',true,'commission_id',p_commission_id,'status','reversed','replayed',true)");
+  expect(ui).toContain('const replayMatches=result.commission_id===commissionId;');
+  expect(ui).not.toContain('result.commission_id===undefined');
  });
 });
