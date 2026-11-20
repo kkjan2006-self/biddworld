@@ -594,3 +594,22 @@ footer{background:#2c1048;color:#f4e9ff}
 .auctionBidButton{width:100%;min-height:52px;display:flex;align-items:center;justify-content:center;gap:11px;border:0;border-radius:13px;background:linear-gradient(110deg,#164d85,#087e9e 65%,#0ba6a5);color:#fff;font:900 14px Manrope;letter-spacing:1px;box-shadow:0 7px 18px #087e9e30;cursor:pointer;margin-top:3px}
 .auctionBidButton:disabled{background:#aab5c4;box-shadow:none;cursor:not-allowed;opacity:.85}
 @media(max-width:560px){.homeAuctionGrid .auctionCleanCard .auctionBody{padding:15px}.homeAuctionGrid .auctionCleanCard h3{font-size:17px}}
+
+/* Recent auction winners — compact marketplace cards. */
+.winnerCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:14px}
+.winnerCard{overflow:hidden;border:1px solid #dce5f1;border-radius:17px;background:#fff;box-shadow:0 9px 24px #152b450d}
+.winnerCardImage{height:132px;position:relative;display:grid;place-items:center;background:linear-gradient(135deg,#edf4fb,#f4f3fb);overflow:hidden}
+.winnerCardImage>img{width:100%;height:100%;object-fit:cover}
+.winnerCardImage>.placeholder{color:#8798ad}
+.winnerCardImage>span{position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:5px;padding:6px 9px;border-radius:30px;background:#fff;color:#16836f;font:900 9px Manrope;letter-spacing:.7px;box-shadow:0 3px 10px #142b4418}
+.winnerCardBody{padding:13px;display:grid;gap:10px}
+.winnerCardBody h4{font:800 14px/1.35 Manrope;color:#1b304b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.winnerMember{display:flex;align-items:center;gap:9px}
+.winnerAvatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1a6db0,#0aa6a3);color:white;font:900 14px Manrope}
+.winnerMember>div{min-width:0;display:grid;gap:2px}
+.winnerMember small,.winnerBidAmount small{font-size:10px;color:#7a8798}
+.winnerMember b{font:800 12px Manrope;color:#30445d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.winnerBidAmount{padding-top:8px;border-top:1px solid #edf1f6;display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.winnerBidAmount strong{font:900 18px Manrope;color:#147c79}
+.winnerDate{font-size:10px;color:#8793a2;text-align:right}
+@media(max-width:520px){.winnerCardsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.winnerCardImage{height:112px}.winnerCardBody{padding:10px}.winnerCardBody h4{font-size:12px}.winnerBidAmount strong{font-size:15px}}
