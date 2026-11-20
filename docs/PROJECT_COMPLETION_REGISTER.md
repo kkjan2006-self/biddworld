@@ -3284,3 +3284,11 @@
 - Added `tests/fixed-bid-image-frame-rendering.test.ts` as source-only regression coverage. It was not executed under the development-only restrictions.
 - Audited the repository asset tree: it currently contains no sample product photography. The three sample campaigns still have null/empty image paths, so this CSS correction prepares real images to render but does not fabricate or substitute AI-generated product art.
 - No SQL migration, DB access, tests, build, type-check, E2E, browser QA, or deployment was performed. Production and TEST remain unchanged; `main` was not modified.
+
+
+## 2026-11-20 — Supplied Fixed Bid sample product images
+
+- Added the three user-supplied product images as optimized WebP assets under `public/sample-products/`: smartphone, mixer grinder and smartwatch.
+- Wired the matching sample fixtures to those assets using Vite `BASE_URL` paths and updated the image URL resolver to serve app-local public assets directly rather than treating them as Supabase Storage object paths. Homepage compact cards, catalogue cards and product details gallery share the same image source.
+- Added source-only assertions in `tests/fixed-bid-sample-images.test.ts`; not executed. The supplied mixer-grinder image visibly contains a Vecteezy watermark; it was retained as provided.
+- No SQL migration, database operation, tests, build, type-check, E2E, browser QA or deployment was performed. Production and TEST unchanged; `main` unchanged.

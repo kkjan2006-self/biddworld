@@ -154,3 +154,11 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Shared `.fixedBidVisual img` styling now fills the complete product frame with `object-fit: cover` and block layout for full catalogue and compact homepage cards.
 - Added source-only regression coverage in `tests/fixed-bid-image-frame-rendering.test.ts`; not executed. Repository asset audit found no sample product images, so the three sample fixtures still require the separately requested AI-generated images.
 - No database, migration replay, tests, build, type-check, E2E, browser QA or deployment. Production/TEST unchanged; `main` unchanged.
+
+
+## 2026-11-20 — Supplied Fixed Bid sample product images
+
+- Added optimized user-provided WebP images for Smartphone, Mixer Grinder and Smartwatch under `public/sample-products/` and assigned each to its corresponding sample Fixed Bid fixture.
+- Updated image URL resolution to serve Vite base-path public assets directly, including GitHub Pages `/biddworld-preview/`, instead of requesting them from Supabase Storage. Shared by homepage compact cards, catalogue cards and details gallery.
+- Added source-only regression assertions in `tests/fixed-bid-sample-images.test.ts`; not executed. The uploaded Mixer Grinder image contains a visible Vecteezy watermark.
+- No DB changes, migrations, tests/build/type-check/E2E/browser QA or deployment. Production/TEST unchanged; `main` unchanged.
