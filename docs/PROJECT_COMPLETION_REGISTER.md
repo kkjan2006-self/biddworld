@@ -2453,3 +2453,10 @@
 - Commits: migration `dc0a99a08e3192198ccf498c58df920054980ef6`; test `1275211dfbdc8361e6ddd18ce46c5b7b58d99548`.
 - Migration inventory: **133 forward + 16 excluded = 149 timestamped SQL files**, missing 0, orphaned 0, overlap 0, duplicate forward 0.
 - No migrations applied, no data changes, no Preview deployment, and no protected `main` changes.
+
+
+## 2026-11-20 — Replace legacy broad package receipt policy
+
+- The Staff receipt access follow-up now explicitly drops the legacy quoted policy `"Admins read package receipts"` created by the earlier private-receipt migrations, as well as the unquoted compatibility policy name. This prevents PostgreSQL's permissive-policy OR behavior from leaving the older broader Staff read rule active.
+- The resulting effective rule is: Admin can read receipts; Staff can read only receipts attached to pending activations and only with `package_activation_review`; members cannot read private receipt objects.
+- Commits: policy correction `1659b73501d92f2557ed42acc465560f682c191e`; regression assertion `41dd7af9381fd569a43d95a49acab7129012348d`.
