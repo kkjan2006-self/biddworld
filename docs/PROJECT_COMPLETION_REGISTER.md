@@ -1,3 +1,11 @@
+## 2026-11-20 — Restricted Staff Support workspace integration gap closed
+
+- A follow-up end-to-end route audit found that the Support permission editor, Support RLS/RPC and top-level Support tab already recognized `support_ticket_review`, but the dedicated Admin Staff workspace filtered that claim out and did not render the Support queue. Staff assigned only Support review therefore saw an incorrect empty-permissions state inside the Staff workspace.
+- Added `support_ticket_review` to the Staff workspace permission contract and rendered the existing Support review component only when that exact claim is present. Member submission remains hidden by the existing `isStaffSupport` mode; Support data access remains enforced by the existing database policy and audited RPC.
+- Extended `tests/restricted-staff-support-ticket-review.test.ts` with workspace permission-filter and component-wiring assertions. Source-only; not executed. No SQL migration or manifest change required.
+
+---
+
 ## 2026-11-20 — Matrix commission reversal replay identity
 
 - Source audit found the idempotent SQL replay for an already-reversed Matrix commission omitted `commission_id`, while the normal reversal response included it. The Admin client therefore accepted a replay without independently confirming which commission the server had replayed.
