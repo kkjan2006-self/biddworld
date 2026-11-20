@@ -153,8 +153,12 @@ export default function Packages() {
         if(uploadError)throw uploadError;
         uploadedReceiptPath=receiptPath;
       }
-      const{error}=await supabase.rpc('submit_package_activation_with_receipt',{p_package_id:selectedPackage,p_payment_reference:reference,p_receipt_path:receiptPath});
+      const{data:activationResult,error}=await supabase.rpc('submit_package_activation_with_receipt',{p_package_id:selectedPackage,p_payment_reference:reference,p_receipt_path:receiptPath});
       if(error){activationRpcRejected=typeof (error as {code?:unknown}).code==='string';throw error;}
+      const result=activationResult as Record<string,unknown>|null;
+      if(!result||typeof result!=='object'||Array.isArray(result)||result.success!==true||typeof result.activation_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.activation_id)||!Number.isInteger(result.activation_number)||Number(result.activation_number)<1||result.payment_status!=='pending'||result.activation_status!=='pending'||result.receipt_path!==receiptPath){
+        throw new Error('The server response did not confirm the exact pending package activation and receipt. The request may already have been recorded; refresh your activation history before retrying.');
+      }
       activationSubmitted=true;
       setActivationMessage('Package activation request submitted for Admin verification.');
       setPaymentReference('');setReceiptFile(null);setSelectedPackage('');const receiptInput=document.getElementById('package-activation-receipt') as HTMLInputElement|null;if(receiptInput)receiptInput.value='';
