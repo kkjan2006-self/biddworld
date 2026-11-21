@@ -1,3 +1,10 @@
+## 2026-11-21 — Wallet history Matrix reference integrity
+
+- Wallet transaction parsing now rejects blank reference types and requires every `matrix_commission` ledger row to carry a canonical commission UUID. Previously, a malformed/missing reference ID could be skipped by source-attribution lookup and displayed/exported as an ordinary unattributed wallet transaction. The shared validator protects both paginated history and complete CSV export before any Matrix source RPC is called.
+- Added source-only regression assertions; not executed. No SQL migration, manifest change or database operation was needed.
+
+---
+
 ## 2026-11-21 — Admin winning-payment and delivery page integrity
 
 - Replaced permissive initial-page checks and silent cross-page duplicate filtering with strict shared parsers. Both reports validate UUID identities and complete typed fields before state mutation; cross-page overlaps fail closed rather than being silently filtered. Delivery ordering is validated against the confirmed SQL order (updated_at, tracking_id); the winning-payment parser validates identities and timestamps without assuming an unverified sort key.
