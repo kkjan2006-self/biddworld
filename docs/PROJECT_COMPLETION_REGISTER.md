@@ -3586,3 +3586,9 @@ The Admin auction submission queue now validates strict ascending continuation b
 - Both on-screen pagination and complete CSV export now validate strict descending `(created_at,id)` ordering and reject rows that cross or repeat the preceding keyset cursor before updating state or exporting.
 - Added source-only regression assertions for the look-ahead bound, page ordering and cursor-boundary checks. Tests were not executed. No migration or manifest change was required; the existing cursor RPC contracts already use descending tuple ordering.
 - No build, type-check, E2E, browser QA, deployment or Supabase operation was performed. Development remains 95% provisional.
+
+
+## 2026-11-21 — Restricted Staff permission mutation response integrity
+
+- Individual Staff permission updates now fail closed when the directory has no usable email identity. The returned RPC email must be a non-empty string matching the selected account, and the returned permission array must contain only unique allowlisted values and exactly match the submitted selection. The Save control is disabled when account email identity is unavailable.
+- Updated source-only regression assertions. Tests remain unexecuted; no migration, manifest, database, build, type-check, E2E, browser QA or deployment operation was performed. Overall development remains 95% provisional.

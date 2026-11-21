@@ -34,7 +34,10 @@ describe('Restricted payment-review staff directory integrity',()=>{
   expect(source).toContain('result.permissions.length!==expectedPermissions.length');
  });
  it('validates individual permission update identity and exact selection',()=>{
-  expect(source).toContain('result.email?.toString().toLowerCase()!==row.email?.toLowerCase()');
-  expect(source).toContain('selected.some(permission=>!result.permissions.includes(permission))');
+  expect(source).toContain("typeof row.email!=='string'||!row.email.trim()");
+  expect(source).toContain("typeof result.email!=='string'||result.email.trim().toLowerCase()!==row.email.trim().toLowerCase()");
+  expect(source).toContain('new Set(returnedPermissions).size!==returnedPermissions.length');
+  expect(source).toContain('returnedPermissions.some(permission=>typeof permission!==\'string\'||!Object.prototype.hasOwnProperty.call(permissionLabels,permission))');
+  expect(source).toContain('selected.some(permission=>!returnedPermissions.includes(permission))');
  });
 });
