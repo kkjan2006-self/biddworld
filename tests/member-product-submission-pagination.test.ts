@@ -19,5 +19,10 @@ describe('member product submission history pagination',()=>{
   expect(ui).toContain('Load more submissions');
   expect(ui).toContain('createSignedUrl(path,300)');
   expect(ui).toContain('duplicate or overlapping records');
+  expect(ui).toContain('function isStrictlyDescendingSubmissionPage(rows:Submission[]):boolean');
+  expect(ui).toContain('function isBeforeSubmissionCursor(row:Submission,cursor:Pick<Submission,\'created_at\'|\'id\'>):boolean');
+  expect(ui).toContain('function hasConsistentSubmissionContinuation(rows:Submission[]):boolean');
+  expect(ui).toContain('crossed or repeated its previous cursor');
+  expect(ui).toContain('inconsistent or incomplete continuation marker');
  });
 });
