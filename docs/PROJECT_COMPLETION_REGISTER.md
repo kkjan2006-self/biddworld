@@ -1,3 +1,10 @@
+## 2026-11-21 — Staff permission regression contract alignment
+
+- Cross-audit found two source-only Staff regression suites still asserted the older three-permission grant contract, even though the latest re-grant and permission migrations now support four allowlisted scopes including `support_ticket_review`. Updated assertions to validate the current bounded permission set and preservation behavior, while retaining the original three-scope default for newly granted Staff.
+- This prevents stale source assertions from contradicting the implemented Staff contract. Tests remain unexecuted; no SQL migration, manifest, database or deployment change.
+
+---
+
 ## 2026-11-21 — Support Admin audit deduplication after Staff review enablement
 
 - Source audit found that the restricted-Staff Support migration added an audit insert to `admin_update_support_ticket`, while the pre-existing Admin row trigger already writes the Admin audit event. Admin ticket updates could therefore create duplicate audit rows. The RPC now writes its audit event only for `admin_staff`; Admin continues to be audited once by the existing row trigger, and Staff retains reviewer-role audit context.
