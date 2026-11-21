@@ -1,3 +1,10 @@
+## 2026-11-21 — Admin Product and Auction moderation pagination integrity
+
+- Product review parsing now validates canonical submission/submitter UUIDs, SQL-compatible owner-folder private image paths, name/description/status/timestamp fields, strict ascending `(created_at,id)` ordering, consistent per-row continuation flags, full continuation pages and strict cross-page cursor progression before signing any private image URL or mutating UI state.
+- Auction review now also requires a canonical submission UUID and the pending status and validates strict ascending `(created_at,id)` ordering inside every page, complementing its existing cursor-to-final-row, continuation, and cross-page overlap checks. Added source-only regression assertions; not executed. No SQL migration, manifest, database or deployment change.
+
+---
+
 ## 2026-11-21 — Member Placement Tree response integrity
 
 - The Placement Tree client previously trusted the RPC payload through a TypeScript cast. It now validates root/Main-ID consistency, Main and Duplicate node types, supported lifecycle status, bounded depth, unique member codes, timestamps, nullable labels and parent-before-child relationships before state mutation. Added source-only regression assertions; not executed. No SQL migration, manifest, database or deployment change.

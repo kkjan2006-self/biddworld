@@ -20,5 +20,11 @@ describe('Admin product submission keyset pagination',()=>{
   expect(ui).toContain('function validSubmission(value:unknown)');
   expect(ui).toContain("Object.values(row.optional_details as Record<string,unknown>).every(value=>typeof value==='string')");
   expect(ui).toContain('duplicate or overlapping records');
+  expect(ui).toContain('PRODUCT_SUBMISSION_UUID.test(row.id)');
+  expect(ui).toContain('PRODUCT_SUBMISSION_UUID.test(row.submitted_by)');
+  expect(ui).toContain('validPrivateProductSubmissionPath(path,row.submitted_by as string)');
+  expect(ui).toContain('isStrictlyAscendingProductPage(items)');
+  expect(ui).toContain('isAfterProductCursor(items[0],cursor)');
+  expect(ui).toContain('short page with a continuation cursor');
  });
 });

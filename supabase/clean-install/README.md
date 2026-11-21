@@ -1,3 +1,7 @@
+## Admin Product/Auction moderation page integrity (source-only, 2026-11-21)
+
+Admin Product moderation now validates canonical submission and submitter UUIDs, owner-scoped private image paths, strict ascending keyset order, continuation metadata and cursor boundaries before signing images. Admin Auction moderation validates canonical submission IDs, pending status and strict within-page ordering in addition to its existing cursor checks. Source-only assertions updated; not executed. No migration or manifest entry required.
+
 ## Member Placement Tree response integrity (source-only, 2026-11-21)
 
 The member Placement Tree now validates the RPC root, Main/Duplicate node identities, supported statuses, bounded depth, unique member codes, timestamps and parent-before-child relationships before rendering. Source-only regression assertions added; not executed. No migration or manifest entry required.

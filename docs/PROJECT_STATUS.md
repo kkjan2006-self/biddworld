@@ -1,3 +1,8 @@
+## Latest source-only batch — Admin Product/Auction moderation page integrity (2026-11-21)
+
+- Product review rows now require canonical submission/owner UUIDs, owner-folder private image paths, SQL-aligned text/status fields and strict ascending `(created_at,id)` pagination. Continuation flags must agree, full pages are required when more rows exist, and each page must start strictly after the previous cursor before any private image URL is signed.
+- Auction review rows now require canonical submission UUIDs and the pending lifecycle state, and every initial/continuation page is checked for strict ascending `(created_at,id)` order in addition to existing cursor, full-page and overlap checks. Source-only regression assertions updated; not executed. No migration, database, build, type-check, E2E, browser QA or deployment operation.
+
 ## Latest source-only batch — Placement Tree RPC response integrity (2026-11-21)
 
 - The member Placement Tree previously cast the RPC payload directly into UI state. It now validates the root identity, Main/Duplicate node types, lifecycle status, depth 0–20, unique member codes, timestamps, optional labels and parent-before-child relationships before rendering. Added source-only regression assertions. Tests/build/type-check/QA/deployment and DB operations were not run.

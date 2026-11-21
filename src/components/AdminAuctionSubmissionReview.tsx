@@ -1,11 +1,11 @@
 import {useEffect,useRef,useState} from 'react';
 import {RefreshCw,CheckCircle2,XCircle,Save} from 'lucide-react';
 import {supabase} from '../lib/supabase';
-type Row={id:string;title:string;description:string;category:string|null;image_paths:string[];starting_price:number;expected_price:number;minimum_increment:number;starts_at:string;ends_at:string|null;optional_details:Record<string,string>;created_at:string;submitted_by:string};
+type Row={id:string;status:'pending';title:string;description:string;category:string|null;image_paths:string[];starting_price:number;expected_price:number;minimum_increment:number;starts_at:string;ends_at:string|null;optional_details:Record<string,string>;created_at:string;submitted_by:string};
 function validRow(value:unknown):value is Row{
  if(!value||typeof value!=='object'||Array.isArray(value))return false;
  const row=value as Record<string,unknown>;
- return typeof row.id==='string'&&row.id.trim().length>0
+ return validUuid(row.id)&&row.status==='pending'
   &&typeof row.title==='string'&&row.title.trim().length>=5&&row.title.length<=180
   &&typeof row.description==='string'&&row.description.trim().length>=20&&row.description.length<=10000
   &&(row.category===null||typeof row.category==='string')
@@ -22,6 +22,16 @@ function validRow(value:unknown):value is Row{
 }
 type PendingMediaCleanup={bucket:'auction-submission-media'|'product-media';path:string};
 function validUuid(value:unknown):value is string{return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);}
+function compareAuctionSubmissions(left:Row,right:Row):number{
+ const time=Date.parse(left.created_at)-Date.parse(right.created_at);
+ if(time!==0)return time;
+ const a=left.id.toLowerCase(),b=right.id.toLowerCase();
+ return a<b?-1:a>b?1:0;
+}
+function isStrictlyAscendingAuctionPage(rows:Row[]):boolean{
+ for(let index=1;index<rows.length;index++)if(compareAuctionSubmissions(rows[index-1],rows[index])>=0)return false;
+ return true;
+}
 function validCleanupPath(value:unknown,bucket:PendingMediaCleanup['bucket']):value is string{if(typeof value!=='string'||value.length>500)return false;return bucket==='auction-submission-media'?/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(jpg|jpeg|png|webp)$/i.test(value):/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/[A-Za-z0-9_-]+-[A-Za-z0-9_.-]+\.(jpg|jpeg|png|webp)$/i.test(value);}
 export default function AdminAuctionSubmissionReview(){
  const[rows,setRows]=useState<Row[]>([]),[urls,setUrls]=useState<Record<string,string[]>>({}),[edit,setEdit]=useState<Record<string,Partial<Row>>>({}),[notes,setNotes]=useState<Record<string,string>>({}),[busy,setBusy]=useState(''),[message,setMessage]=useState(''),[queueLoading,setQueueLoading]=useState(true),[loadingMore,setLoadingMore]=useState(false),[hasMore,setHasMore]=useState(false),[imageErrors,setImageErrors]=useState<Record<string,string>>({}),[orphanedMedia,setOrphanedMedia]=useState<PendingMediaCleanup[]>([]),[cleanupOwner,setCleanupOwner]=useState('');const reviewInFlight=useRef(false),cleanupInFlight=useRef(false),loadSequence=useRef(0),pageLock=useRef(false),cursor=useRef<{created_at:string;id:string}|null>(null);
@@ -38,7 +48,7 @@ export default function AdminAuctionSubmissionReview(){
    if(!data||typeof data!=='object'||!Array.isArray(data.items)||typeof data.has_more!=='boolean')throw new Error('The auction review page response was invalid.');
    if(data.has_more&&(!data.next_created_at||!Number.isFinite(Date.parse(data.next_created_at))||typeof data.next_id!=='string'||!validUuid(data.next_id)))throw new Error('The auction review cursor was incomplete.');
    if(!data.has_more&&(data.next_created_at!==null||data.next_id!==null))throw new Error('The final auction review page unexpectedly included a continuation cursor.');
-   const list=data.items as unknown[];if(list.length>50||!list.every(validRow))throw new Error('The auction review page contains malformed submissions.');
+   const list=data.items as unknown[];if(list.length>50||!list.every(validRow))throw new Error('The auction review page contains malformed submissions.');if(!isStrictlyAscendingAuctionPage(list as Row[]))throw new Error('The auction review page is not in strict ascending (created_at,id) order. Refresh the queue.');
    if(data.has_more&&(list.length!==50||list[list.length-1].created_at!==data.next_created_at||list[list.length-1].id!==data.next_id))throw new Error('The auction review cursor does not match the final record on this page.');
    if(after&&list.length){const first=list[0] as Row;if(Date.parse(first.created_at)<Date.parse(after.created_at)||(first.created_at===after.created_at&&first.id.localeCompare(after.id)<=0))throw new Error('The next auction review page did not continue strictly after the previous cursor. Refresh the queue.');}
    const ids=new Set<string>(),existing=new Set(reset?[]:rows.map(row=>row.id));

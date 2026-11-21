@@ -1,3 +1,5 @@
+- **Admin Product/Auction moderation page integrity:** validate Product UUIDs, submitter-owned private image paths, SQL-aligned row fields, strict ascending `(created_at,id)` page order, consistent continuation flags, full continuation pages and cursor boundaries before signing URLs or appending. Auction review also enforces canonical submission UUIDs, pending status and strict within-page ordering. Source-only assertions added/updated; not executed. No SQL or database change.
+
 - **Placement Tree response integrity:** validate the RPC root, node identities/types/status/depth, timestamps, unique member codes and parent-before-child relationships before rendering; added source-only assertions, not executed. No migration or database change.
 
 - **PWA manual-install guidance:** the install-help fallback now distinguishes iPhone/iPad Safari, Android Chrome and other browsers; touch-enabled iPadOS is included in Apple-device detection. Source-only assertions added; not executed. No migration or database change.

@@ -6,7 +6,9 @@ describe('Admin auction submission queue response contract',()=>{
   expect(ui).toContain('function validRow(value:unknown):value is Row');
   expect(ui).toContain('row.image_paths.length>=1&&row.image_paths.length<=8');
   expect(ui).toContain('row.expected_price>=row.starting_price');
-  expect(ui).toContain('row.submitted_by.trim().length>0');
+  expect(ui).toContain('validUuid(row.submitted_by)');
+  expect(ui).toContain('validUuid(row.id)');
+  expect(ui).toContain("row.status==='pending'");
  });
  it('validates continuation boundaries, full-page cursors and terminal cursor absence',()=>{
   expect(ui).toContain('if(data.has_more&&(list.length!==50');
@@ -21,5 +23,6 @@ describe('Admin auction submission queue response contract',()=>{
   expect(ui).toContain('list.length>50||!list.every(validRow)');
   expect(ui).toContain('data.next_created_at))');
   expect(ui).toContain('duplicate or overlapping submissions');
+  expect(ui).toContain('isStrictlyAscendingAuctionPage(list as Row[])');
  });
 });
