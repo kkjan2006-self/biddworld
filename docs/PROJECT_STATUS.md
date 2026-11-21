@@ -1,3 +1,8 @@
+## Latest source-only batch — Staff permission regression contract alignment (2026-11-21)
+
+- Updated two stale source-only regression suites to reflect the current four-scope Staff permission contract and preservation of Support access on re-grant. The initial default grant remains three scopes; the current allowlist permits four.
+- Tests not executed. No database, build, type-check, E2E, browser QA or deployment operation.
+
 ## Latest source-only batch — Support Admin audit deduplication (2026-11-21)
 
 - Corrected duplicate Admin Support audit writes introduced when restricted Staff review was enabled. The existing row trigger remains the single Admin audit writer; the Support RPC now adds its audit row only for explicitly authorized Staff and retains reviewer-role context.
