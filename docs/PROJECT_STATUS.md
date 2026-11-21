@@ -1,5 +1,10 @@
 ## Latest source-only batch — Admin winning-payment/delivery page integrity (2026-11-21)
 
+- Both Admin reports now share strict initial/continuation parsers. UUIDs, typed amounts, lifecycle states and timestamps are checked before state mutation; cross-page overlaps are rejected rather than silently filtered. Delivery pages additionally enforce their SQL-defined descending (updated_at, tracking_id) order.
+- Added source-only regression assertions. No migration, DB, test execution, build, type-check, E2E, browser QA or deployment operation was performed.
+
+## Latest source-only batch — Admin winning-payment/delivery page integrity (2026-11-21)
+
 - Both Admin reports now share strict initial/continuation parsers. UUIDs, typed amounts, lifecycle states, timestamps, strict descending composite order and cross-page boundaries are checked before state mutation; overlapping rows are rejected rather than silently filtered.
 - Added source-only regression assertions. No migration, DB, test execution, build, type-check, E2E, browser QA or deployment operation was performed.
 
