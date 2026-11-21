@@ -1,3 +1,9 @@
+## 2026-11-21 — Support submission RPC identity validation
+
+- Tightened the member support-submit response boundary: a successful RPC result must now include a canonical UUID-shaped `ticket_id`, not merely a non-empty string. This aligns the client parser with the SQL `uuid` return and prevents malformed server payloads from being presented as successful submissions. Added a source-only regression assertion; not executed. No migration, manifest, database or deployment change.
+
+---
+
 ## 2026-11-21 — Member account history response validation
 
 - Closed a gap between initial dashboard loads and Load More: package activations, Auction bids, Fixed Bid entries, referral commissions and winner payments now pass strict row/UUID/amount/timestamp/relation validation plus deterministic descending `(timestamp,id)` checks before entering state. Continuation pages use the same row-specific validators and reject overlap/order regressions.
