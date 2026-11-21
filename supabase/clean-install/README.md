@@ -1,3 +1,7 @@
+## Staff permission regression contract alignment (source-only, 2026-11-21)
+
+Updated two source-only regression suites to match the current four-scope Staff permission allowlist, including Support review, while preserving the three-scope default for newly granted Staff. Tests not executed. No migration or manifest entry required.
+
 ## Support Admin audit deduplication (source-only, 2026-11-21)
 
 The restricted-Staff Support RPC now writes an audit event only for `admin_staff`. Admin updates remain covered once by the existing row trigger, avoiding duplicate Admin audit rows while preserving Staff reviewer-role audit context. Source-only regression assertion added; not executed. No new migration or manifest entry.
