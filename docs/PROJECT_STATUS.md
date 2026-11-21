@@ -1,3 +1,7 @@
+## Latest source-only batch — Support submission RPC identity validation (2026-11-21)
+
+- Member support submission now accepts success only when `ticket_id` is a canonical UUID, matching the SQL RPC contract; source-only regression assertion added. Tests/build/type-check/QA/deployment and DB operations were not run.
+
 ## Latest bulk source-only batch — Member account history integrity (2026-11-21)
 
 - Initial and subsequent dashboard history pages now share strict row-specific validation for activations, Auction bids, Fixed Bid entries, referral commissions and winner payments. Delivery tracking responses are checked for payment association, identity, lifecycle state, timestamps, duplicate rows and deterministic ordering before display.
