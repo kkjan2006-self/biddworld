@@ -1,3 +1,10 @@
+## 2026-11-21 — Duplicate ID directory identity and count precision
+
+- Tightened the Admin Duplicate ID page parser to require canonical UUIDs for both duplicate-row and linked Main ID identities. The SQL response's `bigint total_count` must now arrive as a non-negative safe JavaScript integer; numeric strings, fractional values and integers beyond the safe range fail closed rather than being silently coerced or rounded.
+- Added source-only regression assertions in `tests/admin-duplicate-id-directory-integrity.test.ts`. No SQL migration or manifest change was needed; no tests/build/type-check or database operation was run.
+
+---
+
 ## 2026-11-21 — Preserve individual Staff permissions on re-grant
 
 - Re-granting restricted Staff access previously overwrote the existing app-metadata permission array with the default payment/auction permissions, which could silently remove the separately assigned Support review scope.
