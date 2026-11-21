@@ -3,6 +3,7 @@ import { Gift, RefreshCw, ShieldCheck } from 'lucide-react';
 import { configured, supabase } from '../lib/supabase';
 import { money } from '../lib/format';
 
+const PACKAGE_PAGE_SIZE=100;
 type PackageItem = {
   id: string;
   name: string;
@@ -27,6 +28,14 @@ function parsePackageCatalogue(value:unknown):PackageItem[]{
     }
     ids.add(row.id);return row as unknown as PackageItem;
   });
+}
+
+function isPackageAfter(previous:PackageItem,current:PackageItem):boolean{
+ return current.price>previous.price||(current.price===previous.price&&current.id.toLowerCase()>previous.id.toLowerCase());
+}
+function isStrictlyOrderedPackagePage(rows:PackageItem[]):boolean{
+ for(let index=1;index<rows.length;index++)if(!isPackageAfter(rows[index-1],rows[index]))return false;
+ return true;
 }
 
 const RECEIPT_CLEANUP_LIMIT=20;
@@ -60,6 +69,8 @@ function clearReceiptCleanupQueue(userId:string):void{
 export default function Packages() {
   const [items, setItems] = useState<PackageItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore,setLoadingMore]=useState(false);
+  const [hasMore,setHasMore]=useState(false);
   const [activationEnabled,setActivationEnabled]=useState(false);
   const [error, setError] = useState('');
   const [selectedPackage,setSelectedPackage]=useState('');
@@ -73,6 +84,8 @@ export default function Packages() {
   const mountedRef = useRef(false);
   const requestIdRef = useRef(0);
   const activationInFlight = useRef(false);
+  const catalogueOffset=useRef(0);
+  const cataloguePageBusy=useRef(false);
 
   async function retryReceiptCleanup(userId:string){
     if(!supabase||receiptCleanupInFlight.current)return;
@@ -93,23 +106,29 @@ export default function Packages() {
 
   async function load() {
     const requestId = ++requestIdRef.current;
+    cataloguePageBusy.current=true;catalogueOffset.current=0;setHasMore(false);setLoadingMore(false);
     const isCurrent = () => mountedRef.current && requestIdRef.current === requestId;
     setLoading(true);
     setError('');
     if (!supabase) {
       if (isCurrent()) {
         setItems([]);
+        setHasMore(false);cataloguePageBusy.current=false;
         setLoading(false);
       }
       return;
     }
     try {
-      const { data, error: queryError } = await supabase.rpc('public_list_active_packages_page',{p_limit:100,p_offset:0});
+      const { data, error: queryError } = await supabase.rpc('public_list_active_packages_page',{p_limit:PACKAGE_PAGE_SIZE,p_offset:0});
       if (!isCurrent()) return;
       if (queryError) {
-        setItems([]);
+        setItems([]);setHasMore(false);
         setError('Packages could not be loaded. Please try again later.');
-      } else setItems(parsePackageCatalogue(data));
+      } else {
+        const page=parsePackageCatalogue(data);
+        if(!isStrictlyOrderedPackagePage(page))throw new Error('Package catalogue page is not in strict price/id order. Refresh and retry.');
+        setItems(page);catalogueOffset.current=page.length;setHasMore(page.length===PACKAGE_PAGE_SIZE);
+      }
       const {data:sessionData}=await supabase.auth.getSession();
       if(!isCurrent())return;
       if(!sessionData.session){setActivationEnabled(false);setReceiptCleanupCount(0);return;}
@@ -121,11 +140,33 @@ export default function Packages() {
       if(activationSettingError)setError('Package activation availability could not be verified. Activation requests remain unavailable.');
     } catch (e) {
       if (!isCurrent()) return;
-      setItems([]);
+      setItems([]);setHasMore(false);
       setError(e instanceof Error&&e.message.startsWith('Package catalogue')?e.message:'A network error prevented packages from loading. Please retry.');
     } finally {
-      if (isCurrent()) setLoading(false);
+      if (isCurrent()){cataloguePageBusy.current=false;setLoading(false);}
     }
+  }
+
+  async function loadMorePackages(){
+    if(!supabase||cataloguePageBusy.current||loading||loadingMore||!hasMore)return;
+    cataloguePageBusy.current=true;setLoadingMore(true);setError('');
+    const requestId=requestIdRef.current,offset=catalogueOffset.current;
+    const isCurrent=()=>mountedRef.current&&requestIdRef.current===requestId;
+    try{
+      const{data,error:queryError}=await supabase.rpc('public_list_active_packages_page',{p_limit:PACKAGE_PAGE_SIZE,p_offset:offset});
+      if(queryError)throw queryError;
+      if(!isCurrent())return;
+      const page=parsePackageCatalogue(data);
+      if(!isStrictlyOrderedPackagePage(page))throw new Error('The next package catalogue page is not in strict price/id order. Refresh and retry.');
+      const existing=new Set(items.map(item=>item.id));
+      if(page.some(item=>existing.has(item.id)))throw new Error('The next package catalogue page overlaps previously loaded packages. Refresh the catalogue.');
+      const previous=items[items.length-1];
+      if(previous&&page.length&&!isPackageAfter(previous,page[0]))throw new Error('The next package catalogue page did not continue after the previous price/id cursor. Refresh and retry.');
+      setItems(current=>[...current,...page]);
+      catalogueOffset.current=offset+page.length;
+      setHasMore(page.length===PACKAGE_PAGE_SIZE);
+    }catch(e){if(isCurrent())setError(e instanceof Error?e.message:'More packages could not be loaded. Please retry.');}
+    finally{if(isCurrent()){cataloguePageBusy.current=false;setLoadingMore(false);}}
   }
 
   async function submitActivation(){
@@ -188,6 +229,7 @@ export default function Packages() {
     return () => {
       mountedRef.current = false;
       requestIdRef.current += 1;
+      cataloguePageBusy.current=false;
     };
   }, []);
 
@@ -208,5 +250,6 @@ export default function Packages() {
         <div className="packageCredit"><span>Proposed Bid Wallet credit (not issued)</span><b>{money(Number(item.bid_wallet_credit), item.currency || 'INR')}</b></div>
         <div className="notice">{activationEnabled?'Use the activation form above to submit payment details for Admin verification.':'View-only information. Package payments and activation are currently unavailable.'}</div>
       </article>)}</div>}
+    {!loading&&!error&&hasMore&&<div style={{display:'flex',justifyContent:'center',padding:12}}><button type="button" className="outline small" onClick={()=>void loadMorePackages()} disabled={loadingMore}><RefreshCw size={14}/>{loadingMore?'Loading more packages…':'Load more packages'}</button></div>}
   </section>;
 }

@@ -16,9 +16,21 @@ describe('Packages catalogue request lifecycle', () => {
   it('validates the public package catalogue response before rendering it',()=>{
     expect(source).toContain('function parsePackageCatalogue(value:unknown)');
     expect(source).toContain('value.length>100');
+    expect(source).toContain('const PACKAGE_PAGE_SIZE=100');
+    expect(source).toContain('catalogueOffset.current=page.length');
+    expect(source).toContain('setHasMore(page.length===PACKAGE_PAGE_SIZE)');
     expect(source).toContain('ids.has(row.id)');
     expect(source).toContain('setItems(parsePackageCatalogue(data))');
     expect(source).toContain('Package catalogue contains invalid or duplicate package fields.');
+  });
+
+  it('loads subsequent bounded catalogue pages and rejects overlaps or out-of-order pages',()=>{
+    expect(source).toContain("rpc('public_list_active_packages_page',{p_limit:PACKAGE_PAGE_SIZE,p_offset:offset})");
+    expect(source).toContain('if(page.some(item=>existing.has(item.id)))');
+    expect(source).toContain('isStrictlyOrderedPackagePage(page)');
+    expect(source).toContain('isPackageAfter(previous,page[0])');
+    expect(source).toContain('catalogueOffset.current=offset+page.length');
+    expect(source).toContain('Load more packages');
   });
 
   it('releases loading state only for the current mounted request', () => {

@@ -6,7 +6,9 @@ const sql=readFileSync(resolve(process.cwd(),'supabase/migrations/20261118300000
 
 describe('public package catalogue',()=>{
  it('loads published packages through the public RPC rather than direct table SELECT',()=>{
-  expect(component).toContain("rpc('public_list_active_packages_page',{p_limit:100,p_offset:0})");
+  expect(component).toContain("rpc('public_list_active_packages_page',{p_limit:PACKAGE_PAGE_SIZE,p_offset:0})");
+  expect(component).toContain("rpc('public_list_active_packages_page',{p_limit:PACKAGE_PAGE_SIZE,p_offset:offset})");
+  expect(component).toContain('Load more packages');
   expect(component).not.toContain(".from('packages')");
  });
  it('returns only active package catalogue fields in stable price order',()=>{

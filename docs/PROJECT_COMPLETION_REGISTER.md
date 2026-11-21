@@ -3592,3 +3592,10 @@ The Admin auction submission queue now validates strict ascending continuation b
 
 - Individual Staff permission updates now fail closed when the directory has no usable email identity. The returned RPC email must be a non-empty string matching the selected account, and the returned permission array must contain only unique allowlisted values and exactly match the submitted selection. The Save control is disabled when account email identity is unavailable.
 - Updated source-only regression assertions. Tests remain unexecuted; no migration, manifest, database, build, type-check, E2E, browser QA or deployment operation was performed. Overall development remains 95% provisional.
+
+
+## 2026-11-21 — Complete public package catalogue pagination
+
+- The public package catalogue previously requested only the first 100 active packages and exposed no continuation control, despite the existing RPC supporting bounded offset pages. The member Packages screen now loads additional 100-item pages on demand, including packages in the activation selector.
+- Every page is checked for strict ascending `(price,id)` order; continuation pages reject overlap and must start strictly after the previously loaded package. Offset and loading state are protected against duplicate requests and stale responses after refresh/unmount. A final empty page closes the continuation state when the catalogue count is an exact multiple of 100.
+- Updated source-only regression assertions and project status documentation. Tests remain unexecuted. No migration/manifest or database change, build, type-check, E2E, browser QA or deployment operation was performed. Overall development remains 95% provisional.
