@@ -1,3 +1,7 @@
+## Support submission RPC identity validation (source-only, 2026-11-21)
+
+The member support-submit client now validates the returned ticket ID as a canonical UUID before accepting the RPC result as successful, matching the database function's UUID contract. Source-only regression assertion added; not executed. No migration or manifest entry required.
+
 ## Member account history response integrity (source-only, 2026-11-21)
 
 Initial and continuation dashboard history pages now use shared strict validators for activation, Auction, Fixed Bid, referral commission and winner-payment records. Delivery records validate identity, linked payment, supported status, timestamps and descending order. Source-only assertions updated, not executed. No migration or manifest entry required.
