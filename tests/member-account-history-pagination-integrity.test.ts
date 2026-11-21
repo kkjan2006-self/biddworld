@@ -6,7 +6,7 @@ describe('Member account history pagination integrity',()=>{
   expect(source).toContain('function validateMemberHistoryPage<T extends {id:string;created_at?:string;submitted_at?:string}>');
   expect(source).toContain("typeof row.id!=='string'||!row.id.trim()");
   expect(source).toContain("!Number.isFinite(Date.parse(timestamp))");
-  expect(source).toContain('const batch=validateMemberHistoryPage<T>(data,currentRows as unknown as T[],timestampKey,pageSize,isValidRow)');
+  expect(source).toContain('const batch=validateMemberHistoryPage<T>(data,currentRows as T[],timestampKey,pageSize,isValidRow)');
   expect(source).toContain('const activationRows=validateMemberHistoryPage<Activation>(a.data??[],[],\'submitted_at\',50,validActivation)');
   expect(source).toContain('const winningPaymentRows=validateMemberHistoryPage<WinningPayment>(wp.data??[],[],\'created_at\',100,validWinningPayment)');
  });
@@ -25,6 +25,12 @@ describe('Member account history pagination integrity',()=>{
   expect(source).toContain('validCommission,rows=>');
   expect(source).toContain('validWinningPayment,async(rows,client)=>');
   expect(source).toContain('validateDeliveryRows(data??[],ids)');
+  expect(source).toContain('const deliveryRows=validateDeliveryRows(deliveryResult.data??[],paymentIds)');
+  expect(source).toContain('function validActivation(value:unknown):value is Activation');
+  expect(source).toContain('function validAuctionBid(value:unknown):value is AuctionBid');
+  expect(source).toContain('function validFixedBid(value:unknown):value is FixedBidRow');
+  expect(source).toContain('function validCommission(value:unknown):value is CommissionRow');
+  expect(source).toContain('function validWinningPayment(value:unknown):value is WinningPayment');
  });
  it('fails closed after a malformed page instead of silently filtering overlap and advancing offsets',()=>{
   expect(source).not.toContain('const freshCount=batch.filter(row=>!known.has(row.id)).length');
