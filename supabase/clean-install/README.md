@@ -1,3 +1,7 @@
+## Member account history response integrity (source-only, 2026-11-21)
+
+Initial and continuation dashboard history pages now use shared strict validators for activation, Auction, Fixed Bid, referral commission and winner-payment records. Delivery records validate identity, linked payment, supported status, timestamps and descending order. Source-only assertions updated, not executed. No migration or manifest entry required.
+
 ## Member submission history pagination integrity (source-only, 2026-11-21)
 
 Member Auction and Product history clients now reject out-of-order, overlapping, cursor-crossing or inconsistent continuation pages before state mutation; Product response validation runs before image signing. Source-only assertions added, not executed. No migration or manifest entry required.
