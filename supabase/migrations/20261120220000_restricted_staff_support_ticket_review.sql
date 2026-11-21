@@ -64,10 +64,14 @@ begin
  if not found then raise exception 'Support ticket not found' using errcode='P0002'; end if;
  update public.support_tickets set status=p_status,admin_response=nullif(trim(coalesce(p_admin_response,'')),'')
  where id=p_ticket_id;
- insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
- values(v_uid,'support.ticket_updated','support_tickets',p_ticket_id,
-  jsonb_build_object('old_status',v_ticket.status,'new_status',p_status,
-   'response_updated',p_admin_response is not null,'member_user_id',v_ticket.user_id,'reviewer_role',v_role));
+ -- Admin updates are audited by the existing row trigger. This RPC writes
+ -- the corresponding event only for restricted Staff, avoiding duplicate Admin events.
+ if v_role='admin_staff' then
+  insert into public.audit_logs(actor_user_id,action,entity_type,entity_id,details)
+  values(v_uid,'support.ticket_updated','support_tickets',p_ticket_id,
+   jsonb_build_object('old_status',v_ticket.status,'new_status',p_status,
+    'response_updated',p_admin_response is not null,'member_user_id',v_ticket.user_id,'reviewer_role',v_role));
+ end if;
  return jsonb_build_object('success',true,'ticket_id',p_ticket_id,'status',p_status);
 end;
 $function$;
