@@ -1,3 +1,5 @@
+- **Admin winning-payment and delivery pagination integrity:** strict typed/UUID response parsing, valid lifecycle/timestamps, deterministic descending composite order and cross-page overlap rejection now apply to initial and continuation pages. Silent deduplication removed. Source-only assertions added; not executed. No migration or DB change.
+
 - **Duplicate ID page identity/count precision:** Admin directory pages now require UUID identities for both duplicate and Main ID references and a non-negative safe-integer `total_count` (no numeric-string coercion or unsafe rounding). Source-only assertions added; not executed. No migration or database change.
 
 - **Restricted Staff re-grant permission preservation:** repeating a Primary Admin grant no longer resets an existing Staff member's individually assigned permissions (including Support review). New Staff still receive the default review permissions; audit details record previous/resulting sets. Added forward candidate #156 and source-only regression assertions; not executed or applied.
