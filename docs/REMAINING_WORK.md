@@ -1,3 +1,5 @@
+- **Restricted Staff re-grant permission preservation:** repeating a Primary Admin grant no longer resets an existing Staff member's individually assigned permissions (including Support review). New Staff still receive the default review permissions; audit details record previous/resulting sets. Added forward candidate #156 and source-only regression assertions; not executed or applied.
+
 - **Sponsor Referral reversal replay identity parity repaired:** a source audit found that the credited-and-reversed replay branch still omitted `commission_id` although the pending-only replay and frontend required it. The existing forward migration now returns the exact UUID on both replay paths; regression source requires exactly two identity-bearing replay returns. Not executed; no new migration or database change.
 
 - **My Team response contract precision improved:** dashboard counters require safe integers; genealogy rows require canonical lifecycle status and depth 1–20; Matrix summary counts also require safe integers. Source-only assertions added; not executed. No SQL migration required.
