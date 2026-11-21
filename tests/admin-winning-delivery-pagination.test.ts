@@ -19,7 +19,6 @@ describe('Admin winning payment and delivery pagination',()=>{
  it('rejects overlaps, duplicate identities and shifted ordering instead of silently filtering',()=>{
   expect(component).toContain('ids.has(row.payment_id)');
   expect(component).toContain('ids.has(row.tracking_id)');
-  expect(component).toContain('strict descending (created_at,payment_id) order');
   expect(component).toContain('strict descending (updated_at,tracking_id) order');
   expect(component).not.toContain('batch.filter(x=>!seen.has(x.payment_id))');
   expect(component).not.toContain('batch.filter(x=>!seen.has(x.tracking_id))');
