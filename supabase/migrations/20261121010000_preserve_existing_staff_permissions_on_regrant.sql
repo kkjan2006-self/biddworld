@@ -15,7 +15,7 @@ begin
   raise exception 'Only the designated Primary Admin can manage payment-review staff' using errcode='42501';
  end if;
  if p_enabled is null or length(trim(coalesce(p_email,'')))<5 or length(p_email)>254
-  or p_email !~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$' then
+  or p_email !~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$' then
   raise exception 'Enter a valid existing account email and role action' using errcode='22023';
  end if;
  if length(trim(coalesce(p_reason,'')))<5 or length(p_reason)>500 then
