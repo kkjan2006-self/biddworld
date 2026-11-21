@@ -1,3 +1,10 @@
+## 2026-11-21 — Member auction/product submission history page integrity
+
+- Hardened both owner-scoped submission history clients against malformed keyset pages: every page must be strictly descending by `(created_at,id)`, every continuation must start strictly before the previous cursor, and duplicate/overlapping IDs reject the entire page. Per-row `has_more` flags must agree, and a page claiming more records must be a full 50-row page. The same rules apply before Product image signing and state append.
+- Added source-only assertions to the two existing pagination suites. Not executed. No SQL migration or clean-install manifest change; no database or deployment operation.
+
+---
+
 ## 2026-11-21 — Staff permission regression contract alignment
 
 - Cross-audit found two source-only Staff regression suites still asserted the older three-permission grant contract, even though the latest re-grant and permission migrations now support four allowlisted scopes including `support_ticket_review`. Updated assertions to validate the current bounded permission set and preservation behavior, while retaining the original three-scope default for newly granted Staff.
