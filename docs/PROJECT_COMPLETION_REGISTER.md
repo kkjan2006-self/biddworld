@@ -1,3 +1,10 @@
+## 2026-11-21 — Support Admin audit deduplication after Staff review enablement
+
+- Source audit found that the restricted-Staff Support migration added an audit insert to `admin_update_support_ticket`, while the pre-existing Admin row trigger already writes the Admin audit event. Admin ticket updates could therefore create duplicate audit rows. The RPC now writes its audit event only for `admin_staff`; Admin continues to be audited once by the existing row trigger, and Staff retains reviewer-role audit context.
+- Extended source-only regression coverage. No migration count/manifest change; no database, test execution, build or deployment operation.
+
+---
+
 ## 2026-11-21 — Wallet history Matrix reference integrity
 
 - Wallet transaction parsing now rejects blank reference types and requires every `matrix_commission` ledger row to carry a canonical commission UUID. Previously, a malformed/missing reference ID could be skipped by source-attribution lookup and displayed/exported as an ordinary unattributed wallet transaction. The shared validator protects both paginated history and complete CSV export before any Matrix source RPC is called.
