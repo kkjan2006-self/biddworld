@@ -1,3 +1,8 @@
+## Latest source-only batch — Admin winning-payment/delivery page integrity (2026-11-21)
+
+- Both Admin reports now share strict initial/continuation parsers. UUIDs, typed amounts, lifecycle states, timestamps, strict descending composite order and cross-page boundaries are checked before state mutation; overlapping rows are rejected rather than silently filtered.
+- Added source-only regression assertions. No migration, DB, test execution, build, type-check, E2E, browser QA or deployment operation was performed.
+
 ## Latest source-only batch — Duplicate ID identity/count precision (2026-11-21)
 
 - Admin Duplicate ID pages now require UUID-shaped duplicate and Main ID identities and a non-negative safe-integer `total_count` from PostgreSQL `bigint`. Numeric-string coercion and unsafe integer rounding are rejected before rows are displayed or pagination metadata is trusted.
