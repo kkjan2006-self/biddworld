@@ -1,3 +1,5 @@
+- **Member Auction/Product submission history page integrity:** strict descending `(created_at,id)` order, cross-page cursor boundaries, duplicate/overlap identity checks, consistent `has_more` flags and full continuation-page requirements now apply to both histories. Source-only assertions added; not executed. No migration or DB change.
+
 - **Staff permission regression contract:** two source-only suites now assert the current four-scope allowlist and Support permission preservation while retaining the three-scope default grant contract. Not executed; no DB or migration inventory change.
 
 - **Support Admin audit deduplication:** the pre-existing row trigger already audits Admin updates, so the restricted-Staff RPC now writes an audit row only for `admin_staff`; Admin events remain single and Staff events retain reviewer-role context. Source-only regression assertion added; not executed. No DB or migration inventory change.
