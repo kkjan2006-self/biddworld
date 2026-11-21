@@ -1,3 +1,8 @@
+## Latest source-only batch — Wallet history Matrix reference integrity (2026-11-21)
+
+- The shared wallet ledger validator now rejects blank reference types and Matrix commission rows with missing or malformed commission UUIDs before source lookup. This prevents invalid Matrix entries from bypassing attribution checks in either paginated history or full CSV export.
+- Added source-only regression assertions. No migration, DB, test execution, build, type-check, E2E, browser QA or deployment operation was performed.
+
 ## Latest source-only batch — Admin winning-payment/delivery page integrity (2026-11-21)
 
 - Both Admin reports now share strict initial/continuation parsers. UUIDs, typed amounts, lifecycle states and timestamps are checked before state mutation; cross-page overlaps are rejected rather than silently filtered. Delivery pages additionally enforce their SQL-defined descending (updated_at, tracking_id) order.
