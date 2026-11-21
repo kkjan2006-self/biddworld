@@ -6,17 +6,21 @@ const staff=read('src/components/AdminPaymentReviewStaff.tsx');
 const notifications=read('src/components/Notifications.tsx');
 const staffSql=read('supabase/migrations/20261119100000_restricted_payment_review_staff.sql');
 const staffGrantFix=read('supabase/migrations/20261120150000_align_staff_grant_response_permissions.sql');
+const staffRegrantFix=read('supabase/migrations/20261121010000_preserve_existing_staff_permissions_on_regrant.sql');
 const permissionsSql=read('supabase/migrations/20261119160000_individual_payment_staff_permissions.sql');
 const notificationSql=read('supabase/migrations/20261118180000_notification_delivery_idempotency.sql');
 describe('Staff and notification mutation response integrity',()=>{
- it('validates Staff grant/revoke target identity, role and exact permissions',()=>{
+ it('validates Staff grant/revoke identity and the current supported permission set',()=>{
   expect(staff).toContain('result.email.toLowerCase()!==expectedEmail');
   expect(staff).toContain('result.app_role!==expectedRole');
-  expect(staff).toContain('expectedPermissions.some(permission=>!result.permissions.includes(permission))');
+  expect(staff).toContain('const allowedPermissions=new Set<Permission>');
+  expect(staff).toContain('returnedPermissions.length<1||returnedPermissions.length>allowedPermissions.size');
+  expect(staff).toContain('!allowedPermissions.has(permission as Permission)');
   expect(staffSql).toContain("'app_role',case when p_enabled then 'admin_staff' else 'member' end");
   expect(staffSql).toContain("jsonb_build_array('package_activation_review','wallet_funding_review','auction_submission_review')");
-  expect(staff).toContain("const expectedPermissions=enabled?['package_activation_review','wallet_funding_review','auction_submission_review']:[]");
   expect(staffGrantFix).toContain("'permissions',case when p_enabled then jsonb_build_array('package_activation_review','wallet_funding_review','auction_submission_review') else '[]'::jsonb end");
+  expect(staffRegrantFix).toContain("'support_ticket_review'");
+  expect(staffRegrantFix).toContain("if v_was_staff and jsonb_typeof(v_metadata->'permissions')='array' then");
  });
  it('validates permission updates against the selected Staff member and exact permission set',()=>{
   expect(staff).toContain('result.email?.toString().toLowerCase()!==row.email?.toLowerCase()');
