@@ -4,16 +4,18 @@ import {describe,expect,it} from 'vitest';
 const migration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261119160000_individual_payment_staff_permissions.sql'),'utf8');
 const ui=readFileSync(resolve(process.cwd(),'src/components/AdminPaymentReviewStaff.tsx'),'utf8');
 const staffMigration=readFileSync(resolve(process.cwd(),'supabase/migrations/20261119100000_restricted_payment_review_staff.sql'),'utf8');
+const currentPermissions=readFileSync(resolve(process.cwd(),'supabase/migrations/20261120220000_restricted_staff_support_ticket_review.sql'),'utf8');
 describe('Individual restricted Staff permissions',()=>{
  it('allows only the Primary Admin to update an existing restricted Staff account',()=>{
   expect(migration).toContain("lower(coalesce(auth.jwt()->>'email',''))<>'kkjan2006@gmail.com'");
   expect(migration).toContain("v_role<>'admin_staff'");
   expect(migration).toContain('payment_review_staff.permissions_updated');
  });
- it('accepts only the three supported review permissions',()=>{
+ it('accepts only the four explicitly supported review permissions, including Support',()=>{
   expect(migration).toContain("'package_activation_review','wallet_funding_review','auction_submission_review'");
-  expect(migration).toContain('cardinality(v_clean)=0');
-  expect(migration).toContain("'{permissions}'");
+  expect(currentPermissions).toContain("'package_activation_review','wallet_funding_review','auction_submission_review','support_ticket_review'");
+  expect(currentPermissions).toContain('cardinality(v_clean)=0');
+  expect(currentPermissions).toContain("'{permissions}'");
  });
  it('renders per-user permission controls and calls the protected RPC',()=>{
   expect(ui).toContain('Package Activation Payment Review');
