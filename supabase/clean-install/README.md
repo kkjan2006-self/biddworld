@@ -1,5 +1,9 @@
 ## Admin winning-payment and delivery page integrity (source-only, 2026-11-21)
 
+The Admin winning-payment and delivery reports validate complete row contracts on initial and continuation requests. Cross-page duplicate/overlap responses fail closed instead of being silently filtered; delivery pagination additionally enforces its SQL-defined descending updated_at/tracking_id order. Source-only regression assertions added; not executed. No SQL migration or manifest entry required.
+
+## Admin winning-payment and delivery page integrity (source-only, 2026-11-21)
+
 The Admin winning-payment and delivery reports now validate complete row contracts and strict descending composite page order on initial and continuation requests. Cross-page duplicate/overlap responses fail closed instead of being silently filtered. Source-only regression assertions added; not executed. No SQL migration or manifest entry required.
 
 ## Duplicate ID directory response precision (source-only, 2026-11-21)
