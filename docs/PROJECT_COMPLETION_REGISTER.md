@@ -1,3 +1,11 @@
+## 2026-11-21 — Preserve individual Staff permissions on re-grant
+
+- Re-granting restricted Staff access previously overwrote the existing app-metadata permission array with the default payment/auction permissions, which could silently remove the separately assigned Support review scope.
+- Added `20261121010000_preserve_existing_staff_permissions_on_regrant.sql`: existing restricted Staff retain their allowlisted permissions; new Staff receive the default three permissions. Audit details record previous and resulting role/permission sets.
+- Updated the Admin Staff response parser to accept only a non-empty, unique allowlisted permission set (or an empty set on revoke). Added source-only assertions in `tests/restricted-payment-review-staff.test.ts`; not executed. Registered forward candidate #156. No database changes.
+
+---
+
 ## 2026-11-21 — Sponsor Referral reversal replay identity parity repair
 
 - Source audit found one of the two successful idempotent replay paths (existing credit plus verified reversal ledger) still omitted `commission_id`, despite the earlier migration note and frontend contract requiring the exact commission UUID.
