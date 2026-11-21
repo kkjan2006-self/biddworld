@@ -1,3 +1,5 @@
+- **Support Admin audit deduplication:** the pre-existing row trigger already audits Admin updates, so the restricted-Staff RPC now writes an audit row only for `admin_staff`; Admin events remain single and Staff events retain reviewer-role context. Source-only regression assertion added; not executed. No DB or migration inventory change.
+
 - **Wallet history Matrix reference integrity:** reject blank reference types and require canonical commission UUIDs for Matrix ledger entries before source lookup. Shared validation covers both paginated history and complete CSV export. Source-only assertions added; not executed. No migration or DB change.
 
 - **Admin winning-payment and delivery pagination integrity:** strict typed/UUID response parsing and cross-page overlap rejection now apply to initial and continuation pages. Delivery additionally validates its confirmed descending (updated_at, tracking_id) order. Silent deduplication removed. Source-only assertions added; not executed. No migration or DB change.
