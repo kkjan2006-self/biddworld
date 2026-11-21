@@ -1,3 +1,8 @@
+## Latest bulk source-only batch — Member submission history pagination integrity (2026-11-21)
+
+- Member Auction and Product submission history now validate strict descending `(created_at,id)` page order, cursor boundaries, duplicate/overlap identities, consistent `has_more` flags and full continuation pages before appending. Product rows are checked before signing private image URLs.
+- Added source-only regression assertions. Tests remain unexecuted; no SQL migration, database, build, type-check, E2E, browser QA or deployment operation.
+
 ## Latest source-only batch — Staff permission regression contract alignment (2026-11-21)
 
 - Updated two stale source-only regression suites to reflect the current four-scope Staff permission contract and preservation of Support access on re-grant. The initial default grant remains three scopes; the current allowlist permits four.
