@@ -1,3 +1,8 @@
+## Latest bulk source-only batch — Member account history integrity (2026-11-21)
+
+- Initial and subsequent dashboard history pages now share strict row-specific validation for activations, Auction bids, Fixed Bid entries, referral commissions and winner payments. Delivery tracking responses are checked for payment association, identity, lifecycle state, timestamps, duplicate rows and deterministic ordering before display.
+- Source-only assertions updated. Tests not executed; no migration, database, build, type-check, E2E, browser QA or deployment operation.
+
 ## Latest bulk source-only batch — Member submission history pagination integrity (2026-11-21)
 
 - Member Auction and Product submission history now validate strict descending `(created_at,id)` page order, cursor boundaries, duplicate/overlap identities, consistent `has_more` flags and full continuation pages before appending. Product rows are checked before signing private image URLs.
