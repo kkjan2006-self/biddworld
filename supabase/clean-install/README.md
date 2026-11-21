@@ -1,3 +1,7 @@
+## Member Placement Tree response integrity (source-only, 2026-11-21)
+
+The member Placement Tree now validates the RPC root, Main/Duplicate node identities, supported statuses, bounded depth, unique member codes, timestamps and parent-before-child relationships before rendering. Source-only regression assertions added; not executed. No migration or manifest entry required.
+
 ## PWA manual-install guidance (source-only, 2026-11-21)
 
 The install-help fallback now gives iPhone/iPad users Safari Share → Add to Home Screen instructions, retains Chrome on Android guidance, and provides a generic browser-menu fallback for other browsers. Touch-enabled iPadOS is detected. Source-only assertions added; not executed. No migration or manifest entry required.

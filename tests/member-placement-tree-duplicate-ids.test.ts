@@ -34,4 +34,16 @@ it('returns and displays each node\'s actual Under ID parent code',()=>{
  expect(component).toContain('Under ID: {m.placement_parent_code||\'Root placement\'}');
 });
 
+it('validates the placement RPC response before rendering member nodes',()=>{
+ const component=readFileSync(resolve(process.cwd(),'src/components/PlacementTree.tsx'),'utf8');
+ expect(component).toContain('function parsePlacementTree(value:unknown):PlacementResult');
+ expect(component).toContain('setData(parsePlacementTree(data))');
+ expect(component).toContain("!['main','duplicate'].includes(String(row.id_type))");
+ expect(component).toContain("PLACEMENT_MEMBER_STATUSES.includes");
+ expect(component).toContain('member.depth>20');
+ expect(component).toContain('The placement tree contains a missing or incorrectly ordered parent');
+ expect(component).not.toContain('setData(data as PlacementResult)');
+});
+
+
 });

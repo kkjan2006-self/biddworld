@@ -1,3 +1,9 @@
+## 2026-11-21 — Member Placement Tree response integrity
+
+- The Placement Tree client previously trusted the RPC payload through a TypeScript cast. It now validates root/Main-ID consistency, Main and Duplicate node types, supported lifecycle status, bounded depth, unique member codes, timestamps, nullable labels and parent-before-child relationships before state mutation. Added source-only regression assertions; not executed. No SQL migration, manifest, database or deployment change.
+
+---
+
 ## 2026-11-21 — Platform-specific PWA manual-install guidance
 
 - The install-help fallback now provides the Safari Share → Add to Home Screen flow for iPhone/iPad, including touch-enabled iPadOS detection, retains the Android Chrome flow, and provides generic browser-menu guidance elsewhere. Added source-only regression assertions; not executed. No SQL migration, manifest, database or deployment change.

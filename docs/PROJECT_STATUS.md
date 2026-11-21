@@ -1,3 +1,7 @@
+## Latest source-only batch — Placement Tree RPC response integrity (2026-11-21)
+
+- The member Placement Tree previously cast the RPC payload directly into UI state. It now validates the root identity, Main/Duplicate node types, lifecycle status, depth 0–20, unique member codes, timestamps, optional labels and parent-before-child relationships before rendering. Added source-only regression assertions. Tests/build/type-check/QA/deployment and DB operations were not run.
+
 ## Latest source-only batch — platform-specific PWA installation fallback (2026-11-21)
 
 - The PWA manual-install help now gives Safari Share → Add to Home Screen steps for iPhone/iPad (including touch-enabled iPadOS) while retaining Android Chrome guidance and a generic fallback for other browsers. Added source-only regression assertions. Tests/build/type-check/QA/deployment and DB operations were not run; no migration or manifest change.
