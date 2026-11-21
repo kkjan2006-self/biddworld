@@ -679,3 +679,11 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Admin withdrawal first-page and Load More responses now share one strict parser. It validates UUID request/reviewer identities, bounded member/name/reason fields, positive bounded numeric amounts, ISO currency, allowed lifecycle statuses, timestamps, and the exact supported UPI / Bank Transfer payout-detail shape before records reach the review UI.
 - Subsequent pages now reject any overlap with already-loaded request IDs instead of silently filtering duplicate rows and advancing the offset. Existing refresh-generation and single-flight guards remain.
 - Added source-only assertions in `tests/admin-withdrawal-pagination-hardening.test.ts`; not executed. No SQL migration required because this closes a client response-integrity gap against the existing withdrawal RPC contract.
+
+
+## 2026-11-21 — Admin auction and Fixed Bid report pagination integrity
+
+- Corrected both Admin report parsers to accept the configured 101-row look-ahead response (100 visible rows plus one continuation sentinel). Previously, a valid full page plus sentinel was rejected by the parser's 100-row cap, blocking pagination once more than 100 records existed.
+- Both on-screen pagination and complete CSV export now validate strict descending `(created_at,id)` ordering and reject rows that cross or repeat the preceding keyset cursor before updating state or exporting.
+- Added source-only regression assertions for the look-ahead bound, page ordering and cursor-boundary checks. Tests were not executed. No migration or manifest change was required; the existing cursor RPC contracts already use descending tuple ordering.
+- No build, type-check, E2E, browser QA, deployment or Supabase operation was performed. Development remains 95% provisional.

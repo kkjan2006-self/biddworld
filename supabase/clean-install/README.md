@@ -352,3 +352,11 @@ Migration `20261120200000_serialize_admin_main_member_lifecycle.sql` makes the A
 ## Admin withdrawal review lifecycle serialization (source-only, 2026-11-20)
 
 Migration `20261120210000_serialize_admin_withdrawal_review_lifecycle.sql` makes the Admin approve, reject/release and mark-paid RPC acquire the shared per-Main-ID transaction advisory lock after locking/identifying the request and before any profile/Main-ID eligibility check or wallet ledger mutation. This serializes Admin withdrawal processing with member withdrawal/Fixed Bid/winner-payment actions and Admin Main-ID lifecycle changes, while preserving the existing reservation, compensating release, payout confirmation and audit contracts. Source-only regression coverage is in `tests/admin-withdrawal-review-lifecycle-serialization.test.ts`; not executed. Inventory: **149 forward + 16 excluded = 165 timestamped paths**, plus 3 legacy/unversioned SQL files.
+
+
+## 2026-11-21 — Admin auction and Fixed Bid report pagination integrity
+
+- Corrected both Admin report parsers to accept the configured 101-row look-ahead response (100 visible rows plus one continuation sentinel). Previously, a valid full page plus sentinel was rejected by the parser's 100-row cap, blocking pagination once more than 100 records existed.
+- Both on-screen pagination and complete CSV export now validate strict descending `(created_at,id)` ordering and reject rows that cross or repeat the preceding keyset cursor before updating state or exporting.
+- Added source-only regression assertions for the look-ahead bound, page ordering and cursor-boundary checks. Tests were not executed. No migration or manifest change was required; the existing cursor RPC contracts already use descending tuple ordering.
+- No build, type-check, E2E, browser QA, deployment or Supabase operation was performed. Development remains 95% provisional.

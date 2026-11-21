@@ -13,6 +13,13 @@ describe('Admin auction bid report keyset pagination',()=>{
   expect(component).toContain('p_limit:PAGE_SIZE+1');
   expect(component).not.toContain('p_offset:offset');
  });
+ it('validates the look-ahead row count, strict page ordering and cursor boundaries',()=>{
+  expect(component).toContain('value.length>PAGE_SIZE+1');
+  expect(component).toContain('isStrictlyDescendingAuctionBidPage(fetched)');
+  expect(component).toContain('isBeforeAuctionBidCursor(row,cursor)');
+  expect(component).toContain('isStrictlyDescendingAuctionBidPage(batch)');
+  expect(component).toContain('isBeforeAuctionBidCursor(row,cursor!)');
+ });
  it('uses the stable descending created_at/id tuple and preserves Admin-only access',()=>{
   expect(migration).toContain('(b.created_at,b.id)<(p_after_created_at,p_after_id)');
   expect(migration).toContain('order by b.created_at desc,b.id desc');

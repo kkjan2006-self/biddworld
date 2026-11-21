@@ -9,13 +9,24 @@ type AuctionBidReportRow={
 };
 type Filters={search:string;status:string;from:string;to:string};
 function parseAuctionBidRows(value:unknown):AuctionBidReportRow[]{
- if(!Array.isArray(value)||value.length>100)throw new Error('Auction bid report page is invalid.');
+ if(!Array.isArray(value)||value.length>PAGE_SIZE+1)throw new Error('Auction bid report page is invalid.');
  const ids=new Set<string>();
  return value.map(raw=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Auction bid report row is malformed.');const row=raw as Record<string,unknown>;
  if(typeof row.bid_id!=='string'||!row.bid_id.trim()||ids.has(row.bid_id)||typeof row.auction_id!=='string'||!row.auction_id.trim()||typeof row.auction_title!=='string'||!row.auction_title.trim()||typeof row.currency!=='string'||!row.currency.trim()||typeof row.member_code!=='string'||!row.member_code.trim()||(row.member_name!==null&&typeof row.member_name!=='string')||!Number.isFinite(Number(row.bid_amount))||Number(row.bid_amount)<=0||!Number.isFinite(Number(row.bid_wallet_debit))||Number(row.bid_wallet_debit)<0||!Number.isFinite(Number(row.income_wallet_debit))||Number(row.income_wallet_debit)<0||Number(row.bid_wallet_debit)+Number(row.income_wallet_debit)>Number(row.bid_amount)+0.000001||typeof row.status!=='string'||!row.status.trim()||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('Auction bid report contains malformed or duplicate records.');
  ids.add(row.bid_id);return row as unknown as AuctionBidReportRow;});
 }
 const PAGE_SIZE=100;
+function isStrictlyDescendingAuctionBidPage(rows:AuctionBidReportRow[]):boolean{
+ for(let index=1;index<rows.length;index++){
+  const previous=rows[index-1],current=rows[index],previousTime=Date.parse(previous.created_at),currentTime=Date.parse(current.created_at);
+  if(previousTime<currentTime||(previousTime===currentTime&&previous.bid_id.toLowerCase().localeCompare(current.bid_id.toLowerCase())<=0))return false;
+ }
+ return true;
+}
+function isBeforeAuctionBidCursor(row:AuctionBidReportRow,cursor:{created_at:string;id:string}):boolean{
+ const rowTime=Date.parse(row.created_at),cursorTime=Date.parse(cursor.created_at);
+ return rowTime<cursorTime||(rowTime===cursorTime&&row.bid_id.toLowerCase().localeCompare(cursor.id.toLowerCase())<0);
+}
 function boundary(date:string,end:boolean):string|null{
  if(!date)return null;
  const value=new Date(date+(end?'T23:59:59.999':'T00:00:00'));
@@ -52,6 +63,8 @@ export default function AdminAuctionBidReport(){
    if(requestId!==request.current)return;
    if(!Array.isArray(data??[]))throw new Error('The auction bid report response was invalid. Refresh and retry.');
    const fetched=parseAuctionBidRows(data??[]);
+   if(!isStrictlyDescendingAuctionBidPage(fetched))throw new Error('The Auction bid report page is not in strict descending (created_at,bid_id) order. Refresh and retry.');
+   if(cursor&&fetched.some(row=>!isBeforeAuctionBidCursor(row,cursor)))throw new Error('The Auction bid report page crossed or repeated its previous keyset cursor. Refresh and retry.');
    const batch=fetched.slice(0,PAGE_SIZE),pageIds=new Set<string>(),knownIds=new Set(reset?[]:rows.map(row=>row.bid_id));
    for(const row of batch){
 
@@ -94,6 +107,8 @@ export default function AdminAuctionBidReport(){
     if(rpcError)throw rpcError;
     if(!Array.isArray(data??[]))throw new Error('The report response was invalid. Export stopped. Please retry.');
     const batch=parseAuctionBidRows(data??[]);
+    if(!isStrictlyDescendingAuctionBidPage(batch))throw new Error('The Auction bid export page is not in strict descending (created_at,bid_id) order. Export stopped.');
+    if(cursor&&batch.some(row=>!isBeforeAuctionBidCursor(row,cursor!)))throw new Error('The Auction bid export page crossed or repeated its previous keyset cursor. Export stopped.');
     if(batch.length===PAGE_SIZE){
      const fingerprint=JSON.stringify(batch.map(row=>row.bid_id));
      if(seenPages.has(fingerprint))throw new Error('The report repeated a page. Export stopped to avoid duplicate or incomplete records. Please retry.');

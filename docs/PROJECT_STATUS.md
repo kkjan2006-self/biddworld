@@ -395,3 +395,11 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - Serialized refresh and Load More requests in the Admin auction submission review queue with a single shared request lock. A refresh can no longer clear an in-flight pagination lock and allow overlapping requests or cursor races.
 - The active request generation alone releases the lock. Component cleanup invalidates pending load generations so responses completing after unmount cannot update the queue.
 - Added source-only regression coverage in `tests/admin-auction-review-request-lock-integrity.test.ts`. Not executed. No database, build, type-check, E2E, browser QA or deployment operation was performed.
+
+
+## 2026-11-21 — Admin auction and Fixed Bid report pagination integrity
+
+- Corrected both Admin report parsers to accept the configured 101-row look-ahead response (100 visible rows plus one continuation sentinel). Previously, a valid full page plus sentinel was rejected by the parser's 100-row cap, blocking pagination once more than 100 records existed.
+- Both on-screen pagination and complete CSV export now validate strict descending `(created_at,id)` ordering and reject rows that cross or repeat the preceding keyset cursor before updating state or exporting.
+- Added source-only regression assertions for the look-ahead bound, page ordering and cursor-boundary checks. Tests were not executed. No migration or manifest change was required; the existing cursor RPC contracts already use descending tuple ordering.
+- No build, type-check, E2E, browser QA, deployment or Supabase operation was performed. Development remains 95% provisional.

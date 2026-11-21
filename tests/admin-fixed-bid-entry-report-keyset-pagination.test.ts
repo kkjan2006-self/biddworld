@@ -13,6 +13,13 @@ describe('Admin Fixed Bid entry report keyset pagination',()=>{
   expect(component).toContain('p_limit:PAGE_SIZE+1');
   expect(component).not.toContain('p_offset:offset');
  });
+ it('validates the look-ahead row count, strict page ordering and cursor boundaries',()=>{
+  expect(component).toContain('value.length>PAGE_SIZE+1');
+  expect(component).toContain('isStrictlyDescendingFixedBidEntryPage(fetched)');
+  expect(component).toContain('isBeforeFixedBidEntryCursor(row,cursor)');
+  expect(component).toContain('isStrictlyDescendingFixedBidEntryPage(batch)');
+  expect(component).toContain('isBeforeFixedBidEntryCursor(row,cursor!)');
+ });
  it('uses the stable descending created_at/id tuple and preserves Admin-only access',()=>{
   expect(migration).toContain('(fb.created_at,fb.id)<(p_after_created_at,p_after_id)');
   expect(migration).toContain('order by fb.created_at desc,fb.id desc');
