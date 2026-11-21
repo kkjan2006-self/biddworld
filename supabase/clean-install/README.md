@@ -1,3 +1,7 @@
+## Admin winning-payment and delivery page integrity (source-only, 2026-11-21)
+
+The Admin winning-payment and delivery reports now validate complete row contracts and strict descending composite page order on initial and continuation requests. Cross-page duplicate/overlap responses fail closed instead of being silently filtered. Source-only regression assertions added; not executed. No SQL migration or manifest entry required.
+
 ## Duplicate ID directory response precision (source-only, 2026-11-21)
 
 The Admin Duplicate ID parser now validates duplicate-row and linked Main ID UUIDs and accepts `total_count` only as a non-negative safe JavaScript integer. This prevents malformed identifiers, numeric-string coercion and bigint precision loss from entering the directory or its page metadata. Source-only regression assertions added; not executed. No SQL migration, manifest entry or database operation was required.
