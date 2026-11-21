@@ -16,8 +16,9 @@ function validTransaction(value:unknown):value is Tx{
   ||typeof row.balance_after!=='number'||!Number.isFinite(row.balance_after)||row.balance_after<0
   ||(row.description!==null&&typeof row.description!=='string')
   ||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at))
-  ||(row.reference_type!==null&&typeof row.reference_type!=='string')
+  ||(row.reference_type!==null&&(typeof row.reference_type!=='string'||!row.reference_type.trim()))
   ||(row.reference_id!==null&&typeof row.reference_id!=='string')
+  ||(row.reference_type==='matrix_commission'&&(typeof row.reference_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(row.reference_id)))
   ||!Array.isArray(row.wallet_account)||row.wallet_account.length!==1)return false;
  const wallet=row.wallet_account[0];if(!wallet||typeof wallet!=='object'||Array.isArray(wallet))return false;const walletRow=wallet as Record<string,unknown>;
  return ['bid','income'].includes(String(walletRow.wallet_type))&&typeof walletRow.currency==='string'&&/^[A-Z]{3}$/.test(walletRow.currency);
