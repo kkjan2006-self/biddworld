@@ -1,5 +1,12 @@
 ## 2026-11-21 — Admin winning-payment and delivery page integrity
 
+- Replaced permissive initial-page checks and silent cross-page duplicate filtering with strict shared parsers. Both reports validate UUID identities and complete typed fields before state mutation; cross-page overlaps fail closed rather than being silently filtered. Delivery ordering is validated against the confirmed SQL order (updated_at, tracking_id); the winning-payment parser validates identities and timestamps without assuming an unverified sort key.
+- Added source-only regression assertions; not executed. No SQL migration, manifest change or database operation was needed.
+
+---
+
+## 2026-11-21 — Admin winning-payment and delivery page integrity
+
 - Replaced permissive initial-page checks and silent cross-page duplicate filtering with strict shared parsers for both reports. Every page now validates UUID identities, complete typed fields, valid lifecycle states/timestamps, strict descending composite order and cross-page non-overlap before any row is appended.
 - Winning payments use (created_at,payment_id) and delivery uses (updated_at,tracking_id), matching their respective Admin RPC orderings. Added source-only regression assertions; not executed. No SQL migration, manifest change or database operation was needed.
 
