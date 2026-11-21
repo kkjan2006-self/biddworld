@@ -17,6 +17,11 @@ describe('Member auction submission history pagination',()=>{
   expect(ui).toContain("'member_list_own_auction_submissions_page'");
   expect(ui).toContain('function validSubmission(value:unknown)');
   expect(ui).toContain('duplicate or overlapping records');
+  expect(ui).toContain('function isStrictlyDescendingSubmissionPage(rows:Submission[]):boolean');
+  expect(ui).toContain('function isBeforeSubmissionCursor(row:Submission,cursor:Pick<Submission,\'created_at\'|\'id\'>):boolean');
+  expect(ui).toContain('function hasConsistentSubmissionContinuation(rows:Submission[]):boolean');
+  expect(ui).toContain('crossed or repeated its previous cursor');
+  expect(ui).toContain('inconsistent or incomplete continuation marker');
   expect(ui).toContain('Load more submissions');
   expect(ui).toContain('onClick={()=>void load(rows.length>0)}');
   expect(ui).toContain('{rows.map(row=><article');
