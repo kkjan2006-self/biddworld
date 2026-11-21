@@ -1,3 +1,10 @@
+## 2026-11-21 — Member account history response validation
+
+- Closed a gap between initial dashboard loads and Load More: package activations, Auction bids, Fixed Bid entries, referral commissions and winner payments now pass strict row/UUID/amount/timestamp/relation validation plus deterministic descending `(timestamp,id)` checks before entering state. Continuation pages use the same row-specific validators and reject overlap/order regressions.
+- Delivery tracking records are now validated on both initial and winner-history continuation loads, including linked payment ownership, UUID identities, supported delivery states, timestamps, duplicate IDs and descending `(updated_at,id)` order. Source-only regression assertions updated; not executed. No SQL migration, database or deployment change.
+
+---
+
 ## 2026-11-21 — Member auction/product submission history page integrity
 
 - Hardened both owner-scoped submission history clients against malformed keyset pages: every page must be strictly descending by `(created_at,id)`, every continuation must start strictly before the previous cursor, and duplicate/overlapping IDs reject the entire page. Per-row `has_more` flags must agree, and a page claiming more records must be a full 50-row page. The same rules apply before Product image signing and state append.
