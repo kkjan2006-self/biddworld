@@ -1,3 +1,7 @@
+## Latest source-only batch — platform-specific PWA installation fallback (2026-11-21)
+
+- The PWA manual-install help now gives Safari Share → Add to Home Screen steps for iPhone/iPad (including touch-enabled iPadOS) while retaining Android Chrome guidance and a generic fallback for other browsers. Added source-only regression assertions. Tests/build/type-check/QA/deployment and DB operations were not run; no migration or manifest change.
+
 ## Latest source-only batch — Support submission RPC identity validation (2026-11-21)
 
 - Member support submission now accepts success only when `ticket_id` is a canonical UUID, matching the SQL RPC contract; source-only regression assertion added. Tests/build/type-check/QA/deployment and DB operations were not run.

@@ -36,7 +36,7 @@ describe('BiddWorld installable PWA foundation', () => {
     expect(html).toContain('name="theme-color" content="#101827"');
   });
 
-  it('offers browser installation and a manual Android fallback', () => {
+  it('offers browser installation and platform-specific manual install guidance', () => {
     const app = read('src/App.tsx');
     const installButton = read('src/components/PWAInstallButton.tsx');
     expect(app).toContain('<PWAInstallButton/>');
@@ -46,6 +46,10 @@ describe('BiddWorld installable PWA foundation', () => {
     expect(installButton).toContain('Install App');
     expect(installButton).toContain('How to install');
     expect(installButton).toContain('Add to Home screen');
+    expect(installButton).toContain("/iPad|iPhone|iPod/.test(userAgent)");
+    expect(installButton).toContain("navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1");
+    expect(installButton).toContain('In Safari on iPhone or iPad, tap Share');
+    expect(installButton).toContain('In Chrome on Android, open the browser menu');
     expect(installButton).toContain("display-mode: standalone");
   });
 

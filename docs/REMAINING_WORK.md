@@ -1,3 +1,5 @@
+- **PWA manual-install guidance:** the install-help fallback now distinguishes iPhone/iPad Safari, Android Chrome and other browsers; touch-enabled iPadOS is included in Apple-device detection. Source-only assertions added; not executed. No migration or database change.
+
 - **Support submission response identity:** successful member-submit RPC responses now require a canonical UUID ticket ID rather than any non-empty string. Source-only assertion added; not executed. No migration or database change.
 
 - **Member account history integrity:** strict row-specific response validation now covers initial and continuation pages for activations, Auction bids, Fixed Bid entries, referral commissions and winner payments; delivery rows are checked against the loaded winning payments and ordered/validated before display. Source-only assertions updated; not executed. No migration or DB change.

@@ -10,6 +10,9 @@ export default function PWAInstallButton(){
  const[promptEvent,setPromptEvent]=useState<BeforeInstallPromptEvent|null>(null);
  const[installed,setInstalled]=useState(false);
  const[showHelp,setShowHelp]=useState(false);
+ const userAgent=typeof navigator==='undefined'?'':navigator.userAgent;
+ const isAppleMobile=/iPad|iPhone|iPod/.test(userAgent)||(typeof navigator!=='undefined'&&navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ const isAndroid=/Android/i.test(userAgent);
 
  useEffect(()=>{
   const standaloneQuery=window.matchMedia('(display-mode: standalone)');
@@ -61,7 +64,7 @@ export default function PWAInstallButton(){
   </button>
   {showHelp&&<div className="notice pwaInstallHelp" role="status">
    <b><Smartphone size={15}/> Add BiddWorld to your phone</b>
-   <p>In Chrome on Android, open the browser menu (⋮) and choose “Install app” or “Add to Home screen”. If that option is not shown, open this page in Chrome and try again later.</p>
+   <p>{isAppleMobile?'In Safari on iPhone or iPad, tap Share, choose “Add to Home Screen”, then tap “Add”.':isAndroid?'In Chrome on Android, open the browser menu (⋮) and choose “Install app” or “Add to Home screen”. If that option is not shown, open this page in Chrome and try again later.':'Open your browser menu and look for “Install app” or “Add to Home screen”. On iPhone or iPad, open this page in Safari, tap Share, then choose “Add to Home Screen”.'}</p>
    <button type="button" className="switchAuth" onClick={()=>setShowHelp(false)}>Close</button>
   </div>}
  </div>;

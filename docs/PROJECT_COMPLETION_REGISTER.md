@@ -1,3 +1,9 @@
+## 2026-11-21 — Platform-specific PWA manual-install guidance
+
+- The install-help fallback now provides the Safari Share → Add to Home Screen flow for iPhone/iPad, including touch-enabled iPadOS detection, retains the Android Chrome flow, and provides generic browser-menu guidance elsewhere. Added source-only regression assertions; not executed. No SQL migration, manifest, database or deployment change.
+
+---
+
 ## 2026-11-21 — Support submission RPC identity validation
 
 - Tightened the member support-submit response boundary: a successful RPC result must now include a canonical UUID-shaped `ticket_id`, not merely a non-empty string. This aligns the client parser with the SQL `uuid` return and prevents malformed server payloads from being presented as successful submissions. Added a source-only regression assertion; not executed. No migration, manifest, database or deployment change.
