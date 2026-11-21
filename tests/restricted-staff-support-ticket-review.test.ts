@@ -32,4 +32,15 @@ describe('Restricted Staff Support ticket review',()=>{
   expect(staffWorkspace).toContain('<Support isStaffSupport/>');
   expect(staffWorkspace).toContain("type Permission='package_activation_review'|'wallet_funding_review'|'auction_submission_review'|'support_ticket_review'");
  });
+ it('writes the RPC audit event only for restricted Staff because Admin is covered by the row trigger',()=>{
+  expect(review).toContain("if v_role='admin_staff' then");
+  expect(review).toContain('Admin updates are audited by the existing row trigger');
+  expect(review).toContain("'reviewer_role',v_role");
+  const auditStart=review.indexOf("if v_role='admin_staff' then");
+  const auditEnd=review.indexOf("return jsonb_build_object('success',true,'ticket_id',p_ticket_id",auditStart);
+  expect(auditStart).toBeGreaterThan(-1);
+  expect(auditEnd).toBeGreaterThan(auditStart);
+  expect(review.slice(auditStart,auditEnd)).toContain('insert into public.audit_logs');
+ });
+
 });
