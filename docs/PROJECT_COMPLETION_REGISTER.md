@@ -1,3 +1,10 @@
+## 2026-11-21 — Admin winning-payment and delivery page integrity
+
+- Replaced permissive initial-page checks and silent cross-page duplicate filtering with strict shared parsers for both reports. Every page now validates UUID identities, complete typed fields, valid lifecycle states/timestamps, strict descending composite order and cross-page non-overlap before any row is appended.
+- Winning payments use (created_at,payment_id) and delivery uses (updated_at,tracking_id), matching their respective Admin RPC orderings. Added source-only regression assertions; not executed. No SQL migration, manifest change or database operation was needed.
+
+---
+
 ## 2026-11-21 — Duplicate ID directory identity and count precision
 
 - Tightened the Admin Duplicate ID page parser to require canonical UUIDs for both duplicate-row and linked Main ID identities. The SQL response's `bigint total_count` must now arrive as a non-negative safe JavaScript integer; numeric strings, fractional values and integers beyond the safe range fail closed rather than being silently coerced or rounded.
