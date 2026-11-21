@@ -21,6 +21,7 @@ describe('support ticket idempotent retry behavior', () => {
   });
   it('validates support ticket submit and admin update RPC result identity before showing success', () => {
     expect(source).toContain('result.success!==true');
+    expect(source).toContain('SUPPORT_TICKET_UUID.test(result.ticket_id)');
     expect(source).toContain('result.ticket_id!==id');
     expect(source).toContain('result.status!==nextStatus');
     expect(source).toContain('typeof result.replayed!==\'boolean\'');
