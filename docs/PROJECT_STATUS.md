@@ -1,3 +1,8 @@
+## Latest source-only batch — Support Admin audit deduplication (2026-11-21)
+
+- Corrected duplicate Admin Support audit writes introduced when restricted Staff review was enabled. The existing row trigger remains the single Admin audit writer; the Support RPC now adds its audit row only for explicitly authorized Staff and retains reviewer-role context.
+- Source-only regression assertion added; not executed. No database, build, type-check, E2E, browser QA or deployment operation.
+
 ## Latest source-only batch — Wallet history Matrix reference integrity (2026-11-21)
 
 - The shared wallet ledger validator now rejects blank reference types and Matrix commission rows with missing or malformed commission UUIDs before source lookup. This prevents invalid Matrix entries from bypassing attribution checks in either paginated history or full CSV export.
