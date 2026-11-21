@@ -1,3 +1,7 @@
+## Support Admin audit deduplication (source-only, 2026-11-21)
+
+The restricted-Staff Support RPC now writes an audit event only for `admin_staff`. Admin updates remain covered once by the existing row trigger, avoiding duplicate Admin audit rows while preserving Staff reviewer-role audit context. Source-only regression assertion added; not executed. No new migration or manifest entry.
+
 ## Wallet history Matrix reference integrity (source-only, 2026-11-21)
 
 The shared wallet transaction validator now rejects blank reference types and requires canonical UUID references for Matrix commission ledger rows before source attribution is requested. Both paginated history and full CSV export use this validation. Source-only assertions added; not executed. No SQL migration or manifest entry required.
