@@ -1,3 +1,8 @@
+## Latest source-only batch — Duplicate ID identity/count precision (2026-11-21)
+
+- Admin Duplicate ID pages now require UUID-shaped duplicate and Main ID identities and a non-negative safe-integer `total_count` from PostgreSQL `bigint`. Numeric-string coercion and unsafe integer rounding are rejected before rows are displayed or pagination metadata is trusted.
+- Added source-only assertions in `tests/admin-duplicate-id-directory-integrity.test.ts`. No migration, database, build, type-check, E2E, browser QA or deployment operation was performed.
+
 ## Latest source-only batch — Preserve Staff permissions on re-grant (2026-11-21)
 
 - Fixed a Staff permission regression: repeating the Primary Admin grant operation on an existing restricted Staff account could replace its individually assigned permissions and remove `support_ticket_review`.
