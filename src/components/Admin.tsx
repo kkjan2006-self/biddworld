@@ -239,7 +239,7 @@ type DeliveryRow={tracking_id:string;payment_id:string;member_code:string;winner
 const ADMIN_REPORT_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function parseWinningPaymentPage(value:unknown,previous:WinningPayment[]=[]):WinningPayment[]{
  if(!Array.isArray(value)||value.length>100)throw new Error('Winning payment page is invalid or oversized.');
- const ids=new Set(previous.map(row=>row.payment_id));let prior=previous[previous.length-1];
+ const ids=new Set(previous.map(row=>row.payment_id));
  return value.map(raw=>{
   if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Winning payment record is malformed.');
   const row=raw as Record<string,unknown>;
@@ -254,8 +254,7 @@ function parseWinningPaymentPage(value:unknown,previous:WinningPayment[]=[]):Win
    ||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))
    throw new Error('Winning payment page contains malformed or duplicate records.');
   const item=row as unknown as WinningPayment;
-  if(prior){const delta=Date.parse(prior.created_at)-Date.parse(item.created_at);if(delta<0||(delta===0&&prior.payment_id.localeCompare(item.payment_id)<=0))throw new Error('Winning payment pages are not in strict descending (created_at,payment_id) order. Refresh the Admin workspace.');}
-  ids.add(item.payment_id);prior=item;return item;
+  ids.add(item.payment_id);return item;
  });
 }
 function parseDeliveryPage(value:unknown,previous:DeliveryRow[]=[]):DeliveryRow[]{
