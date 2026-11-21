@@ -1,3 +1,9 @@
+## Latest source-only batch — Preserve Staff permissions on re-grant (2026-11-21)
+
+- Fixed a Staff permission regression: repeating the Primary Admin grant operation on an existing restricted Staff account could replace its individually assigned permissions and remove `support_ticket_review`.
+- New forward migration `20261121010000_preserve_existing_staff_permissions_on_regrant.sql` preserves all existing allowlisted permissions for current Staff, assigns the default three permissions only to newly granted accounts, and records before/after permissions in the audit event.
+- Updated the Staff UI to validate the returned supported permission set and added source-only regression assertions. Not executed or applied. Inventory: **156 forward + 16 excluded = 172 timestamped paths**, plus 3 legacy SQL files.
+
 ## Latest source-only batch — Sponsor Referral reversal replay identity parity repair (2026-11-21)
 
 - Corrected the credited-and-reversed idempotent replay branch in `20261120260000_referral_commission_reversal_replay_identity.sql`: it now returns the exact `commission_id`, matching the pending-only replay, fresh response and strict Admin client parser.
