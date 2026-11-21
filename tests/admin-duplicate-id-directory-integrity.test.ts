@@ -5,8 +5,8 @@ describe('Admin Duplicate ID directory integrity',()=>{
  it('uses a strict parser for initial and subsequent pages',()=>{
   expect(source).toContain('function parseDuplicateIdPage(value:unknown)');
   expect(source).toContain('Malformed or duplicate Duplicate ID records.');
-  expect(source).toContain("!PENDING_ACTIVATION_UUID.test(row.id)");
-  expect(source).toContain("!PENDING_ACTIVATION_UUID.test(row.main_member_id)");
+  expect(source).toContain("!DUPLICATE_ID_UUID.test(row.id)");
+  expect(source).toContain("!DUPLICATE_ID_UUID.test(row.main_member_id)");
   expect(source).toContain("typeof row.total_count!=='number'||!Number.isSafeInteger(row.total_count)||row.total_count<0");
   expect(source).toContain('expectedTotal!==row.total_count');
   expect(source).toContain('parseDuplicateIdPage(duplicateResult.data??[])');
