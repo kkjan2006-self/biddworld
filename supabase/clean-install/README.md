@@ -1,3 +1,7 @@
+## Duplicate ID directory response precision (source-only, 2026-11-21)
+
+The Admin Duplicate ID parser now validates duplicate-row and linked Main ID UUIDs and accepts `total_count` only as a non-negative safe JavaScript integer. This prevents malformed identifiers, numeric-string coercion and bigint precision loss from entering the directory or its page metadata. Source-only regression assertions added; not executed. No SQL migration, manifest entry or database operation was required.
+
 ## Restricted Staff permission preservation on re-grant (source-only, 2026-11-21)
 
 A repeated Primary Admin Staff grant previously replaced the existing app-metadata permissions with the default payment/auction set. This could silently remove the separately assigned `support_ticket_review` permission. Added `20261121010000_preserve_existing_staff_permissions_on_regrant.sql`: an existing restricted Staff account retains its current allowlisted permissions on re-grant; a new account receives the default three review permissions. The audit event records previous and resulting permission sets. Updated the Staff client to validate any non-empty supported permission set and added source-only regression coverage. Not executed or applied. Inventory: **156 forward + 16 excluded = 172 timestamped paths**, plus 3 legacy/unversioned SQL files.
