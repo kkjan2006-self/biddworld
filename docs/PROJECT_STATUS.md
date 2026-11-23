@@ -416,3 +416,9 @@ No defensible overall percentage is recorded here. A percentage must be calculat
 - The public package catalogue previously requested only the first 100 active packages and exposed no continuation control, despite the existing RPC supporting bounded offset pages. The member Packages screen now loads additional 100-item pages on demand, including packages in the activation selector.
 - Every page is checked for strict ascending `(price,id)` order; continuation pages reject overlap and must start strictly after the previously loaded package. Offset and loading state are protected against duplicate requests and stale responses after refresh/unmount. A final empty page closes the continuation state when the catalogue count is an exact multiple of 100.
 - Updated source-only regression assertions and project status documentation. Tests remain unexecuted. No migration/manifest or database change, build, type-check, E2E, browser QA or deployment operation was performed. Overall development remains 95% provisional.
+
+## 2026-11-24 — Public Auction/Product catalogue pagination integrity
+
+- Public Auction catalogue pages now enforce the SQL-defined ascending `(starts_at,id DESC)` order, reject cursor regressions and fail closed on any overlap before appending. The initial page is validated too; malformed continuation data is no longer partially filtered and displayed.
+- Public Product continuation pages now reject the entire page when any product ID overlaps previously loaded records. Valid rows are appended atomically rather than silently dropping duplicates. Existing server-side search, request-generation guards and page offsets are preserved.
+- Added source-only regression assertions for both catalogues. Not executed. No SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed. Overall completion remains 95% provisional.
