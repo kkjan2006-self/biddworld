@@ -46,4 +46,11 @@ describe('public auction catalogue pagination',()=>{
   expect(app).toContain('role="alert">{auctionError}');
   expect(app).toContain('>Retry</button>');
  });
+ it('fails closed on unordered, cursor-crossing or overlapping continuation pages',()=>{
+  expect(app).toContain('function isStrictlyOrderedAuctionPage(rows:AuctionPageRow[]):boolean');
+  expect(app).toContain('isAuctionAfter(previous,batch[0])');
+  expect(app).toContain('if(batch.some(item=>known.has(item.id)))throw new Error');
+  expect(app).not.toContain('duplicateFound');
+  expect(app).not.toContain('fresh.filter(item=>!current.some(existing=>existing.id===item.id))');
+ });
 });
