@@ -41,4 +41,9 @@ describe('public product catalogue search RPC',()=>{
   expect(app).toContain('>Retry</button>');
   expect(app).toContain('setPage(1);setRefresh(v=>v+1)');
  });
+ it('rejects overlapping product continuation pages instead of silently filtering rows',()=>{
+  expect(app).toContain('if(batch.some(row=>known.has(row.id)))throw new Error');
+  expect(app).not.toContain('duplicateFound');
+  expect(app).not.toContain('fresh.filter(product=>!current.some(existing=>existing.id===product.id))');
+ });
 });
