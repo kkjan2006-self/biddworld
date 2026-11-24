@@ -19,7 +19,7 @@ function parsePlacementTree(value:unknown):PlacementResult{
    ||typeof row.main_member_code!=='string'||!row.main_member_code.trim()||row.main_member_code.length>80
    ||typeof row.display_name!=='string'||!row.display_name.trim()||row.display_name.length>200
    ||!PLACEMENT_MEMBER_STATUSES.includes(row.status as typeof PLACEMENT_MEMBER_STATUSES[number])
-   ||typeof row.depth!=='number'||!Number.isSafeInteger(row.depth)||row.depth<0||row.depth>20
+   ||typeof row.depth!=='number'||!Number.isSafeInteger(row.depth)||row.depth<0||row.depth>50
    ||(row.placement_position!==null&&(typeof row.placement_position!=='string'||row.placement_position.length>50))
    ||(row.placement_parent_code!==null&&(typeof row.placement_parent_code!=='string'||!row.placement_parent_code.trim()||row.placement_parent_code.length>80))
    ||typeof row.created_at!=='string'||!Number.isFinite(Date.parse(row.created_at)))throw new Error('The placement tree contains invalid or duplicate member fields. Refresh and retry.');
