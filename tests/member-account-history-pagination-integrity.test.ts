@@ -32,6 +32,18 @@ describe('Member account history pagination integrity',()=>{
   expect(source).toContain('function validCommission(value:unknown):value is CommissionRow');
   expect(source).toContain('function validWinningPayment(value:unknown):value is WinningPayment');
  });
+ it('binds each continuation request to the account-load generation and Main ID that started it',()=>{
+  expect(source).toContain('const request=loadRequest.current');
+  expect(source).toContain('request===loadRequest.current&&profile?.main_member_id===memberId');
+  expect(source).toContain('if(!isCurrent())return;if(error)throw error;');
+  expect(source).toContain('await append(batch,client,isCurrent);if(!isCurrent())return;');
+ });
+ it('prevents delayed delivery lookups from appending winning-payment history after an account refresh',()=>{
+  expect(source).toContain('async(rows,client,isCurrent)=>');
+  expect(source).toContain('if(!isCurrent())return;if(error)throw error;deliveryRows=validateDeliveryRows(data??[],ids);');
+  expect(source).toContain('if(!isCurrent())return;setWinningPayments(current=>appendUniqueRows(current,rows));');
+  expect(source).toContain("if(isCurrent())setHistoryLoading(current=>current===key?'':current)");
+ });
  it('fails closed after a malformed page instead of silently filtering overlap and advancing offsets',()=>{
   expect(source).not.toContain('const freshCount=batch.filter(row=>!known.has(row.id)).length');
   expect(source).toContain("setHistoryHasMore(current=>({...current,[key]:false}))");
