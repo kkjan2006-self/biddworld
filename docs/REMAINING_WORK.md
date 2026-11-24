@@ -702,3 +702,5 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - Updated source-only regression assertions and project status documentation. Tests remain unexecuted. No migration/manifest or database change, build, type-check, E2E, browser QA or deployment operation was performed. Overall development remains 95% provisional.
 
 - **Public Auction/Product catalogue pagination:** strict Auction SQL-order and cursor checks, plus fail-closed Product cross-page overlap validation, are now implemented. Source-only regressions added; not executed. No SQL/DB change.
+
+- **Member Placement Tree depth mismatch:** fixed in source. Matrix plan, member tree RPC and client parser now align at depth 50; source-only boundary coverage added. Migration is forward-only and unapplied; clean-install replay remains pending.
