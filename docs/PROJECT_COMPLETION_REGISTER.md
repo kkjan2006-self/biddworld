@@ -3605,3 +3605,10 @@ The Admin auction submission queue now validates strict ascending continuation b
 - Public Auction catalogue pages now enforce the SQL-defined ascending `(starts_at,id DESC)` order, reject cursor regressions and fail closed on any overlap before appending. The initial page is validated too; malformed continuation data is no longer partially filtered and displayed.
 - Public Product continuation pages now reject the entire page when any product ID overlaps previously loaded records. Valid rows are appended atomically rather than silently dropping duplicates. Existing server-side search, request-generation guards and page offsets are preserved.
 - Added source-only regression assertions for both catalogues. Not executed. No SQL migration, database, build, type-check, E2E, browser QA or deployment operation was performed. Overall completion remains 95% provisional.
+
+---
+
+## 2026-11-24 — Member Placement Tree depth alignment
+
+- Resolved the mismatch between Matrix plan placement depth (1–50) and the member tree's SQL/client depth ceiling (20). The new forward-only RPC replacement traverses through level 50 while preserving owned-root authorization, Main/Duplicate descendants, parent labels, cycle protection, deterministic response ordering and existing execute grants. The client accepts depth 50 and rejects depth 51.
+- Added source-only boundary and authorization-contract assertions in `tests/member-placement-tree-depth-contract.test.ts`; not executed. Added migration #157 to the forward manifest and synchronized the current clean-install inventory to 157 forward + 16 excluded = 173 timestamped paths, plus 3 legacy SQL files. No migration replay, database write, build, type-check, E2E, browser QA or deployment.
