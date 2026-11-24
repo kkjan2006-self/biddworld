@@ -704,3 +704,8 @@ Production's `admin_review_package_activation(uuid,boolean)` RPC can credit the 
 - **Public Auction/Product catalogue pagination:** strict Auction SQL-order and cursor checks, plus fail-closed Product cross-page overlap validation, are now implemented. Source-only regressions added; not executed. No SQL/DB change.
 
 - **Member Placement Tree depth mismatch:** fixed in source. Matrix plan, member tree RPC and client parser now align at depth 50; source-only boundary coverage added. Migration is forward-only and unapplied; clean-install replay remains pending.
+
+## 2026-11-24 — Staff-triggered Sponsor Referral commission posting authorization
+
+- Closed the conditional authorization mismatch: package review is available to Admin and explicitly permissioned Staff, but the activation trigger previously called the public Admin-only referral posting RPC. The trigger now calls a private non-public posting routine; the public manual RPC remains Admin-only and delegates to the same helper after its role check. The helper preserves active-activation and feature-switch gates, per-activation advisory locking, income-wallet locking, ledger idempotency validation and actor-attributed audit logging. The financial owner-approval interlock is unchanged.
+- Added `tests/staff-referral-commission-posting-authorization.test.ts` source-only assertions; not executed. Registered forward candidate #158. Clean-install inventory: 158 forward + 16 excluded = 174 timestamped paths, plus 3 legacy SQL files. No database operation, test execution, build, type-check, E2E, browser QA or deployment. Overall completion remains 95% provisional.
