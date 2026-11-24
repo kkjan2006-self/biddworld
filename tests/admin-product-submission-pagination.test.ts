@@ -26,5 +26,7 @@ describe('Admin product submission keyset pagination',()=>{
   expect(ui).toContain('isStrictlyAscendingProductPage(items)');
   expect(ui).toContain('isAfterProductCursor(items[0],cursor)');
   expect(ui).toContain('short page with a continuation cursor');
+  expect(ui.match(/export default function AdminProductSubmissionReview/g)?.length).toBe(1);
+  expect(ui).not.toContain(",\'i\').test(value);");
  });
 });
